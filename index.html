@@ -3,90 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi - Gemini 1.5 Flash</title>
-    
-    <script type="importmap">
-      {
-        "imports": {
-          "@google/generative-ai": "https://esm.run/@google/generative-ai"
-        }
-      }
-    </script>
-
-    <style>
-        /* --- STYLES (UI SAMA, PERFORMA BEDA) --- */
+    <title>Monitoring Teknisi Sinyalku - Online</title>
+    <style id="main-style">
+        /* --- RESET & BASE STYLES --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; padding: 10px; color: #333; margin: 0; font-size: 14px; }
-        .container { max-width: 1000px; margin: 0 auto; width: 100%; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f4f6f9; 
+            padding: 10px; 
+            color: #333; 
+            margin: 0; 
+            font-size: 14px;
+        }
         
-        .header-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; text-align: center; }
-        h1 { color: #2c3e50; margin: 0 0 15px 0; font-size: 1.5rem; line-height: 1.3; }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            width: 100%;
+        }
+
+        /* --- HEADER --- */
+        .header-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+            text-align: center;
+        }
         
-        .btn-copy-all { background-color: #17a2b8; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-size: 0.9rem; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.15); display: inline-flex; align-items: center; gap: 8px; }
+        h1 { 
+            color: #2c3e50; 
+            margin: 0 0 15px 0; 
+            font-size: 1.5rem; 
+            line-height: 1.3; 
+        }
+
+        .status-indicator {
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #666;
+            background: #fff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            display: inline-flex;
+            align-items: center;
+        }
+        .online-dot { 
+            height: 10px; width: 10px; 
+            background-color: #bbb; 
+            border-radius: 50%; 
+            display: inline-block; 
+            margin-right: 8px; 
+        }
+        .online-active { background-color: #28a745; box-shadow: 0 0 5px #28a745; }
+
+        .btn-copy-all {
+            background-color: #17a2b8; color: white; border: none;
+            padding: 10px 20px; border-radius: 50px; cursor: pointer;
+            font-size: 0.9rem; font-weight: bold; 
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            transition: transform 0.2s, background 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-copy-all:active { transform: scale(0.95); }
+
+        /* --- CARDS --- */
+        .team-card { 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+            margin-bottom: 20px; 
+            overflow: hidden; 
+            border: 1px solid #e1e4e8; 
+        }
         
-        .team-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; border: 1px solid #e1e4e8; }
-        .team-header { padding: 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 1rem; }
+        .team-header { 
+            padding: 15px; 
+            color: white; 
+            font-weight: bold; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-size: 1rem;
+        }
+
         .header-team1 { background: linear-gradient(135deg, #007bff, #0056b3); } 
         .header-team2 { background: linear-gradient(135deg, #28a745, #1e7e34); } 
         .header-team3 { background: linear-gradient(135deg, #dc3545, #bd2130); }
-        
-        .btn-add-ticket { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin-left: 10px; }
-        
+
+        /* Tombol Tambah Tugas Baru */
+        .btn-add-task {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        .btn-add-task:hover { background: rgba(255,255,255,0.3); }
+
         .job-list { list-style: none; padding: 0; margin: 0; }
-        .job-item { border-bottom: 1px solid #eee; padding: 15px; }
-        .job-main-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
-        .job-left { display: flex; align-items: flex-start; gap: 12px; flex: 1 1 60%; min-width: 250px; }
-        .custom-checkbox { width: 24px; height: 24px; cursor: pointer; accent-color: #28a745; flex-shrink: 0; margin-top: 2px; }
+        
+        .job-item { 
+            border-bottom: 1px solid #eee; 
+            padding: 15px; 
+            transition: background 0.2s; 
+        }
+        .job-item:last-child { border-bottom: none; }
+
+        /* --- CONTENT LAYOUT --- */
+        .job-main-row { 
+            display: flex; 
+            flex-wrap: wrap; 
+            align-items: center; 
+            gap: 12px; 
+            justify-content: space-between;
+        }
+
+        .job-left { 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 12px; 
+            flex: 1 1 60%; 
+            min-width: 250px;
+        }
+
+        .custom-checkbox { 
+            width: 24px; height: 24px; 
+            cursor: pointer; accent-color: #28a745; 
+            flex-shrink: 0; 
+            margin-top: 2px;
+        }
+
         .customer-info h3 { margin: 0; font-size: 1.05rem; color: #2c3e50; line-height: 1.4; }
         .customer-info p { margin: 4px 0 0; font-size: 0.9rem; color: #666; }
-        
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-top: 4px; }
+
+        .badge { 
+            padding: 4px 8px; border-radius: 6px; 
+            font-size: 0.75rem; font-weight: bold; 
+            text-transform: uppercase; display: inline-block; 
+            margin-top: 4px;
+        }
         .badge-psb { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
         .badge-mt { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .badge-los { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
         .badge-prio { background-color: #fce4ec; color: #c2185b; border: 1px solid #f8bbd0; }
         .badge-info { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
-        
+
         .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-        .toggle-btn, .btn-copy, .btn-delete { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex: 1; text-align: center; }
+        .toggle-btn, .btn-copy { 
+            padding: 8px 12px; border-radius: 6px; 
+            font-size: 0.85rem; font-weight: 600; 
+            cursor: pointer; white-space: nowrap; 
+            flex: 1; text-align: center;
+        }
         .toggle-btn { background: #f0f7ff; border: 1px solid #007bff; color: #007bff; }
         .btn-copy { background: #fff5eb; border: 1px solid #fd7e14; color: #fd7e14; }
-        .btn-delete { background: #ffebee; border: 1px solid #c62828; color: #c62828; display: none; }
 
-        .job-details { display: none; margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
-        .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 15px; }
-        .detail-item { background: white; padding: 8px; border-radius: 4px; border: 1px solid #eee; }
+        .job-details { 
+            display: none; margin-top: 15px; 
+            background-color: #f8f9fa; padding: 15px; 
+            border-radius: 8px; border: 1px solid #e9ecef;
+        }
+
+        .detail-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 12px; margin-bottom: 15px; 
+        }
+        .detail-item { 
+            background: white; padding: 8px; 
+            border-radius: 4px; border: 1px solid #eee; 
+        }
         .detail-label { font-size: 0.75rem; color: #888; display: block; margin-bottom: 2px;}
         .detail-value { font-size: 0.95rem; color: #333; font-weight: 500; word-break: break-word; }
 
-        .manual-input-section { background-color: #fff; border: 1px solid #dfe6ed; padding: 15px; border-radius: 8px; }
+        .manual-input-section { 
+            background-color: #fff; border: 1px solid #dfe6ed; 
+            padding: 15px; border-radius: 8px; 
+        }
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
         .input-group label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 4px; }
-        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; }
+        .input-group input { 
+            width: 100%; padding: 10px; 
+            border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; 
+        }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow: auto; align-items: center; justify-content: center; }
-        .modal-content { background-color: #fff; margin: 5% auto; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: fadeIn 0.3s; max-height: 90vh; overflow-y: auto; }
-        @keyframes fadeIn { from {opacity:0; transform: translateY(-20px);} to {opacity:1; transform: translateY(0);} }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .close-modal { font-size: 1.5rem; cursor: pointer; color: #999; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
-        .btn-submit { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: bold; }
-        
         .progress-container { height: 6px; background: #e9ecef; width: 100%; }
         .progress-bar { height: 100%; background: #28a745; width: 0%; transition: width 0.4s ease; }
+        
         .job-item.completed { background-color: #f6fff9; opacity: 0.8; }
         .job-item.completed .customer-info h3 { text-decoration: line-through; color: #999; }
-        .btn-reset { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 1rem; width: 100%; display: block; margin-top: 30px; margin-bottom: 50px; }
 
-        /* AI STYLES */
-        .ai-section { background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 2px dashed #2196f3; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center; }
-        .ai-section textarea { width: 100%; border: 1px solid #90caf9; border-radius: 6px; padding: 10px; min-height: 80px; font-size: 0.9rem; resize: vertical; margin-bottom: 10px; }
-        .btn-ai { background: linear-gradient(90deg, #6200ea, #b388ff); color: white; border: none; padding: 10px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 10px rgba(98, 0, 234, 0.3); transition: transform 0.2s; }
-        .btn-ai:active { transform: scale(0.98); }
-        .loading-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* --- MODAL ADD TASK --- */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;
+            padding: 10px;
+        }
+        .modal-box {
+            background: white; width: 100%; max-width: 500px; border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 20px;
+        }
+        .modal-header { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;}
+        .modal-body textarea {
+            width: 100%; height: 200px; border: 1px solid #ddd; border-radius: 6px;
+            padding: 10px; font-family: monospace; font-size: 0.9rem; margin-bottom: 15px;
+        }
+        .modal-footer { text-align: right; display: flex; gap: 10px; justify-content: flex-end;}
+        .btn-cancel { background: #ddd; color: #333; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;}
+        .btn-save { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;}
+
+        @media (max-width: 576px) {
+            body { padding: 5px; background-color: #fff; }
+            .container { padding: 0; }
+            .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #eee; }
+            .header-section { margin: 15px 10px; }
+            .job-main-row { flex-direction: column; align-items: flex-start; }
+            .job-left { width: 100%; }
+            .action-buttons { width: 100%; margin-top: 10px; }
+            .toggle-btn, .btn-copy { width: 100%; padding: 10px; }
+            .detail-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -95,14 +237,21 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Update: 7 Jan 2026 (AI 1.5 Flash)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Update: 8 Jan 2026</span>
         </h1>
+        <div class="status-indicator">
+            <span id="conn-dot" class="online-dot"></span> <span id="conn-text">Menghubungkan...</span>
+        </div>
+        <br>
         <button class="btn-copy-all" onclick="copyAllSummary()">📑 Copy Rekap Harian</button>
     </div>
 
     <div class="team-card">
         <div class="team-header header-team2">
-            <div>Tim 1: Kholis & Dani <button class="btn-add-ticket" onclick="openTicketModal(1)">+ Tiket</button></div>
+            <div>
+                <span>Tim 1: Reza & Zainal</span>
+                <button class="btn-add-task" onclick="openModal(1)">+ Tambah</button>
+            </div>
             <span id="count-1" style="font-size: 0.9em;">0/0</span>
         </div>
         <div class="progress-container"><div class="progress-bar" id="progress-1"></div></div>
@@ -111,7 +260,10 @@
 
     <div class="team-card">
         <div class="team-header header-team1">
-            <div>Tim 2: Yudha & Bimo <button class="btn-add-ticket" onclick="openTicketModal(2)">+ Tiket</button></div>
+            <div>
+                <span>Tim 2: Yudha & Bimo</span>
+                <button class="btn-add-task" onclick="openModal(2)">+ Tambah</button>
+            </div>
             <span id="count-2" style="font-size: 0.9em;">0/0</span>
         </div>
         <div class="progress-container"><div class="progress-bar" id="progress-2"></div></div>
@@ -120,203 +272,203 @@
 
     <div class="team-card">
         <div class="team-header header-team3">
-            <div>Tim 3: Pian <button class="btn-add-ticket" onclick="openTicketModal(3)">+ Tiket</button></div>
+            <div>
+                <span>Tim 3: Pian</span>
+                <button class="btn-add-task" onclick="openModal(3)">+ Tambah</button>
+            </div>
             <span id="count-3" style="font-size: 0.9em;">0/0</span>
         </div>
         <div class="progress-container"><div class="progress-bar" id="progress-3"></div></div>
         <ul class="job-list" id="list-3"></ul>
     </div>
-
-    <div style="padding: 0 15px;">
-        <button class="btn-reset" onclick="resetAll()">🔄 Reset Semua Data (Hari Baru)</button>
-    </div>
 </div>
 
-<div id="ticketModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Tambah Tiket Baru</h2>
-            <span class="close-modal" onclick="closeTicketModal()">&times;</span>
-        </div>
+<div id="addModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">Tambah Tugas Manual (Tim <span id="modalTeamId"></span>)</div>
         <div class="modal-body">
-            <input type="hidden" id="modalTeamId">
-
-            <div class="ai-section">
-                <label style="display:block; text-align:left; font-weight:bold; color:#1565c0; margin-bottom:5px;">🤖 PASTE CHAT WA DISINI:</label>
-                <textarea id="aiInput" placeholder="Contoh: Pasang baru rumah pak ahmad jl merdeka no 10 paket 50mbps no wa 0812xxx"></textarea>
-                <button class="btn-ai" onclick="generateWithAI()" id="btnAi">
-                    <span>✨ AUTO-FILL WITH AI (1.5 Flash)</span>
-                </button>
-            </div>
-            
-            <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
-
-            <div class="form-group">
-                <label>Nama Pelanggan</label>
-                <input type="text" id="inputName" placeholder="Contoh: Bpk Budi">
-            </div>
-
-            <div class="input-grid">
-                <div class="form-group">
-                    <label>Kategori</label>
-                    <select id="inputCategory">
-                        <option value="PSB">PSB (Pasang Baru)</option>
-                        <option value="MT">MT (Maintenance)</option>
-                        <option value="LOS">LOS (Perbaikan)</option>
-                        <option value="SO">SO (Sambung)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Keterangan Tag (Badge)</label>
-                    <input type="text" id="inputTagDesc" placeholder="Cth: 150rb / KABEL PUTUS">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Alamat</label>
-                <textarea id="inputAddress" rows="2" placeholder="Alamat lengkap..."></textarea>
-            </div>
-
-            <div class="input-grid">
-                <div class="form-group">
-                    <label>No WA / Telp</label>
-                    <input type="text" id="inputPhone" placeholder="08...">
-                </div>
-                <div class="form-group">
-                    <label>Paket / Layanan</label>
-                    <input type="text" id="inputPaket" placeholder="Cth: 10Mbps / ID Pelanggan">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Catatan Tambahan</label>
-                <input type="text" id="inputNote" placeholder="Cth: Kunci rumah di tetangga">
-            </div>
-
-            <button class="btn-submit" onclick="saveNewTicket()">Simpan Tiket</button>
+            <p style="font-size:0.85rem; color:#666; margin-bottom:5px;">Paste format tiket (Nama, Alamat, Paket, dll) di bawah ini. Sistem akan otomatis merapikan.</p>
+            <textarea id="rawInput" placeholder="Contoh:
+Nama Lengkap : Budi
+Alamat : Jl Mawar No 1
+Paket : 150k
+No WA : 08123..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal()">Batal</button>
+            <button class="btn-save" onclick="processAndSave()">Simpan Tugas</button>
         </div>
     </div>
 </div>
 
 <script type="module">
-    // Import Library + Safety Settings
-    import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+    // --- 1. IMPORT FIREBASE ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // --- API KEY CONFIGURATION ---
-    const API_KEY = "AIzaSyB7MKdgP1gGSTUsfP2g-dPq_CtbBdPpEns"; 
-    const genAI = new GoogleGenerativeAI(API_KEY);
+    // --- 2. KONFIGURASI FIREBASE ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyA-qFL7CutiOoAEHXDXcGVsZA65yeG6G1A",
+      authDomain: "monitoring-3aeb6.firebaseapp.com",
+      databaseURL: "https://monitoring-3aeb6-default-rtdb.firebaseio.com",
+      projectId: "monitoring-3aeb6",
+      storageBucket: "monitoring-3aeb6.firebasestorage.app",
+      messagingSenderId: "888117973644",
+      appId: "1:888117973644:web:d69bd316cd7178679ee1a9",
+      measurementId: "G-PTL0F1FPK0"
+    };
 
-    // AI FUNCTION (UPDATED to 1.5 Flash + JSON Mode + Unsafe Allowed)
-    window.generateWithAI = async function() {
-        const inputText = document.getElementById('aiInput').value;
-        const btn = document.getElementById('btnAi');
-        
-        if(!inputText.trim()) { alert("Paste chat WA dulu bos!"); return; }
+    // Inisialisasi Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-        btn.innerHTML = '<div class="loading-spinner"></div> Memproses...';
-        btn.disabled = true;
-
-        try {
-            // MENGGUNAKAN MODEL 1.5 FLASH (Lebih Cepat & Pintar)
-            const model = genAI.getGenerativeModel({ 
-                model: "gemini-1.5-flash",
-                generationConfig: { responseMimeType: "application/json" }, // KUNCI UTAMA: MEMAKSA JSON
-                // MEMATIKAN SENSOR AGAR ALAMAT/NO HP TIDAK DI-BLOCK
-                safetySettings: [
-                    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-                    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                ]
-            });
-            
-            const prompt = `
-            Ekstrak data dari chat berikut menjadi JSON. 
-            Teks: "${inputText}"
-            
-            Output JSON Schema:
-            {
-                "name": "Nama Pelanggan (String)",
-                "category": "PSB/MT/LOS/SO (String)",
-                "tag_desc": "Harga/Masalah (String)",
-                "address": "Alamat Lengkap (String)",
-                "phone": "Nomor HP (String)",
-                "packet": "Nama Paket/ID (String)",
-                "note": "Catatan (String)"
-            }
-            Jika data tidak ada, isi string kosong.
-            `;
-
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const text = response.text();
-            
-            // Parse JSON dengan aman
-            const data = JSON.parse(text);
-
-            // Auto Fill Form
-            document.getElementById('inputName').value = data.name || "";
-            document.getElementById('inputCategory').value = (data.category && ["PSB","MT","LOS","SO"].includes(data.category)) ? data.category : "PSB";
-            document.getElementById('inputTagDesc').value = data.tag_desc || "";
-            document.getElementById('inputAddress').value = data.address || "";
-            document.getElementById('inputPhone').value = data.phone || "";
-            document.getElementById('inputPaket').value = data.packet || "";
-            document.getElementById('inputNote').value = data.note || "";
-
-            alert("✅ Data berhasil diisi otomatis!");
-
-        } catch (error) {
-            console.error("Error AI:", error);
-            alert("Gagal memproses AI. Pastikan API Key valid atau koneksi lancar.");
-        } finally {
-            btn.innerHTML = '<span>✨ AUTO-FILL WITH AI (1.5 Flash)</span>';
-            btn.disabled = false;
+    // Indikator Koneksi
+    const connectedRef = ref(db, ".info/connected");
+    onValue(connectedRef, (snap) => {
+        const dot = document.getElementById('conn-dot');
+        const txt = document.getElementById('conn-text');
+        if (snap.val() === true) {
+            dot.classList.add('online-active');
+            txt.innerHTML = "Online (Data Tersimpan)";
+            txt.style.color = "green";
+        } else {
+            dot.classList.remove('online-active');
+            txt.innerHTML = "Offline (Cek Internet)";
+            txt.style.color = "red";
         }
-    }
+    });
 
-    // --- LOGIKA UTAMA APLIKASI (SAMA SEPERTI SEBELUMNYA) ---
-    
-    const rawTeams = [
-        { id: 1, teamName: "Tim 1: Kholis & Dani", jobs: [] },
-        { id: 2, teamName: "Tim 2: Yudha & Bimo", jobs: [] },
-        { id: 3, teamName: "Tim 3: Pian", jobs: [] }
+    // --- DATA UTAMA (HARDCODED) ---
+    // Data ini adalah data bawaan (template awal)
+    const baseTeams = [
+        {
+            id: 1, 
+            teamName: "Tim 1: Reza & Zainal",
+            jobs: [
+                { id: "h1", name: "ZINTA", tag: "UPGRADE (WIFI 6)", tagClass: "badge-prio", time: "10:00", address: "Kp Pulojahe RT 9 RW 10", details: { "Catatan": "Upgrade 280 & Ganti Wifi 6", "Biaya": "Bayar prorata 50rb transfer ke teteh", "No Layanan": "072403011013" } },
+                { id: "h2", name: "AAN HASANAH", tag: "MT (LOS)", tagClass: "badge-los", time: "11:00 - 12:00", address: "Kp. Pulo Kambing RT 02 RW 02", details: { "No Layanan": "1393005752", "Masa Aktif": "s/d 04 Feb 2026" } },
+                { id: "h3", name: "LUKMAN HK", tag: "SURVEY (WIFI 6)", tagClass: "badge-info", time: "13:00 - 14:00", address: "Kawasan Industri Pulogadung", details: { "Catatan": "Cek lokasi! Info jauh dr ODP", "Paket": "Tukang Download (Gamer)" } },
+                { id: "h4", name: "WULAN AUDINA", tag: "PSB (150rb)", tagClass: "badge-psb", time: "15:00 - 17:00", address: "Kp Sumur RT 07 RW 10 No 104", details: { "Paket": "150 Ribu", "Status": "Pribadi" } },
+                { id: "h5", name: "ALMA AULIA", tag: "PSB (150rb)", tagClass: "badge-psb", time: "18:00 - 19:00", address: "Jl. Dermaga Baru RT 02/RW 17", details: { "Paket": "150 Ribu", "Status": "Pribadi" } }
+            ]
+        },
+        {
+            id: 2, 
+            teamName: "Tim 2: Yudha & Bimo",
+            jobs: [
+                { id: "h6", name: "MUHAMAD SYAFRUDIN", tag: "PSB (150rb)", tagClass: "badge-psb", time: "10:00", address: "Jl. Tipar Cakung No 46", details: { "Paket": "150k + Regis 50k", "Status": "Pribadi" } },
+                { id: "h7", name: "DJODI MAULANA", tag: "PSB (GAMER WIFI 6)", tagClass: "badge-psb", time: "12:00", address: "Jl. Dr. KRT. Radjiman WD", details: { "Paket": "Gamer (Wifi 6)", "Patokan": "Bengkel Mutiara Motor" } },
+                { id: "h8", name: "VIKI ABDULLOH", tag: "PSB (150rb)", tagClass: "badge-psb", time: "17:00", address: "Lobang, Jl Dr Radjiman", details: { "Patokan": "Masjid Marzukiyah", "Paket": "150k + Regis 50k" } },
+                { id: "h9", name: "PIPI MARINI", tag: "MT (RAPIH KABEL)", tagClass: "badge-info", time: "FLEXIBEL", address: "Perumahan Jatinegara Indah", details: { "Kendala": "Abis penebangan pohon" } },
+                { id: "h10", name: "SARYONO", tag: "MT (ON/OFF)", tagClass: "badge-mt", time: "FLEXIBEL", address: "Kp Pulojahe RT 7 RW 5", details: { "Kendala": "Sering MT (52x mati)" } }
+            ]
+        },
+        {
+            id: 3, 
+            teamName: "Tim 3: Pian",
+            jobs: []
+        }
     ];
 
-    let teams = [];
+    // Variabel Global untuk menyimpan gabungan Hardcoded + Firebase Jobs
+    let allTeamsData = JSON.parse(JSON.stringify(baseTeams)); // Clone awal
 
-    window.initializeData = function() {
-        teams = JSON.parse(JSON.stringify(rawTeams));
-        const customTickets = JSON.parse(localStorage.getItem('sinyalku_custom_tickets_v1')) || [];
-        customTickets.forEach(ticket => {
-            const team = teams.find(t => t.id === ticket.teamId);
-            if(team) {
-                ticket.isCustom = true;
-                team.jobs.push(ticket);
+    // Expose functions untuk HTML onclick
+    window.processAndSave = async function() {
+        const teamId = document.getElementById('modalTeamId').innerText;
+        const rawText = document.getElementById('rawInput').value;
+        
+        if(!rawText.trim()) { alert("Data kosong!"); return; }
+
+        // --- PARSING LOGIC (OTOMATIS RAPIH) ---
+        const lines = rawText.split('\n');
+        let parsedData = {};
+        
+        lines.forEach(line => {
+            if(line.includes(':')) {
+                const parts = line.split(':');
+                const key = parts[0].trim().toLowerCase();
+                const val = parts.slice(1).join(':').trim(); // Gabung sisa jika ada : lain
+                parsedData[key] = val;
             }
         });
+
+        // Mapping Field (Menyesuaikan input user ke format sistem)
+        // Cari key yang mengandung kata tertentu
+        const getKey = (keyword) => Object.keys(parsedData).find(k => k.includes(keyword));
+
+        const name = parsedData[getKey('nama')] || "TANPA NAMA";
+        const address = parsedData[getKey('alamat')] || "-";
+        const paket = parsedData[getKey('paket')] || "-";
+        
+        // Logika Auto Tagging
+        let tag = "TIKET TAMBAHAN";
+        let tagClass = "badge-info";
+        
+        const paketUpper = paket.toUpperCase();
+        if(paketUpper.includes("150") || paketUpper.includes("190") || paket.includes("200") || rawText.toLowerCase().includes("biaya regist")) {
+            tag = `PSB (${paket})`;
+            tagClass = "badge-psb";
+        } else if(rawText.toLowerCase().includes("los") || rawText.toLowerCase().includes("mt") || rawText.toLowerCase().includes("perbaikan")) {
+            tag = "MT (GANGGUAN)";
+            tagClass = "badge-mt";
+        }
+
+        // Simpan sisa data ke details
+        let details = {};
+        for (const [k, v] of Object.entries(parsedData)) {
+            // Ubah huruf depan jadi kapital untuk label
+            const label = k.replace(/\b\w/g, l => l.toUpperCase());
+            details[label] = v;
+        }
+
+        const newJob = {
+            name: name,
+            tag: tag,
+            tagClass: tagClass,
+            time: "FLEXIBEL", // Default flexibel untuk tugas susulan
+            address: address,
+            details: details
+        };
+
+        // --- SIMPAN KE FIREBASE (ADDITIONAL JOBS) ---
+        // Kita simpan di node terpisah agar tidak merusak struktur awal
+        const newJobRef = push(ref(db, 'additional_jobs/team_' + teamId));
+        await set(newJobRef, newJob);
+
+        alert("Tugas berhasil ditambahkan!");
+        closeModal();
     }
 
-    window.renderJobs = function() {
-        teams.forEach(team => {
-            const el = document.getElementById(`list-${team.id}`);
-            if(el) el.innerHTML = '';
-        });
-
-        teams.forEach(team => {
+    // --- RENDER HTML ---
+    function renderJobs() {
+        allTeamsData.forEach(team => {
             const listContainer = document.getElementById(`list-${team.id}`);
             if(!listContainer) return;
+            listContainer.innerHTML = ''; 
+
+            if(team.jobs.length === 0) {
+                listContainer.innerHTML = '<li class="job-item" style="text-align:center; color:#999; padding:20px;"><i>⏳ Menunggu Tiket Tambahan...</i></li>';
+                return;
+            }
 
             team.jobs.forEach((job, index) => {
                 const li = document.createElement('li');
                 li.className = 'job-item';
                 
+                // ID unik gabungan ID job (jika dari firebase) atau index (hardcoded)
+                // Kita gunakan ID checkbox yang konsisten
+                const uniqueKey = job.firebaseKey ? job.firebaseKey : `hardcoded-${team.id}-${index}`;
+                const checkboxId = `chk-${uniqueKey}`;
+                const detailId = `detail-${uniqueKey}`;
+
                 let detailHTML = '';
-                for (const [key, value] of Object.entries(job.details)) {
-                    detailHTML += `<div class="detail-item"><span class="detail-label">${key}</span><span class="detail-value">${value}</span></div>`;
+                if(job.details) {
+                    for (const [key, value] of Object.entries(job.details)) {
+                        detailHTML += `<div class="detail-item"><span class="detail-label">${key}</span><span class="detail-value">${value}</span></div>`;
+                    }
                 }
 
-                const uniqueId = `details-${team.id}-${index}`;
-                const checkboxId = `chk-${team.id}-${index}`;
                 const isPSB = job.tag.toUpperCase().includes("PSB");
 
                 let formHTML = '';
@@ -325,38 +477,32 @@
                     <div class="manual-input-section">
                         <h4 style="margin:0 0 15px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4>
                         <div class="input-grid">
-                            <div class="input-group"><label>Kode SN</label><input type="text" id="sn-${team.id}-${index}" placeholder="ZTEGC..."></div>
-                            <div class="input-group"><label>Mac</label><input type="text" id="mac-${team.id}-${index}" placeholder="A1:B2..."></div>
-                            <div class="input-group"><label>Mac vlan</label><input type="text" id="vlan-${team.id}-${index}" placeholder="Vlan.."></div>
-                            <div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${team.id}-${index}" placeholder="150m"></div>
-                            <div class="input-group"><label>Port</label><input type="text" id="port-${team.id}-${index}" placeholder="2"></div>
-                            <div class="input-group"><label>Id ODP</label><input type="text" id="odp-${team.id}-${index}" placeholder="ODP-.."></div>
-                            <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${team.id}-${index}" placeholder="-18 dBm"></div>
+                            <div class="input-group"><label>Kode SN</label><input type="text" id="sn-${uniqueKey}" placeholder="ZTEGC..."></div>
+                            <div class="input-group"><label>Mac</label><input type="text" id="mac-${uniqueKey}" placeholder="A1:B2..."></div>
+                            <div class="input-group"><label>Mac vlan</label><input type="text" id="vlan-${uniqueKey}" placeholder="Vlan.."></div>
+                            <div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${uniqueKey}" placeholder="150m"></div>
+                            <div class="input-group"><label>Port</label><input type="text" id="port-${uniqueKey}" placeholder="2"></div>
+                            <div class="input-group"><label>Id ODP</label><input type="text" id="odp-${uniqueKey}" placeholder="ODP-.."></div>
+                            <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${uniqueKey}" placeholder="-18 dBm"></div>
                         </div>
                     </div>`;
-                }
-
-                let deleteBtn = '';
-                if(job.isCustom) {
-                    deleteBtn = `<button class="btn-delete" style="display:block" onclick="deleteTicket(${team.id}, ${index})">❌ Hapus</button>`;
                 }
 
                 li.innerHTML = `
                     <div class="job-main-row">
                         <div class="job-left">
-                            <input type="checkbox" id="${checkboxId}" class="custom-checkbox" onchange="toggleCheck(this, ${team.id})">
+                            <input type="checkbox" id="${checkboxId}" class="custom-checkbox" data-db-id="${checkboxId}">
                             <div class="customer-info">
                                 <h3>${job.name} <span class="badge ${job.tagClass}">${job.tag}</span></h3>
                                 <p>📍 ${job.address}</p>
                             </div>
                         </div>
                         <div class="action-buttons">
-                            <button class="btn-copy" onclick="copyData(${team.id}, ${index}, this)">📋 Copy</button>
-                            <button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>
-                            ${deleteBtn}
+                            <button class="btn-copy" onclick="copyData('${team.id}', '${uniqueKey}', this)">📋 Copy</button>
+                            <button class="toggle-btn" onclick="toggleDetails('${detailId}')">🔽 Detail</button>
                         </div>
                     </div>
-                    <div id="${uniqueId}" class="job-details">
+                    <div id="${detailId}" class="job-details">
                         <div class="detail-grid">
                             <div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${job.time}</span></div>
                             ${detailHTML}
@@ -365,232 +511,241 @@
                     </div>
                 `;
                 listContainer.appendChild(li);
+
+                // Add Event Listener for Checkbox Firebase
+                const checkbox = li.querySelector(`#${checkboxId}`);
+                checkbox.addEventListener('change', (e) => {
+                    const status = e.target.checked;
+                    set(ref(db, 'checklist_v1/' + checkboxId), status);
+                });
             });
         });
-        window.loadState();
+        
+        // Update Checkbox States (Karena render ulang, kita perlu ambil state lagi)
+        updateCheckboxStates();
     }
 
-    // Modal Functions
-    window.openTicketModal = function(teamId) {
-        document.getElementById('modalTeamId').value = teamId;
-        document.getElementById('ticketModal').style.display = 'flex';
-        document.getElementById('aiInput').value = '';
-        document.getElementById('inputName').value = '';
-        document.getElementById('inputTagDesc').value = '';
-        document.getElementById('inputAddress').value = '';
-        document.getElementById('inputPhone').value = '';
-        document.getElementById('inputPaket').value = '';
-        document.getElementById('inputNote').value = '';
+    // Fungsi update status checkbox (dipisah biar bisa dipanggil kapan saja)
+    let currentChecklistData = {};
+    function updateCheckboxStates() {
+         document.querySelectorAll('.custom-checkbox').forEach(box => {
+            const dbId = box.getAttribute('data-db-id');
+            const isChecked = currentChecklistData[dbId] === true;
+            
+            box.checked = isChecked;
+            const li = box.closest('.job-item');
+            if(isChecked) {
+                li.classList.add('completed');
+            } else {
+                li.classList.remove('completed');
+            }
+        });
+        updateProgressBar();
+    }
+    
+    function updateProgressBar() {
+        allTeamsData.forEach(team => {
+            const list = document.getElementById(`list-${team.id}`);
+            if(list) {
+                const total = list.querySelectorAll('input[type="checkbox"]').length;
+                const checked = list.querySelectorAll('input[type="checkbox"]:checked').length;
+                const percent = (total === 0) ? 0 : (checked / total) * 100;
+                
+                const pBar = document.getElementById(`progress-${team.id}`);
+                const pCount = document.getElementById(`count-${team.id}`);
+                
+                if(pBar) pBar.style.width = percent + '%';
+                if(pCount) pCount.innerText = `${checked}/${total} Selesai`;
+            }
+        });
     }
 
-    window.closeTicketModal = function() {
-        document.getElementById('ticketModal').style.display = 'none';
+    // --- LISTENER GABUNGAN (CORE LOGIC BARU) ---
+    // 1. Dengar Checklist (Status Selesai/Belum)
+    const checklistRef = ref(db, 'checklist_v1');
+    onValue(checklistRef, (snapshot) => {
+        currentChecklistData = snapshot.val() || {};
+        updateCheckboxStates();
+    });
+
+    // 2. Dengar Tugas Tambahan (Additional Jobs)
+    const addJobsRef = ref(db, 'additional_jobs');
+    onValue(addJobsRef, (snapshot) => {
+        const addData = snapshot.val() || {};
+        
+        // Reset ke data hardcoded awal dulu
+        allTeamsData = JSON.parse(JSON.stringify(baseTeams));
+
+        // Gabungkan data firebase ke data hardcoded
+        [1, 2, 3].forEach(teamId => {
+            const teamKey = 'team_' + teamId;
+            if(addData[teamKey]) {
+                const teamIndex = allTeamsData.findIndex(t => t.id === teamId);
+                if(teamIndex > -1) {
+                    const jobsObj = addData[teamKey];
+                    // Convert object firebase ke array
+                    const firebaseJobs = Object.keys(jobsObj).map(key => {
+                        return {
+                            ...jobsObj[key],
+                            firebaseKey: key, // Penting untuk ID unik
+                            isAdditional: true
+                        };
+                    });
+                    // Masukkan ke array jobs tim tersebut
+                    allTeamsData[teamIndex].jobs.push(...firebaseJobs);
+                }
+            }
+        });
+
+        // Update window object untuk fungsi copy
+        window.teams = allTeamsData;
+        
+        // Render Ulang semua tampilan
+        renderJobs();
+    });
+
+    // Expose data awal
+    window.teams = baseTeams;
+</script>
+
+<script>
+    // --- FUNGSI UI / NON-MODULE ---
+    
+    function openModal(teamId) {
+        document.getElementById('modalTeamId').innerText = teamId;
+        document.getElementById('rawInput').value = ''; // Reset form
+        document.getElementById('addModal').style.display = 'flex';
     }
 
-    window.saveNewTicket = function() {
-        const teamId = parseInt(document.getElementById('modalTeamId').value);
-        const name = document.getElementById('inputName').value;
-        const cat = document.getElementById('inputCategory').value;
-        const desc = document.getElementById('inputTagDesc').value;
-        const address = document.getElementById('inputAddress').value;
-        const phone = document.getElementById('inputPhone').value;
-        const paket = document.getElementById('inputPaket').value;
-        const note = document.getElementById('inputNote').value;
+    function closeModal() {
+        document.getElementById('addModal').style.display = 'none';
+    }
 
-        if(!name || !desc) { alert("Nama dan Keterangan Tag wajib diisi!"); return; }
+    function toggleDetails(id) {
+        const el = document.getElementById(id);
+        el.style.display = (el.style.display === "block" ? "none" : "block");
+    }
 
-        let badgeClass = 'badge-info';
-        if(cat === 'PSB') badgeClass = 'badge-psb';
-        else if(cat === 'MT') badgeClass = 'badge-mt';
-        else if(cat === 'LOS') badgeClass = 'badge-los';
-        else if(cat === 'SO') badgeClass = 'badge-prio';
+    async function copyData(teamIdStr, uniqueKey, btn) {
+        // Cari tim dan job berdasarkan struktur data terbaru
+        const teamId = parseInt(teamIdStr);
+        const team = window.teams.find(t => t.id === teamId);
+        
+        // Cari job berdasarkan uniqueKey (bisa index untuk hardcoded atau key firebase)
+        let job;
+        if(uniqueKey.startsWith('hardcoded')) {
+            const idx = parseInt(uniqueKey.split('-')[2]);
+            job = team.jobs[idx]; // Ambil dari index jika hardcoded
+        } else {
+            job = team.jobs.find(j => j.firebaseKey === uniqueKey);
+        }
 
-        const newJob = {
-            teamId: teamId,
-            name: name.toUpperCase(),
-            tag: `${cat} (${desc})`,
-            tagClass: badgeClass,
-            time: "ADDITIONAL",
-            address: address || "Alamat menyusul",
-            details: {
-                "No WA": phone || "-",
-                "Paket/Layanan": paket || "-",
-                "Catatan": note || "-"
-            },
-            timestamp: new Date().getTime(),
-            isCustom: true
+        if(!job) { alert("Data job tidak ditemukan!"); return; }
+
+        const d = job.details || {};
+        const isPSB = job.tag.toUpperCase().includes("PSB");
+
+        const getVal = (keys) => {
+            for (let k of keys) {
+                // Case insensitive search di details
+                const foundKey = Object.keys(d).find(dk => dk.toLowerCase() === k.toLowerCase());
+                if(foundKey) return d[foundKey];
+            }
+            return '-';
         };
 
-        const customTickets = JSON.parse(localStorage.getItem('sinyalku_custom_tickets_v1')) || [];
-        customTickets.push(newJob);
-        localStorage.setItem('sinyalku_custom_tickets_v1', JSON.stringify(customTickets));
-
-        alert("✅ Tiket berhasil ditambahkan!");
-        window.closeTicketModal();
-        window.initializeData();
-        window.renderJobs();
-    }
-
-    window.deleteTicket = function(teamId, index) {
-        if(confirm("Hapus tiket ini?")) {
-            const team = teams.find(t => t.id === teamId);
-            const jobToDelete = team.jobs[index];
-
-            if(jobToDelete.isCustom) {
-                let customTickets = JSON.parse(localStorage.getItem('sinyalku_custom_tickets_v1')) || [];
-                customTickets = customTickets.filter(t => t.timestamp !== jobToDelete.timestamp);
-                localStorage.setItem('sinyalku_custom_tickets_v1', JSON.stringify(customTickets));
-                
-                const chkId = `chk-${teamId}-${index}`;
-                const state = JSON.parse(localStorage.getItem('sinyalku_progress_7jan_updated_v3')) || {};
-                delete state[chkId];
-                localStorage.setItem('sinyalku_progress_7jan_updated_v3', JSON.stringify(state));
-
-                window.initializeData();
-                window.renderJobs();
-            } else {
-                alert("Data bawaan tidak bisa dihapus permanen, hanya di reset.");
-            }
-        }
-    }
-
-    // Copy Functions
-    window.copyData = async function(teamId, jobIndex, btn) {
-        const team = teams.find(t => t.id === teamId);
-        const job = team.jobs[jobIndex];
-        const d = job.details;
-        const isPSB = job.tag.toUpperCase().includes("PSB");
-        const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '-';
+        const email = getVal(['Email', 'Email Aktif']) || '-';
+        const wa = getVal(['No WA', 'No. Wa', 'No Telp']) || '-';
+        const paket = getVal(['Paket', 'Paket Layanan', 'Layanan']) || '-'; 
+        const regist = getVal(['Biaya Regis', 'Biaya']) || '-';
+        const ktp = getVal(['No KTP']) || '-';
+        const refInfo = getVal(['Ref SRB', 'Ref']) || '-';
+        
+        const headerInfo = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n--------------------------------`;
 
         let technicalData = '';
         if (isPSB) {
-            technicalData = `\n\n--- DATA TEKNIS ---
-kode SN : ${getVal(`sn-${teamId}-${jobIndex}`)}
-Mac : ${getVal(`mac-${teamId}-${jobIndex}`)}
-Mac vlan : ${getVal(`vlan-${teamId}-${jobIndex}`)}
-Panjang kabel : ${getVal(`kabel-${teamId}-${jobIndex}`)}
-Port : ${getVal(`port-${teamId}-${jobIndex}`)}
-Id ODP : ${getVal(`odp-${teamId}-${jobIndex}`)}
-Redaman : ${getVal(`redaman-${teamId}-${jobIndex}`)}`;
+            const ids = ['sn','mac','vlan','kabel','port','odp','redaman'];
+            const vals = ids.map(id => {
+                const el = document.getElementById(`${id}-${uniqueKey}`);
+                return el ? el.value : '-';
+            });
+            technicalData = `\n\n--- DATA TEKNIS ---\nKode SN : ${vals[0]}\nMac : ${vals[1]}\nMac vlan : ${vals[2]}\nPanjang kabel : ${vals[3]}\nPort : ${vals[4]}\nId ODP : ${vals[5]}\nRedaman : ${vals[6]}`;
         }
 
-        const textToCopy = `TEKNISI : ${team.teamName}
-KATEGORI : ${job.tag}
---------------------------------
+        const textToCopy = `${headerInfo}
 Nama Lengkap : ${job.name} ( JAM ${job.time} )
 Alamat Lengkap : ${job.address}
-Email Aktif: ${d['Email']||'-'}
-No. Wa: ${d['No WA']||'-'}
-Paket Layanan : ${d['Paket/Layanan']||d['Paket']||'-'}
-Biaya regist : ${d['Biaya Regis']||'-'}
-No KTP : ${d['No KTP']||'-'}
-Tanggal/Jam Pemasangan : ${job.time === 'FLEXIBEL' ? 'FLEXIBEL' : 'Sesuai Jadwal'}
-Refrensi SRB dari : ${d['Ref']||'-'}
+Email Aktif: ${email}
+No. Wa: ${wa}
+Paket Layanan : ${paket}
+Biaya regist : ${regist}
+No KTP : ${ktp}
+Tanggal/Jam Pemasangan : ${job.time.includes('FLEX') ? 'FLEXIBEL' : 'Sesuai Jadwal'}
+Refrensi SRB dari : ${refInfo}
 FOTO Depan Rumah :${technicalData}`;
 
-        window.copyToClipboard(textToCopy, btn);
+        copyToClipboard(textToCopy, btn);
     }
 
-    window.copyAllSummary = function() {
-        let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 7 Jan 2026\n\n`;
-        teams.forEach(team => {
+    function copyAllSummary() {
+        let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 8 Jan 2026\n\n`;
+        window.teams.forEach(team => {
             summaryText += `━━━━━━━━━━━━━━━━━━\n🛠️ *${team.teamName.toUpperCase()}*\n━━━━━━━━━━━━━━━━━━\n`;
-            team.jobs.forEach((job, index) => {
-                const checkbox = document.getElementById(`chk-${team.id}-${index}`);
-                const isChecked = checkbox ? checkbox.checked : false;
-                const statusText = isChecked ? "✅ SELESAI" : "⏳ PENDING";
-                let line1 = `*${index + 1}. ${job.name}*`;
-                let line2 = `   📱 ${job.details['No WA']||'-'} | 📍 ${job.address}`;
-                let line3 = `   🏷️ ${job.tag} | ${statusText}`;
-                summaryText += `${line1}\n${line2}\n${line3}\n\n`;
-            });
+            if(team.jobs.length === 0) {
+                 summaryText += `_(Menunggu Tiket Tambahan)_\n\n`;
+            } else {
+                team.jobs.forEach((job, index) => {
+                    // Tentukan ID Checkbox
+                    const uniqueKey = job.firebaseKey ? job.firebaseKey : `hardcoded-${team.id}-${index}`;
+                    const checkbox = document.getElementById(`chk-${uniqueKey}`);
+                    
+                    const isChecked = checkbox ? checkbox.checked : false;
+                    const statusText = isChecked ? "✅ SELESAI" : "⏳ PENDING";
+                    
+                    // Ambil No WA
+                    let phone = '-';
+                    if(job.details) {
+                        const phoneKey = Object.keys(job.details).find(k => k.toLowerCase().includes('wa') || k.toLowerCase().includes('telp'));
+                        if(phoneKey) phone = job.details[phoneKey];
+                    }
+
+                    summaryText += `*${index + 1}. ${job.name}*\n   📱 ${phone} | 📍 ${job.address}\n   🏷️ ${job.tag} | ${statusText}\n\n`;
+                });
+            }
         });
         summaryText += `_Generated by Monitoring System_`;
-        const btn = document.querySelector('.btn-copy-all');
-        window.copyToClipboard(summaryText, btn, "✅ Rekap Tersalin!");
+        copyToClipboard(summaryText, document.querySelector('.btn-copy-all'), "✅ Rekap Tersalin!");
     }
 
-    window.copyToClipboard = async function(text, btnElement, successMsg = "✅ Tersalin!") {
-        try {
-            await navigator.clipboard.writeText(text);
-            if (btnElement) {
-                const originalText = btnElement.innerHTML;
-                const originalBg = btnElement.style.backgroundColor;
-                btnElement.innerHTML = successMsg;
-                btnElement.style.backgroundColor = "#28a745";
-                setTimeout(() => {
-                    btnElement.innerHTML = originalText;
-                    btnElement.style.backgroundColor = originalBg;
-                }, 2000);
-            }
-        } catch (err) {
-            alert("Gagal copy. Izin browser diperlukan.");
+    async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") {
+        let success = false;
+        try { await navigator.clipboard.writeText(text); success = true; } catch (err) {}
+        
+        if (!success) {
+            const ta = document.createElement("textarea");
+            ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px"; 
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); success = true; } catch (e) {}
+            document.body.removeChild(ta);
+        }
+
+        if (success && btnElement) {
+            const originalText = btnElement.innerHTML;
+            const originalBg = btnElement.style.backgroundColor;
+            
+            btnElement.innerHTML = successMsg;
+            btnElement.style.backgroundColor = "#28a745"; 
+            btnElement.style.color = "white";
+
+            setTimeout(() => {
+                btnElement.innerHTML = originalText;
+                btnElement.style.backgroundColor = originalBg;
+                btnElement.style.color = "";
+            }, 2000);
         }
     }
-
-    // UI Helpers
-    window.toggleDetails = function(id) {
-        const el = document.getElementById(id);
-        el.style.display = (el.style.display === "block") ? "none" : "block";
-    }
-
-    window.toggleCheck = function(checkbox, teamId) {
-        const li = checkbox.closest('.job-item');
-        checkbox.checked ? li.classList.add('completed') : li.classList.remove('completed');
-        window.updateProgress(teamId);
-        window.saveState();
-    }
-
-    window.updateProgress = function(teamId) {
-        const list = document.getElementById(`list-${teamId}`);
-        if(!list) return;
-        const total = list.querySelectorAll('input[type="checkbox"]').length;
-        const checked = list.querySelectorAll('input[type="checkbox"]:checked').length;
-        const percent = (total === 0) ? 0 : (checked / total) * 100;
-        document.getElementById(`progress-${teamId}`).style.width = percent + '%';
-        document.getElementById(`count-${teamId}`).innerText = `${checked}/${total} Selesai`;
-    }
-
-    window.saveState = function() {
-        const checkboxes = document.querySelectorAll('.custom-checkbox');
-        const state = {};
-        checkboxes.forEach(box => { state[box.id] = box.checked; });
-        localStorage.setItem('sinyalku_progress_7jan_updated_v3', JSON.stringify(state));
-    }
-
-    window.loadState = function() {
-        const savedData = localStorage.getItem('sinyalku_progress_7jan_updated_v3');
-        if (savedData) {
-            const state = JSON.parse(savedData);
-            for (const [id, isChecked] of Object.entries(state)) {
-                const box = document.getElementById(id);
-                if (box) {
-                    box.checked = isChecked;
-                    if (isChecked) box.closest('.job-item').classList.add('completed');
-                }
-            }
-        }
-        teams.forEach(t => window.updateProgress(t.id));
-    }
-
-    window.resetAll = function() {
-        if(confirm("Reset semua data?")) {
-            localStorage.removeItem('sinyalku_progress_7jan_updated_v3');
-            localStorage.removeItem('sinyalku_custom_tickets_v1');
-            location.reload();
-        }
-    }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById('ticketModal');
-        if (event.target == modal) {
-            window.closeTicketModal();
-        }
-    }
-
-    window.initializeData();
-    window.renderJobs();
 </script>
-
 </body>
 </html>
+
