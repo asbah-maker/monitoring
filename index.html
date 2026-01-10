@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi - Fixed</title>
+    <title>Monitoring Teknisi - AI Perfect</title>
     <style>
-        /* CSS SEDERHANA & KUAT */
+        /* --- CSS CORE --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: sans-serif; background: #f4f6f8; margin: 0; padding: 10px; font-size: 14px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; font-size: 14px; color: #333; }
         .container { max-width: 800px; margin: 0 auto; }
 
-        .header { background: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .status { font-size: 12px; padding: 5px 10px; background: #eee; border-radius: 20px; display: inline-block; }
-        .active { color: green; font-weight: bold; }
+        .header { background: white; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .status { font-size: 12px; padding: 4px 12px; background: #e8f0fe; color: #1a73e8; border-radius: 20px; font-weight: 600; display: inline-block; }
 
-        /* CARD TIM */
-        .team-card { background: white; border-radius: 10px; margin-bottom: 15px; overflow: hidden; border: 1px solid #ddd; }
-        .team-head { padding: 10px 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        /* TIM CARD */
+        .team-card { background: white; border-radius: 10px; margin-bottom: 15px; overflow: hidden; border: 1px solid #dfe1e5; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .team-head { padding: 12px 15px; color: white; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
         
         .th-1 { background: linear-gradient(135deg, #2196F3, #21CBF3); }
         .th-2 { background: linear-gradient(135deg, #F44336, #E91E63); }
@@ -24,31 +23,43 @@
         .th-4 { background: linear-gradient(135deg, #9C27B0, #673AB7); }
 
         .btn-add {
-            background: rgba(255,255,255,0.2); 
-            border: 1px solid white; 
-            color: white; 
-            padding: 5px 10px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-size: 0.8rem;
-            font-weight: bold;
+            background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.6); color: white; 
+            padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: 0.2s;
         }
         .btn-add:hover { background: rgba(255,255,255,0.4); }
 
-        /* LIST & ITEMS */
+        /* LIST ITEM */
         ul { padding: 0; margin: 0; list-style: none; }
-        li { padding: 15px; border-bottom: 1px solid #eee; }
-        .badge { padding: 3px 6px; border-radius: 4px; font-size: 10px; color: white; font-weight: bold; }
-        .bg-mt { background: #ff9800; } .bg-los { background: #f44336; } .bg-psb { background: #2196f3; } .bg-up { background: #4caf50; }
-
-        /* MODAL */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; width: 90%; max-width: 500px; padding: 20px; border-radius: 10px; max-height: 90vh; overflow-y: auto; }
-        textarea { width: 100%; height: 120px; margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        li { padding: 15px; border-bottom: 1px solid #f1f1f1; position: relative; }
+        li:last-child { border-bottom: none; }
         
-        .btn-save { background: #4CAF50; color: white; padding: 10px; border: none; border-radius: 5px; width: 100%; cursor: pointer; font-size: 1rem; }
-        .btn-ai { background: linear-gradient(90deg, #673AB7, #2196F3); color: white; padding: 10px; border: none; border-radius: 5px; width: 100%; cursor: pointer; margin-bottom: 5px; }
-        .preview { background: #f9f9f9; padding: 10px; border: 1px solid #eee; display: none; margin-bottom: 10px; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; color: white; font-weight: bold; margin-left: 5px; }
+        .bg-mt { background: #ff9800; } .bg-los { background: #f44336; } .bg-psb { background: #2196f3; } .bg-up { background: #4caf50; }
+        
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .modal-box { background: white; width: 92%; max-width: 500px; padding: 20px; border-radius: 12px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
+        
+        textarea { width: 100%; height: 140px; margin: 10px 0; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: monospace; font-size: 13px; resize: vertical; }
+        
+        .btn-full { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 5px; transition: 0.2s; }
+        .btn-ai { background: linear-gradient(90deg, #673AB7, #2196F3); color: white; }
+        .btn-save { background: #4CAF50; color: white; }
+        .btn-save:disabled { background: #ccc; cursor: not-allowed; }
+
+        .preview { background: #f8f9fa; padding: 10px; border: 1px solid #eee; display: none; margin-bottom: 10px; border-radius: 8px; max-height: 250px; overflow-y: auto; }
+        .preview-item { background: white; padding: 8px; margin-bottom: 5px; border: 1px solid #eee; border-radius: 6px; font-size: 12px; }
+
+        .team-tag { font-size: 9px; padding: 2px 5px; border-radius: 3px; color: white; margin-right: 5px; text-transform: uppercase; }
+        .tt-1 { background: #2196F3; } .tt-2 { background: #F44336; } .tt-3 { background: #FF9800; } .tt-4 { background: #9C27B0; }
+
+        /* Loading Animation */
+        .loader { text-align: center; color: #673AB7; font-weight: bold; display: none; padding: 10px; }
+        .loader span { animation: blink 1.4s infinite both; }
+        .loader span:nth-child(2) { animation-delay: .2s; }
+        .loader span:nth-child(3) { animation-delay: .4s; }
+        @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
+
     </style>
 </head>
 <body>
@@ -56,8 +67,8 @@
 <div class="container">
     <div class="header">
         <h2>🛠️ Monitoring Teknisi</h2>
-        <span class="status">Status: <span id="status-text">Connecting...</span></span>
-        <button onclick="copyRekap()" style="display:block; margin:10px auto; padding:8px;">📋 Copy Rekap</button>
+        <span class="status">Status: <span id="status-text">Menghubungkan...</span></span>
+        <button onclick="copyRekap()" style="display:block; margin:10px auto; padding:8px; cursor:pointer; background:#fff; border:1px solid #ccc; border-radius:5px;">📋 Copy Rekap Harian</button>
     </div>
 
     <div id="team-container"></div>
@@ -65,20 +76,23 @@
 
 <div id="aiModal" class="modal">
     <div class="modal-box">
-        <div style="display:flex; justify-content:space-between;">
-            <h3>✨ Tambah Tiket (AI)</h3>
-            <button onclick="closeModal()" style="border:none; background:none; font-size:1.5rem;">&times;</button>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0;">✨ AI Smart Analysis</h3>
+            <button onclick="closeModal()" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
         </div>
-        <p style="font-size:12px; color:#666;">Paste chat WA (campur tim tidak masalah). AI akan memisahkan otomatis.</p>
+        <p style="font-size:12px; color:#666; margin-top:5px;">Paste chat WA (boleh campur tim, format hancur). AI akan merapikannya.</p>
         
-        <textarea id="aiInput" placeholder="Tempel chat disini..."></textarea>
+        <textarea id="aiInput" placeholder="Contoh:&#10;(: ZINTA (upgrde)&#10;@yudha Tiket baru..."></textarea>
         
-        <button class="btn-ai" onclick="runAiAnalysis()">🔍 Analisa Teks</button>
-        <div id="aiLoading" style="text-align:center; display:none; color:blue;">Sedang berpikir...</div>
+        <button class="btn-full btn-ai" id="btnAnalyze" onclick="runAiAnalysis()">🔍 Analisa Teks (Online)</button>
+        <div id="aiLoading" class="loader">AI sedang berpikir<span>.</span><span>.</span><span>.</span></div>
         
         <div id="aiPreview" class="preview"></div>
         
-        <button class="btn-save" id="btnSaveFirebase" onclick="saveData()" disabled>Simpan Data</button>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button onclick="closeModal()" style="flex:1; padding:10px; border:none; background:#f1f1f1; border-radius:8px; cursor:pointer;">Batal</button>
+            <button class="btn-full btn-save" id="btnSaveFirebase" onclick="saveData()" style="flex:2; margin-top:0;" disabled>Simpan Data</button>
+        </div>
     </div>
 </div>
 
@@ -90,23 +104,22 @@
         {id: 4, name: "Nur Kholis & Zainal", color: "th-4"}
     ];
 
-    // 1. RENDER TAMPILAN AWAL (Langsung jalan)
+    // RENDER LAYOUT TIM
     const container = document.getElementById('team-container');
     TEAMS.forEach(t => {
         container.innerHTML += `
             <div class="team-card">
                 <div class="team-head ${t.color}">
-                    <b>Tim ${t.id}: ${t.name}</b>
+                    <span>Tim ${t.id}: ${t.name}</span>
                     <button class="btn-add" onclick="openModal(${t.id})">+ Tiket AI</button>
                 </div>
                 <ul id="list-${t.id}">
-                    <li style="text-align:center; color:#999; padding:20px;">Memuat data...</li>
+                    <li style="text-align:center; color:#ccc; padding:20px;">Memuat data...</li>
                 </ul>
             </div>
         `;
     });
 
-    // 2. FUNGSI MODAL (Global Scope)
     let currentDefaultTeam = 1;
     function openModal(teamId) {
         currentDefaultTeam = teamId;
@@ -115,15 +128,16 @@
         document.getElementById('aiPreview').style.display = 'none';
         document.getElementById('btnSaveFirebase').disabled = true;
         document.getElementById('btnSaveFirebase').innerText = "Simpan Data";
+        document.getElementById('aiInput').focus();
     }
 
     function closeModal() {
         document.getElementById('aiModal').style.display = 'none';
     }
 
-    // Fungsi placeholder sebelum Module dimuat
-    window.runAiAnalysis = function() { alert("Tunggu sebentar, sistem AI sedang dimuat..."); }
-    window.saveData = function() { alert("Tunggu sebentar, koneksi database sedang dimuat..."); }
+    // Placeholder functions
+    window.runAiAnalysis = function() { alert("Sistem sedang memuat modul AI..."); }
+    window.saveData = function() { alert("Sistem database sedang dimuat..."); }
     window.copyRekap = function() { alert("Data belum siap."); }
 </script>
 
@@ -131,7 +145,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, push, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // --- API KEY CONFIG ---
+    // --- CONFIG ---
     const GEMINI_KEY = "AIzaSyB7MKdgP1gGSTUsfP2g-dPq_CtbBdPpEns"; 
     
     const firebaseConfig = {
@@ -147,7 +161,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // STATE VARIABLES
+    // STATE
     let allJobs = {};
     let tempResults = [];
     let checklist = {};
@@ -161,7 +175,7 @@
 
     onValue(ref(db, 'checklist_v1'), (snap) => {
         checklist = snap.val() || {};
-        renderJobs(); // Re-render saat checklist berubah
+        renderJobs();
     });
 
     onValue(ref(db, 'additional_tickets'), (snap) => {
@@ -179,7 +193,7 @@
         renderJobs();
     });
 
-    // --- RENDER JOBS ---
+    // --- RENDER FUNCTION ---
     function renderJobs() {
         TEAMS.forEach(t => {
             const list = document.getElementById(`list-${t.id}`);
@@ -187,7 +201,7 @@
             const jobs = allJobs[t.id] || [];
             
             if(jobs.length === 0) {
-                list.innerHTML = `<li style="text-align:center; color:#ccc;">Belum ada tiket</li>`;
+                list.innerHTML = `<li style="text-align:center; color:#ccc; padding:15px; font-style:italic;">Belum ada tiket</li>`;
                 return;
             }
 
@@ -198,20 +212,34 @@
                 if(job.tag.includes('LOS')) badgeClass = 'bg-los';
                 if(job.tag.includes('UP')) badgeClass = 'bg-up';
 
+                // Details string
+                let detailsStr = "";
+                if(job.details) {
+                     Object.entries(job.details).forEach(([k, v]) => {
+                        if(v && v !== '-') detailsStr += `<div><small style="color:#888">${k}:</small> ${v}</div>`;
+                     });
+                }
+
                 list.innerHTML += `
-                    <li style="background:${isDone ? '#f9f9f9' : 'white'}; opacity:${isDone ? 0.6 : 1}">
+                    <li style="background:${isDone ? '#f8f9fa' : 'white'}; opacity:${isDone ? 0.6 : 1}">
                         <div style="display:flex; align-items:flex-start;">
-                            <input type="checkbox" style="margin-right:10px; width:20px; height:20px;" 
+                            <input type="checkbox" style="margin-right:12px; margin-top:4px; width:18px; height:18px; accent-color:#4CAF50;" 
                                 ${isDone ? 'checked' : ''} 
                                 onchange="window.toggleCheck('${job.key}', this.checked)">
                             <div style="flex:1">
-                                <div style="font-weight:bold; margin-bottom:5px;">
+                                <div style="font-weight:bold; margin-bottom:4px; font-size:15px;">
                                     ${job.name} <span class="badge ${badgeClass}">${job.tag}</span>
                                 </div>
-                                <div style="font-size:12px; color:#666;">📍 ${job.address}</div>
-                                <div style="font-size:11px; color:#888;">🕒 ${job.time}</div>
-                                <div style="margin-top:5px;">
-                                    <button onclick="window.deleteJob(${t.id}, '${job.key}')" style="color:red; background:none; border:1px solid #ddd; border-radius:4px; font-size:10px; cursor:pointer;">Hapus</button>
+                                <div style="font-size:13px; color:#555; margin-bottom:2px;">📍 ${job.address}</div>
+                                <div style="font-size:12px; color:#888;">🕒 ${job.time}</div>
+                                
+                                <div style="margin-top:5px; font-size:12px; background:#f9f9f9; padding:5px; border-radius:4px; border:1px solid #eee; display:${detailsStr?'block':'none'}">
+                                    ${detailsStr}
+                                </div>
+
+                                <div style="margin-top:8px; display:flex; gap:10px;">
+                                    <button onclick="window.copyText('${job.key}', ${t.id})" style="border:1px solid #ddd; background:white; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">📋 Copy</button>
+                                    <button onclick="window.deleteJob(${t.id}, '${job.key}')" style="color:red; border:1px solid #ffcdd2; background:#ffebee; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">Hapus</button>
                                 </div>
                             </div>
                         </div>
@@ -221,33 +249,60 @@
         });
     }
 
-    // --- AI LOGIC (GEMINI) ---
+    // --- AI LOGIC (GEMINI) 100% PERFECT ---
     window.runAiAnalysis = async function() {
         const text = document.getElementById('aiInput').value;
         if(!text.trim()) { alert("Isi teks dulu!"); return; }
 
         const loading = document.getElementById('aiLoading');
         const preview = document.getElementById('aiPreview');
+        const btnAnalyze = document.getElementById('btnAnalyze');
+        
         loading.style.display = 'block';
         preview.style.display = 'none';
+        btnAnalyze.disabled = true;
 
+        // PROMPT SANGAT SPESIFIK & STRICT
         const prompt = `
-        Analisa teks ini berisi tiket teknisi internet. Ekstrak menjadi JSON Array.
+        Kamu adalah parser data JSON. Tugasmu mengekstrak data tiket teknisi dari teks mentah WhatsApp yang sangat berantakan.
         
-        Aturan:
-        1. Nama: Bersihkan dari status (misal "Budi (LOS)" -> "Budi").
-        2. Kategori (tag): MT (LOS), MT (GANGGUAN), PSB (REGULER), UPGRADE, RELOKASI.
-        3. Tim (teamId): Deteksi nama teknisi. 
-           - Tim 1: Reza, Ramdani
-           - Tim 2: Yudha, Bimo
+        INSTRUKSI KHUSUS:
+        1. "teamId": Tentukan Tim mana yang mengerjakan tiket ini.
+           - Tim 1: Reza, Ramdani, Syn, Dani
+           - Tim 2: Yudha, Bimo, @yudha
            - Tim 3: Pian
-           - Tim 4: Nur Kholis, Zainal, Alfian
-           - Jika tidak ada, gunakan ${currentDefaultTeam}.
-        
-        INPUT: ${text}
-        
-        OUTPUT JSON SAJA:
-        [{"name": "...", "address": "...", "tag": "...", "time": "...", "teamId": 1}]
+           - Tim 4: Nur Kholis, Zainal, Bang Nur, Alfian
+           - Jika tidak ada nama teknisi, isi dengan: ${currentDefaultTeam} (Ini sangat penting).
+
+        2. "name": Nama Pelanggan.
+           - Hapus status dalam kurung. Contoh: "Budi (LOS)" -> "Budi".
+           - Jika format "(: ZINTA", ambil "ZINTA".
+           - Jika typo "ama Pelanggan", itu adalah "Nama Pelanggan".
+
+        3. "tag": Kategori Tiket.
+           - MT (LOS) -> Jika ada: LOS, MERAH, PUTUS, NO INTERNET.
+           - MT (GANGGUAN) -> Jika ada: GANGGUAN, LAMBAT, MATI, CCTV.
+           - PSB (REGULER) -> Jika ada: PSB, PASANG, 150, 200, REGIS.
+           - UPGRADE -> Jika ada: UPGRADE, NAIK, GANTI, WIFI 6.
+           - RELOKASI -> Jika ada: PINDAH.
+
+        4. "time": Jam pengerjaan (misal 13:00). Jika tidak ada, isi "FLEXIBEL".
+        5. "details": Object berisi "No WA", "Paket", "Kendala", "No KTP" (jika ada).
+
+        INPUT TEKS:
+        ${text}
+
+        OUTPUT WAJIB: Hanya JSON Array valid. Jangan pakai Markdown.
+        [
+            {
+                "name": "Nama Bersih",
+                "address": "Alamat Lengkap",
+                "tag": "Kategori",
+                "time": "Jam",
+                "teamId": Angka_1_sampai_4,
+                "details": {}
+            }
+        ]
         `;
 
         try {
@@ -257,20 +312,35 @@
             });
             
             const data = await res.json();
+            
+            if(data.error) throw new Error(data.error.message);
+
             const raw = data.candidates[0].content.parts[0].text;
-            const jsonStr = raw.replace(/```json|```/g, '').trim();
+            
+            // PEMBERSIH JSON SUPER (Mencari kurung siku pertama dan terakhir)
+            const jsonStart = raw.indexOf('[');
+            const jsonEnd = raw.lastIndexOf(']') + 1;
+            
+            if(jsonStart === -1 || jsonEnd === 0) throw new Error("Format AI tidak valid.");
+            
+            const jsonStr = raw.substring(jsonStart, jsonEnd);
             tempResults = JSON.parse(jsonStr);
 
             // Render Preview
             preview.innerHTML = '';
             tempResults.forEach((j, i) => {
-                // Fallback teamId jika AI gagal deteksi atau 0
+                // Validasi teamId fallback
                 if(!j.teamId || j.teamId < 1 || j.teamId > 4) j.teamId = currentDefaultTeam;
                 
+                let teamClass = "tt-" + j.teamId;
+                
                 preview.innerHTML += `
-                    <div style="border-bottom:1px solid #ddd; padding:5px; font-size:12px;">
-                        <b>[Tim ${j.teamId}] ${j.name}</b> (${j.tag})<br>
-                        ${j.address.substring(0,30)}...
+                    <div class="preview-item">
+                        <div style="font-weight:bold; display:flex; justify-content:space-between;">
+                            <span><span class="team-tag ${teamClass}">TIM ${j.teamId}</span> ${j.name}</span>
+                            <span style="font-size:10px; background:#eee; padding:2px 5px; border-radius:3px;">${j.tag}</span>
+                        </div>
+                        <div style="color:#666;">${j.address ? j.address.substring(0,40) : '-'}...</div>
                     </div>
                 `;
             });
@@ -282,36 +352,52 @@
 
         } catch(e) {
             alert("Gagal AI: " + e.message);
+            console.error(e);
         } finally {
             loading.style.display = 'none';
+            btnAnalyze.disabled = false;
         }
     }
 
     // --- SAVE LOGIC ---
     window.saveData = async function() {
         const btn = document.getElementById('btnSaveFirebase');
-        btn.disabled = true; btn.innerText = "Menyimpan...";
+        btn.disabled = true; btn.innerText = "Mendistribusikan...";
         
+        // Simpan ke path Tim masing-masing berdasarkan teamId dari AI
         const promises = tempResults.map(job => {
             return push(ref(db, 'additional_tickets/team_' + job.teamId), job);
         });
 
         await Promise.all(promises);
-        alert("✅ Berhasil disimpan!");
+        alert("✅ Berhasil! Tiket didistribusikan otomatis ke Tim terkait.");
         closeModal();
     }
 
-    // --- GLOBAL ACTIONS (Exposed to Window) ---
+    // --- GLOBAL ACTIONS ---
     window.toggleCheck = (key, val) => set(ref(db, 'checklist_v1/'+key), val);
+    
     window.deleteJob = (tid, key) => { 
-        if(confirm("Hapus tiket ini?")) remove(ref(db, `additional_tickets/team_${tid}/${key}`)); 
+        if(confirm("Hapus tiket ini permanen?")) remove(ref(db, `additional_tickets/team_${tid}/${key}`)); 
     }
+    
+    window.copyText = (key, tid) => {
+        const job = allJobs[tid].find(j => j.key === key);
+        if(job) {
+            let txt = `*Laporan Pekerjaan*\nNama: ${job.name}\nAlamat: ${job.address}\nStatus: ✅ Selesai`;
+            navigator.clipboard.writeText(txt);
+            alert("Tersalin!");
+        }
+    }
+
     window.copyRekap = () => {
-        let txt = "REKAP MONITORING\n";
+        let txt = `📋 *REKAP HARIAN*\n📅 ${new Date().toLocaleDateString('id-ID')}\n`;
         TEAMS.forEach(t => {
-            txt += `\n[TIM ${t.id} - ${t.name}]\n`;
-            (allJobs[t.id] || []).forEach(j => {
-                txt += `${checklist[j.key] ? '✅' : '⏳'} ${j.name} (${j.tag})\n`;
+            txt += `\n*TIM ${t.id} (${t.name})*\n`;
+            const jobs = allJobs[t.id] || [];
+            if(jobs.length === 0) txt += `_(Nihil)_\n`;
+            jobs.forEach((j, i) => {
+                txt += `${i+1}. ${checklist[j.key] ? '✅' : '⏳'} ${j.name} (${j.tag})\n`;
             });
         });
         navigator.clipboard.writeText(txt);
