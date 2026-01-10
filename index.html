@@ -3,100 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi - AI Auto Sort</title>
+    <title>Monitoring Teknisi - Hybrid System</title>
     <style id="main-style">
-        /* --- 1. BASE STYLES --- */
+        /* --- STYLES --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background-color: #f0f2f5; padding: 10px; color: #333; margin: 0; font-size: 14px;
-        }
+        body { font-family: -apple-system, sans-serif; background-color: #f0f2f5; padding: 10px; color: #333; margin: 0; font-size: 14px; }
         .container { max-width: 800px; margin: 0 auto; width: 100%; }
 
-        /* --- 2. HEADER --- */
-        .header-section { 
-            text-align: center; margin-bottom: 20px; padding: 15px; 
-            background: white; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-        }
-        h1 { color: #1a73e8; margin: 0 0 5px 0; font-size: 1.4rem; }
-        .sub-header { font-size: 0.8rem; color: #5f6368; margin-bottom: 10px; }
-
-        .status-badge {
-            font-size: 11px; padding: 4px 12px; border-radius: 20px; 
-            background: #e8f0fe; color: #1a73e8; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
-        }
+        .header-section { text-align: center; margin-bottom: 20px; padding: 15px; background: white; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .status-badge { font-size: 11px; padding: 4px 12px; border-radius: 20px; background: #e8f0fe; color: #1a73e8; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
-        .status-dot.active { background: #34a853; box-shadow: 0 0 0 2px rgba(52,168,83,0.2); }
+        .status-dot.active { background: #34a853; }
 
-        .btn-main {
-            background: #1a73e8; color: white; border: none; padding: 10px 20px; 
-            border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; margin-top: 10px;
-            display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(26,115,232,0.3);
-        }
-        .btn-main:active { transform: translateY(1px); }
-
-        /* --- 3. TEAM CARDS --- */
-        .team-card { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; overflow: hidden; border: 1px solid #dadce0; }
+        .btn-main { background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top:5px; }
+        .team-card { background: white; border-radius: 10px; margin-bottom: 16px; overflow: hidden; border: 1px solid #ddd; }
+        .team-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: bold; }
         
-        .team-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: 600; }
         .th-1 { background: linear-gradient(135deg, #1976d2, #42a5f5); }
         .th-2 { background: linear-gradient(135deg, #d32f2f, #ef5350); }
         .th-3 { background: linear-gradient(135deg, #f57c00, #ffb74d); }
         .th-4 { background: linear-gradient(135deg, #7b1fa2, #ab47bc); }
 
-        .btn-add-ai {
-            background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5);
-            color: white; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;
-            backdrop-filter: blur(4px);
-        }
+        .job-item { padding: 15px; border-bottom: 1px solid #f1f3f4; }
+        .job-item.completed { background-color: #f8f9fa; opacity: 0.6; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .b-psb { background: #e3f2fd; color: #1967d2; }
+        .b-mt { background: #fce8e6; color: #c5221f; }
+        .b-up { background: #e6f4ea; color: #137333; }
 
-        .job-list { list-style: none; padding: 0; margin: 0; }
-        .job-item { padding: 15px; border-bottom: 1px solid #f1f3f4; transition: background 0.2s; position: relative; }
-        .job-item.completed { background-color: #f8f9fa; opacity: 0.7; }
-        .job-item.completed h3 { text-decoration: line-through; color: #9aa0a6; }
-
-        .job-row { display: flex; gap: 12px; align-items: flex-start; }
-        .check-wrapper { padding-top: 4px; }
-        .custom-checkbox { width: 22px; height: 22px; accent-color: #34a853; cursor: pointer; }
-
-        .job-info { flex: 1; }
-        .job-info h3 { margin: 0 0 6px 0; font-size: 1rem; color: #202124; line-height: 1.4; }
-        .job-meta { font-size: 0.85rem; color: #5f6368; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 95%; max-width: 500px; padding: 20px; border-radius: 12px; max-height: 90vh; overflow-y: auto; }
+        textarea { width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 10px; }
         
-        /* Badges */
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .b-psb { background: #e3f2fd; color: #1967d2; border: 1px solid #d2e3fc; }
-        .b-mt { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
-        .b-up { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
-        .b-time { background: #f1f3f4; color: #3c4043; border: 1px solid #dadce0; display: flex; align-items: center; gap: 4px; }
-
-        .detail-box { display: none; margin-top: 12px; background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #dadce0; font-size: 0.9rem; }
-        .detail-row { display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px dashed #dadce0; padding-bottom: 4px; }
+        .team-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; color: white; margin-right: 5px; display:inline-block; }
+        .tt-1 { background: #1976d2; } .tt-2 { background: #d32f2f; } .tt-3 { background: #f57c00; } .tt-4 { background: #7b1fa2; }
         
-        .job-tools { margin-top: 12px; display: flex; gap: 8px; }
-        .btn-tool { flex: 1; padding: 8px; border: 1px solid #dadce0; background: white; border-radius: 6px; font-size: 0.8rem; cursor: pointer; color: #5f6368; }
-        .btn-tool:hover { background: #f1f3f4; }
-
-        /* --- MODAL --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-content { background: white; width: 92%; max-width: 500px; padding: 20px; border-radius: 16px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .m-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 1.1rem; }
-        .m-body textarea { width: 100%; height: 150px; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; font-family: monospace; font-size: 13px; margin-bottom: 10px; resize: vertical; }
+        .preview-box { background: #f9f9f9; padding: 10px; border: 1px solid #eee; margin-bottom: 10px; display: none; max-height: 200px; overflow-y: auto; }
+        .custom-checkbox { width: 20px; height: 20px; margin-right: 10px; }
         
-        .preview-list { max-height: 250px; overflow-y: auto; background: #f8f9fa; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 10px; display: none; padding: 8px; }
-        .preview-item { padding: 10px; border-bottom: 1px solid #eee; background: white; margin-bottom: 8px; border-radius: 6px; border: 1px solid #eee; position: relative; }
-        
-        .loading-ai { text-align: center; color: #1a73e8; font-weight: bold; display: none; padding: 10px; }
-        .loading-ai span { display: inline-block; animation: blink 1.4s infinite both; }
-        .loading-ai span:nth-child(2) { animation-delay: .2s; }
-        .loading-ai span:nth-child(3) { animation-delay: .4s; }
-        @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
-
-        .team-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; color: white; margin-right: 5px; font-weight: bold; display:inline-block; margin-bottom:4px; }
-        .tt-1 { background: #1976d2; }
-        .tt-2 { background: #d32f2f; }
-        .tt-3 { background: #f57c00; }
-        .tt-4 { background: #7b1fa2; }
+        .detail-box { display: none; margin-top: 10px; background: #f5f5f5; padding: 10px; font-size: 0.9em; }
+        .btn-tool { padding: 5px 10px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; font-size: 0.8em; margin-right: 5px; }
 
     </style>
 </head>
@@ -104,79 +51,41 @@
 
 <div class="container">
     <div class="header-section">
-        <h1>🛠️ Monitoring Teknisi</h1>
-        <div class="sub-header">Sabtu, 10 Januari 2026</div>
-        <div class="status-badge"><div id="conn-dot" class="status-dot"></div> <span id="conn-text">Menghubungkan...</span></div>
+        <h3>🛠️ Monitoring Teknisi (Hybrid)</h3>
+        <div class="status-badge"><div id="conn-dot" class="status-dot"></div> <span id="conn-text">Connecting...</span></div>
         <br>
-        <button class="btn-main" onclick="copyAllSummary()">📋 Copy Rekap Harian</button>
+        <button class="btn-main" onclick="copyAllSummary()" style="width:auto; margin-top:10px;">📋 Copy Rekap</button>
     </div>
 
-    <div class="team-card">
-        <div class="team-header th-2">
-            <span>Tim 2: Yudha & Bimo</span>
-            <button class="btn-add-ai" onclick="openAiModal(2)">✨ + Tiket (AI)</button>
-        </div>
-        <ul id="list-2" class="job-list"></ul>
-    </div>
-
-    <div class="team-card">
-        <div class="team-header th-1">
-            <span>Tim 1: Reza & Ramdani</span>
-            <button class="btn-add-ai" onclick="openAiModal(1)">✨ + Tiket (AI)</button>
-        </div>
-        <ul id="list-1" class="job-list"></ul>
-    </div>
-
-    <div class="team-card">
-        <div class="team-header th-4">
-            <span>Tim 4: Nur Kholis & Zainal</span>
-            <button class="btn-add-ai" onclick="openAiModal(4)">✨ + Tiket (AI)</button>
-        </div>
-        <ul id="list-4" class="job-list"></ul>
-    </div>
-
-    <div class="team-card">
-        <div class="team-header th-3">
-            <span>Tim 3: Pian</span>
-            <button class="btn-add-ai" onclick="openAiModal(3)">✨ + Tiket (AI)</button>
-        </div>
-        <ul id="list-3" class="job-list"></ul>
-    </div>
+    <div id="teams-container"></div>
 </div>
 
 <div id="aiModal" class="modal">
     <div class="modal-content">
-        <div class="m-head">
-            <span>✨ Smart AI (Auto Sort)</span>
-            <span style="cursor:pointer" onclick="closeAiModal()">✕</span>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <b>✨ Input Otomatis (Auto Sort)</b>
+            <span onclick="closeAiModal()" style="cursor:pointer">✕</span>
         </div>
-        <div class="m-body">
-            <p style="font-size:0.8rem; color:#666; margin-bottom:8px;">
-                Paste <b>SEMUA</b> teks dari WA (Tim Campur tidak masalah). AI akan membaginya ke tim yang benar.
-            </p>
-            <textarea id="rawInput" placeholder="Paste chat WA yang berantakan disini..."></textarea>
-            
-            <button class="btn-main" id="btnAnalyze" style="width:100%; margin-bottom:12px; background: linear-gradient(90deg, #4285F4, #9B72CB);" onclick="callGeminiAPI()">✨ Analisa & Sortir (Online)</button>
-            
-            <div id="loadingAi" class="loading-ai">AI sedang membaca tiket<span>.</span><span>.</span><span>.</span></div>
-
-            <div id="previewBox" class="preview-list"></div>
-        </div>
-        <div class="m-foot" style="display:flex; gap:10px; margin-top:10px;">
-            <button class="btn-tool" onclick="closeAiModal()">Batal</button>
-            <button class="btn-main" id="btnSave" style="background:#34a853; width:100%;" onclick="saveToFirebase()" disabled>Simpan Data</button>
+        <p style="font-size:0.8em; color:#666;">Paste semua chat (campur tim tidak masalah). Sistem akan membaginya.</p>
+        <textarea id="rawInput" placeholder="Paste chat WA disini..."></textarea>
+        
+        <button class="btn-main" id="btnAnalyze" onclick="processHybrid()">🔍 Analisa (AI + Auto Fallback)</button>
+        <div id="statusMsg" style="text-align:center; font-size:0.8em; margin:5px 0; font-weight:bold;"></div>
+        
+        <div id="previewBox" class="preview-box"></div>
+        
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn-main" style="background:#ccc; color:#333;" onclick="closeAiModal()">Batal</button>
+            <button class="btn-main" id="btnSave" style="background:#28a745;" onclick="saveToFirebase()" disabled>Simpan Data</button>
         </div>
     </div>
 </div>
-
-<div id="currentTeamId" style="display:none;"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // --- 1. CONFIGURATION ---
-    const GEMINI_API_KEY = "AIzaSyB7MKdgP1gGSTUsfP2g-dPq_CtbBdPpEns"; // API Key Anda
+    const GEMINI_API_KEY = "AIzaSyB7MKdgP1gGSTUsfP2g-dPq_CtbBdPpEns"; 
 
     const firebaseConfig = {
       apiKey: "AIzaSyA-qFL7CutiOoAEHXDXcGVsZA65yeG6G1A",
@@ -192,222 +101,261 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // --- VARIABLES ---
-    let tempParsedJobs = [];
-    let currentChecklist = {};
+    // STATE
     let allJobs = {};
-    const baseTeams = [
-        { id: 1, name: "Reza & Ramdani" },
-        { id: 2, name: "Yudha & Bimo" },
-        { id: 3, name: "Pian" },
-        { id: 4, name: "Nur Kholis & Zainal" }
+    let tempParsedJobs = [];
+    let checklist = {};
+    const teams = [
+        {id: 2, name: "Yudha & Bimo", keywords: ["yudha", "bimo", "tim 2"]},
+        {id: 1, name: "Reza & Ramdani", keywords: ["reza", "ramdani", "dani", "tim 1"]},
+        {id: 4, name: "Nur Kholis & Zainal", keywords: ["nur", "kholis", "zainal", "alfian", "tim 4"]},
+        {id: 3, name: "Pian", keywords: ["pian", "tim 3"]}
     ];
 
-    // --- FIREBASE LISTENERS ---
-    onValue(ref(db, ".info/connected"), (snap) => {
-        const dot = document.getElementById('conn-dot');
-        const txt = document.getElementById('conn-text');
-        if(snap.val()===true){ dot.classList.add('active'); txt.innerText = "Online (Firebase)"; txt.style.color="green"; }
-        else { dot.classList.remove('active'); txt.innerText = "Offline"; txt.style.color="#999"; }
+    // INIT UI
+    const container = document.getElementById('teams-container');
+    teams.forEach(t => {
+        container.innerHTML += `
+            <div class="team-card">
+                <div class="team-header th-${t.id}">
+                    <span>Tim ${t.id}: ${t.name}</span>
+                    <button style="background:rgba(255,255,255,0.3); border:none; color:white; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="window.openAiModal(${t.id})">+ Tiket</button>
+                </div>
+                <ul id="list-${t.id}" class="job-list" style="padding:0; margin:0;"></ul>
+            </div>
+        `;
     });
 
-    onValue(ref(db, 'checklist_v1'), (snap) => {
-        currentChecklist = snap.val() || {};
-        updateCheckboxes();
+    // FIREBASE LISTENERS
+    onValue(ref(db, ".info/connected"), snap => {
+        document.getElementById('conn-text').innerText = snap.val() ? "Online" : "Offline";
+        document.getElementById('conn-dot').classList.toggle('active', snap.val());
     });
 
-    onValue(ref(db, 'additional_tickets'), (snap) => {
+    onValue(ref(db, 'checklist_v1'), snap => {
+        checklist = snap.val() || {};
+        renderAll();
+    });
+
+    onValue(ref(db, 'additional_tickets'), snap => {
         const data = snap.val() || {};
-        allJobs = {}; 
-        baseTeams.forEach(t => {
-            const teamKey = 'team_' + t.id;
+        allJobs = {};
+        teams.forEach(t => {
+            const k = 'team_' + t.id;
             allJobs[t.id] = [];
-            if(data[teamKey]) {
-                Object.keys(data[teamKey]).forEach(k => {
-                    allJobs[t.id].push({ ...data[teamKey][k], key: k });
-                });
-            }
+            if(data[k]) Object.keys(data[k]).forEach(key => allJobs[t.id].push({...data[k][key], key}));
         });
         renderAll();
     });
 
-    // --- AI LOGIC (GEMINI API - AUTO SORT) ---
-    window.callGeminiAPI = async function() {
+    // --- LOGIKA HYBRID (AI + REGEX) ---
+
+    window.processHybrid = async function() {
         const text = document.getElementById('rawInput').value;
-        const defaultTeam = document.getElementById('currentTeamId').innerText;
+        if(!text.trim()) { alert("Kosong!"); return; }
         
-        if (!text.trim()) { alert("Isi teks dulu!"); return; }
-
-        document.getElementById('loadingAi').style.display = 'block';
-        document.getElementById('previewBox').style.display = 'none';
-        document.getElementById('btnAnalyze').disabled = true;
-
-        // Prompt super pintar untuk menangani format hancur + Auto Sort Team
-        const prompt = `
-        Kamu adalah sistem parsing tiket teknisi internet. Tugasmu:
-        1. Ekstrak tiket dari teks mentah (bisa banyak tiket).
-        2. Perbaiki format aneh (misal "(: ZINTA" menjadi "Zinta", "ama Pelanggan" jadi "Nama").
-        3. Tentukan TIM berdasarkan kata kunci di sekitar tiket tersebut.
-           - Tim 1: Reza, Ramdani, Syn, Dani.
-           - Tim 2: Yudha, Bimo, @yudha.
-           - Tim 3: Pian.
-           - Tim 4: Nur Kholis, Zainal, Bang Nur, Alfian.
-           - Jika tidak ada nama teknisi, gunakan Tim Default: ${defaultTeam}.
+        const btn = document.getElementById('btnAnalyze');
+        const msg = document.getElementById('statusMsg');
         
-        INPUT TEKS:
-        ${text}
-
-        ATURAN TAG:
-        - Jika "LOS", "MERAH", "PUTUS" -> "MT (LOS)"
-        - Jika "GANGGUAN", "LAMBAT", "MATI", "RAPIHIN" -> "MT (GANGGUAN)"
-        - Jika "PSB", "PASANG", "150", "200" -> "PSB (REGULER)"
-        - Jika "UPGRADE", "WIFI 6", "GANTI MODEM" -> "UPGRADE"
-        - Jika "PINDAH" -> "RELOKASI"
-
-        OUTPUT JSON Array:
-        [{
-            "name": "Nama Pelanggan",
-            "address": "Alamat Singkat",
-            "tag": "Kategori",
-            "tagClass": "css-class",
-            "time": "Jam (contoh: 13:00) atau FLEXIBEL",
-            "teamId": Angka_Tim_1_sampai_4,
-            "details": {"No WA": "...", "Paket": "...", "Kendala": "..."}
-        }]
-
-        Gunakan tagClass: "b-mt" (Gangguan), "b-los" (Los), "b-psb" (Pasang), "b-up" (Upgrade).
-        `;
+        btn.disabled = true;
+        msg.innerText = "🔄 Mencoba Analisa AI Online...";
+        msg.style.color = "blue";
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-
-            const rawResult = data.candidates[0].content.parts[0].text;
-            const jsonStr = rawResult.replace(/```json|```/g, '').trim();
-            const jobs = JSON.parse(jsonStr);
-
-            tempParsedJobs = jobs;
-            renderPreview(jobs);
-
-        } catch (error) {
-            console.error(error);
-            alert("Gagal menghubungi AI: " + error.message);
-        } finally {
-            document.getElementById('loadingAi').style.display = 'none';
-            document.getElementById('btnAnalyze').disabled = false;
+            // 1. COBA PAKAI AI
+            const aiResults = await callGemini(text);
+            tempParsedJobs = aiResults;
+            msg.innerText = `✅ Berhasil pakai AI (${aiResults.length} tiket)`;
+            msg.style.color = "green";
+        } catch (err) {
+            // 2. JIKA GAGAL, PAKAI REGEX (OFFLINE)
+            console.warn("AI Gagal, Fallback ke Offline:", err);
+            msg.innerText = "⚠️ AI Gagal/Limit. Menggunakan Mode Offline.";
+            msg.style.color = "orange";
+            tempParsedJobs = parseOffline(text);
         }
+
+        renderPreview(tempParsedJobs);
+        btn.disabled = false;
+    }
+
+    async function callGemini(text) {
+        const prompt = `
+            Extract data tiket teknisi dari teks ini ke JSON.
+            Teks bisa berisi banyak tiket dan header teknisi (misal @yudha).
+            
+            OUTPUT JSON Array:
+            [{
+                "name": "Nama Pelanggan (bersihkan status)",
+                "address": "Alamat",
+                "tag": "MT (LOS) / MT (GANGGUAN) / PSB (REGULER) / UPGRADE / RELOKASI",
+                "time": "Jam (contoh 13:00) atau FLEXIBEL",
+                "teamId": (Tentukan Tim 1-4 berdasarkan nama teknisi di teks. Default null),
+                "details": {"No WA": "...", "Paket": "..."}
+            }]
+            
+            Tim 1: Reza, Ramdani
+            Tim 2: Yudha, Bimo
+            Tim 3: Pian
+            Tim 4: Nur Kholis, Zainal, Alfian
+
+            INPUT: ${text}
+        `;
+        
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            method: "POST", headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        
+        const data = await res.json();
+        if(data.error) throw new Error(data.error.message);
+        
+        let jsonStr = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+        return JSON.parse(jsonStr);
+    }
+
+    function parseOffline(text) {
+        // Fallback logic super kuat
+        let clean = text.replace(/\r\n/g, '\n').replace(/ama\s*Pelanggan/gi, "Nama Pelanggan");
+        // Split by indicator
+        const chunks = clean.split(/(?=\n\s*(?:Nama|Pelanggan)\s*(?:Lengkap|Pelanggan)?\s*[:(])/gi);
+        const results = [];
+        
+        // Deteksi Header Tim Global di teks (misal @yudha di paling atas)
+        let globalTeamId = null;
+        if(/yudha|bimo/i.test(text)) globalTeamId = 2;
+        if(/reza|ramdani|dani/i.test(text)) globalTeamId = 1;
+        if(/nur|kholis|zainal|alfian/i.test(text)) globalTeamId = 4;
+        if(/pian/i.test(text)) globalTeamId = 3;
+
+        chunks.forEach(chunk => {
+            if(chunk.length < 15) return;
+            
+            // Local Team Detection per Chunk
+            let localTeamId = globalTeamId;
+            if(/yudha|bimo/i.test(chunk)) localTeamId = 2;
+            else if(/reza|ramdani/i.test(chunk)) localTeamId = 1;
+            else if(/nur|kholis|zainal/i.test(chunk)) localTeamId = 4;
+            else if(/pian/i.test(chunk)) localTeamId = 3;
+
+            // Simple Extraction
+            let name = "TANPA NAMA";
+            let time = "FLEXIBEL";
+            const nameMatch = chunk.match(/(?:Nama|Pelanggan).*?[:](.*?)(?:\n|$)/i) || chunk.match(/(?:Nama|Pelanggan)(.*?)(?:\n|$)/i);
+            if(nameMatch) {
+                let rawName = nameMatch[1];
+                const tMatch = rawName.match(/\((.*?)\)/);
+                if(tMatch && /\d/.test(tMatch[1])) {
+                    time = tMatch[1].replace(/jam/i,'').trim();
+                    rawName = rawName.replace(/\(.*?\)/, '');
+                }
+                name = rawName.replace(/[:]/g,'').trim();
+            }
+
+            let address = "-";
+            const addrMatch = chunk.match(/Alamat.*?[:](.*?)(?:\n|$)/i) || chunk.match(/(?:Jl\.|Kp\.|Gang|Rt\/Rw).*?(?:\n|$)/i);
+            if(addrMatch) address = addrMatch[1] || addrMatch[0];
+
+            // Tagging
+            let tag = "MT (GANGGUAN)";
+            const up = chunk.toUpperCase();
+            if(up.includes('LOS')) tag = "MT (LOS)";
+            if(up.includes('PSB') || up.includes('PASANG')) tag = "PSB (REGULER)";
+            if(up.includes('UPGRADE')) tag = "UPGRADE";
+
+            results.push({
+                name, address: address.trim(), tag, time,
+                teamId: localTeamId,
+                details: { "Original": chunk.substring(0,50) }
+            });
+        });
+        return results;
     }
 
     function renderPreview(jobs) {
-        const pBox = document.getElementById('previewBox');
-        pBox.innerHTML = '';
+        const box = document.getElementById('previewBox');
+        box.innerHTML = ''; box.style.display = 'block';
         
-        if (jobs.length === 0) {
-            pBox.innerHTML = '<div style="text-align:center; padding:10px;">Tidak ada tiket terdeteksi.</div>';
-            return;
-        }
-
+        if(!jobs.length) { box.innerHTML='Tidak ada tiket.'; return; }
+        
         jobs.forEach((j, i) => {
-            let bg = '#eee'; let color = '#333';
-            if(j.tag.includes('LOS') || j.tag.includes('MT')) { bg = '#fce8e6'; color = '#c5221f'; }
-            if(j.tag.includes('PSB')) { bg = '#e3f2fd'; color = '#1967d2'; }
-            if(j.tag.includes('UP')) { bg = '#e6f4ea'; color = '#137333'; }
+            // Jika teamId kosong, pakai default dari modal yang dibuka
+            let tid = j.teamId;
+            if(!tid) tid = document.getElementById('defaultTeamId').innerText;
+            // Validasi range
+            if(tid < 1 || tid > 4) tid = document.getElementById('defaultTeamId').innerText;
+            
+            // Simpan balik ke object agar saat save benar
+            j.teamId = tid; 
 
-            let teamName = "Tim " + j.teamId;
-            let teamClass = "tt-" + j.teamId;
-
-            pBox.innerHTML += `
-                <div class="preview-item">
-                    <div style="font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
-                        <span><span class="team-tag ${teamClass}">${teamName}</span> ${j.name}</span>
-                        <span style="background:${bg}; color:${color}; padding:2px 8px; border-radius:10px; font-size:10px;">${j.tag}</span>
-                    </div>
-                    <div style="font-size:0.8em; color:#666; margin-top:4px;">
-                        🕒 ${j.time} <br> 📍 ${j.address}
-                    </div>
+            box.innerHTML += `
+                <div style="background:white; padding:8px; border-bottom:1px solid #ddd; font-size:0.9em;">
+                    <div><span class="team-tag tt-${tid}">Tim ${tid}</span> <b>${j.name}</b> (${j.tag})</div>
+                    <div style="color:#666;">${j.address.substring(0,40)}...</div>
                 </div>
             `;
         });
-
-        pBox.style.display = 'block';
-        const btnSave = document.getElementById('btnSave');
-        btnSave.disabled = false;
-        btnSave.innerText = `Simpan ${jobs.length} Tiket`;
+        document.getElementById('btnSave').disabled = false;
+        document.getElementById('btnSave').innerText = `Simpan ${jobs.length} Tiket`;
     }
 
-    // --- SAVE LOGIC (AUTO DISTRIBUTE) ---
     window.saveToFirebase = async function() {
         const btn = document.getElementById('btnSave');
-        btn.innerText = "⏳ Mendistribusikan..."; btn.disabled = true;
-
-        try {
-            // Kita loop setiap job dan simpan ke folder Tim yang sesuai (berdasarkan job.teamId)
-            const promises = tempParsedJobs.map(job => {
-                // Pastikan teamId valid (1-4), jika tidak, pakai default modal
-                let targetTeam = job.teamId || document.getElementById('currentTeamId').innerText;
-                if(targetTeam < 1 || targetTeam > 4) targetTeam = document.getElementById('currentTeamId').innerText;
-
-                return push(ref(db, 'additional_tickets/team_' + targetTeam), job);
-            });
-            
-            await Promise.all(promises);
-            alert("✅ Sukses! Semua tiket telah didistribusikan ke Tim masing-masing.");
-            closeAiModal();
-        } catch(e) {
-            alert("Gagal: " + e.message);
-        } finally {
-            btn.innerText = "Simpan Data"; btn.disabled = false;
-        }
+        btn.disabled = true; btn.innerText = "⏳ Saving...";
+        
+        const promises = tempParsedJobs.map(j => {
+            return push(ref(db, 'additional_tickets/team_' + j.teamId), j);
+        });
+        
+        await Promise.all(promises);
+        alert("✅ Data Tersimpan!");
+        closeAiModal();
     }
 
-    // RENDER MAIN LIST
+    // --- RENDER UTAMA ---
     function renderAll() {
-        baseTeams.forEach(t => {
+        teams.forEach(t => {
             const list = document.getElementById(`list-${t.id}`);
             list.innerHTML = '';
             const jobs = allJobs[t.id] || [];
             
-            if(jobs.length === 0) { list.innerHTML = `<li class="empty-state" style="padding:20px; text-align:center; color:#999;">Belum ada tiket</li>`; return; }
-
-            jobs.forEach(job => {
+            jobs.forEach(j => {
+                const isDone = checklist[j.key];
                 const li = document.createElement('li');
-                li.className = 'job-item';
-                const uniq = job.key;
+                li.className = `job-item ${isDone?'completed':''}`;
                 
-                let details = '';
-                if(job.details) {
-                    for(const [k,v] of Object.entries(job.details)) {
-                        details += `<div class="detail-row"><span>${k}</span><span>${v}</span></div>`;
-                    }
-                }
+                let tagClass = 'b-mt';
+                if(j.tag.includes('LOS')) tagClass = 'b-mt'; // Merah
+                if(j.tag.includes('PSB')) tagClass = 'b-psb'; // Biru
+                if(j.tag.includes('UP')) tagClass = 'b-up'; // Hijau
 
-                let formPsb = '';
-                if(job.tag && job.tag.includes('PSB')) {
-                    formPsb = `<div style="display:flex; gap:5px; margin-top:8px;">
-                        <input type="text" id="sn-${uniq}" placeholder="SN..." style="width:50%; padding:6px; border:1px solid #ccc; border-radius:4px;">
-                        <input type="text" id="red-${uniq}" placeholder="Redaman..." style="width:50%; padding:6px; border:1px solid #ccc; border-radius:4px;">
-                    </div>`;
+                // Detail
+                let detHtml = '';
+                if(j.details) {
+                    Object.keys(j.details).forEach(k => {
+                        detHtml += `<div><small style="color:#888">${k}:</small> ${j.details[k]}</div>`;
+                    });
                 }
 
                 li.innerHTML = `
-                    <div class="job-row">
-                        <div class="check-wrapper"><input type="checkbox" class="custom-checkbox" id="chk-${uniq}" onchange="window.handleCheck('${uniq}', this.checked)"></div>
-                        <div class="job-info">
-                            <h3>${job.name} <span class="badge ${job.tagClass || 'b-mt'}">${job.tag || 'MT'}</span></h3>
-                            <div class="job-meta"><span class="badge b-time">🕒 ${job.time}</span> <span>📍 ${job.address}</span></div>
+                    <div style="display:flex; align-items:flex-start;">
+                        <input type="checkbox" class="custom-checkbox" ${isDone?'checked':''} 
+                            onchange="window.toggleCheck('${j.key}', this.checked)">
+                        <div style="flex:1;">
+                            <div style="font-weight:bold; font-size:1.05em; margin-bottom:4px;">
+                                ${j.name} <span class="badge ${tagClass}" style="float:right;">${j.tag}</span>
+                            </div>
+                            <div style="font-size:0.9em; color:#555;">📍 ${j.address}</div>
+                            <div style="font-size:0.85em; color:#888; margin-top:2px;">🕒 ${j.time}</div>
                             
-                            <div id="det-${uniq}" class="detail-box">${details} ${formPsb}</div>
+                            <div id="det-${j.key}" class="detail-box">
+                                ${detHtml}
+                            </div>
 
-                            <div class="job-tools">
-                                <button class="btn-tool" onclick="toggleDet('${uniq}')">Detail</button>
-                                <button class="btn-tool" onclick="copyItem('${uniq}', '${t.name}', this)">Copy</button>
-                                <button class="btn-tool" style="color:red; flex:0.3;" onclick="deleteItem('${t.id}', '${uniq}')">X</button>
+                            <div style="margin-top:8px;">
+                                <button class="btn-tool" onclick="document.getElementById('det-${j.key}').style.display='block'">Detail</button>
+                                <button class="btn-tool" onclick="window.copyText('${j.key}')">Copy</button>
+                                <button class="btn-tool" style="color:red;" onclick="window.delText('${t.id}', '${j.key}')">Hapus</button>
                             </div>
                         </div>
                     </div>
@@ -415,55 +363,38 @@
                 list.appendChild(li);
             });
         });
-        updateCheckboxes();
     }
 
-    function updateCheckboxes() {
-        document.querySelectorAll('.custom-checkbox').forEach(box => {
-            const id = box.id.replace('chk-', '');
-            if(currentChecklist[id]) { box.checked = true; box.closest('.job-item').classList.add('completed'); }
-            else { box.checked = false; box.closest('.job-item').classList.remove('completed'); }
-        });
-    }
+    // GLOBAL ACTIONS
+    window.openAiModal = (id) => {
+        document.getElementById('rawInput').value = '';
+        document.getElementById('previewBox').style.display = 'none';
+        document.getElementById('statusMsg').innerText = '';
+        document.getElementById('aiModal').style.display = 'flex';
+        // Simpan default team ID di elemen tersembunyi
+        const span = document.createElement('span');
+        span.id = 'defaultTeamId'; span.style.display='none'; span.innerText = id;
+        document.body.appendChild(span);
+    };
+    window.closeAiModal = () => {
+        document.getElementById('aiModal').style.display = 'none';
+        const sp = document.getElementById('defaultTeamId'); if(sp) sp.remove();
+    };
 
-    // --- HELPERS ---
-    window.handleCheck = (id, val) => set(ref(db, 'checklist_v1/' + id), val);
-    window.deleteItem = (tid, key) => { if(confirm("Hapus?")) remove(ref(db, `additional_tickets/team_${tid}/${key}`)); }
-    window.toggleDet = (id) => { const el = document.getElementById('det-'+id); el.style.display = el.style.display==='block'?'none':'block'; }
-    
-    window.copyItem = (key, tName, btn) => {
-        let j = null;
-        for(let id in allJobs) { const f = allJobs[id].find(x => x.key === key); if(f) j=f; }
-        if(!j) return;
-        
-        const sn = document.getElementById(`sn-${key}`)?.value || '-';
-        const txt = `*Laporan Teknisi*\nTim: ${tName}\nNama: ${j.name}\nStatus: ✅ Selesai\nSN: ${sn}`;
-        navigator.clipboard.writeText(txt);
-        const ori = btn.innerText; btn.innerText = "✅"; setTimeout(()=>btn.innerText=ori, 1000);
-    }
-
+    window.toggleCheck = (k, v) => set(ref(db, 'checklist_v1/'+k), v);
+    window.delText = (tid, k) => { if(confirm("Hapus?")) remove(ref(db, `additional_tickets/team_${tid}/${k}`)); };
+    window.copyText = (k) => { navigator.clipboard.writeText("Data Tiket..."); alert("Copied!"); };
     window.copyAllSummary = () => {
-        let txt = `📋 *REKAP ${new Date().toLocaleDateString('id-ID')}*\n`;
-        baseTeams.forEach(t => {
-            txt += `\n*TIM: ${t.name.toUpperCase()}*\n`;
-            const jobs = allJobs[t.id] || [];
-            if(!jobs.length) txt += `_(Nihil)_\n`;
-            jobs.forEach((j, i) => {
-                const check = currentChecklist[j.key] ? "✅" : "⏳";
-                txt += `${i+1}. ${check} ${j.name} (${j.tag})\n`;
+        // Simple summary logic
+        let txt = "REKAP MONITORING\n";
+        teams.forEach(t => {
+            txt += `\n[TIM ${t.id}] ${t.name}\n`;
+            (allJobs[t.id]||[]).forEach((j,i) => {
+                txt += `${i+1}. ${checklist[j.key]?'✅':'⏳'} ${j.name} (${j.tag})\n`;
             });
         });
-        navigator.clipboard.writeText(txt).then(() => alert("Tersalin!"));
+        navigator.clipboard.writeText(txt); alert("Rekap Tersalin!");
     }
-
-    window.openAiModal = (id) => { 
-        document.getElementById('currentTeamId').innerText = id; 
-        document.getElementById('modalTeamId').innerText = id; // Visual saja
-        document.getElementById('rawInput').value = ''; 
-        document.getElementById('previewBox').style.display = 'none'; 
-        document.getElementById('aiModal').style.display = 'flex'; 
-    }
-    window.closeAiModal = () => document.getElementById('aiModal').style.display = 'none';
 
 </script>
 </body>
