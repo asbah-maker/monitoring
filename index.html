@@ -237,7 +237,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Update: 8 Jan 2026</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Update: 9 Jan 2026</span>
         </h1>
         <div class="status-indicator">
             <span id="conn-dot" class="online-dot"></span> <span id="conn-text">Menghubungkan...</span>
@@ -249,7 +249,7 @@
     <div class="team-card">
         <div class="team-header header-team2">
             <div>
-                <span>Tim 1: Reza & Zainal</span>
+                <span>Tim 1: Ramdani & Rivaldi</span>
                 <button class="btn-add-task" onclick="openModal(1)">+ Tambah</button>
             </div>
             <span id="count-1" style="font-size: 0.9em;">0/0</span>
@@ -338,29 +338,29 @@ No WA : 08123..."></textarea>
         }
     });
 
-    // --- DATA UTAMA (HARDCODED) ---
-    // Data ini adalah data bawaan (template awal)
+    // --- DATA UTAMA (HARDCODED - DIUPDATE 9 JAN) ---
     const baseTeams = [
         {
             id: 1, 
-            teamName: "Tim 1: Reza & Zainal",
+            teamName: "Tim 1: Ramdani & Rivaldi",
             jobs: [
-                { id: "h1", name: "ZINTA", tag: "UPGRADE (WIFI 6)", tagClass: "badge-prio", time: "10:00", address: "Kp Pulojahe RT 9 RW 10", details: { "Catatan": "Upgrade 280 & Ganti Wifi 6", "Biaya": "Bayar prorata 50rb transfer ke teteh", "No Layanan": "072403011013" } },
-                { id: "h2", name: "AAN HASANAH", tag: "MT (LOS)", tagClass: "badge-los", time: "11:00 - 12:00", address: "Kp. Pulo Kambing RT 02 RW 02", details: { "No Layanan": "1393005752", "Masa Aktif": "s/d 04 Feb 2026" } },
-                { id: "h3", name: "LUKMAN HK", tag: "SURVEY (WIFI 6)", tagClass: "badge-info", time: "13:00 - 14:00", address: "Kawasan Industri Pulogadung", details: { "Catatan": "Cek lokasi! Info jauh dr ODP", "Paket": "Tukang Download (Gamer)" } },
-                { id: "h4", name: "WULAN AUDINA", tag: "PSB (150rb)", tagClass: "badge-psb", time: "15:00 - 17:00", address: "Kp Sumur RT 07 RW 10 No 104", details: { "Paket": "150 Ribu", "Status": "Pribadi" } },
-                { id: "h5", name: "ALMA AULIA", tag: "PSB (150rb)", tagClass: "badge-psb", time: "18:00 - 19:00", address: "Jl. Dermaga Baru RT 02/RW 17", details: { "Paket": "150 Ribu", "Status": "Pribadi" } }
+                { 
+                    id: "h1", 
+                    name: "VIA KURNIAWATI", 
+                    tag: "PSB (Unknown)", 
+                    tagClass: "badge-psb", 
+                    time: "11:00", 
+                    address: "Alamat belum diinput...", 
+                    details: { "Catatan": "Data belum lengkap, silakan edit/tambah detail" } 
+                }
             ]
         },
         {
             id: 2, 
             teamName: "Tim 2: Yudha & Bimo",
             jobs: [
-                { id: "h6", name: "MUHAMAD SYAFRUDIN", tag: "PSB (150rb)", tagClass: "badge-psb", time: "10:00", address: "Jl. Tipar Cakung No 46", details: { "Paket": "150k + Regis 50k", "Status": "Pribadi" } },
-                { id: "h7", name: "DJODI MAULANA", tag: "PSB (GAMER WIFI 6)", tagClass: "badge-psb", time: "12:00", address: "Jl. Dr. KRT. Radjiman WD", details: { "Paket": "Gamer (Wifi 6)", "Patokan": "Bengkel Mutiara Motor" } },
-                { id: "h8", name: "VIKI ABDULLOH", tag: "PSB (150rb)", tagClass: "badge-psb", time: "17:00", address: "Lobang, Jl Dr Radjiman", details: { "Patokan": "Masjid Marzukiyah", "Paket": "150k + Regis 50k" } },
-                { id: "h9", name: "PIPI MARINI", tag: "MT (RAPIH KABEL)", tagClass: "badge-info", time: "FLEXIBEL", address: "Perumahan Jatinegara Indah", details: { "Kendala": "Abis penebangan pohon" } },
-                { id: "h10", name: "SARYONO", tag: "MT (ON/OFF)", tagClass: "badge-mt", time: "FLEXIBEL", address: "Kp Pulojahe RT 7 RW 5", details: { "Kendala": "Sering MT (52x mati)" } }
+                // Data lama dibersihkan untuk hari baru, bisa diisi via tombol Tambah
+                // { id: "h6", name: "MUHAMAD SYAFRUDIN", tag: "PSB (150rb)", tagClass: "badge-psb", time: "10:00", address: "Jl. Tipar Cakung No 46", details: { "Paket": "150k + Regis 50k", "Status": "Pribadi" } }
             ]
         },
         {
@@ -394,7 +394,6 @@ No WA : 08123..."></textarea>
         });
 
         // Mapping Field (Menyesuaikan input user ke format sistem)
-        // Cari key yang mengandung kata tertentu
         const getKey = (keyword) => Object.keys(parsedData).find(k => k.includes(keyword));
 
         const name = parsedData[getKey('nama')] || "TANPA NAMA";
@@ -417,7 +416,6 @@ No WA : 08123..."></textarea>
         // Simpan sisa data ke details
         let details = {};
         for (const [k, v] of Object.entries(parsedData)) {
-            // Ubah huruf depan jadi kapital untuk label
             const label = k.replace(/\b\w/g, l => l.toUpperCase());
             details[label] = v;
         }
@@ -432,7 +430,6 @@ No WA : 08123..."></textarea>
         };
 
         // --- SIMPAN KE FIREBASE (ADDITIONAL JOBS) ---
-        // Kita simpan di node terpisah agar tidak merusak struktur awal
         const newJobRef = push(ref(db, 'additional_jobs/team_' + teamId));
         await set(newJobRef, newJob);
 
@@ -457,7 +454,6 @@ No WA : 08123..."></textarea>
                 li.className = 'job-item';
                 
                 // ID unik gabungan ID job (jika dari firebase) atau index (hardcoded)
-                // Kita gunakan ID checkbox yang konsisten
                 const uniqueKey = job.firebaseKey ? job.firebaseKey : `hardcoded-${team.id}-${index}`;
                 const checkboxId = `chk-${uniqueKey}`;
                 const detailId = `detail-${uniqueKey}`;
@@ -689,7 +685,7 @@ FOTO Depan Rumah :${technicalData}`;
     }
 
     function copyAllSummary() {
-        let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 8 Jan 2026\n\n`;
+        let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 9 Jan 2026\n\n`;
         window.teams.forEach(team => {
             summaryText += `━━━━━━━━━━━━━━━━━━\n🛠️ *${team.teamName.toUpperCase()}*\n━━━━━━━━━━━━━━━━━━\n`;
             if(team.jobs.length === 0) {
@@ -748,4 +744,3 @@ FOTO Depan Rumah :${technicalData}`;
 </script>
 </body>
 </html>
-
