@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi - AI Powered</title>
+    <title>Monitoring Teknisi - Gemini 1.5 Flash</title>
     
     <script type="importmap">
       {
@@ -14,7 +14,7 @@
     </script>
 
     <style>
-        /* --- STYLES DASAR (TIDAK BERUBAH BANYAK) --- */
+        /* --- STYLES (UI SAMA, PERFORMA BEDA) --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; padding: 10px; color: #333; margin: 0; font-size: 14px; }
         .container { max-width: 1000px; margin: 0 auto; width: 100%; }
@@ -65,7 +65,6 @@
         .input-group label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 4px; }
         .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; }
 
-        /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow: auto; align-items: center; justify-content: center; }
         .modal-content { background-color: #fff; margin: 5% auto; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: fadeIn 0.3s; max-height: 90vh; overflow-y: auto; }
         @keyframes fadeIn { from {opacity:0; transform: translateY(-20px);} to {opacity:1; transform: translateY(0);} }
@@ -81,40 +80,13 @@
         .job-item.completed .customer-info h3 { text-decoration: line-through; color: #999; }
         .btn-reset { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 1rem; width: 100%; display: block; margin-top: 30px; margin-bottom: 50px; }
 
-        /* --- AI STYLES --- */
-        .ai-section {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            border: 2px dashed #2196f3;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .ai-section textarea {
-            width: 100%;
-            border: 1px solid #90caf9;
-            border-radius: 6px;
-            padding: 10px;
-            min-height: 80px;
-            font-size: 0.9rem;
-            resize: vertical;
-            margin-bottom: 10px;
-        }
-        .btn-ai {
-            background: linear-gradient(90deg, #6200ea, #b388ff);
-            color: white; border: none; padding: 10px 20px; border-radius: 50px;
-            font-weight: bold; cursor: pointer; width: 100%;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 10px rgba(98, 0, 234, 0.3);
-            transition: transform 0.2s;
-        }
+        /* AI STYLES */
+        .ai-section { background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 2px dashed #2196f3; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center; }
+        .ai-section textarea { width: 100%; border: 1px solid #90caf9; border-radius: 6px; padding: 10px; min-height: 80px; font-size: 0.9rem; resize: vertical; margin-bottom: 10px; }
+        .btn-ai { background: linear-gradient(90deg, #6200ea, #b388ff); color: white; border: none; padding: 10px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 10px rgba(98, 0, 234, 0.3); transition: transform 0.2s; }
         .btn-ai:active { transform: scale(0.98); }
-        .loading-spinner {
-            display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; 
-            border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite;
-        }
+        .loading-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
@@ -123,7 +95,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Update: 7 Jan 2026 (AI Support)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Update: 7 Jan 2026 (AI 1.5 Flash)</span>
         </h1>
         <button class="btn-copy-all" onclick="copyAllSummary()">📑 Copy Rekap Harian</button>
     </div>
@@ -171,9 +143,9 @@
 
             <div class="ai-section">
                 <label style="display:block; text-align:left; font-weight:bold; color:#1565c0; margin-bottom:5px;">🤖 PASTE CHAT WA DISINI:</label>
-                <textarea id="aiInput" placeholder="Contoh: Tolong pasang baru dirumah bpk budi jl mawar no 5 paket 20mbps wa 0812345..."></textarea>
+                <textarea id="aiInput" placeholder="Contoh: Pasang baru rumah pak ahmad jl merdeka no 10 paket 50mbps no wa 0812xxx"></textarea>
                 <button class="btn-ai" onclick="generateWithAI()" id="btnAi">
-                    <span>✨ AUTO-FILL WITH AI</span>
+                    <span>✨ AUTO-FILL WITH AI (1.5 Flash)</span>
                 </button>
             </div>
             
@@ -227,57 +199,64 @@
 </div>
 
 <script type="module">
-    import { GoogleGenerativeAI } from "@google/generative-ai";
+    // Import Library + Safety Settings
+    import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
     // --- API KEY CONFIGURATION ---
-    // PENTING: Jangan menyebarkan kode ini ke publik karena API Key ada di sini.
     const API_KEY = "AIzaSyB7MKdgP1gGSTUsfP2g-dPq_CtbBdPpEns"; 
     const genAI = new GoogleGenerativeAI(API_KEY);
 
-    // Expose function to global window so HTML buttons can call it
+    // AI FUNCTION (UPDATED to 1.5 Flash + JSON Mode + Unsafe Allowed)
     window.generateWithAI = async function() {
         const inputText = document.getElementById('aiInput').value;
         const btn = document.getElementById('btnAi');
         
         if(!inputText.trim()) { alert("Paste chat WA dulu bos!"); return; }
 
-        // UI Loading
-        btn.innerHTML = '<div class="loading-spinner"></div> Sedang Menganalisa...';
+        btn.innerHTML = '<div class="loading-spinner"></div> Memproses...';
         btn.disabled = true;
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+            // MENGGUNAKAN MODEL 1.5 FLASH (Lebih Cepat & Pintar)
+            const model = genAI.getGenerativeModel({ 
+                model: "gemini-1.5-flash",
+                generationConfig: { responseMimeType: "application/json" }, // KUNCI UTAMA: MEMAKSA JSON
+                // MEMATIKAN SENSOR AGAR ALAMAT/NO HP TIDAK DI-BLOCK
+                safetySettings: [
+                    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                ]
+            });
             
             const prompt = `
-            Kamu adalah asisten admin ISP. Tugasmu mengekstrak data dari teks chat WhatsApp yang berantakan menjadi format JSON.
+            Ekstrak data dari chat berikut menjadi JSON. 
+            Teks: "${inputText}"
             
-            Teks Chat: "${inputText}"
-
-            Instruksi Ekstraksi:
-            1. Nama: Cari nama pelanggan (biasanya setelah kata bpk, ibu, a/n, atau di awal).
-            2. Kategori: Tentukan apakah "PSB" (Pasang Baru/Registrasi), "MT" (Gangguan/Lemot/Putus), "LOS" (Lampu merah), atau "SO".
-            3. Tag Desc: Jika PSB ambil harga/paket (cth: 150rb, 20mbps). Jika MT ambil masalahnya (cth: Kabel Putus, Los).
-            4. Alamat: Ambil alamat lengkap.
-            5. Phone: Ambil nomor WA/Telp.
-            6. Paket: Detail paket atau ID Pelanggan.
-            7. Note: Catatan penting lainnya.
-
-            Keluarkan HANYA JSON murni tanpa format markdown:
-            { "name": "...", "category": "...", "tag_desc": "...", "address": "...", "phone": "...", "packet": "...", "note": "..." }
+            Output JSON Schema:
+            {
+                "name": "Nama Pelanggan (String)",
+                "category": "PSB/MT/LOS/SO (String)",
+                "tag_desc": "Harga/Masalah (String)",
+                "address": "Alamat Lengkap (String)",
+                "phone": "Nomor HP (String)",
+                "packet": "Nama Paket/ID (String)",
+                "note": "Catatan (String)"
+            }
+            Jika data tidak ada, isi string kosong.
             `;
 
             const result = await model.generateContent(prompt);
             const response = await result.response;
-            let text = response.text();
+            const text = response.text();
             
-            // Bersihkan format markdown jika ada (```json ... ```)
-            text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            
+            // Parse JSON dengan aman
             const data = JSON.parse(text);
 
             // Auto Fill Form
             document.getElementById('inputName').value = data.name || "";
-            document.getElementById('inputCategory').value = data.category || "PSB";
+            document.getElementById('inputCategory').value = (data.category && ["PSB","MT","LOS","SO"].includes(data.category)) ? data.category : "PSB";
             document.getElementById('inputTagDesc').value = data.tag_desc || "";
             document.getElementById('inputAddress').value = data.address || "";
             document.getElementById('inputPhone').value = data.phone || "";
@@ -288,17 +267,15 @@
 
         } catch (error) {
             console.error("Error AI:", error);
-            alert("Gagal memproses AI. Coba lagi atau isi manual.");
+            alert("Gagal memproses AI. Pastikan API Key valid atau koneksi lancar.");
         } finally {
-            btn.innerHTML = '<span>✨ AUTO-FILL WITH AI</span>';
+            btn.innerHTML = '<span>✨ AUTO-FILL WITH AI (1.5 Flash)</span>';
             btn.disabled = false;
         }
     }
 
-    // --- SCRIPT LAMA (INTEGRASI KE MODULE) ---
-    // Karena type="module", kita perlu attach fungsi global manual ke window
+    // --- LOGIKA UTAMA APLIKASI (SAMA SEPERTI SEBELUMNYA) ---
     
-    // DATA BASE
     const rawTeams = [
         { id: 1, teamName: "Tim 1: Kholis & Dani", jobs: [] },
         { id: 2, teamName: "Tim 2: Yudha & Bimo", jobs: [] },
@@ -397,7 +374,6 @@
     window.openTicketModal = function(teamId) {
         document.getElementById('modalTeamId').value = teamId;
         document.getElementById('ticketModal').style.display = 'flex';
-        // Reset Inputs
         document.getElementById('aiInput').value = '';
         document.getElementById('inputName').value = '';
         document.getElementById('inputTagDesc').value = '';
@@ -605,7 +581,6 @@ FOTO Depan Rumah :${technicalData}`;
         }
     }
 
-    // Close modal on outside click
     window.onclick = function(event) {
         const modal = document.getElementById('ticketModal');
         if (event.target == modal) {
@@ -613,7 +588,6 @@ FOTO Depan Rumah :${technicalData}`;
         }
     }
 
-    // INIT
     window.initializeData();
     window.renderJobs();
 </script>
