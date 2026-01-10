@@ -3,248 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi - Update Jadwal</title>
+    <title>Monitoring Teknisi - AI & Online</title>
     <style>
         /* --- CSS --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; font-size: 14px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; font-size: 14px; }
+        .container { max-width: 1000px; margin: 0 auto; }
 
-        .header { background: white; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .header h2 { margin: 0 0 5px 0; color: #1a73e8; }
-        .status { font-size: 12px; padding: 4px 12px; background: #e8f0fe; color: #1a73e8; border-radius: 20px; font-weight: bold; }
-
-        .team-card { background: white; border-radius: 10px; margin-bottom: 20px; overflow: hidden; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
-        .team-head { padding: 12px 15px; color: white; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.1em; }
+        /* Header */
+        .header-section { text-align: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        h1 { margin: 0 0 10px 0; color: #1a73e8; font-size: 1.4rem; }
         
-        /* Warna Header Tim (Cycling) */
-        .th-1 { background: linear-gradient(135deg, #2196F3, #21CBF3); }
-        .th-2 { background: linear-gradient(135deg, #F44336, #E91E63); }
-        .th-3 { background: linear-gradient(135deg, #FF9800, #FFC107); }
-        .th-4 { background: linear-gradient(135deg, #9C27B0, #673AB7); }
-        .th-5 { background: linear-gradient(135deg, #009688, #4DB6AC); }
-        .th-6 { background: linear-gradient(135deg, #3F51B5, #7986CB); }
-        .th-7 { background: linear-gradient(135deg, #607D8B, #90A4AE); }
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; color: white; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
+        .btn-ai { background: linear-gradient(135deg, #667eea, #764ba2); box-shadow: 0 4px 10px rgba(118, 75, 162, 0.3); }
+        .btn-copy-all { background: #00b894; }
+        .btn:active { transform: scale(0.95); }
 
+        /* Team Cards */
+        .team-card { background: white; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 1px solid #dfe6e9; }
+        .team-header { padding: 12px 15px; color: white; display: flex; justify-content: space-between; font-weight: bold; }
+        .th-1 { background: linear-gradient(135deg, #0984e3, #74b9ff); }
+        .th-2 { background: linear-gradient(135deg, #00b894, #55efc4); }
+        .th-3 { background: linear-gradient(135deg, #d63031, #ff7675); }
+
+        /* Lists */
         ul { padding: 0; margin: 0; list-style: none; }
-        li { padding: 15px; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; }
-        li:last-child { border-bottom: none; }
-        
-        .job-row { display: flex; align-items: flex-start; gap: 10px; }
-        .job-content { flex: 1; }
-        
-        .job-name { font-weight: 700; font-size: 1.05em; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-        
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; color: white; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
-        .bg-mt { background: #ff9800; } 
-        .bg-los { background: #f44336; } 
-        .bg-psb { background: #2196f3; } 
-        .bg-up { background: #4caf50; }
-        .bg-survey { background: #607d8b; }
-        .bg-label { background: #9c27b0; }
+        .job-item { padding: 15px; border-bottom: 1px solid #f1f2f6; position: relative; }
+        .job-item.completed { background: #f8f9fa; opacity: 0.7; }
+        .job-item.completed h3 { text-decoration: line-through; color: #b2bec3; }
 
-        .job-info { font-size: 0.9em; color: #555; line-height: 1.4; }
-        .job-time { font-size: 0.85em; color: #e91e63; font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 5px; }
-
-        .btn-copy-rekap {
-            background: #1a73e8; color: white; border: none; padding: 10px 20px; 
-            border-radius: 25px; cursor: pointer; font-weight: bold; 
-            box-shadow: 0 4px 6px rgba(26,115,232,0.2); display: block; margin: 10px auto;
-        }
-        .btn-copy-rekap:active { transform: scale(0.98); }
-
-        /* Checkbox styling */
-        input[type="checkbox"] { width: 20px; height: 20px; accent-color: #4CAF50; cursor: pointer; margin-top: 2px; }
+        .job-content { display: flex; gap: 10px; align-items: flex-start; }
+        .check-box { width: 22px; height: 22px; margin-top: 3px; cursor: pointer; accent-color: #00b894; }
         
-        .checked-item { background: #f9f9f9; opacity: 0.6; }
-        .checked-item .job-name { text-decoration: line-through; color: #999; }
+        .info h3 { margin: 0; font-size: 1rem; color: #2d3436; }
+        .info p { margin: 4px 0 0; color: #636e72; font-size: 0.85rem; }
+        
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: white; font-weight: bold; margin-left: 5px; vertical-align: middle; }
+        .bg-psb { background: #0984e3; }
+        .bg-mt { background: #e17055; }
+        .bg-los { background: #d63031; }
+
+        .actions { margin-top: 10px; display: flex; gap: 10px; }
+        .act-btn { flex: 1; padding: 6px; border: 1px solid #dfe6e9; background: #f5f6fa; border-radius: 4px; cursor: pointer; font-size: 0.8rem; color: #636e72; }
+        .btn-del { color: red; border-color: #fab1a0; background: #fff0f0; max-width: 60px;}
+
+        /* Modal AI */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 500px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        textarea { width: 100%; height: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: vertical; margin-bottom: 10px; }
+        
+        .ai-options { margin-bottom: 15px; }
+        .ai-options label { font-weight: bold; display: block; margin-bottom: 5px; }
+        .ai-options select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; }
+
+        .preview-box { background: #f8f9fa; padding: 10px; border-radius: 6px; margin-top: 10px; border: 1px dashed #aaa; display: none; font-size: 0.85rem; }
+        .loading { text-align: center; color: #667eea; font-weight: bold; display: none; }
+
+        /* Status Bar */
+        .status-bar { font-size: 0.75rem; text-align: center; margin-top: 5px; color: #aaa; }
+        .status-online { color: green; font-weight: bold; }
+        .status-offline { color: red; font-weight: bold; }
 
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h2>🛠️ Monitoring Teknisi</h2>
-        <div style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Update Data: 10 Januari 2026</div>
-        <button class="btn-copy-rekap" onclick="copyRekap()">📋 Salin Laporan Harian</button>
+    <div class="header-section">
+        <h1>📡 Monitoring Teknisi</h1>
+        <div class="status-bar">Status Database: <span id="db-status">Menghubungkan...</span></div>
+        <div class="btn-group" style="margin-top:15px;">
+            <button class="btn btn-ai" onclick="openModal()">✨ Auto Input (AI)</button>
+            <button class="btn btn-copy-all" onclick="copyRekap()">📋 Copy Rekap</button>
+        </div>
     </div>
-    
-    <div id="team-container"></div>
+
+    <div id="teams-container"></div>
 </div>
 
-<script>
-    // --- KONFIGURASI TIM (7 Tim Berdasarkan Data) ---
-    const TEAMS = [
-        {id: 1, name: "Reza & Zainal Kim", color: "th-1"},
-        {id: 2, name: "Yudha & Bimo", color: "th-2"},
-        {id: 3, name: "Bang Nur Kholis & Ramdani", color: "th-3"},
-        {id: 4, name: "Alfian", color: "th-4"},
-        {id: 5, name: "Ramdani & Rivaldi", color: "th-5"},
-        {id: 6, name: "Bang Nur Kholis & Zainal (Label)", color: "th-6"},
-        {id: 7, name: "Reza & Bimo (Survey)", color: "th-7"}
-    ];
+<div id="aiModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 style="margin:0;">🤖 AI Ticket Parser</h3>
+            <span onclick="closeModal()" style="cursor:pointer; font-size:1.5rem;">&times;</span>
+        </div>
+        
+        <p style="font-size:0.9rem; color:#666;">Paste chat/tiket dari WA di bawah ini. AI akan merapikannya.</p>
+        <textarea id="rawText" placeholder="Contoh: Pasang baru an. Budi jl mawar no 5 jam 10 paket 150rb..."></textarea>
+        
+        <div class="ai-options">
+            <label>Masukkan ke Tim:</label>
+            <select id="targetTeam">
+                <option value="1">Tim 1: Kholis & Dani</option>
+                <option value="2">Tim 2: Yudha & Bimo</option>
+                <option value="3">Tim 3: Pian</option>
+            </select>
+        </div>
 
-    // --- DATA HARDCODED (Sesuai Chat) ---
-    const initialData = {
-        // TIM 1: Reza & Zainal
-        1: [
-            {name: "ZINTA", tag: "UPGRADE", address: "Kp Pulojahe RT 9 RW 10 (Gg Pak Hj Pii)", time: "10:00", note: "Wifi 6, Bayar prorata 50rb"},
-            {name: "AAN HASANAH", tag: "MT (LOS)", address: "Kp. Pulo Kambing RT 02 RW 02", time: "11:00 - 12:00", note: "Promo 150"},
-            {name: "Lukman Hk", tag: "PSB WIFI 6", address: "Kawasan Industri Pulogadung, Rawa Bulak no. 20", time: "13:00 - 14:00", note: "Cek lokasi jauh odp?"},
-            {name: "Wulan audina Wiranti", tag: "PSB", address: "Kp Sumur RT 07 RW 10 no 104", time: "15:00 - 17:00", note: "Paket 150rb"},
-            {name: "Alma Aulia", tag: "PSB", address: "Jl.Dermaga Baru Rt 02/Rw17, Klender", time: "18:00 - 19:00", note: "Paket 150rb"}
-        ],
-        // TIM 2: Yudha & Bimo
-        2: [
-            {name: "Muhamad Syafrudin", tag: "PSB", address: "Jl. Tipar Cakung No 46 (Blkg PT Super Stell)", time: "10:00", note: "150k + 50k"},
-            {name: "Siti Alfiah", tag: "PSB", address: "Cipinang Muara 04/03", time: "11:00", note: "190 Mbps"},
-            {name: "Djodi Maulana", tag: "PSB WIFI 6", address: "Jl. Dr KRT Radjiman, Kp Rawabadung (Bengkel Mutiara)", time: "12:00", note: "Paket Gamer"},
-            {name: "ACHMAD FIRDAUS", tag: "PSB", address: "Jl. Lio 2 RT. 03 RW. 04 No. 15", time: "13:00", note: "SRB 150k"},
-            {name: "ALFAN MUCHIBAH", tag: "EXTEND", address: "Kp Sumur RT 06/010 No.75", time: "15:00", note: "Extend +70rb/bln"},
-            {name: "Viki Abdulloh", tag: "PSB", address: "Lobang, Jl Dr Radjiman (Gudang MJB)", time: "17:00", note: "150k + 50k"},
-            {name: "IKHSAN AZIS SULTHONI", tag: "PINDAH RUMAH", address: "Jl Dermaga Raya, Gg Kembar RT 04/17", time: "17:00", note: "Pindah Rumah"},
-            {name: "PIPI MARINI SIADARI", tag: "MT (KABEL)", address: "Perum Jatinegara Indah, Jl Gn Kerinci", time: "Tentative", note: "Rapihin kabel abis tebang pohon"},
-            {name: "SARYONO", tag: "MT (ON/OFF)", address: "Kp Pulojahe RT 7 RW 5 (Tukang Kayu)", time: "Fleksibel", note: "52x Mati"}
-        ],
-        // TIM 3: Nur Kholis & Ramdani
-        3: [
-            {name: "TIARA FAJRINI", tag: "PSB", address: "Jl Tipar Cakung Gg Toge RT 05 RW 05", time: "11:00", note: "150k + 50k"},
-            {name: "Sadikin", tag: "PSB", address: "Jl. Tipar Cakung RT 003/005", time: "Pagi/Siang", note: "150 Free Regist"},
-            {name: "Ardy Kadri", tag: "PSB", address: "Jl Al Kautsar RT 09 RW 13 No.28", time: "13:00", note: "Gamer (Cek lokasi jauh)"},
-            {name: "Sintia Aulia", tag: "PSB", address: "Jl. Kali Buaran Rt4/Rw4", time: "15:00", note: "100k + 150k"},
-            {name: "Pipit", tag: "PSB", address: "Kp. Rawa Badung", time: "17:00 (Sore)", note: "Paket 150rb"}
-        ],
-        // TIM 4: Alfian
-        4: [
-            {name: "Haikal Admaja Martono", tag: "PSB", address: "Jl Raya Penggilingan Gg Aim Blok Vi", time: "12:00", note: "150k + 50k"},
-            {name: "SUSWATI", tag: "AMBIL MODEM", address: "Kp Pulojahe RT 11 RW 14", time: "Tentative", note: "Ambil Modem"}
-        ],
-        // TIM 5: Ramdani & Rivaldi
-        5: [
-            {name: "VIA KURNIAWATI", tag: "MT (LOS)", address: "Jatinegara (Baru pasang)", time: "11:00", note: "Prioritas"},
-            {name: "Sumarsono", tag: "PSB", address: "Swadaya PAM Rawabadung RT 06/07", time: "12:00", note: "190rb Free"},
-            {name: "Budi Ardiansyah", tag: "PSB", address: "Kp. Rawabadung RT 2 RW 7", time: "13:00", note: "190rb Free"},
-            {name: "Lia Dayanti", tag: "PSB", address: "Kp. Rawa Badung No. 2C", time: "13:00", note: "Paket Elite"},
-            {name: "Alfiyan (Fasum RW 6)", tag: "MT (TARIK ULANG)", address: "Fasum RW 6", time: "Tentative", note: "Ganti modem China Mobile"}
-        ],
-        // TIM 6: Nur Kholis & Zainal (Label)
-        6: [
-            {name: "Icha Oktavia", tag: "LABEL", address: "Jl Kampung Sumur, Rt 007/017", time: "Siang", note: "Belum Label"},
-            {name: "Alfan Muchibah", tag: "LABEL", address: "Kampung Sumur RT 06/010 No.75", time: "Siang", note: "Belum Label"},
-            {name: "Astrid Dwi Pinasti", tag: "LABEL", address: "Jl Sandang RT 13/17 Kost Kamboja", time: "Siang", note: "Belum Label"},
-            {name: "MAULANA ZUSUF", tag: "MT (MODEM)", address: "Jl. Kampung Sumur No.44B", time: "Tentative", note: "Lanjut PSB Ganti Modem"}
-        ],
-        // TIM 7: Reza & Bimo (Survey)
-        7: [
-            {name: "Hardiansyah Syaputra", tag: "SURVEY", address: "Kp Penggilingan RT 11 RW 07 No 83", time: "10:00", note: "Kemarin ga ketemu orgnya"},
-            {name: "Yuyun Sepsam Yani", tag: "PSB", address: "Jl Raya Penggilingan RT 011/07", time: "12:00", note: "150 Terlaris"},
-            {name: "Abi Anugrah", tag: "PSB", address: "Kp Penggilingan RT 11 RW 7", time: "14:00", note: "Paket Elite"}
-        ]
+        <div id="loadingIndicator" class="loading">🔄 Sedang Menganalisa...</div>
+        <div id="aiPreview" class="preview-box"></div>
+
+        <button id="btnAnalyze" class="btn btn-ai" style="width:100%; justify-content:center; margin-top:10px;" onclick="analyzeText()">🔍 Analisa Teks</button>
+        <button id="btnSave" class="btn btn-copy-all" style="width:100%; justify-content:center; margin-top:10px; display:none;" onclick="saveToFirebase()">💾 Simpan ke Database</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, push, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // --- 1. KONFIGURASI ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyA-qFL7CutiOoAEHXDXcGVsZA65yeG6G1A",
+        authDomain: "monitoring-3aeb6.firebaseapp.com",
+        databaseURL: "https://monitoring-3aeb6-default-rtdb.firebaseio.com",
+        projectId: "monitoring-3aeb6",
+        storageBucket: "monitoring-3aeb6.firebasestorage.app",
+        messagingSenderId: "888117973644",
+        appId: "1:888117973644:web:d69bd316cd7178679ee1a9",
+        measurementId: "G-PTL0F1FPK0"
     };
 
-    const container = document.getElementById('team-container');
+    const GEMINI_API_KEY = "AIzaSyB7MKdgP1gGSTUsfP2g-dPq_CtbBdPpEns"; 
 
-    // --- FUNGSI RENDER ---
-    function renderApp() {
-        container.innerHTML = '';
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // --- 2. STATE MANAGEMENT ---
+    let localTeamsData = {
+        1: { name: "Tim 1: Kholis & Dani", color: "th-1", jobs: {} },
+        2: { name: "Tim 2: Yudha & Bimo", color: "th-2", jobs: {} },
+        3: { name: "Tim 3: Pian", color: "th-3", jobs: {} }
+    };
+    let parsedResult = null; // Menyimpan hasil AI sementara
+
+    // --- 3. DATABASE LISTENER (REALTIME) ---
+    const dbStatus = document.getElementById('db-status');
+    const connectedRef = ref(db, ".info/connected");
+    onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+            dbStatus.innerText = "Online ✅";
+            dbStatus.className = "status-online";
+        } else {
+            dbStatus.innerText = "Offline ❌";
+            dbStatus.className = "status-offline";
+        }
+    });
+
+    // Listen to 'tickets' node
+    onValue(ref(db, 'tickets'), (snapshot) => {
+        const data = snapshot.val();
         
-        TEAMS.forEach(team => {
-            const jobs = initialData[team.id] || [];
+        // Reset jobs local
+        Object.keys(localTeamsData).forEach(k => localTeamsData[k].jobs = {});
+
+        if (data) {
+            // Mapping data firebase ke local structure
+            Object.keys(data).forEach(teamId => {
+                if(localTeamsData[teamId]) {
+                    localTeamsData[teamId].jobs = data[teamId];
+                }
+            });
+        }
+        renderApp();
+    });
+
+    // --- 4. RENDER UI ---
+    window.renderApp = function() {
+        const container = document.getElementById('teams-container');
+        container.innerHTML = '';
+
+        Object.keys(localTeamsData).forEach(teamId => {
+            const team = localTeamsData[teamId];
+            const jobKeys = Object.keys(team.jobs);
             
-            // Buat HTML Card Tim
-            let jobHtml = '';
-            if (jobs.length === 0) {
-                jobHtml = '<li style="text-align:center; color:#999; padding:20px;">Tidak ada jadwal</li>';
+            // Hitung progress
+            let completed = 0;
+            jobKeys.forEach(k => { if(team.jobs[k].checked) completed++; });
+            
+            let html = `
+            <div class="team-card">
+                <div class="team-header ${team.color}">
+                    <span>${team.name}</span>
+                    <span>${completed}/${jobKeys.length}</span>
+                </div>
+                <ul>`;
+
+            if (jobKeys.length === 0) {
+                html += `<li style="padding:15px; text-align:center; color:#ccc;">Belum ada tiket</li>`;
             } else {
-                jobs.forEach((job, index) => {
-                    // Tentukan warna badge
-                    let badgeClass = 'bg-mt';
-                    const tagUp = job.tag.toUpperCase();
-                    if(tagUp.includes('PSB')) badgeClass = 'bg-psb';
-                    if(tagUp.includes('LOS')) badgeClass = 'bg-los';
-                    if(tagUp.includes('UPGRADE')) badgeClass = 'bg-up';
-                    if(tagUp.includes('SURVEY')) badgeClass = 'bg-survey';
-                    if(tagUp.includes('LABEL')) badgeClass = 'bg-label';
+                jobKeys.forEach(key => {
+                    const job = team.jobs[key];
+                    const bgBadge = job.tag.includes('PSB') ? 'bg-psb' : (job.tag.includes('LOS') ? 'bg-los' : 'bg-mt');
+                    const isChecked = job.checked ? 'checked' : '';
+                    const classCompleted = job.checked ? 'completed' : '';
 
-                    const uniqueId = `t${team.id}-j${index}`;
-
-                    jobHtml += `
-                    <li id="li-${uniqueId}">
-                        <div class="job-row">
-                            <input type="checkbox" id="${uniqueId}" onchange="toggleDone('${uniqueId}')">
-                            <div class="job-content">
-                                <div class="job-name">
-                                    ${job.name}
-                                    <span class="badge ${badgeClass}">${job.tag}</span>
-                                </div>
-                                <div class="job-info">
-                                    📍 ${job.address}<br>
-                                    📝 ${job.note}
-                                </div>
-                                <div class="job-time">
-                                    🕐 ${job.time}
-                                </div>
+                    html += `
+                    <li class="job-item ${classCompleted}">
+                        <div class="job-content">
+                            <input type="checkbox" class="check-box" ${isChecked} onchange="toggleCheck('${teamId}', '${key}', this.checked)">
+                            <div class="info" style="flex:1;">
+                                <h3>${job.name} <span class="badge ${bgBadge}">${job.tag}</span></h3>
+                                <p>📍 ${job.address}</p>
+                                <p style="font-size:0.8rem; color:#888;">🕒 ${job.time} | 📝 ${job.details}</p>
                             </div>
+                        </div>
+                        <div class="actions">
+                            <button class="act-btn" onclick="copySingle('${job.name}', '${job.address}', '${job.tag}', '${job.details}')">📋 Copy</button>
+                            <button class="act-btn btn-del" onclick="deleteJob('${teamId}', '${key}')">🗑️ Hapus</button>
                         </div>
                     </li>`;
                 });
             }
-
-            const teamCard = `
-            <div class="team-card">
-                <div class="team-head ${team.color}">
-                    <span>Tim ${team.id}: ${team.name}</span>
-                    <span style="font-size:0.8em; background:rgba(0,0,0,0.2); padding:2px 8px; border-radius:10px;">${jobs.length} Tiket</span>
-                </div>
-                <ul>${jobHtml}</ul>
-            </div>`;
-            
-            container.innerHTML += teamCard;
+            html += `</ul></div>`;
+            container.innerHTML += html;
         });
     }
 
-    // --- FUNGSI INTERAKSI ---
-    window.toggleDone = function(id) {
-        const li = document.getElementById('li-' + id);
-        const check = document.getElementById(id);
-        if(check.checked) {
-            li.classList.add('checked-item');
-        } else {
-            li.classList.remove('checked-item');
+    // --- 5. LOGIC AI (GEMINI) ---
+    window.analyzeText = async function() {
+        const text = document.getElementById('rawText').value;
+        if (!text) return alert("Isi teks dulu!");
+
+        document.getElementById('loadingIndicator').style.display = 'block';
+        document.getElementById('btnAnalyze').disabled = true;
+
+        const prompt = `
+        Analisa teks tiket teknisi berikut dan ekstrak menjadi format JSON.
+        Teks: "${text}"
+        
+        Aturan Output JSON:
+        {
+          "name": "Nama Pelanggan (Huruf Besar)",
+          "tag": "Jenis Tiket (contoh: PSB (150rb), MT (LOS), MT (GANGGUAN), UPGRADE)",
+          "address": "Alamat Singkat",
+          "time": "Jam (contoh: 10:00 atau FLEXIBEL)",
+          "details": "Detail lain seperti No HP, Paket, atau Keterangan (gabungkan jadi satu string pendek)"
+        }
+        Hanya kembalikan JSON valid tanpa markdown.
+        `;
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+
+            const data = await response.json();
+            const aiText = data.candidates[0].content.parts[0].text;
+            
+            // Bersihkan markdown jika ada (```json ... ```)
+            const cleanJson = aiText.replace(/```json|```/g, '').trim();
+            parsedResult = JSON.parse(cleanJson);
+
+            // Tampilkan Preview
+            const previewDiv = document.getElementById('aiPreview');
+            previewDiv.style.display = 'block';
+            previewDiv.innerHTML = `
+                <strong>Hasil Analisa AI:</strong><br>
+                Nama: ${parsedResult.name}<br>
+                Tag: ${parsedResult.tag}<br>
+                Alamat: ${parsedResult.address}<br>
+                Jam: ${parsedResult.time}<br>
+                Detail: ${parsedResult.details}
+            `;
+
+            document.getElementById('btnSave').style.display = 'flex';
+
+        } catch (error) {
+            console.error(error);
+            alert("Gagal menganalisa. Coba lagi atau input manual.");
+        } finally {
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('btnAnalyze').disabled = false;
         }
     }
 
-    window.copyRekap = function() {
-        let text = `*LAPORAN MONITORING HARI INI* 📅\n\n`;
+    // --- 6. ACTIONS (SAVE, DELETE, TOGGLE) ---
+    window.saveToFirebase = function() {
+        if (!parsedResult) return;
+        const teamId = document.getElementById('targetTeam').value;
         
-        TEAMS.forEach(team => {
-            const jobs = initialData[team.id];
-            if(jobs && jobs.length > 0) {
-                text += `*TIM ${team.id}: ${team.name}*\n`;
-                jobs.forEach((job, index) => {
-                    const id = `t${team.id}-j${index}`;
-                    const isDone = document.getElementById(id) && document.getElementById(id).checked;
-                    const icon = isDone ? '✅' : '⬜';
-                    text += `${icon} ${job.name} (${job.tag})\n`;
-                });
-                text += `\n`;
-            }
+        // Push ke Firebase
+        push(ref(db, `tickets/${teamId}`), {
+            ...parsedResult,
+            checked: false,
+            createdAt: Date.now()
+        }).then(() => {
+            alert("Tiket berhasil disimpan!");
+            closeModal();
+            document.getElementById('rawText').value = '';
+            document.getElementById('aiPreview').style.display = 'none';
+            document.getElementById('btnSave').style.display = 'none';
+            parsedResult = null;
         });
-        
-        // Copy ke clipboard
-        const el = document.createElement('textarea');
-        el.value = text;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        
-        alert("Laporan berhasil disalin! Siap tempel di WA.");
     }
 
-    // Jalankan render saat load
-    renderApp();
+    window.toggleCheck = function(teamId, key, isChecked) {
+        update(ref(db, `tickets/${teamId}/${key}`), {
+            checked: isChecked
+        });
+    }
+
+    window.deleteJob = function(teamId, key) {
+        if(confirm("Hapus tiket ini?")) {
+            remove(ref(db, `tickets/${teamId}/${key}`));
+        }
+    }
+
+    // --- 7. HELPER FUNCTIONS ---
+    window.openModal = () => document.getElementById('aiModal').style.display = 'flex';
+    window.closeModal = () => document.getElementById('aiModal').style.display = 'none';
+
+    window.copySingle = (name, addr, tag, det) => {
+        const txt = `Laporan Teknisi\nNama: ${name}\nStatus: ${tag}\nLokasi: ${addr}\nKet: ${det}`;
+        navigator.clipboard.writeText(txt);
+        alert("Disalin!");
+    }
+
+    window.copyRekap = () => {
+        let txt = "*REKAP MONITORING*\n";
+        Object.keys(localTeamsData).forEach(tid => {
+            const team = localTeamsData[tid];
+            const jobs = team.jobs;
+            const keys = Object.keys(jobs);
+            
+            if(keys.length > 0) {
+                txt += `\n*${team.name}*\n`;
+                keys.forEach((k, i) => {
+                    const j = jobs[k];
+                    const icon = j.checked ? "✅" : "⏳";
+                    txt += `${i+1}. ${j.name} (${j.tag}) ${icon}\n`;
+                });
+            }
+        });
+        navigator.clipboard.writeText(txt);
+        alert("Rekap Harian Tersalin!");
+    }
 
 </script>
 
