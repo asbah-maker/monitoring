@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Auto Team</title>
+    <title>Monitoring Teknisi Sinyalku - Auto Generator Plus</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -16,6 +16,7 @@
         .container { max-width: 1000px; margin: 0 auto; width: 100%; }
         .header-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; text-align: center; }
         h1 { color: #2c3e50; margin: 0 0 15px 0; font-size: 1.5rem; line-height: 1.3; }
+        
         .btn-group-header { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         .btn-action-main {
             color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer;
@@ -55,9 +56,11 @@
         .badge-info { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
         .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-        .toggle-btn, .btn-copy { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex: 1; text-align: center; }
+        .toggle-btn, .btn-copy, .btn-delete { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex: 1; text-align: center; }
         .toggle-btn { background: #f0f7ff; border: 1px solid #007bff; color: #007bff; }
         .btn-copy { background: #fff5eb; border: 1px solid #fd7e14; color: #fd7e14; }
+        .btn-delete { background: #ffebee; border: 1px solid #dc3545; color: #dc3545; }
+        .btn-delete:hover { background: #dc3545; color: white; }
 
         .job-details { display: none; margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
         .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 15px; }
@@ -90,16 +93,49 @@
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
         .btn-add-list { width: 100%; padding: 12px; background-color: #6610f2; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         
-        /* New Style for Tech Select */
         .tech-select-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f0f7ff; padding: 10px; border-radius: 8px; border: 1px solid #cce5ff; margin-bottom: 15px; }
         .tech-select-wrapper label { color: #004085; font-weight: bold; font-size: 0.8rem; margin-bottom: 5px; display: block; }
+
+        /* Generator Box Style */
+        .generator-box {
+            background: #e8f0fe; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            border: 1px dashed #1a73e8;
+        }
+        .generator-box textarea {
+            width: 100%;
+            border: 1px solid #b1ccf0;
+            border-radius: 4px;
+            padding: 8px;
+            margin-top: 5px;
+            font-size: 0.85rem;
+            resize: vertical;
+        }
+        .btn-generate {
+            width: 100%;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-generate:hover { background-color: #1557b0; }
 
         @media (max-width: 576px) {
             body { padding: 5px; background-color: #fff; } .container { padding: 0; }
             .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #eee; }
             .header-section { margin: 15px 10px; }
             .job-main-row { flex-direction: column; align-items: flex-start; }
-            .job-left, .action-buttons, .toggle-btn, .btn-copy { width: 100%; }
+            .job-left, .action-buttons, .toggle-btn, .btn-copy, .btn-delete { width: 100%; }
         }
     </style>
 </head>
@@ -109,7 +145,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Online Realtime • Update Terbaru</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Auto Save</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -120,10 +156,11 @@
     </div>
 
     <div id="teams-container">
-        </div>
+        <p style="text-align: center; color: #888;">Memuat data...</p>
+    </div>
 
     <div style="padding: 0 15px;">
-        <button class="btn-reset" onclick="resetAll()">🔄 Reset Data (Hapus Database)</button>
+        <button class="btn-reset" onclick="resetAll()">🔄 Reset Data (Kembali ke Default)</button>
     </div>
 </div>
 
@@ -151,6 +188,12 @@
         </div>
 
         <div id="form-psb">
+            <div class="generator-box">
+                <label style="color: #1a73e8; font-weight: bold; font-size: 0.9rem;">✨ Auto-Fill Data (Paste Format WA)</label>
+                <textarea id="psb-raw-text" rows="3" placeholder="Paste format Nama, Alamat, dll disini..."></textarea>
+                <button class="btn-generate" onclick="generateFromText()">⚡ Generate Data PSB</button>
+            </div>
+
             <div class="form-group"><label>Nama Lengkap</label><input type="text" id="psb-nama" placeholder="Contoh: Marlina"></div>
             <div class="form-group"><label>Jam Kunjungan</label><input type="text" id="psb-jam" placeholder="Contoh: 13:00"></div>
             <div class="form-group"><label>Alamat Lengkap</label><textarea id="psb-alamat" rows="2" placeholder="Jalan raya Bekasi..."></textarea></div>
@@ -170,6 +213,12 @@
         </div>
 
         <div id="form-mt" style="display: none;">
+            <div class="generator-box">
+                <label style="color: #1a73e8; font-weight: bold; font-size: 0.9rem;">✨ Auto-Fill Data MT (Paste Format WA)</label>
+                <textarea id="mt-raw-text" rows="3" placeholder="Paste format MT (Nama, Kendala, dll)..."></textarea>
+                <button class="btn-generate" onclick="generateFromTextMT()">⚡ Generate Data MT</button>
+            </div>
+
             <div class="form-group"><label>Nama Pelanggan</label><input type="text" id="mt-nama" placeholder="Contoh: ABDUL"></div>
             <div class="form-group"><label>Kendala / Tag</label><input type="text" id="mt-tag" placeholder="MT (LOS) / RAPIH KABEL"></div>
             <div class="form-group"><label>No Layanan</label><input type="text" id="mt-layanan" placeholder="0607352848"></div>
@@ -179,7 +228,7 @@
             <div class="form-group"><label>Alamat</label><textarea id="mt-alamat" rows="2" placeholder="Kp rawa badung rt01..."></textarea></div>
         </div>
 
-        <button class="btn-add-list" onclick="addTicketToTeam()">➕ Tambahkan ke List</button>
+        <button class="btn-add-list" onclick="addTicketToTeam()">➕ Tambahkan ke List (Simpan Permanen)</button>
     </div>
 </div>
 
@@ -200,63 +249,74 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const dbRef = ref(db, 'monitoring_data_7jan'); 
+    const dbRef = ref(db, 'monitoring_teams_master'); 
 
     // --- DATA TEKNISI ---
     const techList = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Kholis", "Yudha", "Rival"];
-    techList.sort(); // Urutkan Abjad
+    techList.sort(); 
 
-    // --- DATA TIM DINAMIS (Bisa Bertambah) ---
-    // Members harus lowercase untuk pencarian
-    let teams = [
+    // --- DATA DEFAULT ---
+    const defaultTeams = [
         {
             id: 1, 
             teamName: "Tim 1: Kholis & Dani",
             colorClass: "bg-green",
             members: ["kholis", "dani"], 
-            jobs: [
-                { name: "TIARA FAJRINI", tag: "PSB (150rb)", tagClass: "badge-psb", time: "11:00", address: "Jl Tipar Cakung GG Toge RT 05 RW 05 (Samping Mushola Al Ikhlas)", details: { "Paket": "150k + Regis 50k", "Email": "mmjani8686@gmail.com", "Ref": "Abdul Azis", "No WA": "085211594767", "Status": "Ngontrak", "No KTP": "3172036309940009" } },
-                { name: "VIA KURNIAWATI", tag: "MT (LOS - PRIO)", tagClass: "badge-los", time: "11:00", address: "Jatinegara, Kota Jakarta Timur (Status: Sewa)", details: { "Kendala": "Baru pasang LOS, Kunjungan Prioritas", "No Layanan": "1393005746", "Masa Aktif": "s/d 04 Feb 2026", "Tgl Daftar": "04 Jan 2026", "Coverage": "Kel. Jatinegara" } },
-                { name: "PIPI MARINI SIADARI", tag: "MT (RAPIH KABEL)", tagClass: "badge-info", time: "FLEXIBEL", address: "Perumahan Jatinegara Indah, Jl Gn Kerinci RT 10/RW 09", details: { "Action": "Rapihin Kabel", "Patokan": "Pabrik Tahu, Rmh Indri/Intan", "Layanan": "1393003676", "No Telp": "082128581525", "Tgl Pasang": "04 Mei 2025" } },
-                { name: "ARDY KADRI", tag: "PSB (GAMER)", tagClass: "badge-psb", time: "13:00", address: "Jl Al Kautsar RT 09 RW 13 No.28", details: { "Catatan": "Cek lokasi! Info jauh dr jaringan", "Paket": "Gamer", "Email": "ardhy.1010@gmail.com", "No WA": "081282862606", "Status": "Sewa", "No KTP": "3175081204900011" } },
-                { name: "SINTIA AULIA", tag: "PSB (100rb)", tagClass: "badge-psb", time: "15:00", address: "Jl. Kali Buaran Rt4/Rw4", details: { "Paket": "100k + Regis 150k", "Email": "sintiaa1303@gmail.com", "No WA": "085772353371", "Status": "Pribadi", "No KTP": "3175065303051002" } },
-                { name: "PIPIT", tag: "PSB (150rb)", tagClass: "badge-psb", time: "17:00", address: "Kp. Rawa Badung", details: { "Catatan": "Bisa Sore", "Paket": "150 rb", "Email": "daoedzka2020@gmail.com", "Status": "Pribadi", "No WA": "087874787808" } }
-            ]
+            jobs: []
         },
         {
             id: 2, 
             teamName: "Tim 2: Yudha & Bimo",
             colorClass: "bg-blue",
             members: ["yudha", "bimo"],
-            jobs: [
-                { name: "SITI ALFIAH", tag: "PSB (190mbps)", tagClass: "badge-psb", time: "11:00", address: "Cipinang Muara 04/03", details: { "Paket": "190 mbps", "No WA": "085659650190", "No KTP": "3171055402870002" } },
-                { name: "ACHMAD FIRDAUS", tag: "PSB (SRB)", tagClass: "badge-psb", time: "13:00", address: "Jl. Lio 2 RT. 03 RW. 04 No. 15", details: { "Paket": "SRB 150k upto 100mbps", "Biaya Regis": "50k", "Email": "achmadirsyadfirfaus@gmail.com", "Ref SRB": "Bapak OMIN (Ketua RT 03)", "No KTP": "3175030303941001" } },
-                { name: "ALFAN MUCHIBAH", tag: "EXTEND (+70rb)", tagClass: "badge-prio", time: "15:00", address: "Kampung Sumur RT 06/010 No.75 Duren Sawit", details: { "PENTING": "Pastikan pelanggan tau extend +70rb/bln", "Layanan": "1347005769", "Masa Aktif": "s/d 05 Feb 2026", "Status": "Pribadi", "No Telp": "085959869023" } },
-                { name: "IKHSAN AZIS SULTHONI", tag: "PINDAH RUMAH", tagClass: "badge-mt", time: "17:00", address: "Jln Dermaga Raya, Gg Kembar RT 04/17 No 17", details: { "Layanan": "1347004489", "Status": "Ngontrak (sudah 4 thn)", "Masa Aktif": "s/d 21 Jan 2026", "No Telp": "088976121346" } }
-            ]
+            jobs: []
         },
         {
             id: 3, 
             teamName: "Tim 3: Pian",
             colorClass: "bg-red",
             members: ["pian"],
-            jobs: [
-                { name: "HAIKAL ADMAJA M.", tag: "PSB (LATE 3 JAN)", tagClass: "badge-psb", time: "12:00", address: "Jl Raya Penggilingan Gg Aim Blok Vi No. 249", details: { "Patokan": "Bidan Ucu", "Paket": "150k + Regis 50k", "No WA": "6281511280707", "Status": "Sewa", "Tgl Pasang": "3 Jan 2025" } },
-                { name: "SUSWATI", tag: "MT (AMBIL MODEM)", tagClass: "badge-los", time: "FLEXIBEL", address: "Kp Pulojahe RT 11 RW 14", details: { "Action": "Ambil Modem", "Layanan": "0607115000", "No Telp": "085697891053", "Tgl Daftar": "06 Jan 2023" } }
-            ]
+            jobs: []
         }
     ];
 
-    // Array warna untuk Tim 4, 5, dst
     const extraColors = ["bg-orange", "bg-purple", "bg-teal", "bg-dark"];
+    let teams = [];
 
-    // Fungsi Render Tim & Jobs Dinamis
+    // --- FUNGSI LOAD DATA ---
+    function loadFirebaseData() {
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            document.getElementById('connection-status').innerText = "✅ Terhubung Online (Data Tersimpan)";
+            document.getElementById('connection-status').style.color = "green";
+
+            if (data) {
+                teams = data;
+            } else {
+                teams = JSON.parse(JSON.stringify(defaultTeams));
+                saveDataToFirebase();
+            }
+            renderJobs();
+        });
+    }
+
+    function saveDataToFirebase() {
+        set(dbRef, teams).then(() => {
+            console.log("Data tersimpan ke Firebase");
+        }).catch((err) => {
+            alert("Gagal menyimpan data ke server!");
+        });
+    }
+
     function renderJobs() {
         const container = document.getElementById('teams-container');
-        container.innerHTML = ''; // Bersihkan kontainer
+        container.innerHTML = ''; 
+
+        if (!Array.isArray(teams)) { teams = []; }
 
         teams.forEach((team, tIndex) => {
-            // 1. Buat Struktur HTML Tim
+            if(!team.jobs) team.jobs = [];
+
             const teamDiv = document.createElement('div');
             teamDiv.className = 'team-card';
             teamDiv.innerHTML = `
@@ -269,12 +329,12 @@
             `;
             container.appendChild(teamDiv);
 
-            // 2. Render Jobs di dalam Tim
             const listContainer = document.getElementById(`list-${team.id}`);
             
             team.jobs.forEach((job, index) => {
                 const li = document.createElement('li');
                 li.className = 'job-item';
+                if(job.completed) li.classList.add('completed');
                 
                 let detailHTML = '';
                 for (const [key, value] of Object.entries(job.details)) {
@@ -284,6 +344,7 @@
                 const uniqueId = `details-${team.id}-${index}`;
                 const checkboxId = `chk-${team.id}-${index}`;
                 const isPSB = job.tag.toUpperCase().includes("PSB");
+                const tech = job.technical || {};
 
                 let formHTML = '';
                 if (isPSB) {
@@ -291,13 +352,13 @@
                     <div class="manual-input-section">
                         <h4 style="margin:0 0 15px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4>
                         <div class="input-grid">
-                            <div class="input-group"><label>Kode SN</label><input type="text" class="realtime-input" id="sn-${team.id}-${index}" placeholder="ZTEGC..."></div>
-                            <div class="input-group"><label>Mac</label><input type="text" class="realtime-input" id="mac-${team.id}-${index}" placeholder="A1:B2..."></div>
-                            <div class="input-group"><label>Mac vlan</label><input type="text" class="realtime-input" id="vlan-${team.id}-${index}" placeholder="Vlan.."></div>
-                            <div class="input-group"><label>Panjang kabel</label><input type="text" class="realtime-input" id="kabel-${team.id}-${index}" placeholder="150m"></div>
-                            <div class="input-group"><label>Port</label><input type="text" class="realtime-input" id="port-${team.id}-${index}" placeholder="2"></div>
-                            <div class="input-group"><label>Id ODP</label><input type="text" class="realtime-input" id="odp-${team.id}-${index}" placeholder="ODP-.."></div>
-                            <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" class="realtime-input" id="redaman-${team.id}-${index}" placeholder="-18 dBm"></div>
+                            <div class="input-group"><label>Kode SN</label><input type="text" class="realtime-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="ZTEGC..."></div>
+                            <div class="input-group"><label>Mac</label><input type="text" class="realtime-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="A1:B2..."></div>
+                            <div class="input-group"><label>Mac vlan</label><input type="text" class="realtime-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Vlan.."></div>
+                            <div class="input-group"><label>Panjang kabel</label><input type="text" class="realtime-input" data-key="kabel" data-team="${tIndex}" data-job="${index}" value="${tech.kabel || ''}" placeholder="150m"></div>
+                            <div class="input-group"><label>Port</label><input type="text" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div>
+                            <div class="input-group"><label>Id ODP</label><input type="text" class="realtime-input" data-key="odp" data-team="${tIndex}" data-job="${index}" value="${tech.odp || ''}" placeholder="ODP-.."></div>
+                            <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" class="realtime-input" data-key="redaman" data-team="${tIndex}" data-job="${index}" value="${tech.redaman || ''}" placeholder="-18 dBm"></div>
                         </div>
                     </div>`;
                 }
@@ -305,15 +366,16 @@
                 li.innerHTML = `
                     <div class="job-main-row">
                         <div class="job-left">
-                            <input type="checkbox" id="${checkboxId}" class="custom-checkbox">
+                            <input type="checkbox" id="${checkboxId}" class="custom-checkbox" ${job.completed ? 'checked' : ''}>
                             <div class="customer-info">
                                 <h3>${job.name} <span class="badge ${job.tagClass}">${job.tag}</span></h3>
                                 <p>📍 ${job.address}</p>
                             </div>
                         </div>
                         <div class="action-buttons">
-                            <button class="btn-copy" onclick="copyData(${team.id}, ${index}, this)">📋 Copy Tiket</button>
+                            <button class="btn-copy" onclick="copyData(${tIndex}, ${index}, this)">📋 Copy</button>
                             <button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>
+                            <button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>
                         </div>
                     </div>
                     <div id="${uniqueId}" class="job-details">
@@ -328,66 +390,212 @@
 
                 const checkbox = document.getElementById(checkboxId);
                 checkbox.addEventListener('change', (e) => {
-                    updateFirebase(checkboxId, e.target.checked);
+                    teams[tIndex].jobs[index].completed = e.target.checked;
+                    saveDataToFirebase(); 
                 });
 
                 if(isPSB) {
                     const inputs = li.querySelectorAll('.realtime-input');
                     inputs.forEach(input => {
-                        input.addEventListener('input', (e) => {
-                            updateFirebase(e.target.id, e.target.value);
+                        input.addEventListener('change', (e) => {
+                            const key = e.target.getAttribute('data-key');
+                            if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
+                            teams[tIndex].jobs[index].technical[key] = e.target.value;
+                            saveDataToFirebase(); 
                         });
                     });
                 }
             });
-        });
-        
-        // Setelah render struktur baru, load ulang data firebase
-        loadFirebaseData();
-    }
-
-    function updateFirebase(id, value) {
-        update(dbRef, { [id]: value });
-    }
-
-    let currentSnapshot = null;
-
-    function loadFirebaseData() {
-        onValue(dbRef, (snapshot) => {
-            document.getElementById('connection-status').innerText = "✅ Terhubung Online";
-            document.getElementById('connection-status').style.color = "green";
-            currentSnapshot = snapshot.val();
-            applyFirebaseData();
+            updateProgressUI(team.id, team.jobs);
         });
     }
 
-    function applyFirebaseData() {
-        if (currentSnapshot) {
-            for (const [key, value] of Object.entries(currentSnapshot)) {
-                const el = document.getElementById(key);
-                if (el) {
-                    if (el.type === 'checkbox') {
-                        el.checked = value;
-                        const li = el.closest('.job-item');
-                        value ? li.classList.add('completed') : li.classList.remove('completed');
-                    } else {
-                        el.value = value;
-                    }
-                }
-            }
-        }
-        teams.forEach(t => updateProgressUI(t.id));
-    }
-
-    function updateProgressUI(teamId) {
-        const list = document.getElementById(`list-${teamId}`);
-        if(!list) return;
-        const total = list.querySelectorAll('input[type="checkbox"]').length;
-        const checked = list.querySelectorAll('input[type="checkbox"]:checked').length;
+    function updateProgressUI(teamId, jobs) {
+        const total = jobs.length;
+        const checked = jobs.filter(j => j.completed).length;
         const percent = (total === 0) ? 0 : (checked / total) * 100;
-        document.getElementById(`progress-${teamId}`).style.width = percent + '%';
-        document.getElementById(`count-${teamId}`).innerText = `${checked}/${total} Selesai`;
+        const bar = document.getElementById(`progress-${teamId}`);
+        const txt = document.getElementById(`count-${teamId}`);
+        if(bar) bar.style.width = percent + '%';
+        if(txt) txt.innerText = `${checked}/${total} Selesai`;
     }
+
+    window.deleteTicket = function(teamIndex, jobIndex) {
+        let pin = prompt("🔐 Masukkan PIN untuk menghapus tiket:");
+        if (pin !== "240525") {
+            alert("❌ PIN SALAH! Akses ditolak.");
+            return;
+        }
+        teams[teamIndex].jobs.splice(jobIndex, 1);
+        if (teams[teamIndex].jobs.length === 0) {
+            teams.splice(teamIndex, 1);
+        }
+        saveDataToFirebase();
+    }
+
+    // --- FITUR AUTO GENERATE DARI TEXT (PSB) ---
+    window.generateFromText = function() {
+        const raw = document.getElementById('psb-raw-text').value;
+        if (!raw) { alert("Paste data dulu!"); return; }
+
+        function getValue(label) {
+            const regex = new RegExp(label + "\\s*[:=]\\s*(.*)", "i");
+            const match = raw.match(regex);
+            return match ? match[1].trim() : "";
+        }
+
+        // Mapping Data PSB
+        document.getElementById('psb-nama').value = getValue("Nama Lengkap");
+        document.getElementById('psb-alamat').value = getValue("Alamat Lengkap");
+        document.getElementById('psb-email').value = getValue("Email Aktif");
+        document.getElementById('psb-wa').value = getValue("No. WA");
+        document.getElementById('psb-paket').value = getValue("Paket Layanan");
+        document.getElementById('psb-ktp').value = getValue("No KTP");
+        document.getElementById('psb-tgl').value = getValue("Tanggal Pemasangan");
+
+        // Logic Dropdown Status
+        const statusRaw = getValue("Status kepemilikan rumah").toLowerCase();
+        const selectStatus = document.getElementById('psb-status');
+        if (statusRaw.includes("sewa") || statusRaw.includes("kontrak")) {
+            selectStatus.value = "Sewa/Kontrak";
+        } else if (statusRaw.includes("kost")) {
+            selectStatus.value = "Kost";
+        } else {
+            selectStatus.value = "Pribadi";
+        }
+
+        alert("✅ Data PSB berhasil di-generate ke form!");
+    }
+
+    // --- FITUR AUTO GENERATE DARI TEXT (MT / LAIN) - BARU ---
+    window.generateFromTextMT = function() {
+        const raw = document.getElementById('mt-raw-text').value;
+        if (!raw) { alert("Paste data MT dulu!"); return; }
+
+        function getValue(label) {
+            // Regex mencari pola "Label : Isi" atau "Label = Isi"
+            const regex = new RegExp(label + "\\s*[:=]\\s*(.*)", "i");
+            const match = raw.match(regex);
+            return match ? match[1].trim() : "";
+        }
+
+        // Logic Mapping untuk Tiket MT
+        // Mencari "Nama Pelanggan" atau hanya "Nama"
+        const nama = getValue("Nama Pelanggan") || getValue("Nama");
+        if(nama) document.getElementById('mt-nama').value = nama;
+
+        // Mencari "Kendala", "Tag", atau "Keluhan"
+        const kendala = getValue("Kendala") || getValue("Keluhan") || getValue("Tag");
+        if(kendala) document.getElementById('mt-tag').value = kendala;
+        else document.getElementById('mt-tag').value = "MT"; // Default
+
+        // Mencari "No Layanan" atau "ID Pelanggan"
+        const layanan = getValue("No Layanan") || getValue("ID Pelanggan") || getValue("ID");
+        if(layanan) document.getElementById('mt-layanan').value = layanan;
+
+        // Mencari No Telp
+        const telp = getValue("No Telp") || getValue("No WA") || getValue("CP") || getValue("Contact");
+        if(telp) document.getElementById('mt-telp').value = telp;
+
+        // Mencari Tanggal
+        const tgl = getValue("Tanggal Daftar") || getValue("Tanggal Lapor") || getValue("Tanggal");
+        if(tgl) document.getElementById('mt-tgl').value = tgl;
+
+        // Mencari Coverage
+        const cov = getValue("Coverage") || getValue("Area") || getValue("Cover");
+        if(cov) document.getElementById('mt-coverage').value = cov;
+
+        // Mencari Alamat
+        const alamat = getValue("Alamat") || getValue("Alamat Lengkap") || getValue("Lokasi");
+        if(alamat) document.getElementById('mt-alamat').value = alamat;
+
+        alert("✅ Data MT berhasil di-generate ke form!");
+    }
+
+    window.addTicketToTeam = function() {
+        const t1 = document.getElementById('tech-1').value;
+        const t2 = document.getElementById('tech-2').value;
+
+        if(!t1) { alert("Pilih minimal Teknisi 1!"); return; }
+
+        let selectedMembers = [t1.toLowerCase()];
+        if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
+        selectedMembers.sort(); 
+
+        let targetTeamIndex = teams.findIndex(team => {
+            return JSON.stringify(team.members.sort()) === JSON.stringify(selectedMembers);
+        });
+
+        if (targetTeamIndex === -1) {
+            const newId = Date.now(); 
+            const colorIndex = (teams.length) % extraColors.length; 
+            const teamNameStr = `Tim Baru: ${t1}${t2 ? ' & '+t2 : ''}`;
+            const newTeamObj = {
+                id: newId,
+                teamName: teamNameStr,
+                colorClass: extraColors[colorIndex] || "bg-dark",
+                members: selectedMembers,
+                jobs: []
+            };
+            teams.push(newTeamObj);
+            targetTeamIndex = teams.length - 1;
+        }
+        
+        let newJob = {};
+        if(currentTab === 'psb') {
+            const nama = document.getElementById('psb-nama').value || "Tanpa Nama";
+            const jam = document.getElementById('psb-jam').value || "FLEXIBEL";
+            const alamat = document.getElementById('psb-alamat').value || "-";
+            const email = document.getElementById('psb-email').value;
+            const wa = document.getElementById('psb-wa').value;
+            const paket = document.getElementById('psb-paket').value;
+            const ktp = document.getElementById('psb-ktp').value;
+            const tgl = document.getElementById('psb-tgl').value;
+            const status = document.getElementById('psb-status').value;
+
+            newJob = {
+                completed: false,
+                technical: {},
+                name: nama,
+                tag: `PSB (${paket})`,
+                tagClass: "badge-psb",
+                time: jam,
+                address: alamat,
+                details: { "Paket": paket, "Email": email, "No WA": wa, "No KTP": ktp, "Status": status, "Tgl Pasang": tgl }
+            };
+        } else {
+            const nama = document.getElementById('mt-nama').value || "Tanpa Nama";
+            const layanan = document.getElementById('mt-layanan').value;
+            const tag = document.getElementById('mt-tag').value || "MT (LAIN)";
+            const telp = document.getElementById('mt-telp').value;
+            const tgl = document.getElementById('mt-tgl').value;
+            const coverage = document.getElementById('mt-coverage').value;
+            const alamat = document.getElementById('mt-alamat').value || "-";
+
+            newJob = {
+                completed: false,
+                technical: {},
+                name: nama,
+                tag: tag,
+                tagClass: "badge-mt", 
+                time: "FLEXIBEL",
+                address: alamat,
+                details: { "Layanan": layanan, "No Telp": telp, "Tgl Daftar": tgl, "Coverage": coverage }
+            };
+        }
+
+        teams[targetTeamIndex].jobs.push(newJob);
+        saveDataToFirebase();
+        closeModal();
+        alert(`✅ Tiket berhasil disimpan permanen ke ${teams[targetTeamIndex].teamName}`);
+    }
+
+    window.resetAll = function() {
+        if(confirm("AWAS! Ini akan me-reset database ke pengaturan awal. Yakin?")) {
+            teams = JSON.parse(JSON.stringify(defaultTeams));
+            saveDataToFirebase();
+        }
+    };
 
     function parseAddress(addr) {
         const rtMatch = addr.match(/RT\s*[\.\:\-\/]?\s*0?(\d+)/i);
@@ -405,24 +613,23 @@
         el.style.display = (el.style.display === "block") ? "none" : "block";
     };
 
-    window.copyData = async function(teamId, jobIndex, btn) {
-        const team = teams.find(t => t.id === teamId);
+    window.copyData = async function(teamIndex, jobIndex, btn) {
+        const team = teams[teamIndex];
         const job = team.jobs[jobIndex];
         const d = job.details;
+        const tech = job.technical || {};
         const isPSB = job.tag.toUpperCase().includes("PSB");
         let textToCopy = "";
 
         if (isPSB) {
-            const snVal = document.getElementById(`sn-${teamId}-${jobIndex}`)?.value || '-';
-            const macVal = document.getElementById(`mac-${teamId}-${jobIndex}`)?.value || '-';
-            const vlanVal = document.getElementById(`vlan-${teamId}-${jobIndex}`)?.value || '-';
-            const kabelVal = document.getElementById(`kabel-${teamId}-${jobIndex}`)?.value || '-';
-            const portVal = document.getElementById(`port-${teamId}-${jobIndex}`)?.value || '-';
-            const odpVal = document.getElementById(`odp-${teamId}-${jobIndex}`)?.value || '-';
-            const redamanVal = document.getElementById(`redaman-${teamId}-${jobIndex}`)?.value || '-';
-
+            const snVal = tech.sn || '-';
+            const macVal = tech.mac || '-';
+            const vlanVal = tech.vlan || '-';
+            const kabelVal = tech.kabel || '-';
+            const portVal = tech.port || '-';
+            const odpVal = tech.odp || '-';
+            const redamanVal = tech.redaman || '-';
             const technicalData = `\n--- DATA TEKNIS ---\nSN: ${snVal} | Mac: ${macVal}\nVlan: ${vlanVal} | Redaman: ${redamanVal}\nKabel: ${kabelVal} | Port: ${portVal} | ODP: ${odpVal}`;
-
             textToCopy = `Nama Lengkap : ${job.name} ( JAM ${job.time} )
 Alamat Lengkap : ${job.address}
 Email Aktif : ${d['Email'] || '-'}
@@ -433,25 +640,8 @@ Tanggal Pemasangan : ${job.time === 'FLEXIBEL' ? 'FLEXIBEL' : 'Sesuai Jadwal'}
 Bersedia berlangganan 1 tahun = Ya
 Foto Depan Rumah : ${technicalData}
 Status kepemilikan rumah : ${d['Status'] || 'Pribadi'}`;
-
         } else {
-            const noLayanan = d['No Layanan'] || d['Layanan'] || '-';
-            const phone = d['No Telp'] || d['No WA'] || '-';
-            const tglDaftar = d['Tgl Daftar'] || d['Tgl Pasang'] || '-';
-            const coverage = d['Coverage'] || '-';
-
-            textToCopy = `Nama Pelanggan
-: ${job.name}
-No Layanan
-: ${noLayanan}
-No Telp.
-: ${phone}
-Tanggal Daftar
-: ${tglDaftar}
-Coverage
-: ${coverage}
-Alamat
-: ${job.address}`;
+            textToCopy = `Nama Pelanggan : ${job.name}\nNo Layanan : ${d['Layanan']||'-'}\nNo Telp. : ${d['No Telp']||'-'}\nTanggal Daftar : ${d['Tgl Daftar']||'-'}\nCoverage : ${d['Coverage']||'-'}\nAlamat : ${job.address}`;
         }
         copyToClipboard(textToCopy, btn);
     };
@@ -459,24 +649,13 @@ Alamat
     window.copyAllSummary = function() {
         let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
         teams.forEach(team => {
-            summaryText += `━━━━━━━━━━━━━━━━━━\n`;
-            summaryText += `🛠️ *${team.teamName.toUpperCase()}*\n`; 
-            summaryText += `━━━━━━━━━━━━━━━━━━\n`;
+            summaryText += `━━━━━━━━━━━━━━━━━━\n🛠️ *${team.teamName.toUpperCase()}*\n━━━━━━━━━━━━━━━━━━\n`;
             team.jobs.forEach((job, index) => {
-                const checkbox = document.getElementById(`chk-${team.id}-${index}`);
-                const isChecked = checkbox ? checkbox.checked : false;
-                const statusText = isChecked ? "✅ SELESAI" : "⏳ PENDING";
-                const d = job.details;
-                const email = d['Email'];
-                const phone = d['No WA'] || d['No Telp'] || '-';
-                let line1 = `*${index + 1}. ${job.name}*`;
-                if (email) { line1 += ` | ✉️ ${email}`; }
-                let line2 = `   📱 ${phone} | 📍 ${job.address}`;
-                let line3 = `   🏷️ ${job.tag} | ${statusText}`;
-                summaryText += `${line1}\n${line2}\n${line3}\n\n`;
+                const statusText = job.completed ? "✅ SELESAI" : "⏳ PENDING";
+                const phone = job.details['No WA'] || job.details['No Telp'] || '-';
+                summaryText += `*${index + 1}. ${job.name}*\n   📱 ${phone} | 📍 ${job.address}\n   🏷️ ${job.tag} | ${statusText}\n\n`;
             });
         });
-        summaryText += `_Generated by Monitoring System Online_`;
         const btn = document.querySelector('.btn-copy-all');
         copyToClipboard(summaryText, btn, "✅ Rekap Tersalin!");
     };
@@ -488,90 +667,88 @@ Alamat
             const rawTechName = team.teamName.split(':')[1]?.trim() || team.teamName;
             team.jobs.forEach((job, index) => {
                 const d = job.details;
-                const checkbox = document.getElementById(`chk-${team.id}-${index}`);
-                const isDone = checkbox ? checkbox.checked : false;
-                const statusPengerjaan = isDone ? "Selesai" : "Pending";
-                const tglSelesai = isDone ? todayStr : "-"; 
-                const snInput = document.getElementById(`sn-${team.id}-${index}`);
-                const snValue = snInput ? snInput.value : "-";
+                const tech = job.technical || {};
                 const addressParts = parseAddress(job.address);
                 let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel;
                 if(kelurahan === '-') { 
                     if(job.address.includes("Jatinegara")) kelurahan = "Jatinegara";
                     if(job.address.includes("Cipinang")) kelurahan = "Cipinang";
                 }
-                const row = {
+                dataToExport.push({
                     "No Layanan": d['No Layanan'] || d['Layanan'] || "-",
                     "Nama Pelanggan": job.name,
-                    "Status Pengerjaan": statusPengerjaan,
+                    "Status Pengerjaan": job.completed ? "Selesai" : "Pending",
                     "Nomor Telpon": d['No WA'] || d['No Telp'] || "-",
-                    "Tanggal Selesai Kunjungan": tglSelesai,
+                    "Tanggal Selesai Kunjungan": job.completed ? todayStr : "-",
                     "Nama Teknisi": rawTechName,
                     "Alamat Lengkap": job.address,
                     "RT": addressParts.rt,
                     "RW": addressParts.rw,
                     "Area Kelurahan": kelurahan,
-                    "SN": snValue
-                };
-                dataToExport.push(row);
+                    "SN": tech.sn || "-"
+                });
             });
         });
         const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const wscols = [
-            {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, 
-            {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}
-        ];
+        const wscols = [{wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}];
         ws['!cols'] = wscols;
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Laporan Teknisi");
         XLSX.writeFile(wb, "Laporan_Teknisi_Sinyalku.xlsx");
     };
 
-    window.resetAll = function() {
-        if(confirm("AWAS! Ini akan menghapus SEMUA data checklist & inputan teknis di Database Online untuk semua orang. Yakin?")) {
-            set(dbRef, null).then(() => { alert("Database berhasil di-reset!"); });
+    async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") {
+        let success = false;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            try { await navigator.clipboard.writeText(text); success = true; } catch (err) {}
         }
-    };
-
-    // --- LOGIC POPUP / MODAL TIKET MANUAL ---
-    let currentTab = 'psb';
-
-    window.openModal = function() {
-        populateTechSelect(); // Isi dropdown saat modal dibuka
-        document.getElementById("modalTicket").style.display = "block";
+        if (!success) {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed"; textArea.style.left = "-9999px"; 
+                document.body.appendChild(textArea);
+                textArea.select();
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                if (successful) success = true;
+            } catch (err) {}
+        }
+        if (success && btnElement) {
+            const originalText = btnElement.innerHTML;
+            const originalBg = btnElement.style.backgroundColor;
+            btnElement.innerHTML = successMsg;
+            btnElement.style.backgroundColor = "#28a745"; 
+            setTimeout(() => {
+                btnElement.innerHTML = originalText;
+                btnElement.style.backgroundColor = originalBg;
+            }, 2000);
+        }
     }
 
+    let currentTab = 'psb';
+    window.openModal = function() {
+        let pin = prompt("🔒 Masukkan PIN untuk membuat tiket:");
+        if (pin !== "240525") { alert("❌ PIN SALAH! Akses ditolak."); return; }
+        populateTechSelect(); 
+        document.getElementById("modalTicket").style.display = "block";
+    }
     function populateTechSelect() {
         const s1 = document.getElementById('tech-1');
         const s2 = document.getElementById('tech-2');
-        if (s1.options.length > 0) return; // Jangan isi ulang jika sudah ada
-
+        if (s1.options.length > 0) return; 
         techList.forEach(name => {
-            const opt1 = new Option(name, name);
-            const opt2 = new Option(name, name);
-            s1.add(opt1);
-            s2.add(opt2);
+            s1.add(new Option(name, name));
+            s2.add(new Option(name, name));
         });
-        s1.selectedIndex = 0; // Default pilih yg pertama
-        s2.value = ""; // Default kosong
+        s1.selectedIndex = 0; s2.value = ""; 
     }
-
-    window.closeModal = function() {
-        document.getElementById("modalTicket").style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById("modalTicket");
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-
+    window.closeModal = function() { document.getElementById("modalTicket").style.display = "none"; }
+    window.onclick = function(event) { if (event.target == document.getElementById("modalTicket")) closeModal(); }
     window.switchTab = function(tab) {
         currentTab = tab;
         const btns = document.querySelectorAll('.tab-btn');
         btns.forEach(b => b.classList.remove('active'));
-        
         if(tab === 'psb') {
             btns[0].classList.add('active');
             document.getElementById('form-psb').style.display = 'block';
@@ -583,109 +760,7 @@ Alamat
         }
     }
 
-    window.addTicketToTeam = function() {
-        // 1. Ambil Nama Teknisi
-        const t1 = document.getElementById('tech-1').value;
-        const t2 = document.getElementById('tech-2').value;
-
-        if(!t1) { alert("Pilih minimal Teknisi 1!"); return; }
-
-        // Buat array member yg dipilih (lowercase, sort, filter kosong)
-        let selectedMembers = [t1.toLowerCase()];
-        if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
-        selectedMembers.sort(); // Urutkan biar "Dani & Kholis" sama dengan "Kholis & Dani"
-
-        // 2. Cek apakah tim dengan member ini sudah ada?
-        let targetTeam = teams.find(team => {
-            // Bandingkan array member
-            return JSON.stringify(team.members.sort()) === JSON.stringify(selectedMembers);
-        });
-
-        // 3. Jika Belum Ada, Buat Tim Baru (Tim 4, 5, dst)
-        if (!targetTeam) {
-            const newId = teams.length + 1; // ID Tim baru (misal Tim 4)
-            const colorIndex = (newId - 4) % extraColors.length; // Rotasi warna
-            const teamNameStr = `Tim ${newId}: ${t1}${t2 ? ' & '+t2 : ''}`;
-            
-            // Push ke array global teams
-            const newTeamObj = {
-                id: newId,
-                teamName: teamNameStr,
-                colorClass: newId <= 3 ? "bg-blue" : extraColors[colorIndex], // Fallback color
-                members: selectedMembers,
-                jobs: []
-            };
-            teams.push(newTeamObj);
-            targetTeam = newTeamObj; // Set target ke tim baru
-        }
-        
-        // 4. Siapkan Data Job Baru
-        let newJob = {};
-
-        if(currentTab === 'psb') {
-            const nama = document.getElementById('psb-nama').value || "Tanpa Nama";
-            const jam = document.getElementById('psb-jam').value || "FLEXIBEL";
-            const alamat = document.getElementById('psb-alamat').value || "-";
-            const email = document.getElementById('psb-email').value;
-            const wa = document.getElementById('psb-wa').value;
-            const paket = document.getElementById('psb-paket').value;
-            const ktp = document.getElementById('psb-ktp').value;
-            const tgl = document.getElementById('psb-tgl').value;
-            const status = document.getElementById('psb-status').value;
-
-            newJob = {
-                name: nama,
-                tag: `PSB (${paket})`,
-                tagClass: "badge-psb",
-                time: jam,
-                address: alamat,
-                details: {
-                    "Paket": paket,
-                    "Email": email,
-                    "No WA": wa,
-                    "No KTP": ktp,
-                    "Status": status,
-                    "Tgl Pasang": tgl
-                }
-            };
-        } else {
-            const nama = document.getElementById('mt-nama').value || "Tanpa Nama";
-            const layanan = document.getElementById('mt-layanan').value;
-            const tag = document.getElementById('mt-tag').value || "MT (LAIN)";
-            const telp = document.getElementById('mt-telp').value;
-            const tgl = document.getElementById('mt-tgl').value;
-            const coverage = document.getElementById('mt-coverage').value;
-            const alamat = document.getElementById('mt-alamat').value || "-";
-
-            newJob = {
-                name: nama,
-                tag: tag,
-                tagClass: "badge-mt", // Default kuning untuk MT
-                time: "FLEXIBEL",
-                address: alamat,
-                details: {
-                    "Layanan": layanan,
-                    "No Telp": telp,
-                    "Tgl Daftar": tgl,
-                    "Coverage": coverage
-                }
-            };
-        }
-
-        // 5. Masukkan Job ke Tim Target
-        targetTeam.jobs.push(newJob);
-        
-        // 6. Render Ulang Semua (Termasuk Tim baru jika ada)
-        renderJobs();
-        applyFirebaseData(); // Re-apply checkbox state
-        
-        // 7. Tutup Modal
-        closeModal();
-        alert(`✅ Tiket berhasil ditambahkan ke ${targetTeam.teamName}`);
-    }
-
-    // Jalankan render awal
-    renderJobs();
+    loadFirebaseData();
 </script>
 
 </body>
