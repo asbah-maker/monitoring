@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Auto Generator Plus</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory System Pro</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -51,16 +51,14 @@
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-top: 4px; }
         .badge-psb { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
         .badge-mt { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .badge-los { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
-        .badge-prio { background-color: #fce4ec; color: #c2185b; border: 1px solid #f8bbd0; }
-        .badge-info { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
         .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-        .toggle-btn, .btn-copy, .btn-delete { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex: 1; text-align: center; }
+        .toggle-btn, .btn-copy, .btn-delete, .btn-stok { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex: 1; text-align: center; }
         .toggle-btn { background: #f0f7ff; border: 1px solid #007bff; color: #007bff; }
         .btn-copy { background: #fff5eb; border: 1px solid #fd7e14; color: #fd7e14; }
         .btn-delete { background: #ffebee; border: 1px solid #dc3545; color: #dc3545; }
-        .btn-delete:hover { background: #dc3545; color: white; }
+        .btn-stok { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; flex: none; }
+        .btn-stok:hover { background: rgba(255,255,255,0.4); }
 
         .job-details { display: none; margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
         .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 15px; }
@@ -71,20 +69,25 @@
         .manual-input-section { background-color: #fff; border: 1px solid #dfe6ed; padding: 15px; border-radius: 8px; }
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .input-group label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 4px; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; }
+        .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; }
         
+        .modem-selector {
+            background-color: #e8f0fe;
+            border: 1px solid #1a73e8;
+            color: #1a73e8;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
         .progress-container { height: 6px; background: #e9ecef; width: 100%; }
         .progress-bar { height: 100%; background: #28a745; width: 0%; transition: width 0.4s ease; }
         .job-item.completed { background-color: #f6fff9; opacity: 0.8; }
         .job-item.completed .customer-info h3 { text-decoration: line-through; color: #999; }
-        .btn-reset { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 1rem; width: 100%; display: block; margin-top: 30px; margin-bottom: 50px; }
-        #connection-status { font-size: 0.75rem; color: #888; margin-top: 5px; }
-
+        
         /* MODAL STYLES */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); padding-top: 50px; }
         .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .close-modal { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .close-modal:hover { color: #000; }
         .tab-header { display: flex; margin-bottom: 20px; border-bottom: 1px solid #ddd; }
         .tab-btn { flex: 1; padding: 10px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: bold; color: #666; }
         .tab-btn.active { border-bottom-color: #007bff; color: #007bff; }
@@ -94,42 +97,36 @@
         .btn-add-list { width: 100%; padding: 12px; background-color: #6610f2; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         
         .tech-select-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f0f7ff; padding: 10px; border-radius: 8px; border: 1px solid #cce5ff; margin-bottom: 15px; }
-        .tech-select-wrapper label { color: #004085; font-weight: bold; font-size: 0.8rem; margin-bottom: 5px; display: block; }
 
         /* Generator Box Style */
-        .generator-box {
-            background: #e8f0fe; 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            border: 1px dashed #1a73e8;
-        }
-        .generator-box textarea {
-            width: 100%;
-            border: 1px solid #b1ccf0;
-            border-radius: 4px;
-            padding: 8px;
-            margin-top: 5px;
-            font-size: 0.85rem;
-            resize: vertical;
-        }
-        .btn-generate {
-            width: 100%;
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            margin-top: 8px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-        }
-        .btn-generate:hover { background-color: #1557b0; }
+        .generator-box { background: #e8f0fe; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed #1a73e8; }
+        .generator-box textarea { width: 100%; border: 1px solid #b1ccf0; border-radius: 4px; padding: 8px; margin-top: 5px; font-size: 0.85rem; resize: vertical; }
+        .btn-generate { width: 100%; background-color: #1a73e8; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; margin-top: 8px; cursor: pointer; }
 
+        /* --- STYLES BARU UNTUK TABEL STOK --- */
+        .table-stock { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        .table-stock th, .table-stock td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .table-stock th { background-color: #f8f9fa; color: #333; font-weight: bold; }
+        .table-stock tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        .btn-view-stock {
+            background: rgba(0,0,0,0.2); 
+            border: 1px solid rgba(255,255,255,0.4); 
+            color: white; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+        .btn-view-stock:hover { background: rgba(0,0,0,0.4); }
+        
+        .btn-icon-del {
+            background: #ffebee; color: #dc3545; border: 1px solid #dc3545;
+            border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem;
+        }
+        .btn-icon-del:hover { background: #ffcdd2; }
+        
         @media (max-width: 576px) {
             body { padding: 5px; background-color: #fff; } .container { padding: 0; }
             .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #eee; }
@@ -158,9 +155,49 @@
     <div id="teams-container">
         <p style="text-align: center; color: #888;">Memuat data...</p>
     </div>
+</div>
 
-    <div style="padding: 0 15px;">
-        <button class="btn-reset" onclick="resetAll()">🔄 Reset Data (Kembali ke Default)</button>
+<div id="modalStock" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeStockModal()">&times;</span>
+        <h2 style="margin-top: 0; text-align: center; color: #007bff;">📦 Input Stok Modem</h2>
+        <input type="hidden" id="stock-team-index">
+        
+        <div class="form-group">
+            <label>Serial Number (SN)</label>
+            <input type="text" id="stock-sn" placeholder="ZTEGC...">
+        </div>
+        <div class="form-group">
+            <label>MAC Address</label>
+            <input type="text" id="stock-mac" placeholder="A1:B2:C3...">
+        </div>
+        <button class="btn-add-list" style="background-color: #28a745;" onclick="saveStockToTeam()">➕ Simpan ke Stok Tim</button>
+    </div>
+</div>
+
+<div id="modalStockList" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <span class="close-modal" onclick="closeStockListModal()">&times;</span>
+        <h2 style="margin-top: 0; text-align: center; color: #17a2b8;">📦 Data Stok Modem</h2>
+        <h4 id="stock-list-title" style="text-align: center; margin: 0 0 15px 0; color: #666;"></h4>
+        
+        <div style="overflow-x: auto;">
+            <table class="table-stock">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">No</th>
+                        <th>Serial Number (SN)</th>
+                        <th>MAC Address</th>
+                        <th style="width: 60px; text-align: center;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="stock-table-body">
+                    </tbody>
+            </table>
+            <div id="stock-empty-msg" style="text-align: center; padding: 20px; color: #999; font-style: italic; display: none;">
+                Belum ada data stok modem.
+            </div>
+        </div>
     </div>
 </div>
 
@@ -255,30 +292,8 @@
     const techList = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Kholis", "Yudha", "Rival"];
     techList.sort(); 
 
-    // --- DATA DEFAULT ---
-    const defaultTeams = [
-        {
-            id: 1, 
-            teamName: "Tim 1: Kholis & Dani",
-            colorClass: "bg-green",
-            members: ["kholis", "dani"], 
-            jobs: []
-        },
-        {
-            id: 2, 
-            teamName: "Tim 2: Yudha & Bimo",
-            colorClass: "bg-blue",
-            members: ["yudha", "bimo"],
-            jobs: []
-        },
-        {
-            id: 3, 
-            teamName: "Tim 3: Pian",
-            colorClass: "bg-red",
-            members: ["pian"],
-            jobs: []
-        }
-    ];
+    // --- DATA DEFAULT KOSONG ---
+    const defaultTeams = [];
 
     const extraColors = ["bg-orange", "bg-purple", "bg-teal", "bg-dark"];
     let teams = [];
@@ -292,9 +307,10 @@
 
             if (data) {
                 teams = data;
+                // Patch untuk support data lama yg belum ada inventory
+                teams.forEach(t => { if(!t.inventory) t.inventory = []; });
             } else {
                 teams = JSON.parse(JSON.stringify(defaultTeams));
-                saveDataToFirebase();
             }
             renderJobs();
         });
@@ -314,15 +330,46 @@
 
         if (!Array.isArray(teams)) { teams = []; }
 
+        // --- UPDATE 1: SORTING AGAR URUT TIM 1, TIM 2, DST ---
+        teams.sort((a, b) => {
+            // Fungsi ambil angka dari nama tim. Jika tidak ada angka, kasi nilai besar agar ditaruh di bawah
+            const getNum = (str) => {
+                const match = str.match(/Tim\s+(\d+)/i);
+                return match ? parseInt(match[1]) : 99999;
+            };
+            return getNum(a.teamName) - getNum(b.teamName);
+        });
+        // ----------------------------------------------------
+
+        let visibleTeamsCount = 0;
+
         teams.forEach((team, tIndex) => {
             if(!team.jobs) team.jobs = [];
+            if(!team.inventory) team.inventory = [];
+
+            // --- Logika: Sembunyikan tim jika tidak ada tiket ---
+            if (team.jobs.length === 0) {
+                return; // Skip rendering tim ini
+            }
+            visibleTeamsCount++;
+            // ---------------------------------------------------
+
+            const stockCount = team.inventory.length;
 
             const teamDiv = document.createElement('div');
             teamDiv.className = 'team-card';
+            
             teamDiv.innerHTML = `
                 <div class="team-header ${team.colorClass}">
-                    <span>${team.teamName}</span>
-                    <span id="count-${team.id}" style="font-size: 0.9em;">0/0</span>
+                    <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                        <span>${team.teamName}</span>
+                        <span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok: ${stockCount} pcs</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <button class="btn-stok" onclick="openStockModal(${tIndex})">➕ Input</button>
+                        <button class="btn-view-stock" onclick="openStockListModal(${tIndex})">MODEM</button>
+                        <span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">0/0</span>
+                    </div>
                 </div>
                 <div class="progress-container"><div class="progress-bar" id="progress-${team.id}"></div></div>
                 <ul class="job-list" id="list-${team.id}"></ul>
@@ -330,6 +377,12 @@
             container.appendChild(teamDiv);
 
             const listContainer = document.getElementById(`list-${team.id}`);
+            
+            // Buat Opsi Dropdown Modem dari Inventory Tim
+            let modemOptions = `<option value="">-- Pilih Modem dari Stok (${stockCount}) --</option>`;
+            team.inventory.forEach(inv => {
+                modemOptions += `<option value="${inv.sn}|${inv.mac}">${inv.sn}</option>`;
+            });
             
             team.jobs.forEach((job, index) => {
                 const li = document.createElement('li');
@@ -350,10 +403,19 @@
                 if (isPSB) {
                     formHTML = `
                     <div class="manual-input-section">
-                        <h4 style="margin:0 0 15px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4>
+                        <h4 style="margin:0 0 10px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4>
+                        
+                        <div style="margin-bottom:10px;">
+                            <label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label>
+                            <select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})">
+                                ${modemOptions}
+                                <option value="manual">-- Input Manual (Ketik Sendiri) --</option>
+                            </select>
+                        </div>
+
                         <div class="input-grid">
-                            <div class="input-group"><label>Kode SN</label><input type="text" class="realtime-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="ZTEGC..."></div>
-                            <div class="input-group"><label>Mac</label><input type="text" class="realtime-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="A1:B2..."></div>
+                            <div class="input-group"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="ZTEGC..."></div>
+                            <div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="A1:B2..."></div>
                             <div class="input-group"><label>Mac vlan</label><input type="text" class="realtime-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Vlan.."></div>
                             <div class="input-group"><label>Panjang kabel</label><input type="text" class="realtime-input" data-key="kabel" data-team="${tIndex}" data-job="${index}" value="${tech.kabel || ''}" placeholder="150m"></div>
                             <div class="input-group"><label>Port</label><input type="text" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div>
@@ -408,6 +470,109 @@
             });
             updateProgressUI(team.id, team.jobs);
         });
+
+        if (visibleTeamsCount === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif.<br>Silakan buat tiket baru untuk memunculkan Tim.</div>';
+        }
+    }
+
+    // --- LOGIKA STOK MODEM (INPUT DENGAN PIN) ---
+    window.openStockModal = function(teamIndex) {
+        let pin = prompt("🔒 Masukkan PIN untuk Input Stok:");
+        if (pin !== "240525") {
+            alert("❌ PIN SALAH! Akses ditolak.");
+            return;
+        }
+        document.getElementById('stock-team-index').value = teamIndex;
+        document.getElementById('stock-sn').value = '';
+        document.getElementById('stock-mac').value = '';
+        document.getElementById('modalStock').style.display = "block";
+    }
+
+    window.closeStockModal = function() {
+        document.getElementById('modalStock').style.display = "none";
+    }
+
+    window.saveStockToTeam = function() {
+        const idx = document.getElementById('stock-team-index').value;
+        const sn = document.getElementById('stock-sn').value;
+        const mac = document.getElementById('stock-mac').value;
+
+        if(!sn || !mac) { alert("SN dan Mac harus diisi!"); return; }
+
+        if(!teams[idx].inventory) teams[idx].inventory = [];
+        
+        teams[idx].inventory.push({ sn: sn, mac: mac });
+        saveDataToFirebase();
+        closeStockModal();
+        alert("✅ Stok Modem berhasil ditambahkan!");
+    }
+
+    // --- LOGIKA LIST STOK (VIEW TABLE & DELETE DENGAN PIN) ---
+    window.openStockListModal = function(teamIndex) {
+        const team = teams[teamIndex];
+        const tbody = document.getElementById('stock-table-body');
+        const title = document.getElementById('stock-list-title');
+        const emptyMsg = document.getElementById('stock-empty-msg');
+        
+        title.innerText = team.teamName;
+        tbody.innerHTML = '';
+
+        if (!team.inventory || team.inventory.length === 0) {
+            emptyMsg.style.display = 'block';
+        } else {
+            emptyMsg.style.display = 'none';
+            team.inventory.forEach((item, stockIdx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align:center;">${stockIdx + 1}</td>
+                    <td>${item.sn}</td>
+                    <td>${item.mac}</td>
+                    <td style="text-align:center;">
+                        <button class="btn-icon-del" onclick="deleteStock(${teamIndex}, ${stockIdx})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        document.getElementById('modalStockList').style.display = 'block';
+    }
+
+    window.closeStockListModal = function() {
+        document.getElementById('modalStockList').style.display = 'none';
+    }
+
+    window.deleteStock = function(teamIndex, stockIndex) {
+        let pin = prompt("🔒 Masukkan PIN untuk Hapus Stok Modem:");
+        if (pin !== "240525") {
+            alert("❌ PIN SALAH! Akses ditolak.");
+            return;
+        }
+        teams[teamIndex].inventory.splice(stockIndex, 1);
+        saveDataToFirebase();
+        openStockListModal(teamIndex);
+    }
+
+    // Fungsi saat dropdown modem dipilih
+    window.fillModemData = function(selectEl, teamIdx, jobIdx) {
+        const val = selectEl.value;
+        if(val === "manual" || val === "") return; 
+
+        const parts = val.split("|");
+        const sn = parts[0];
+        const mac = parts[1];
+
+        // Update UI Input
+        document.getElementById(`sn-${teamIdx}-${jobIdx}`).value = sn;
+        document.getElementById(`mac-${teamIdx}-${jobIdx}`).value = mac;
+
+        // Update Data Firebase
+        if(!teams[teamIdx].jobs[jobIdx].technical) teams[teamIdx].jobs[jobIdx].technical = {};
+        teams[teamIdx].jobs[jobIdx].technical['sn'] = sn;
+        teams[teamIdx].jobs[jobIdx].technical['mac'] = mac;
+        
+        saveDataToFirebase();
     }
 
     function updateProgressUI(teamId, jobs) {
@@ -427,9 +592,6 @@
             return;
         }
         teams[teamIndex].jobs.splice(jobIndex, 1);
-        if (teams[teamIndex].jobs.length === 0) {
-            teams.splice(teamIndex, 1);
-        }
         saveDataToFirebase();
     }
 
@@ -444,7 +606,6 @@
             return match ? match[1].trim() : "";
         }
 
-        // Mapping Data PSB
         document.getElementById('psb-nama').value = getValue("Nama Lengkap");
         document.getElementById('psb-alamat').value = getValue("Alamat Lengkap");
         document.getElementById('psb-email').value = getValue("Email Aktif");
@@ -453,7 +614,6 @@
         document.getElementById('psb-ktp').value = getValue("No KTP");
         document.getElementById('psb-tgl').value = getValue("Tanggal Pemasangan");
 
-        // Logic Dropdown Status
         const statusRaw = getValue("Status kepemilikan rumah").toLowerCase();
         const selectStatus = document.getElementById('psb-status');
         if (statusRaw.includes("sewa") || statusRaw.includes("kontrak")) {
@@ -467,45 +627,36 @@
         alert("✅ Data PSB berhasil di-generate ke form!");
     }
 
-    // --- FITUR AUTO GENERATE DARI TEXT (MT / LAIN) - BARU ---
+    // --- FITUR AUTO GENERATE DARI TEXT (MT / LAIN) ---
     window.generateFromTextMT = function() {
         const raw = document.getElementById('mt-raw-text').value;
         if (!raw) { alert("Paste data MT dulu!"); return; }
 
         function getValue(label) {
-            // Regex mencari pola "Label : Isi" atau "Label = Isi"
             const regex = new RegExp(label + "\\s*[:=]\\s*(.*)", "i");
             const match = raw.match(regex);
             return match ? match[1].trim() : "";
         }
 
-        // Logic Mapping untuk Tiket MT
-        // Mencari "Nama Pelanggan" atau hanya "Nama"
         const nama = getValue("Nama Pelanggan") || getValue("Nama");
         if(nama) document.getElementById('mt-nama').value = nama;
 
-        // Mencari "Kendala", "Tag", atau "Keluhan"
         const kendala = getValue("Kendala") || getValue("Keluhan") || getValue("Tag");
         if(kendala) document.getElementById('mt-tag').value = kendala;
-        else document.getElementById('mt-tag').value = "MT"; // Default
+        else document.getElementById('mt-tag').value = "MT"; 
 
-        // Mencari "No Layanan" atau "ID Pelanggan"
         const layanan = getValue("No Layanan") || getValue("ID Pelanggan") || getValue("ID");
         if(layanan) document.getElementById('mt-layanan').value = layanan;
 
-        // Mencari No Telp
         const telp = getValue("No Telp") || getValue("No WA") || getValue("CP") || getValue("Contact");
         if(telp) document.getElementById('mt-telp').value = telp;
 
-        // Mencari Tanggal
         const tgl = getValue("Tanggal Daftar") || getValue("Tanggal Lapor") || getValue("Tanggal");
         if(tgl) document.getElementById('mt-tgl').value = tgl;
 
-        // Mencari Coverage
         const cov = getValue("Coverage") || getValue("Area") || getValue("Cover");
         if(cov) document.getElementById('mt-coverage').value = cov;
 
-        // Mencari Alamat
         const alamat = getValue("Alamat") || getValue("Alamat Lengkap") || getValue("Lokasi");
         if(alamat) document.getElementById('mt-alamat').value = alamat;
 
@@ -529,13 +680,27 @@
         if (targetTeamIndex === -1) {
             const newId = Date.now(); 
             const colorIndex = (teams.length) % extraColors.length; 
-            const teamNameStr = `Tim Baru: ${t1}${t2 ? ' & '+t2 : ''}`;
+            
+            // --- UPDATE 2: GENERATE NAMA TIM SECARA URUT (TIM 1, TIM 2...) ---
+            let maxNum = 0;
+            teams.forEach(t => {
+                const match = t.teamName.match(/Tim\s+(\d+)/i);
+                if(match) {
+                    const num = parseInt(match[1]);
+                    if(num > maxNum) maxNum = num;
+                }
+            });
+            const nextNum = maxNum + 1;
+            const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`;
+            // -----------------------------------------------------------------
+
             const newTeamObj = {
                 id: newId,
                 teamName: teamNameStr,
                 colorClass: extraColors[colorIndex] || "bg-dark",
                 members: selectedMembers,
-                jobs: []
+                jobs: [],
+                inventory: []
             };
             teams.push(newTeamObj);
             targetTeamIndex = teams.length - 1;
@@ -589,13 +754,6 @@
         closeModal();
         alert(`✅ Tiket berhasil disimpan permanen ke ${teams[targetTeamIndex].teamName}`);
     }
-
-    window.resetAll = function() {
-        if(confirm("AWAS! Ini akan me-reset database ke pengaturan awal. Yakin?")) {
-            teams = JSON.parse(JSON.stringify(defaultTeams));
-            saveDataToFirebase();
-        }
-    };
 
     function parseAddress(addr) {
         const rtMatch = addr.match(/RT\s*[\.\:\-\/]?\s*0?(\d+)/i);
@@ -744,7 +902,11 @@ Status kepemilikan rumah : ${d['Status'] || 'Pribadi'}`;
         s1.selectedIndex = 0; s2.value = ""; 
     }
     window.closeModal = function() { document.getElementById("modalTicket").style.display = "none"; }
-    window.onclick = function(event) { if (event.target == document.getElementById("modalTicket")) closeModal(); }
+    window.onclick = function(event) { 
+        if (event.target == document.getElementById("modalTicket")) closeModal();
+        if (event.target == document.getElementById("modalStock")) closeStockModal();
+        if (event.target == document.getElementById("modalStockList")) closeStockListModal();
+    }
     window.switchTab = function(tab) {
         currentTab = tab;
         const btns = document.querySelectorAll('.tab-btn');
