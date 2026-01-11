@@ -3,246 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Online Realtime</title>
+    <title>Monitoring Teknisi Sinyalku - All In One</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
-        /* --- RESET & BASE STYLES --- */
+        /* --- CSS SAMA SEPERTI SEBELUMNYA --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background-color: #f4f6f9; 
-            padding: 10px; 
-            color: #333; 
-            margin: 0; 
-            font-size: 14px;
+            background-color: #f4f6f9; padding: 10px; color: #333; margin: 0; font-size: 14px;
         }
-        
-        /* --- LAYOUT CONTAINER --- */
-        .container { 
-            max-width: 1000px; 
-            margin: 0 auto; 
-            width: 100%;
-        }
-
-        /* --- HEADER SECTION --- */
-        .header-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        
-        h1 { 
-            color: #2c3e50; 
-            margin: 0 0 15px 0; 
-            font-size: 1.5rem; 
-            line-height: 1.3; 
-        }
-
-        .btn-group-header {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
+        .container { max-width: 1000px; margin: 0 auto; width: 100%; }
+        .header-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; text-align: center; }
+        h1 { color: #2c3e50; margin: 0 0 15px 0; font-size: 1.5rem; line-height: 1.3; }
+        .btn-group-header { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         .btn-action-main {
-            color: white; border: none;
-            padding: 10px 20px; border-radius: 50px; cursor: pointer;
-            font-size: 0.9rem; font-weight: bold; 
-            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-            transition: transform 0.2s, background 0.2s;
-            display: inline-flex; align-items: center; gap: 8px;
+            color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer;
+            font-size: 0.9rem; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            transition: transform 0.2s; display: inline-flex; align-items: center; gap: 8px;
         }
         .btn-copy-all { background-color: #17a2b8; }
-        .btn-excel { background-color: #217346; } /* Warna Hijau Excel */
-
+        .btn-excel { background-color: #217346; }
+        .btn-ticket { background-color: #6610f2; }
         .btn-action-main:active { transform: scale(0.95); }
 
-        /* --- CARD TEAMS --- */
-        .team-card { 
-            background: white; 
-            border-radius: 12px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
-            margin-bottom: 20px; 
-            overflow: hidden; 
-            border: 1px solid #e1e4e8; 
-        }
-        
-        .team-header { 
-            padding: 15px; 
-            color: white; 
-            font-weight: bold; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            font-size: 1rem;
-        }
-
+        .team-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; border: 1px solid #e1e4e8; }
+        .team-header { padding: 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 1rem; }
         .header-team1 { background: linear-gradient(135deg, #007bff, #0056b3); } 
         .header-team2 { background: linear-gradient(135deg, #28a745, #1e7e34); } 
         .header-team3 { background: linear-gradient(135deg, #dc3545, #bd2130); }
 
-        /* --- JOB LIST --- */
         .job-list { list-style: none; padding: 0; margin: 0; }
-        .job-item { 
-            border-bottom: 1px solid #eee; 
-            padding: 15px; 
-            transition: background 0.2s; 
-        }
-        .job-item:last-child { border-bottom: none; }
+        .job-item { border-bottom: 1px solid #eee; padding: 15px; }
+        .job-main-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
+        .job-left { display: flex; align-items: flex-start; gap: 12px; flex: 1 1 60%; min-width: 250px; }
+        .custom-checkbox { width: 24px; height: 24px; cursor: pointer; accent-color: #28a745; flex-shrink: 0; margin-top: 2px; }
+        .customer-info h3 { margin: 0; font-size: 1.05rem; color: #2c3e50; }
+        .customer-info p { margin: 4px 0 0; font-size: 0.9rem; color: #666; }
 
-        /* --- JOB ROW LAYOUT --- */
-        .job-main-row { 
-            display: flex; 
-            flex-wrap: wrap; 
-            align-items: center; 
-            gap: 12px; 
-            justify-content: space-between;
-        }
-
-        .job-left { 
-            display: flex; 
-            align-items: flex-start; 
-            gap: 12px; 
-            flex: 1 1 60%; 
-            min-width: 250px;
-        }
-
-        .custom-checkbox { 
-            width: 24px; height: 24px; 
-            cursor: pointer; accent-color: #28a745; 
-            flex-shrink: 0; 
-            margin-top: 2px;
-        }
-
-        .customer-info h3 { 
-            margin: 0; font-size: 1.05rem; color: #2c3e50; line-height: 1.4;
-        }
-        .customer-info p { 
-            margin: 4px 0 0; font-size: 0.9rem; color: #666; 
-        }
-
-        /* --- BADGES --- */
-        .badge { 
-            padding: 4px 8px; border-radius: 6px; 
-            font-size: 0.75rem; font-weight: bold; 
-            text-transform: uppercase; display: inline-block; 
-            margin-top: 4px;
-        }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-top: 4px; }
         .badge-psb { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
         .badge-mt { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .badge-los { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
         .badge-prio { background-color: #fce4ec; color: #c2185b; border: 1px solid #f8bbd0; }
         .badge-info { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-        /* --- ACTION BUTTONS --- */
-        .action-buttons { 
-            display: flex; 
-            gap: 8px; 
-            flex-wrap: wrap; 
-        }
-        
-        .toggle-btn, .btn-copy { 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            font-size: 0.85rem; 
-            font-weight: 600; 
-            cursor: pointer;
-            white-space: nowrap;
-            flex: 1; 
-            text-align: center;
-        }
-
+        .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .toggle-btn, .btn-copy { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex: 1; text-align: center; }
         .toggle-btn { background: #f0f7ff; border: 1px solid #007bff; color: #007bff; }
         .btn-copy { background: #fff5eb; border: 1px solid #fd7e14; color: #fd7e14; }
 
-        /* --- DETAILS SECTION --- */
-        .job-details { 
-            display: none; 
-            margin-top: 15px; 
-            background-color: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #e9ecef;
-        }
-
-        .detail-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 12px; 
-            margin-bottom: 15px; 
-        }
-        
-        .detail-item { 
-            background: white; 
-            padding: 8px; 
-            border-radius: 4px; 
-            border: 1px solid #eee; 
-        }
+        .job-details { display: none; margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .detail-item { background: white; padding: 8px; border-radius: 4px; border: 1px solid #eee; }
         .detail-label { font-size: 0.75rem; color: #888; display: block; margin-bottom: 2px;}
         .detail-value { font-size: 0.95rem; color: #333; font-weight: 500; word-break: break-word; }
 
-        /* --- MANUAL INPUT FORM --- */
-        .manual-input-section { 
-            background-color: #fff; 
-            border: 1px solid #dfe6ed; 
-            padding: 15px; 
-            border-radius: 8px; 
-        }
-        .input-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-        }
-        @media (max-width: 600px) {
-            .input-grid { grid-template-columns: 1fr; }
-        }
-
+        .manual-input-section { background-color: #fff; border: 1px solid #dfe6ed; padding: 15px; border-radius: 8px; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .input-group label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 4px; }
-        .input-group input { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1px solid #ced4da; 
-            border-radius: 5px; 
-            font-size: 1rem; 
-        }
-
-        /* --- PROGRESS & COMPLETED STATE --- */
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; }
+        
         .progress-container { height: 6px; background: #e9ecef; width: 100%; }
         .progress-bar { height: 100%; background: #28a745; width: 0%; transition: width 0.4s ease; }
-        
         .job-item.completed { background-color: #f6fff9; opacity: 0.8; }
         .job-item.completed .customer-info h3 { text-decoration: line-through; color: #999; }
+        .btn-reset { background-color: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 1rem; width: 100%; display: block; margin-top: 30px; margin-bottom: 50px; }
+        #connection-status { font-size: 0.75rem; color: #888; margin-top: 5px; }
 
-        /* --- RESET BUTTON --- */
-        .btn-reset { 
-            background-color: #6c757d; color: white; border: none; 
-            padding: 12px; border-radius: 8px; cursor: pointer; 
-            font-size: 1rem; width: 100%; display: block; margin-top: 30px; margin-bottom: 50px;
-        }
-
-        /* --- STATUS CONNECTION --- */
-        #connection-status {
-            font-size: 0.75rem; color: #888; margin-top: 5px;
-        }
-
-        /* --- MEDIA QUERIES (KHUSUS HP) --- */
+        /* MODAL STYLES */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); padding-top: 50px; }
+        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .close-modal { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-modal:hover { color: #000; }
+        .tab-header { display: flex; margin-bottom: 20px; border-bottom: 1px solid #ddd; }
+        .tab-btn { flex: 1; padding: 10px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: bold; color: #666; }
+        .tab-btn.active { border-bottom-color: #007bff; color: #007bff; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 0.9rem; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+        .btn-add-list { width: 100%; padding: 12px; background-color: #6610f2; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
         @media (max-width: 576px) {
-            body { padding: 5px; background-color: #fff; }
-            .container { padding: 0; }
+            body { padding: 5px; background-color: #fff; } .container { padding: 0; }
             .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #eee; }
-            
             .header-section { margin: 15px 10px; }
-            
             .job-main-row { flex-direction: column; align-items: flex-start; }
-            .job-left { width: 100%; }
-            .action-buttons { width: 100%; margin-top: 10px; }
-            .toggle-btn, .btn-copy { width: 100%; padding: 10px; }
-            
-            .detail-grid { grid-template-columns: 1fr; }
+            .job-left, .action-buttons, .toggle-btn, .btn-copy { width: 100%; }
         }
     </style>
 </head>
@@ -256,6 +103,7 @@
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
+            <button class="btn-action-main btn-ticket" onclick="openModal()">📝 Buat Tiket Manual</button>
             <button class="btn-action-main btn-copy-all" onclick="copyAllSummary()">📑 Copy Rekap</button>
             <button class="btn-action-main btn-excel" onclick="downloadExcel()">📊 Download Excel</button>
         </div>
@@ -293,12 +141,62 @@
     </div>
 </div>
 
+<div id="modalTicket" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru</h2>
+        
+        <div class="form-group" style="background: #f0f7ff; padding: 10px; border-radius: 8px; border: 1px solid #cce5ff;">
+            <label style="color: #004085; font-weight: bold;">➡️ Pilih Teknisi / Tim:</label>
+            <select id="ticket-team-select" style="border: 2px solid #007bff;">
+                <option value="1">Tim 1: Kholis & Dani</option>
+                <option value="2">Tim 2: Yudha & Bimo</option>
+                <option value="3">Tim 3: Pian</option>
+            </select>
+        </div>
+
+        <div class="tab-header">
+            <button class="tab-btn active" onclick="switchTab('psb')">Tiket PSB</button>
+            <button class="tab-btn" onclick="switchTab('mt')">Tiket MT / Lain</button>
+        </div>
+
+        <div id="form-psb">
+            <div class="form-group"><label>Nama Lengkap</label><input type="text" id="psb-nama" placeholder="Contoh: Marlina"></div>
+            <div class="form-group"><label>Jam Kunjungan</label><input type="text" id="psb-jam" placeholder="Contoh: 13:00"></div>
+            <div class="form-group"><label>Alamat Lengkap</label><textarea id="psb-alamat" rows="2" placeholder="Jalan raya Bekasi..."></textarea></div>
+            <div class="form-group"><label>Email Aktif</label><input type="email" id="psb-email" placeholder="email@gmail.com"></div>
+            <div class="form-group"><label>No. WA</label><input type="tel" id="psb-wa" placeholder="08xxxxx"></div>
+            <div class="form-group"><label>Paket Layanan</label><input type="text" id="psb-paket" placeholder="150 ribu + free regist"></div>
+            <div class="form-group"><label>No KTP</label><input type="text" id="psb-ktp" placeholder="317506..."></div>
+            <div class="form-group"><label>Tanggal Pemasangan</label><input type="text" id="psb-tgl" placeholder="Hari ini / Tgl tertentu"></div>
+            <div class="form-group">
+                <label>Status Kepemilikan</label>
+                <select id="psb-status">
+                    <option value="Pribadi">Pribadi</option>
+                    <option value="Sewa/Kontrak">Sewa/Kontrak</option>
+                    <option value="Kost">Kost</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="form-mt" style="display: none;">
+            <div class="form-group"><label>Nama Pelanggan</label><input type="text" id="mt-nama" placeholder="Contoh: ABDUL"></div>
+            <div class="form-group"><label>Kendala / Tag</label><input type="text" id="mt-tag" placeholder="MT (LOS) / RAPIH KABEL"></div>
+            <div class="form-group"><label>No Layanan</label><input type="text" id="mt-layanan" placeholder="0607352848"></div>
+            <div class="form-group"><label>No Telp</label><input type="tel" id="mt-telp" placeholder="085280148797"></div>
+            <div class="form-group"><label>Tanggal Daftar</label><input type="text" id="mt-tgl" placeholder="17 November 2023"></div>
+            <div class="form-group"><label>Coverage</label><input type="text" id="mt-coverage" placeholder="Kel. Jatinegara"></div>
+            <div class="form-group"><label>Alamat</label><textarea id="mt-alamat" rows="2" placeholder="Kp rawa badung rt01..."></textarea></div>
+        </div>
+
+        <button class="btn-add-list" onclick="addTicketToTeam()">➕ Tambahkan ke List</button>
+    </div>
+</div>
+
 <script type="module">
-    // Import Firebase dari CDN
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Konfigurasi Firebase Anda
     const firebaseConfig = {
       apiKey: "AIzaSyA-qFL7CutiOoAEHXDXcGVsZA65yeG6G1A",
       authDomain: "monitoring-3aeb6.firebaseapp.com",
@@ -310,12 +208,11 @@
       measurementId: "G-PTL0F1FPK0"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const dbRef = ref(db, 'monitoring_data_7jan'); // Path Database
+    const dbRef = ref(db, 'monitoring_data_7jan'); 
 
-    // --- DATA STATIS (JOB LIST) ---
+    // --- DATA STATIS ---
     const teams = [
         {
             id: 1, 
@@ -349,7 +246,6 @@
         }
     ];
 
-    // --- RENDER HTML ---
     function renderJobs() {
         teams.forEach(team => {
             const listContainer = document.getElementById(`list-${team.id}`);
@@ -395,7 +291,7 @@
                             </div>
                         </div>
                         <div class="action-buttons">
-                            <button class="btn-copy" onclick="copyData(${team.id}, ${index}, this)">📋 Copy</button>
+                            <button class="btn-copy" onclick="copyData(${team.id}, ${index}, this)">📋 Copy Tiket</button>
                             <button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>
                         </div>
                     </div>
@@ -409,7 +305,6 @@
                 `;
                 listContainer.appendChild(li);
 
-                // Add Event Listeners for Realtime Sync
                 const checkbox = document.getElementById(checkboxId);
                 checkbox.addEventListener('change', (e) => {
                     updateFirebase(checkboxId, e.target.checked);
@@ -427,22 +322,15 @@
         });
     }
 
-    // --- FIREBASE SYNC FUNCTIONS ---
     function updateFirebase(id, value) {
-        // Simpan data dalam struktur { id_elemen : value }
-        update(dbRef, {
-            [id]: value
-        });
+        update(dbRef, { [id]: value });
     }
 
-    // LISTENER UTAMA: Baca data dari Firebase Realtime
     onValue(dbRef, (snapshot) => {
         document.getElementById('connection-status').innerText = "✅ Terhubung Online";
         document.getElementById('connection-status').style.color = "green";
-        
         const data = snapshot.val();
         if (data) {
-            // Loop semua elemen yang tersimpan di DB
             for (const [key, value] of Object.entries(data)) {
                 const el = document.getElementById(key);
                 if (el) {
@@ -451,21 +339,17 @@
                         const li = el.closest('.job-item');
                         value ? li.classList.add('completed') : li.classList.remove('completed');
                     } else {
-                        // Untuk text input
                         el.value = value;
                     }
                 }
             }
         } else {
-            // Jika DB kosong (reset), hilangkan semua centang/input
             document.querySelectorAll('input[type="checkbox"]').forEach(box => {
                 box.checked = false;
                 box.closest('.job-item').classList.remove('completed');
             });
             document.querySelectorAll('.realtime-input').forEach(inp => inp.value = '');
         }
-        
-        // Update Progress Bar UI
         teams.forEach(t => updateProgressUI(t.id));
     });
 
@@ -478,14 +362,10 @@
         document.getElementById(`count-${teamId}`).innerText = `${checked}/${total} Selesai`;
     }
 
-    // --- HELPER FUNCTION UNTUK PARSE ALAMAT ---
     function parseAddress(addr) {
-        // Regex sederhana untuk mencari RT dan RW
         const rtMatch = addr.match(/RT\s*[\.\:\-\/]?\s*0?(\d+)/i);
         const rwMatch = addr.match(/RW\s*[\.\:\-\/]?\s*0?(\d+)/i);
-        // Kelurahan biasanya setelah kata Kel. atau bisa diasumsikan dari data Coverage
         const kelMatch = addr.match(/Kel\.?\s*([A-Za-z\s]+)/i);
-
         return {
             rt: rtMatch ? rtMatch[1] : '-',
             rw: rwMatch ? rwMatch[1] : '-',
@@ -493,8 +373,6 @@
         };
     }
 
-    // --- GLOBAL FUNCTIONS (Agar bisa dipanggil onclick HTML) ---
-    
     window.toggleDetails = function(id) {
         const el = document.getElementById(id);
         el.style.display = (el.style.display === "block") ? "none" : "block";
@@ -505,19 +383,9 @@
         const job = team.jobs[jobIndex];
         const d = job.details;
         const isPSB = job.tag.toUpperCase().includes("PSB");
+        let textToCopy = "";
 
-        const email = d['Email'] || '-';
-        const wa = d['No WA'] || d['No Telp'] || '-';
-        const paket = d['Paket'] || d['Layanan'] || '-'; 
-        const regist = d['Biaya Regis'] || '-';
-        const ktp = d['No KTP'] || '-';
-        const refName = d['Ref SRB'] || d['Ref'] || '-';
-        
-        const headerInfo = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n--------------------------------`;
-
-        let technicalData = '';
         if (isPSB) {
-            // Ambil value langsung dari input element (sudah terisi via Firebase)
             const snVal = document.getElementById(`sn-${teamId}-${jobIndex}`).value || '-';
             const macVal = document.getElementById(`mac-${teamId}-${jobIndex}`).value || '-';
             const vlanVal = document.getElementById(`vlan-${teamId}-${jobIndex}`).value || '-';
@@ -526,39 +394,47 @@
             const odpVal = document.getElementById(`odp-${teamId}-${jobIndex}`).value || '-';
             const redamanVal = document.getElementById(`redaman-${teamId}-${jobIndex}`).value || '-';
 
-            technicalData = `\n\n--- DATA TEKNIS ---
-kode SN : ${snVal}
-Mac : ${macVal}
-Mac vlan : ${vlanVal}
-Panjang kabel : ${kabelVal}
-Port : ${portVal}
-Id ODP : ${odpVal}
-Redaman : ${redamanVal}`;
-        }
+            const technicalData = `\n--- DATA TEKNIS ---\nSN: ${snVal} | Mac: ${macVal}\nVlan: ${vlanVal} | Redaman: ${redamanVal}\nKabel: ${kabelVal} | Port: ${portVal} | ODP: ${odpVal}`;
 
-        const textToCopy = `${headerInfo}
-Nama Lengkap : ${job.name} ( JAM ${job.time} )
+            textToCopy = `Nama Lengkap : ${job.name} ( JAM ${job.time} )
 Alamat Lengkap : ${job.address}
-Email Aktif: ${email}
-No. Wa: ${wa}
-Paket Layanan : ${paket}
-Biaya regist : ${regist}
-No KTP : ${ktp}
-Tanggal/Jam Pemasangan : ${job.time === 'FLEXIBEL' ? 'FLEXIBEL' : 'Sesuai Jadwal'}
-Refrensi SRB dari : ${refName}
-FOTO Depan Rumah :${technicalData}`;
+Email Aktif : ${d['Email'] || '-'}
+No. WA : ${d['No WA'] || d['No Telp'] || '-'}
+Paket Layanan : ${d['Paket'] || '-'}
+No KTP : ${d['No KTP'] || '-'}
+Tanggal Pemasangan : ${job.time === 'FLEXIBEL' ? 'FLEXIBEL' : 'Sesuai Jadwal'}
+Bersedia berlangganan 1 tahun = Ya
+Foto Depan Rumah : ${technicalData}
+Status kepemilikan rumah : ${d['Status'] || 'Pribadi'}`;
 
+        } else {
+            const noLayanan = d['No Layanan'] || d['Layanan'] || '-';
+            const phone = d['No Telp'] || d['No WA'] || '-';
+            const tglDaftar = d['Tgl Daftar'] || d['Tgl Pasang'] || '-';
+            const coverage = d['Coverage'] || '-';
+
+            textToCopy = `Nama Pelanggan
+: ${job.name}
+No Layanan
+: ${noLayanan}
+No Telp.
+: ${phone}
+Tanggal Daftar
+: ${tglDaftar}
+Coverage
+: ${coverage}
+Alamat
+: ${job.address}`;
+        }
         copyToClipboard(textToCopy, btn);
     };
 
     window.copyAllSummary = function() {
         let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 7 Jan 2026\n\n`;
-
         teams.forEach(team => {
             summaryText += `━━━━━━━━━━━━━━━━━━\n`;
             summaryText += `🛠️ *${team.teamName.toUpperCase()}*\n`; 
             summaryText += `━━━━━━━━━━━━━━━━━━\n`;
-
             team.jobs.forEach((job, index) => {
                 const checkbox = document.getElementById(`chk-${team.id}-${index}`);
                 const isChecked = checkbox ? checkbox.checked : false;
@@ -566,54 +442,37 @@ FOTO Depan Rumah :${technicalData}`;
                 const d = job.details;
                 const email = d['Email'];
                 const phone = d['No WA'] || d['No Telp'] || '-';
-
                 let line1 = `*${index + 1}. ${job.name}*`;
                 if (email) { line1 += ` | ✉️ ${email}`; }
                 let line2 = `   📱 ${phone} | 📍 ${job.address}`;
                 let line3 = `   🏷️ ${job.tag} | ${statusText}`;
-
                 summaryText += `${line1}\n${line2}\n${line3}\n\n`;
             });
         });
-
         summaryText += `_Generated by Monitoring System Online_`;
         const btn = document.querySelector('.btn-copy-all');
         copyToClipboard(summaryText, btn, "✅ Rekap Tersalin!");
     };
 
-    // --- FUNGSI BARU: DOWNLOAD EXCEL ---
     window.downloadExcel = function() {
         let dataToExport = [];
         const todayStr = new Date().toLocaleDateString('id-ID');
-
         teams.forEach(team => {
-            // Ambil nama teknisi saja (hapus "Tim X: ")
             const rawTechName = team.teamName.split(':')[1]?.trim() || team.teamName;
-
             team.jobs.forEach((job, index) => {
                 const d = job.details;
-                
-                // 1. Ambil Status Checkbox
                 const checkbox = document.getElementById(`chk-${team.id}-${index}`);
                 const isDone = checkbox ? checkbox.checked : false;
                 const statusPengerjaan = isDone ? "Selesai" : "Pending";
-                const tglSelesai = isDone ? todayStr : "-"; // Tanggal hari ini jika selesai
-
-                // 2. Ambil SN (Jika ada input SN)
+                const tglSelesai = isDone ? todayStr : "-"; 
                 const snInput = document.getElementById(`sn-${team.id}-${index}`);
                 const snValue = snInput ? snInput.value : "-";
-
-                // 3. Parse Alamat untuk RT/RW/Kelurahan
                 const addressParts = parseAddress(job.address);
-                // Cek apakah Kelurahan ada di details 'Coverage' atau hasil parse
                 let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel;
                 if(kelurahan === '-') { 
-                    // Fallback kasar: ambil kata terakhir alamat jika mengandung "Jatinegara" dsb
                     if(job.address.includes("Jatinegara")) kelurahan = "Jatinegara";
                     if(job.address.includes("Cipinang")) kelurahan = "Cipinang";
                 }
-
-                // 4. Susun Baris Data sesuai Request
                 const row = {
                     "No Layanan": d['No Layanan'] || d['Layanan'] || "-",
                     "Nama Pelanggan": job.name,
@@ -627,31 +486,15 @@ FOTO Depan Rumah :${technicalData}`;
                     "Area Kelurahan": kelurahan,
                     "SN": snValue
                 };
-                
                 dataToExport.push(row);
             });
         });
-
-        // Buat Worksheet
         const ws = XLSX.utils.json_to_sheet(dataToExport);
-        
-        // Atur Lebar Kolom (Optional, biar rapi)
         const wscols = [
-            {wch: 15}, // No Lay
-            {wch: 25}, // Nama
-            {wch: 15}, // Status
-            {wch: 15}, // Telp
-            {wch: 15}, // Tgl
-            {wch: 20}, // Teknisi
-            {wch: 40}, // Alamat
-            {wch: 5},  // RT
-            {wch: 5},  // RW
-            {wch: 15}, // Kelurahan
-            {wch: 20}  // SN
+            {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, 
+            {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}
         ];
         ws['!cols'] = wscols;
-
-        // Buat Workbook dan Download
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Laporan Teknisi");
         XLSX.writeFile(wb, "Laporan_Teknisi_Sinyalku.xlsx");
@@ -659,11 +502,115 @@ FOTO Depan Rumah :${technicalData}`;
 
     window.resetAll = function() {
         if(confirm("AWAS! Ini akan menghapus SEMUA data checklist & inputan teknis di Database Online untuk semua orang. Yakin?")) {
-            set(dbRef, null).then(() => {
-                alert("Database berhasil di-reset!");
-            });
+            set(dbRef, null).then(() => { alert("Database berhasil di-reset!"); });
         }
     };
+
+    // --- LOGIC POPUP / MODAL TIKET MANUAL ---
+    let currentTab = 'psb';
+
+    window.openModal = function() {
+        document.getElementById("modalTicket").style.display = "block";
+    }
+
+    window.closeModal = function() {
+        document.getElementById("modalTicket").style.display = "none";
+    }
+
+    // Tutup modal jika klik di luar area konten
+    window.onclick = function(event) {
+        const modal = document.getElementById("modalTicket");
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    window.switchTab = function(tab) {
+        currentTab = tab;
+        const btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(b => b.classList.remove('active'));
+        
+        if(tab === 'psb') {
+            btns[0].classList.add('active');
+            document.getElementById('form-psb').style.display = 'block';
+            document.getElementById('form-mt').style.display = 'none';
+        } else {
+            btns[1].classList.add('active');
+            document.getElementById('form-psb').style.display = 'none';
+            document.getElementById('form-mt').style.display = 'block';
+        }
+    }
+
+    window.addTicketToTeam = function() {
+        // 1. Ambil ID Tim yang dipilih
+        const teamId = parseInt(document.getElementById('ticket-team-select').value);
+        
+        // 2. Siapkan Variabel Data Baru
+        let newJob = {};
+
+        if(currentTab === 'psb') {
+            const nama = document.getElementById('psb-nama').value || "Tanpa Nama";
+            const jam = document.getElementById('psb-jam').value || "FLEXIBEL";
+            const alamat = document.getElementById('psb-alamat').value || "-";
+            const email = document.getElementById('psb-email').value;
+            const wa = document.getElementById('psb-wa').value;
+            const paket = document.getElementById('psb-paket').value;
+            const ktp = document.getElementById('psb-ktp').value;
+            const tgl = document.getElementById('psb-tgl').value;
+            const status = document.getElementById('psb-status').value;
+
+            newJob = {
+                name: nama,
+                tag: `PSB (${paket})`,
+                tagClass: "badge-psb",
+                time: jam,
+                address: alamat,
+                details: {
+                    "Paket": paket,
+                    "Email": email,
+                    "No WA": wa,
+                    "No KTP": ktp,
+                    "Status": status,
+                    "Tgl Pasang": tgl
+                }
+            };
+        } else {
+            const nama = document.getElementById('mt-nama').value || "Tanpa Nama";
+            const layanan = document.getElementById('mt-layanan').value;
+            const tag = document.getElementById('mt-tag').value || "MT (LAIN)";
+            const telp = document.getElementById('mt-telp').value;
+            const tgl = document.getElementById('mt-tgl').value;
+            const coverage = document.getElementById('mt-coverage').value;
+            const alamat = document.getElementById('mt-alamat').value || "-";
+
+            newJob = {
+                name: nama,
+                tag: tag,
+                tagClass: "badge-mt", // Default kuning untuk MT
+                time: "FLEXIBEL",
+                address: alamat,
+                details: {
+                    "Layanan": layanan,
+                    "No Telp": telp,
+                    "Tgl Daftar": tgl,
+                    "Coverage": coverage
+                }
+            };
+        }
+
+        // 3. Masukkan ke Array Teams
+        const targetTeam = teams.find(t => t.id === teamId);
+        if(targetTeam) {
+            targetTeam.jobs.push(newJob);
+            
+            // 4. Render Ulang Layar
+            renderJobs();
+            
+            // 5. Tutup Modal & Notif
+            closeModal();
+            alert(`✅ Tiket berhasil ditambahkan ke ${targetTeam.teamName}`);
+        }
+    }
 
     async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") {
         let success = false;
@@ -682,34 +629,20 @@ FOTO Depan Rumah :${technicalData}`;
                 if (successful) success = true;
             } catch (err) {}
         }
-
         if (success && btnElement) {
             const originalText = btnElement.innerHTML;
             const originalBg = btnElement.style.backgroundColor;
-            
             btnElement.innerHTML = successMsg;
             btnElement.style.backgroundColor = "#28a745"; 
-            if(btnElement.classList.contains('btn-copy')) {
-                btnElement.style.borderColor = "#28a745"; 
-                btnElement.style.color = "#fff";
-                btnElement.style.backgroundColor = "#28a745";
-            }
-
             setTimeout(() => {
                 btnElement.innerHTML = originalText;
                 btnElement.style.backgroundColor = originalBg;
-                if(btnElement.classList.contains('btn-copy')) {
-                    btnElement.style.borderColor = "#fd7e14"; 
-                    btnElement.style.color = "#fd7e14";
-                    btnElement.style.backgroundColor = "#fff5eb";
-                }
             }, 2000);
         } else {
             alert("Gagal menyalin data. Silakan coba manual.");
         }
     }
 
-    // Initialize Render
     renderJobs();
 </script>
 
