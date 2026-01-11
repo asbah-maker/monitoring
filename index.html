@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - All In One</title>
+    <title>Monitoring Teknisi Sinyalku - Auto Team</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
-        /* --- CSS SAMA SEPERTI SEBELUMNYA --- */
+        /* --- CSS UTAMA --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
@@ -29,9 +29,15 @@
 
         .team-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; border: 1px solid #e1e4e8; }
         .team-header { padding: 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 1rem; }
-        .header-team1 { background: linear-gradient(135deg, #007bff, #0056b3); } 
-        .header-team2 { background: linear-gradient(135deg, #28a745, #1e7e34); } 
-        .header-team3 { background: linear-gradient(135deg, #dc3545, #bd2130); }
+        
+        /* Warna Header Tim Dinamis */
+        .bg-blue { background: linear-gradient(135deg, #007bff, #0056b3); } 
+        .bg-green { background: linear-gradient(135deg, #28a745, #1e7e34); } 
+        .bg-red { background: linear-gradient(135deg, #dc3545, #bd2130); }
+        .bg-orange { background: linear-gradient(135deg, #fd7e14, #e35d0b); }
+        .bg-purple { background: linear-gradient(135deg, #6f42c1, #59359a); }
+        .bg-teal { background: linear-gradient(135deg, #20c997, #198766); }
+        .bg-dark { background: linear-gradient(135deg, #343a40, #23272b); }
 
         .job-list { list-style: none; padding: 0; margin: 0; }
         .job-item { border-bottom: 1px solid #eee; padding: 15px; }
@@ -84,6 +90,10 @@
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
         .btn-add-list { width: 100%; padding: 12px; background-color: #6610f2; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         
+        /* New Style for Tech Select */
+        .tech-select-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f0f7ff; padding: 10px; border-radius: 8px; border: 1px solid #cce5ff; margin-bottom: 15px; }
+        .tech-select-wrapper label { color: #004085; font-weight: bold; font-size: 0.8rem; margin-bottom: 5px; display: block; }
+
         @media (max-width: 576px) {
             body { padding: 5px; background-color: #fff; } .container { padding: 0; }
             .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #eee; }
@@ -109,32 +119,8 @@
         </div>
     </div>
 
-    <div class="team-card">
-        <div class="team-header header-team2">
-            <span>Tim 1: Kholis & Dani</span>
-            <span id="count-1" style="font-size: 0.9em;">0/0</span>
+    <div id="teams-container">
         </div>
-        <div class="progress-container"><div class="progress-bar" id="progress-1"></div></div>
-        <ul class="job-list" id="list-1"></ul>
-    </div>
-
-    <div class="team-card">
-        <div class="team-header header-team1">
-            <span>Tim 2: Yudha & Bimo</span>
-            <span id="count-2" style="font-size: 0.9em;">0/0</span>
-        </div>
-        <div class="progress-container"><div class="progress-bar" id="progress-2"></div></div>
-        <ul class="job-list" id="list-2"></ul>
-    </div>
-
-    <div class="team-card">
-        <div class="team-header header-team3">
-            <span>Tim 3: Pian</span>
-            <span id="count-3" style="font-size: 0.9em;">0/0</span>
-        </div>
-        <div class="progress-container"><div class="progress-bar" id="progress-3"></div></div>
-        <ul class="job-list" id="list-3"></ul>
-    </div>
 
     <div style="padding: 0 15px;">
         <button class="btn-reset" onclick="resetAll()">🔄 Reset Data (Hapus Database)</button>
@@ -146,13 +132,17 @@
         <span class="close-modal" onclick="closeModal()">&times;</span>
         <h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru</h2>
         
-        <div class="form-group" style="background: #f0f7ff; padding: 10px; border-radius: 8px; border: 1px solid #cce5ff;">
-            <label style="color: #004085; font-weight: bold;">➡️ Pilih Teknisi / Tim:</label>
-            <select id="ticket-team-select" style="border: 2px solid #007bff;">
-                <option value="1">Tim 1: Kholis & Dani</option>
-                <option value="2">Tim 2: Yudha & Bimo</option>
-                <option value="3">Tim 3: Pian</option>
-            </select>
+        <div class="tech-select-container">
+            <div class="tech-select-wrapper">
+                <label>👤 Teknisi 1 (Wajib)</label>
+                <select id="tech-1"></select>
+            </div>
+            <div class="tech-select-wrapper">
+                <label>👤 Teknisi 2 (Opsional)</label>
+                <select id="tech-2">
+                    <option value="">-- Kosong --</option>
+                </select>
+            </div>
         </div>
 
         <div class="tab-header">
@@ -212,11 +202,18 @@
     const db = getDatabase(app);
     const dbRef = ref(db, 'monitoring_data_7jan'); 
 
-    // --- DATA STATIS ---
-    const teams = [
+    // --- DATA TEKNISI ---
+    const techList = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Kholis", "Yudha", "Rival"];
+    techList.sort(); // Urutkan Abjad
+
+    // --- DATA TIM DINAMIS (Bisa Bertambah) ---
+    // Members harus lowercase untuk pencarian
+    let teams = [
         {
             id: 1, 
             teamName: "Tim 1: Kholis & Dani",
+            colorClass: "bg-green",
+            members: ["kholis", "dani"], 
             jobs: [
                 { name: "TIARA FAJRINI", tag: "PSB (150rb)", tagClass: "badge-psb", time: "11:00", address: "Jl Tipar Cakung GG Toge RT 05 RW 05 (Samping Mushola Al Ikhlas)", details: { "Paket": "150k + Regis 50k", "Email": "mmjani8686@gmail.com", "Ref": "Abdul Azis", "No WA": "085211594767", "Status": "Ngontrak", "No KTP": "3172036309940009" } },
                 { name: "VIA KURNIAWATI", tag: "MT (LOS - PRIO)", tagClass: "badge-los", time: "11:00", address: "Jatinegara, Kota Jakarta Timur (Status: Sewa)", details: { "Kendala": "Baru pasang LOS, Kunjungan Prioritas", "No Layanan": "1393005746", "Masa Aktif": "s/d 04 Feb 2026", "Tgl Daftar": "04 Jan 2026", "Coverage": "Kel. Jatinegara" } },
@@ -229,6 +226,8 @@
         {
             id: 2, 
             teamName: "Tim 2: Yudha & Bimo",
+            colorClass: "bg-blue",
+            members: ["yudha", "bimo"],
             jobs: [
                 { name: "SITI ALFIAH", tag: "PSB (190mbps)", tagClass: "badge-psb", time: "11:00", address: "Cipinang Muara 04/03", details: { "Paket": "190 mbps", "No WA": "085659650190", "No KTP": "3171055402870002" } },
                 { name: "ACHMAD FIRDAUS", tag: "PSB (SRB)", tagClass: "badge-psb", time: "13:00", address: "Jl. Lio 2 RT. 03 RW. 04 No. 15", details: { "Paket": "SRB 150k upto 100mbps", "Biaya Regis": "50k", "Email": "achmadirsyadfirfaus@gmail.com", "Ref SRB": "Bapak OMIN (Ketua RT 03)", "No KTP": "3175030303941001" } },
@@ -239,6 +238,8 @@
         {
             id: 3, 
             teamName: "Tim 3: Pian",
+            colorClass: "bg-red",
+            members: ["pian"],
             jobs: [
                 { name: "HAIKAL ADMAJA M.", tag: "PSB (LATE 3 JAN)", tagClass: "badge-psb", time: "12:00", address: "Jl Raya Penggilingan Gg Aim Blok Vi No. 249", details: { "Patokan": "Bidan Ucu", "Paket": "150k + Regis 50k", "No WA": "6281511280707", "Status": "Sewa", "Tgl Pasang": "3 Jan 2025" } },
                 { name: "SUSWATI", tag: "MT (AMBIL MODEM)", tagClass: "badge-los", time: "FLEXIBEL", address: "Kp Pulojahe RT 11 RW 14", details: { "Action": "Ambil Modem", "Layanan": "0607115000", "No Telp": "085697891053", "Tgl Daftar": "06 Jan 2023" } }
@@ -246,11 +247,31 @@
         }
     ];
 
-    function renderJobs() {
-        teams.forEach(team => {
-            const listContainer = document.getElementById(`list-${team.id}`);
-            listContainer.innerHTML = ''; 
+    // Array warna untuk Tim 4, 5, dst
+    const extraColors = ["bg-orange", "bg-purple", "bg-teal", "bg-dark"];
 
+    // Fungsi Render Tim & Jobs Dinamis
+    function renderJobs() {
+        const container = document.getElementById('teams-container');
+        container.innerHTML = ''; // Bersihkan kontainer
+
+        teams.forEach((team, tIndex) => {
+            // 1. Buat Struktur HTML Tim
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'team-card';
+            teamDiv.innerHTML = `
+                <div class="team-header ${team.colorClass}">
+                    <span>${team.teamName}</span>
+                    <span id="count-${team.id}" style="font-size: 0.9em;">0/0</span>
+                </div>
+                <div class="progress-container"><div class="progress-bar" id="progress-${team.id}"></div></div>
+                <ul class="job-list" id="list-${team.id}"></ul>
+            `;
+            container.appendChild(teamDiv);
+
+            // 2. Render Jobs di dalam Tim
+            const listContainer = document.getElementById(`list-${team.id}`);
+            
             team.jobs.forEach((job, index) => {
                 const li = document.createElement('li');
                 li.className = 'job-item';
@@ -320,18 +341,29 @@
                 }
             });
         });
+        
+        // Setelah render struktur baru, load ulang data firebase
+        loadFirebaseData();
     }
 
     function updateFirebase(id, value) {
         update(dbRef, { [id]: value });
     }
 
-    onValue(dbRef, (snapshot) => {
-        document.getElementById('connection-status').innerText = "✅ Terhubung Online";
-        document.getElementById('connection-status').style.color = "green";
-        const data = snapshot.val();
-        if (data) {
-            for (const [key, value] of Object.entries(data)) {
+    let currentSnapshot = null;
+
+    function loadFirebaseData() {
+        onValue(dbRef, (snapshot) => {
+            document.getElementById('connection-status').innerText = "✅ Terhubung Online";
+            document.getElementById('connection-status').style.color = "green";
+            currentSnapshot = snapshot.val();
+            applyFirebaseData();
+        });
+    }
+
+    function applyFirebaseData() {
+        if (currentSnapshot) {
+            for (const [key, value] of Object.entries(currentSnapshot)) {
                 const el = document.getElementById(key);
                 if (el) {
                     if (el.type === 'checkbox') {
@@ -343,18 +375,13 @@
                     }
                 }
             }
-        } else {
-            document.querySelectorAll('input[type="checkbox"]').forEach(box => {
-                box.checked = false;
-                box.closest('.job-item').classList.remove('completed');
-            });
-            document.querySelectorAll('.realtime-input').forEach(inp => inp.value = '');
         }
         teams.forEach(t => updateProgressUI(t.id));
-    });
+    }
 
     function updateProgressUI(teamId) {
         const list = document.getElementById(`list-${teamId}`);
+        if(!list) return;
         const total = list.querySelectorAll('input[type="checkbox"]').length;
         const checked = list.querySelectorAll('input[type="checkbox"]:checked').length;
         const percent = (total === 0) ? 0 : (checked / total) * 100;
@@ -386,13 +413,13 @@
         let textToCopy = "";
 
         if (isPSB) {
-            const snVal = document.getElementById(`sn-${teamId}-${jobIndex}`).value || '-';
-            const macVal = document.getElementById(`mac-${teamId}-${jobIndex}`).value || '-';
-            const vlanVal = document.getElementById(`vlan-${teamId}-${jobIndex}`).value || '-';
-            const kabelVal = document.getElementById(`kabel-${teamId}-${jobIndex}`).value || '-';
-            const portVal = document.getElementById(`port-${teamId}-${jobIndex}`).value || '-';
-            const odpVal = document.getElementById(`odp-${teamId}-${jobIndex}`).value || '-';
-            const redamanVal = document.getElementById(`redaman-${teamId}-${jobIndex}`).value || '-';
+            const snVal = document.getElementById(`sn-${teamId}-${jobIndex}`)?.value || '-';
+            const macVal = document.getElementById(`mac-${teamId}-${jobIndex}`)?.value || '-';
+            const vlanVal = document.getElementById(`vlan-${teamId}-${jobIndex}`)?.value || '-';
+            const kabelVal = document.getElementById(`kabel-${teamId}-${jobIndex}`)?.value || '-';
+            const portVal = document.getElementById(`port-${teamId}-${jobIndex}`)?.value || '-';
+            const odpVal = document.getElementById(`odp-${teamId}-${jobIndex}`)?.value || '-';
+            const redamanVal = document.getElementById(`redaman-${teamId}-${jobIndex}`)?.value || '-';
 
             const technicalData = `\n--- DATA TEKNIS ---\nSN: ${snVal} | Mac: ${macVal}\nVlan: ${vlanVal} | Redaman: ${redamanVal}\nKabel: ${kabelVal} | Port: ${portVal} | ODP: ${odpVal}`;
 
@@ -430,7 +457,7 @@ Alamat
     };
 
     window.copyAllSummary = function() {
-        let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 7 Jan 2026\n\n`;
+        let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
         teams.forEach(team => {
             summaryText += `━━━━━━━━━━━━━━━━━━\n`;
             summaryText += `🛠️ *${team.teamName.toUpperCase()}*\n`; 
@@ -510,14 +537,29 @@ Alamat
     let currentTab = 'psb';
 
     window.openModal = function() {
+        populateTechSelect(); // Isi dropdown saat modal dibuka
         document.getElementById("modalTicket").style.display = "block";
+    }
+
+    function populateTechSelect() {
+        const s1 = document.getElementById('tech-1');
+        const s2 = document.getElementById('tech-2');
+        if (s1.options.length > 0) return; // Jangan isi ulang jika sudah ada
+
+        techList.forEach(name => {
+            const opt1 = new Option(name, name);
+            const opt2 = new Option(name, name);
+            s1.add(opt1);
+            s2.add(opt2);
+        });
+        s1.selectedIndex = 0; // Default pilih yg pertama
+        s2.value = ""; // Default kosong
     }
 
     window.closeModal = function() {
         document.getElementById("modalTicket").style.display = "none";
     }
 
-    // Tutup modal jika klik di luar area konten
     window.onclick = function(event) {
         const modal = document.getElementById("modalTicket");
         if (event.target == modal) {
@@ -542,10 +584,42 @@ Alamat
     }
 
     window.addTicketToTeam = function() {
-        // 1. Ambil ID Tim yang dipilih
-        const teamId = parseInt(document.getElementById('ticket-team-select').value);
+        // 1. Ambil Nama Teknisi
+        const t1 = document.getElementById('tech-1').value;
+        const t2 = document.getElementById('tech-2').value;
+
+        if(!t1) { alert("Pilih minimal Teknisi 1!"); return; }
+
+        // Buat array member yg dipilih (lowercase, sort, filter kosong)
+        let selectedMembers = [t1.toLowerCase()];
+        if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
+        selectedMembers.sort(); // Urutkan biar "Dani & Kholis" sama dengan "Kholis & Dani"
+
+        // 2. Cek apakah tim dengan member ini sudah ada?
+        let targetTeam = teams.find(team => {
+            // Bandingkan array member
+            return JSON.stringify(team.members.sort()) === JSON.stringify(selectedMembers);
+        });
+
+        // 3. Jika Belum Ada, Buat Tim Baru (Tim 4, 5, dst)
+        if (!targetTeam) {
+            const newId = teams.length + 1; // ID Tim baru (misal Tim 4)
+            const colorIndex = (newId - 4) % extraColors.length; // Rotasi warna
+            const teamNameStr = `Tim ${newId}: ${t1}${t2 ? ' & '+t2 : ''}`;
+            
+            // Push ke array global teams
+            const newTeamObj = {
+                id: newId,
+                teamName: teamNameStr,
+                colorClass: newId <= 3 ? "bg-blue" : extraColors[colorIndex], // Fallback color
+                members: selectedMembers,
+                jobs: []
+            };
+            teams.push(newTeamObj);
+            targetTeam = newTeamObj; // Set target ke tim baru
+        }
         
-        // 2. Siapkan Variabel Data Baru
+        // 4. Siapkan Data Job Baru
         let newJob = {};
 
         if(currentTab === 'psb') {
@@ -598,51 +672,19 @@ Alamat
             };
         }
 
-        // 3. Masukkan ke Array Teams
-        const targetTeam = teams.find(t => t.id === teamId);
-        if(targetTeam) {
-            targetTeam.jobs.push(newJob);
-            
-            // 4. Render Ulang Layar
-            renderJobs();
-            
-            // 5. Tutup Modal & Notif
-            closeModal();
-            alert(`✅ Tiket berhasil ditambahkan ke ${targetTeam.teamName}`);
-        }
+        // 5. Masukkan Job ke Tim Target
+        targetTeam.jobs.push(newJob);
+        
+        // 6. Render Ulang Semua (Termasuk Tim baru jika ada)
+        renderJobs();
+        applyFirebaseData(); // Re-apply checkbox state
+        
+        // 7. Tutup Modal
+        closeModal();
+        alert(`✅ Tiket berhasil ditambahkan ke ${targetTeam.teamName}`);
     }
 
-    async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") {
-        let success = false;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            try { await navigator.clipboard.writeText(text); success = true; } catch (err) {}
-        }
-        if (!success) {
-            try {
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                textArea.style.position = "fixed"; textArea.style.left = "-9999px"; 
-                document.body.appendChild(textArea);
-                textArea.select();
-                const successful = document.execCommand('copy');
-                document.body.removeChild(textArea);
-                if (successful) success = true;
-            } catch (err) {}
-        }
-        if (success && btnElement) {
-            const originalText = btnElement.innerHTML;
-            const originalBg = btnElement.style.backgroundColor;
-            btnElement.innerHTML = successMsg;
-            btnElement.style.backgroundColor = "#28a745"; 
-            setTimeout(() => {
-                btnElement.innerHTML = originalText;
-                btnElement.style.backgroundColor = originalBg;
-            }, 2000);
-        } else {
-            alert("Gagal menyalin data. Silakan coba manual.");
-        }
-    }
-
+    // Jalankan render awal
     renderJobs();
 </script>
 
