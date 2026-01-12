@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V3.5 (Smart Input)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V3.7 (Secured)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -75,7 +75,6 @@
         .locked-input { background-color: #e9ecef; color: #495057; cursor: not-allowed; border: 1px solid #ced4da; font-weight: bold; }
 
         .modem-selector { background-color: #e8f0fe; border: 1px solid #1a73e8; color: #1a73e8; font-weight: bold; margin-bottom: 10px; }
-        /* Style untuk option yang disabled/terpakai */
         option:disabled { color: red; background-color: #f2f2f2; text-decoration: line-through; }
 
         .progress-container { height: 6px; background: #e9ecef; width: 100%; }
@@ -100,6 +99,19 @@
         .generator-box textarea { width: 100%; border: 1px solid #b1ccf0; border-radius: 4px; padding: 8px; margin-top: 5px; font-size: 0.85rem; resize: vertical; }
         .btn-generate { width: 100%; background-color: #1a73e8; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; margin-top: 8px; cursor: pointer; }
 
+        /* TICKET PREVIEW CARD STYLE */
+        .preview-card {
+            background: #fff; border: 1px solid #ddd; border-left: 4px solid #6610f2;
+            padding: 15px; margin-bottom: 15px; border-radius: 8px; position: relative;
+        }
+        .preview-card h4 { margin: 0 0 10px 0; color: #6610f2; }
+        .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-remove-preview {
+            position: absolute; top: 10px; right: 10px;
+            background: #ffebee; color: #dc3545; border: 1px solid #dc3545;
+            border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem;
+        }
+
         /* TABLE STOK & GUDANG */
         .table-stock { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
         .table-stock th, .table-stock td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -116,7 +128,7 @@
         .st-ready { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .st-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .st-installed { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
-        .st-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; } /* Style Baru untuk BAD */
+        .st-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; } 
         
         .time-badge { font-size: 0.7em; color: #666; display: block; margin-top: 2px; }
         .tech-badge { font-weight: bold; color: #333; display: block; font-size: 0.8em; }
@@ -140,6 +152,7 @@
         .btn-bulk { background: #20c997; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .btn-clean { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .btn-clean:hover { background: #5a6268; }
+        .btn-format { background: #dc3545; color: white; border: 2px solid #b21f2d; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
         /* SEARCH BOX GUDANG STYLE */
         .search-gudang-box {
@@ -170,7 +183,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V3.5</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V3.7</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -202,6 +215,7 @@
         <div class="gudang-actions-header">
             <button class="btn-bulk" onclick="openBulkModal()">➕ Input Stok Massal</button>
             <button class="btn-clean" onclick="clearInstalledModems()">🗑️ Hapus Data Terpasang</button>
+            <button class="btn-format" onclick="formatDatabase()">🔥 Format Database</button>
         </div>
 
         <div class="tab-header">
@@ -304,7 +318,7 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
 <div id="modalTicket" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru</h2>
+        <h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru (Bulk)</h2>
         
         <div class="tech-select-container">
             <div class="tech-select-wrapper">
@@ -324,48 +338,17 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
             <button class="tab-btn" onclick="switchTab('mt')">Tiket MT / Lain</button>
         </div>
 
-        <div id="form-psb">
-            <div class="generator-box">
-                <label style="color: #1a73e8; font-weight: bold; font-size: 0.9rem;">✨ Auto-Fill Data (Paste Format WA)</label>
-                <textarea id="psb-raw-text" rows="3" placeholder="Paste format Nama, Alamat, dll disini..."></textarea>
-                <button class="btn-generate" onclick="generateFromText()">⚡ Generate Data PSB</button>
-            </div>
-
-            <div class="form-group"><label>Nama Lengkap</label><input type="text" id="psb-nama" placeholder="Contoh: Marlina"></div>
-            <div class="form-group"><label>Jam Kunjungan</label><input type="text" id="psb-jam" placeholder="Contoh: 13:00"></div>
-            <div class="form-group"><label>Alamat Lengkap</label><textarea id="psb-alamat" rows="2" placeholder="Jalan raya Bekasi..."></textarea></div>
-            <div class="form-group"><label>Email Aktif</label><input type="email" id="psb-email" placeholder="email@gmail.com"></div>
-            <div class="form-group"><label>No. WA</label><input type="tel" id="psb-wa" placeholder="08xxxxx"></div>
-            <div class="form-group"><label>Paket Layanan</label><input type="text" id="psb-paket" placeholder="150 ribu + free regist"></div>
-            <div class="form-group"><label>No KTP</label><input type="text" id="psb-ktp" placeholder="317506..."></div>
-            <div class="form-group"><label>Tanggal Pemasangan</label><input type="text" id="psb-tgl" placeholder="Hari ini / Tgl tertentu"></div>
-            <div class="form-group">
-                <label>Status Kepemilikan</label>
-                <select id="psb-status">
-                    <option value="Pribadi">Pribadi</option>
-                    <option value="Sewa/Kontrak">Sewa/Kontrak</option>
-                    <option value="Kost">Kost</option>
-                </select>
-            </div>
+        <div class="generator-box">
+            <label id="input-label" style="color: #1a73e8; font-weight: bold; font-size: 0.9rem;">✨ Paste BANYAK Data Sekaligus (Format WA)</label>
+            <textarea id="bulk-input-text" rows="5" placeholder="Paste data disini... Sistem otomatis memecah banyak data."></textarea>
+            <button class="btn-generate" onclick="generatePreview()">⚡ Generate Preview Tiket</button>
         </div>
 
-        <div id="form-mt" style="display: none;">
-            <div class="generator-box">
-                <label style="color: #1a73e8; font-weight: bold; font-size: 0.9rem;">✨ Auto-Fill Data MT (Paste Format WA)</label>
-                <textarea id="mt-raw-text" rows="3" placeholder="Paste format MT (Nama, Kendala, dll)..."></textarea>
-                <button class="btn-generate" onclick="generateFromTextMT()">⚡ Generate Data MT</button>
-            </div>
-
-            <div class="form-group"><label>Nama Pelanggan</label><input type="text" id="mt-nama" placeholder="Contoh: ABDUL"></div>
-            <div class="form-group"><label>Kendala / Tag</label><input type="text" id="mt-tag" placeholder="MT (LOS) / RAPIH KABEL"></div>
-            <div class="form-group"><label>No Layanan</label><input type="text" id="mt-layanan" placeholder="0607352848"></div>
-            <div class="form-group"><label>No Telp</label><input type="tel" id="mt-telp" placeholder="085280148797"></div>
-            <div class="form-group"><label>Tanggal Daftar</label><input type="text" id="mt-tgl" placeholder="17 November 2023"></div>
-            <div class="form-group"><label>Coverage</label><input type="text" id="mt-coverage" placeholder="Kel. Jatinegara"></div>
-            <div class="form-group"><label>Alamat</label><textarea id="mt-alamat" rows="2" placeholder="Kp rawa badung rt01..."></textarea></div>
+        <div id="preview-container" style="max-height: 400px; overflow-y: auto; margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+            <div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>
         </div>
 
-        <button class="btn-add-list" onclick="addTicketToTeam()">➕ Tambahkan ke List (Simpan Permanen)</button>
+        <button class="btn-add-list" onclick="saveBulkTickets()">➕ Tambahkan Semua ke List</button>
     </div>
 </div>
 
@@ -408,6 +391,30 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
             });
         } else if (pin) {
             alert("❌ PIN SALAH!");
+        }
+    }
+    
+    // --- FITUR BARU: FORMAT DATABASE ---
+    window.formatDatabase = function() {
+        let pin = prompt("⚠️ DANGER ZONE: FORMAT DATABASE GUDANG ⚠️\n\nFitur ini akan menghapus database modem (salah satu jenis) secara total.\nMasukkan PIN Administrator:");
+        if (pin !== "240525") {
+            alert("❌ PIN SALAH!");
+            return;
+        }
+
+        let type = prompt("Ketik jenis modem yang ingin DIHAPUS TOTAL (Permanen):\nKetik 'SRB' atau 'SYN'").toLowerCase();
+
+        if (type !== 'srb' && type !== 'syn') {
+            alert("❌ Jenis tidak dikenali. Ketik SRB atau SYN.");
+            return;
+        }
+
+        if (confirm(`⚠️ PERINGATAN TERAKHIR!\n\nAnda akan menghapus SEMUA DATA MODEM ${type.toUpperCase()} (Ready, Pending, Installed, Bad).\n\nData tidak bisa dikembalikan. Lanjut?`)) {
+            gudangStock[type] = []; // KOSONGKAN ARRAY
+            saveGudangToFirebase();
+            renderGudangTable(currentGudangTab);
+            updateGudangCounts();
+            alert(`✅ Database Modem ${type.toUpperCase()} berhasil diformat (0 Data).`);
         }
     }
 
@@ -468,7 +475,6 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
         });
 
         function updateItem(item) {
-            // Jika item sudah di mark BAD, JANGAN diubah jadi installed walaupun ada di tiket
             if (item.status === 'bad') return;
 
             if (installedData[item.sn]) {
@@ -669,7 +675,13 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
     // --- LOGIKA GUDANG MODEM V2 ---
     let currentGudangTab = 'srb';
     
+    // --- UPDATE: MENAMBAHKAN PIN 240525 ---
     window.openGudangModal = function() {
+        let pin = prompt("🔒 MASUKKAN PIN GUDANG:");
+        if (pin !== "240525") {
+            alert("❌ PIN SALAH! Akses ditolak.");
+            return;
+        }
         document.getElementById('modalGudang').style.display = "block";
         switchGudangTab(currentGudangTab);
     }
@@ -804,7 +816,7 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
         });
     }
 
-    // --- LOGIKA BULK INPUT & CLEANER (DIPERBARUI) ---
+    // --- LOGIKA BULK INPUT & CLEANER ---
     window.openBulkModal = function() {
         document.getElementById('modalBulk').style.display = "block";
     }
@@ -820,20 +832,13 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
         if(!raw.trim()) { alert("Data masih kosong!"); return; }
 
         let successCount = 0;
-        
-        // --- LOGIKA BARU: SPLIT BERDASARKAN SPASI/ENTER/KOMA ---
-        // Ini akan menangkap format: "SN1 MAC1 SN2 MAC2" dalam satu baris panjang
-        // atau dalam format berbaris-baris.
         const tokens = raw.replace(/[\n,]/g, ' ').trim().split(/\s+/);
 
-        // Loop setiap 2 item (Item genap=SN, Item ganjil=MAC)
         for (let i = 0; i < tokens.length; i += 2) {
             const sn = tokens[i];
             const mac = tokens[i + 1];
 
-            // Pastikan pasangan ada (SN dan MAC)
             if (sn && mac) {
-                // Cek duplikat sederhana
                 let exists = gudangStock[type].find(item => item.sn === sn);
                 if(!exists) {
                     gudangStock[type].push({
@@ -1026,11 +1031,11 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                 let displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, ${stockIdx})">🗑️</button>`;
 
                 if(status === 'installed') {
-                     displaySN = `<span style="text-decoration:line-through; color:red;">${item.sn}</span> <span class="badge badge-psb">Terpasang</span>`;
-                     displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
+                       displaySN = `<span style="text-decoration:line-through; color:red;">${item.sn}</span> <span class="badge badge-psb">Terpasang</span>`;
+                       displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 } else if(status === 'bad') {
-                     displaySN = `<span style="text-decoration:line-through; color:darkred;">${item.sn}</span> <span class="badge badge-reset" style="background:red; color:white;">BAD</span>`;
-                     displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
+                       displaySN = `<span style="text-decoration:line-through; color:darkred;">${item.sn}</span> <span class="badge badge-reset" style="background:red; color:white;">BAD</span>`;
+                       displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 }
 
                 tr.innerHTML = `
@@ -1123,66 +1128,146 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
         saveDataToFirebase();
     }
 
-    window.generateFromText = function() {
-        const raw = document.getElementById('psb-raw-text').value;
-        if (!raw) { alert("Paste data dulu!"); return; }
+    // --- FITUR BARU: GENERATE PREVIEW (BULK) ---
+    window.generatePreview = function() {
+        const raw = document.getElementById('bulk-input-text').value;
+        const container = document.getElementById('preview-container');
+        container.innerHTML = ''; // Reset container
 
-        function getValue(label) {
-            const regex = new RegExp(label + "\\s*[:=]\\s*(.*)", "i");
-            const match = raw.match(regex);
-            return match ? match[1].trim() : "";
+        if (!raw.trim()) { alert("Paste data dulu!"); return; }
+
+        if (currentTab === 'psb') {
+            generateBulkPSB(raw, container);
+        } else {
+            generateBulkMT(raw, container);
         }
+    }
 
-        document.getElementById('psb-nama').value = getValue("Nama Lengkap");
-        document.getElementById('psb-alamat').value = getValue("Alamat Lengkap");
-        document.getElementById('psb-email').value = getValue("Email Aktif");
-        document.getElementById('psb-wa').value = getValue("No. WA");
-        document.getElementById('psb-paket').value = getValue("Paket Layanan");
-        document.getElementById('psb-ktp').value = getValue("No KTP");
-        document.getElementById('psb-tgl').value = getValue("Tanggal Pemasangan");
+    // --- LOGIKA PARSING PSB (MULTIPLE) ---
+    function generateBulkPSB(rawText, container) {
+        // Pecah berdasarkan kata kunci "Nama Lengkap" (Case insensitive)
+        // Regex Lookahead: Split tapi simpan delimiternya di blok berikutnya
+        const blocks = rawText.split(/(?=Nama Lengkap\s*[:=])/gi).filter(b => b.trim().length > 10);
         
-        const statusRaw = getValue("Status kepemilikan rumah").toLowerCase();
-        const selectStatus = document.getElementById('psb-status');
-        if (statusRaw.includes("sewa") || statusRaw.includes("kontrak")) { selectStatus.value = "Sewa/Kontrak"; } 
-        else if (statusRaw.includes("kost")) { selectStatus.value = "Kost"; } 
-        else { selectStatus.value = "Pribadi"; }
-        alert("✅ Data PSB berhasil di-generate ke form!");
-    }
-
-    window.generateFromTextMT = function() {
-        const raw = document.getElementById('mt-raw-text').value;
-        if (!raw) { alert("Paste data MT dulu!"); return; }
-
-        function getValue(label) {
-            const regex = new RegExp(label + "\\s*[:=]\\s*(.*)", "i");
-            const match = raw.match(regex);
-            return match ? match[1].trim() : "";
+        if(blocks.length === 0) {
+            alert("Format tidak dikenali! Pastikan ada tulisan 'Nama Lengkap :'");
+            return;
         }
 
-        const nama = getValue("Nama Pelanggan") || getValue("Nama");
-        if(nama) document.getElementById('mt-nama').value = nama;
-        const kendala = getValue("Kendala") || getValue("Keluhan") || getValue("Tag");
-        if(kendala) document.getElementById('mt-tag').value = kendala;
-        else document.getElementById('mt-tag').value = "MT"; 
-        const layanan = getValue("No Layanan") || getValue("ID Pelanggan") || getValue("ID");
-        if(layanan) document.getElementById('mt-layanan').value = layanan;
-        const telp = getValue("No Telp") || getValue("No WA") || getValue("CP") || getValue("Contact");
-        if(telp) document.getElementById('mt-telp').value = telp;
-        const tgl = getValue("Tanggal Daftar") || getValue("Tanggal Lapor") || getValue("Tanggal");
-        if(tgl) document.getElementById('mt-tgl').value = tgl;
-        const cov = getValue("Coverage") || getValue("Area") || getValue("Cover");
-        if(cov) document.getElementById('mt-coverage').value = cov;
-        const alamat = getValue("Alamat") || getValue("Alamat Lengkap") || getValue("Lokasi");
-        if(alamat) document.getElementById('mt-alamat').value = alamat;
-        alert("✅ Data MT berhasil di-generate ke form!");
+        blocks.forEach((block, index) => {
+            const getValue = (label) => {
+                const regex = new RegExp(label + "\\s*[:=]\\s*(.*)", "i");
+                const match = block.match(regex);
+                return match ? match[1].trim() : "";
+            };
+
+            const nama = getValue("Nama Lengkap");
+            const alamat = getValue("Alamat Lengkap");
+            const email = getValue("Email Aktif");
+            const wa = getValue("No. WA");
+            const paket = getValue("Paket Layanan");
+            const ktp = getValue("No KTP");
+            const tgl = getValue("Tanggal Pemasangan");
+            const statusRaw = getValue("Status kepemilikan rumah").toLowerCase();
+            
+            let statusVal = "Pribadi";
+            if (statusRaw.includes("sewa") || statusRaw.includes("kontrak")) statusVal = "Sewa/Kontrak";
+            else if (statusRaw.includes("kost")) statusVal = "Kost";
+
+            // Buat HTML Card Preview
+            const card = document.createElement('div');
+            card.className = 'preview-card';
+            card.innerHTML = `
+                <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+                <h4>Ticket PSB #${index + 1}: ${nama}</h4>
+                <div class="form-group">
+                    <label>Jam Kunjungan (Wajib Diisi Manual)</label>
+                    <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #ffc107; background: #fffdf5;">
+                </div>
+                <div class="preview-grid">
+                    <input type="hidden" class="bulk-type" value="PSB">
+                    <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
+                    <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
+                    <div class="input-group"><label>Email</label><input type="text" class="bulk-email" value="${email}"></div>
+                    <div class="input-group"><label>WA</label><input type="text" class="bulk-wa" value="${wa}"></div>
+                    <div class="input-group"><label>Paket</label><input type="text" class="bulk-paket" value="${paket}"></div>
+                    <div class="input-group"><label>KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div>
+                    <div class="input-group"><label>Tgl Pasang</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
+                    <div class="input-group"><label>Status</label><input type="text" class="bulk-status" value="${statusVal}"></div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        alert(`✅ Berhasil mendeteksi ${blocks.length} data PSB! Silakan isi Jam Kunjungan.`);
     }
 
-    window.addTicketToTeam = function() {
+    // --- LOGIKA PARSING MT (MULTIPLE) ---
+    function generateBulkMT(rawText, container) {
+        // Format MT kadang "Nama Pelanggan", kadang ada enter sebelum titik dua
+        // Kita split berdasarkan "Nama Pelanggan"
+        const blocks = rawText.split(/(?=Nama Pelanggan)/gi).filter(b => b.trim().length > 10);
+
+        if(blocks.length === 0) {
+            alert("Format tidak dikenali! Pastikan ada tulisan 'Nama Pelanggan'");
+            return;
+        }
+
+        blocks.forEach((block, index) => {
+            const getValue = (label) => {
+                // Regex lebih fleksibel: Label, boleh ada spasi/enter, lalu : atau =, lalu nilai
+                const regex = new RegExp(label + "[\\s\\n]*[:=][\\s\\n]*(.*)", "i");
+                const match = block.match(regex);
+                return match ? match[1].trim() : "";
+            };
+
+            const nama = getValue("Nama Pelanggan");
+            // Handle format yang pakai ||
+            let layanan = getValue("No Layanan") || getValue("ID Pelanggan");
+            if(layanan.includes("||")) layanan = layanan.split("||")[0].trim();
+
+            const telp = getValue("No Telp") || getValue("No WA");
+            const tgl = getValue("Tanggal Daftar");
+            const coverage = getValue("Coverage");
+            const alamat = getValue("Alamat");
+            const kendala = getValue("Kendala") || "MT (LAIN)";
+
+            const card = document.createElement('div');
+            card.className = 'preview-card';
+            card.style.borderLeftColor = "#ffc107"; // Kuning untuk MT
+            card.innerHTML = `
+                <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+                <h4 style="color:#856404;">Ticket MT #${index + 1}: ${nama}</h4>
+                <div class="form-group">
+                    <label>Jam Kunjungan (Wajib Diisi Manual)</label>
+                    <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #ffc107; background: #fffdf5;">
+                </div>
+                <div class="preview-grid">
+                    <input type="hidden" class="bulk-type" value="MT">
+                    <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
+                    <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
+                    <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${layanan}"></div>
+                    <div class="input-group"><label>No Telp</label><input type="text" class="bulk-telp" value="${telp}"></div>
+                    <div class="input-group"><label>Kendala</label><input type="text" class="bulk-tag" value="${kendala}"></div>
+                    <div class="input-group"><label>Coverage</label><input type="text" class="bulk-cov" value="${coverage}"></div>
+                    <div class="input-group"><label>Tgl Daftar</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        alert(`✅ Berhasil mendeteksi ${blocks.length} data MT! Silakan isi Jam Kunjungan.`);
+    }
+
+    // --- SAVE BULK TICKETS ---
+    window.saveBulkTickets = function() {
+        const previewCards = document.querySelectorAll('.preview-card');
+        if(previewCards.length === 0) { alert("Generate preview dulu!"); return; }
+
         const t1 = document.getElementById('tech-1').value;
         const t2 = document.getElementById('tech-2').value;
 
         if(!t1) { alert("Pilih minimal Teknisi 1!"); return; }
 
+        // --- CARI / BUAT TIM ---
         let selectedMembers = [t1.toLowerCase()];
         if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
         selectedMembers.sort(); 
@@ -1218,56 +1303,67 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
             teams.push(newTeamObj);
             targetTeamIndex = teams.length - 1;
         }
-        
-        let newJob = {};
-        if(currentTab === 'psb') {
-            const nama = document.getElementById('psb-nama').value || "Tanpa Nama";
-            const jam = document.getElementById('psb-jam').value || "FLEXIBEL";
-            const alamat = document.getElementById('psb-alamat').value || "-";
-            const email = document.getElementById('psb-email').value;
-            const wa = document.getElementById('psb-wa').value;
-            const paket = document.getElementById('psb-paket').value;
-            const ktp = document.getElementById('psb-ktp').value;
-            const tgl = document.getElementById('psb-tgl').value;
-            const status = document.getElementById('psb-status').value;
 
-            newJob = {
-                completed: false,
-                completedAt: null, 
-                technical: {},
-                name: nama,
-                tag: `PSB (${paket})`,
-                tagClass: "badge-psb",
-                time: jam,
-                address: alamat,
-                details: { "Paket": paket, "Email": email, "No WA": wa, "No KTP": ktp, "Status": status, "Tgl Pasang": tgl }
-            };
-        } else {
-            const nama = document.getElementById('mt-nama').value || "Tanpa Nama";
-            const layanan = document.getElementById('mt-layanan').value;
-            const tag = document.getElementById('mt-tag').value || "MT (LAIN)";
-            const telp = document.getElementById('mt-telp').value;
-            const tgl = document.getElementById('mt-tgl').value;
-            const coverage = document.getElementById('mt-coverage').value;
-            const alamat = document.getElementById('mt-alamat').value || "-";
+        // --- LOOP SEMUA KARTU PREVIEW ---
+        let count = 0;
+        previewCards.forEach(card => {
+            const type = card.querySelector('.bulk-type').value;
+            const jam = card.querySelector('.bulk-input-jam').value || "FLEXIBEL";
+            const nama = card.querySelector('.bulk-nama').value || "Tanpa Nama";
+            const alamat = card.querySelector('.bulk-alamat').value || "-";
 
-            newJob = {
-                completed: false,
-                completedAt: null,
-                technical: {},
-                name: nama,
-                tag: tag,
-                tagClass: "badge-mt", 
-                time: "FLEXIBEL",
-                address: alamat,
-                details: { "Layanan": layanan, "No Telp": telp, "Tgl Daftar": tgl, "Coverage": coverage }
-            };
-        }
+            let newJob = {};
 
-        teams[targetTeamIndex].jobs.push(newJob);
+            if(type === 'PSB') {
+                const email = card.querySelector('.bulk-email').value;
+                const wa = card.querySelector('.bulk-wa').value;
+                const paket = card.querySelector('.bulk-paket').value;
+                const ktp = card.querySelector('.bulk-ktp').value;
+                const tgl = card.querySelector('.bulk-tgl').value;
+                const status = card.querySelector('.bulk-status').value;
+
+                newJob = {
+                    completed: false,
+                    completedAt: null, 
+                    technical: {},
+                    name: nama,
+                    tag: `PSB (${paket})`,
+                    tagClass: "badge-psb",
+                    time: jam,
+                    address: alamat,
+                    details: { "Paket": paket, "Email": email, "No WA": wa, "No KTP": ktp, "Status": status, "Tgl Pasang": tgl }
+                };
+            } else {
+                const layanan = card.querySelector('.bulk-layanan').value;
+                const telp = card.querySelector('.bulk-telp').value;
+                const tag = card.querySelector('.bulk-tag').value;
+                const coverage = card.querySelector('.bulk-cov').value;
+                const tgl = card.querySelector('.bulk-tgl').value;
+
+                newJob = {
+                    completed: false,
+                    completedAt: null,
+                    technical: {},
+                    name: nama,
+                    tag: tag,
+                    tagClass: "badge-mt", 
+                    time: jam,
+                    address: alamat,
+                    details: { "Layanan": layanan, "No Telp": telp, "Tgl Daftar": tgl, "Coverage": coverage }
+                };
+            }
+
+            teams[targetTeamIndex].jobs.push(newJob);
+            count++;
+        });
+
         saveDataToFirebase();
         closeModal();
-        alert(`✅ Tiket berhasil disimpan permanen ke ${teams[targetTeamIndex].teamName}`);
+        alert(`✅ Berhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}`);
+        
+        // Bersihkan form
+        document.getElementById('bulk-input-text').value = '';
+        document.getElementById('preview-container').innerHTML = '';
     }
 
     function parseAddress(addr) {
@@ -1329,7 +1425,7 @@ Redaman : ${redamanVal}`;
             textToCopy = `TEKNISI : ${team.teamName}
 KATEGORI : ${job.tag}
 --------------------------------
-Nama Pelanggan : ${job.name}
+Nama Pelanggan : ${job.name} ( JAM ${job.time} )
 No Layanan : ${d['Layanan']||'-'}
 No Telp. : ${d['No Telp']||'-'}
 Tanggal Daftar : ${d['Tgl Daftar']||'-'}
@@ -1436,7 +1532,12 @@ Alamat : ${job.address}`;
         });
         s1.selectedIndex = 0; s2.value = ""; 
     }
-    window.closeModal = function() { document.getElementById("modalTicket").style.display = "none"; }
+    window.closeModal = function() { 
+        document.getElementById("modalTicket").style.display = "none"; 
+        // Reset preview area when closing
+        document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
+        document.getElementById('bulk-input-text').value = '';
+    }
     window.onclick = function(event) { 
         if (event.target == document.getElementById("modalTicket")) closeModal();
         if (event.target == document.getElementById("modalStock")) closeStockModal();
@@ -1450,13 +1551,14 @@ Alamat : ${job.address}`;
         btns.forEach(b => b.classList.remove('active'));
         if(tab === 'psb') {
             document.querySelectorAll('.tab-header .tab-btn')[0].classList.add('active');
-            document.getElementById('form-psb').style.display = 'block';
-            document.getElementById('form-mt').style.display = 'none';
+            document.getElementById('input-label').innerText = '✨ Paste Data PSB (Bisa Banyak sekaligus)';
         } else {
             document.querySelectorAll('.tab-header .tab-btn')[1].classList.add('active');
-            document.getElementById('form-psb').style.display = 'none';
-            document.getElementById('form-mt').style.display = 'block';
+            document.getElementById('input-label').innerText = '✨ Paste Data MT (Bisa Banyak sekaligus)';
         }
+        // Bersihkan preview saat ganti tab
+        document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
+        document.getElementById('bulk-input-text').value = '';
     }
 
     loadFirebaseData();
