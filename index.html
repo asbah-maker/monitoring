@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V3.7 (Secured)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V3.9 (Anti Refresh)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -183,7 +183,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V3.7</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V3.9 (Stable)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -423,12 +423,31 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
             const data = snapshot.val();
             document.getElementById('connection-status').innerText = "✅ Terhubung Online (Data Tersimpan)";
             document.getElementById('connection-status').style.color = "green";
+            
             if (data) {
                 teams = data;
                 teams.forEach(t => { if(!t.inventory) t.inventory = []; });
             } else {
                 teams = JSON.parse(JSON.stringify(defaultTeams));
             }
+
+            // --- PERBAIKAN UTAMA: CEK FOKUS ---
+            // Jika user sedang mengetik di INPUT TEXT atau TEXTAREA, JANGAN render ulang dulu.
+            const active = document.activeElement;
+            const isEditingText = active && (
+                active.tagName === 'TEXTAREA' || 
+                (active.tagName === 'INPUT' && (active.type === 'text' || active.type === 'number'))
+            );
+
+            if (isEditingText) {
+                // Jangan Render Jobs, biarkan user mengetik.
+                // Data tetap tersimpan di variabel 'teams' di memori.
+                // Saat user pindah fokus (Tab/Klik luar), barulah render aman dilakukan.
+                console.log("User sedang mengetik, menunda refresh UI...");
+                return;
+            }
+            // ------------------------------------
+
             if(gudangStock.srb || gudangStock.syn) {
                 renderJobs();
                 syncInstalledModems();
@@ -451,7 +470,13 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
             if(document.getElementById("modalGudang").style.display === "block") {
                 renderGudangTable(currentGudangTab);
             }
-            renderJobs();
+            // Logic yang sama untuk Gudang update: Jika ngetik, jangan render jobs
+            const active = document.activeElement;
+            const isEditingText = active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text'));
+            
+            if (!isEditingText) {
+                renderJobs();
+            }
         });
     }
 
@@ -603,10 +628,11 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                             <div class="input-group"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div>
                             <div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div>
                             <div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div>
-                            <div class="input-group"><label>Panjang kabel</label><input type="text" class="realtime-input" data-key="kabel" data-team="${tIndex}" data-job="${index}" value="${tech.kabel || ''}" placeholder="150m"></div>
-                            <div class="input-group"><label>Port</label><input type="text" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div>
-                            <div class="input-group"><label>Id ODP</label><input type="text" class="realtime-input" data-key="odp" data-team="${tIndex}" data-job="${index}" value="${tech.odp || ''}" placeholder="ODP-.."></div>
-                            <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" class="realtime-input" data-key="redaman" data-team="${tIndex}" data-job="${index}" value="${tech.redaman || ''}" placeholder="-18 dBm"></div>
+                            
+                            <div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${tIndex}-${index}" class="realtime-input" data-key="kabel" data-team="${tIndex}" data-job="${index}" value="${tech.kabel || ''}" placeholder="150m"></div>
+                            <div class="input-group"><label>Port</label><input type="text" id="port-${tIndex}-${index}" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div>
+                            <div class="input-group"><label>Id ODP</label><input type="text" id="odp-${tIndex}-${index}" class="realtime-input" data-key="odp" data-team="${tIndex}" data-job="${index}" value="${tech.odp || ''}" placeholder="ODP-.."></div>
+                            <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${tIndex}-${index}" class="realtime-input" data-key="redaman" data-team="${tIndex}" data-job="${index}" value="${tech.redaman || ''}" placeholder="-18 dBm"></div>
                         </div>
                     </div>`;
                 }
@@ -646,10 +672,12 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                     }
 
                     saveDataToFirebase(); 
+                    // Update segera UI lokal tanpa menunggu server (biar cepat)
+                    updateProgressUI(team.id, team.jobs);
+                    // Force refresh modem data setelah delay
                     setTimeout(() => {
                         syncInstalledModems();
-                        renderJobs(); 
-                    }, 1000); 
+                    }, 500); 
                 });
 
                 if(isPSB) {
@@ -1031,11 +1059,11 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                 let displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, ${stockIdx})">🗑️</button>`;
 
                 if(status === 'installed') {
-                       displaySN = `<span style="text-decoration:line-through; color:red;">${item.sn}</span> <span class="badge badge-psb">Terpasang</span>`;
-                       displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
+                        displaySN = `<span style="text-decoration:line-through; color:red;">${item.sn}</span> <span class="badge badge-psb">Terpasang</span>`;
+                        displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 } else if(status === 'bad') {
-                       displaySN = `<span style="text-decoration:line-through; color:darkred;">${item.sn}</span> <span class="badge badge-reset" style="background:red; color:white;">BAD</span>`;
-                       displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
+                        displaySN = `<span style="text-decoration:line-through; color:darkred;">${item.sn}</span> <span class="badge badge-reset" style="background:red; color:white;">BAD</span>`;
+                        displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 }
 
                 tr.innerHTML = `
@@ -1243,6 +1271,7 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                 </div>
                 <div class="preview-grid">
                     <input type="hidden" class="bulk-type" value="MT">
+                    <input type="hidden" class="bulk-type" value="MT">
                     <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
                     <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
                     <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${layanan}"></div>
@@ -1250,6 +1279,7 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                     <div class="input-group"><label>Kendala</label><input type="text" class="bulk-tag" value="${kendala}"></div>
                     <div class="input-group"><label>Coverage</label><input type="text" class="bulk-cov" value="${coverage}"></div>
                     <div class="input-group"><label>Tgl Daftar</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
+                    <div class="input-group" style="grid-column: 1/-1;"><label>Catatan (Opsional)</label><input type="text" class="bulk-catatan" placeholder="Tulis catatan tambahan disini..."></div>
                 </div>
             `;
             container.appendChild(card);
@@ -1339,6 +1369,8 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                 const tag = card.querySelector('.bulk-tag').value;
                 const coverage = card.querySelector('.bulk-cov').value;
                 const tgl = card.querySelector('.bulk-tgl').value;
+                // AMBIL DATA CATATAN DARI INPUT BARU
+                const catatan = card.querySelector('.bulk-catatan').value; 
 
                 newJob = {
                     completed: false,
@@ -1349,7 +1381,7 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                     tagClass: "badge-mt", 
                     time: jam,
                     address: alamat,
-                    details: { "Layanan": layanan, "No Telp": telp, "Tgl Daftar": tgl, "Coverage": coverage }
+                    details: { "Layanan": layanan, "No Telp": telp, "Tgl Daftar": tgl, "Coverage": coverage, "Catatan": catatan }
                 };
             }
 
@@ -1430,6 +1462,7 @@ No Layanan : ${d['Layanan']||'-'}
 No Telp. : ${d['No Telp']||'-'}
 Tanggal Daftar : ${d['Tgl Daftar']||'-'}
 Coverage : ${d['Coverage']||'-'}
+Catatan : ${d['Catatan']||'-'}
 Alamat : ${job.address}`;
         }
         copyToClipboard(textToCopy, btn);
@@ -1474,12 +1507,13 @@ Alamat : ${job.address}`;
                     "RT": addressParts.rt,
                     "RW": addressParts.rw,
                     "Area Kelurahan": kelurahan,
-                    "SN": tech.sn || "-"
+                    "SN": tech.sn || "-",
+                    "Catatan": d['Catatan'] || "-" 
                 });
             });
         });
         const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const wscols = [{wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}];
+        const wscols = [{wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 20}];
         ws['!cols'] = wscols;
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Laporan Teknisi");
