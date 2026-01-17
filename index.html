@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V3.9 (Anti Refresh)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.5 (Rekap Detail)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -54,12 +54,17 @@
         .badge-mt { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
 
         .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-        .toggle-btn, .btn-copy, .btn-delete, .btn-stok { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex: 1; text-align: center; }
+        .toggle-btn, .btn-copy, .btn-delete, .btn-copy-team { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex: 1; text-align: center; }
         .toggle-btn { background: #f0f7ff; border: 1px solid #007bff; color: #007bff; }
         .btn-copy { background: #fff5eb; border: 1px solid #fd7e14; color: #fd7e14; }
         .btn-delete { background: #ffebee; border: 1px solid #dc3545; color: #dc3545; }
-        .btn-stok { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; flex: none; }
-        .btn-stok:hover { background: rgba(255,255,255,0.4); }
+        
+        /* TOMBOL BARU REKAP TIM */
+        .btn-copy-team { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; flex: none; display: flex; align-items: center; gap: 5px; }
+        .btn-copy-team:hover { background: rgba(255,255,255,0.3); }
+
+        .btn-view-stock { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-left: 5px; }
+        .btn-view-stock:hover { background: rgba(0,0,0,0.4); }
 
         .job-details { display: none; margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
         .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 15px; }
@@ -101,10 +106,13 @@
 
         /* TICKET PREVIEW CARD STYLE */
         .preview-card {
-            background: #fff; border: 1px solid #ddd; border-left: 4px solid #6610f2;
+            background: #fff; border: 1px solid #ddd; 
             padding: 15px; margin-bottom: 15px; border-radius: 8px; position: relative;
         }
-        .preview-card h4 { margin: 0 0 10px 0; color: #6610f2; }
+        .preview-psb { border-left: 5px solid #007bff; }
+        .preview-mt { border-left: 5px solid #ffc107; }
+
+        .preview-card h4 { margin: 0 0 10px 0; }
         .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-remove-preview {
             position: absolute; top: 10px; right: 10px;
@@ -118,8 +126,6 @@
         .table-stock th { background-color: #f8f9fa; color: #333; font-weight: bold; }
         .table-stock tr:nth-child(even) { background-color: #f9f9f9; }
         
-        .btn-view-stock { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; margin-left: 5px; }
-        .btn-view-stock:hover { background: rgba(0,0,0,0.4); }
         .btn-icon-del { background: #ffebee; color: #dc3545; border: 1px solid #dc3545; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; }
         .btn-icon-del:hover { background: #ffcdd2; }
         
@@ -173,7 +179,7 @@
             .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #eee; }
             .header-section { margin: 15px 10px; }
             .job-main-row { flex-direction: column; align-items: flex-start; }
-            .job-left, .action-buttons, .toggle-btn, .btn-copy, .btn-delete { width: 100%; }
+            .job-left, .action-buttons, .toggle-btn, .btn-copy, .btn-delete, .btn-copy-team { width: 100%; }
         }
     </style>
 </head>
@@ -183,7 +189,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V3.9 (Stable)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.5 (Rekap Detail)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -318,7 +324,7 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
 <div id="modalTicket" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru (Bulk)</h2>
+        <h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru (Smart Filter)</h2>
         
         <div class="tech-select-container">
             <div class="tech-select-wrapper">
@@ -333,15 +339,16 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
             </div>
         </div>
 
-        <div class="tab-header">
-            <button class="tab-btn active" onclick="switchTab('psb')">Tiket PSB</button>
-            <button class="tab-btn" onclick="switchTab('mt')">Tiket MT / Lain</button>
-        </div>
-
         <div class="generator-box">
-            <label id="input-label" style="color: #1a73e8; font-weight: bold; font-size: 0.9rem;">✨ Paste BANYAK Data Sekaligus (Format WA)</label>
-            <textarea id="bulk-input-text" rows="5" placeholder="Paste data disini... Sistem otomatis memecah banyak data."></textarea>
-            <button class="btn-generate" onclick="generatePreview()">⚡ Generate Preview Tiket</button>
+            <label id="input-label" style="color: #1a73e8; font-weight: bold; font-size: 0.9rem;">
+                ✨ SMART INPUT: Paste Tiket PSB & MT Disini (Campur Otomatis)
+            </label>
+            <p style="font-size:0.75rem; color:#666; margin:3px 0 5px 0;">Sistem akan otomatis mendeteksi mana data PSB dan mana data MT.</p>
+            <textarea id="bulk-input-text" rows="8" placeholder="Contoh Paste Campur:
+Nama Lengkap : Budi (Format PSB) ...
+
+Nama Pelanggan : Ani (Format MT) ..."></textarea>
+            <button class="btn-generate" onclick="generatePreview()">⚡ Generate Smart Preview</button>
         </div>
 
         <div id="preview-container" style="max-height: 400px; overflow-y: auto; margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 10px;">
@@ -371,6 +378,10 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
     const db = getDatabase(app);
     const dbRef = ref(db, 'monitoring_teams_master'); 
     const gudangRef = ref(db, 'gudang_master_stock_v2');
+
+    // --- VARIABEL GLOBAL UNTUK MENYIMPAN STATE DETAIL ---
+    let openDetailIds = new Set();
+    // ----------------------------------------------------
 
     const techList = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Kholis", "Yudha", "Rival"];
     techList.sort(); 
@@ -431,8 +442,6 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                 teams = JSON.parse(JSON.stringify(defaultTeams));
             }
 
-            // --- PERBAIKAN UTAMA: CEK FOKUS ---
-            // Jika user sedang mengetik di INPUT TEXT atau TEXTAREA, JANGAN render ulang dulu.
             const active = document.activeElement;
             const isEditingText = active && (
                 active.tagName === 'TEXTAREA' || 
@@ -440,13 +449,9 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
             );
 
             if (isEditingText) {
-                // Jangan Render Jobs, biarkan user mengetik.
-                // Data tetap tersimpan di variabel 'teams' di memori.
-                // Saat user pindah fokus (Tab/Klik luar), barulah render aman dilakukan.
                 console.log("User sedang mengetik, menunda refresh UI...");
                 return;
             }
-            // ------------------------------------
 
             if(gudangStock.srb || gudangStock.syn) {
                 renderJobs();
@@ -470,7 +475,7 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
             if(document.getElementById("modalGudang").style.display === "block") {
                 renderGudangTable(currentGudangTab);
             }
-            // Logic yang sama untuk Gudang update: Jika ngetik, jangan render jobs
+            
             const active = document.activeElement;
             const isEditingText = active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text'));
             
@@ -572,7 +577,7 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                         <span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok: ${stockCount} pcs</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:5px;">
-                        <button class="btn-stok" onclick="openStockModal(${tIndex})">➕ Input</button>
+                        <button class="btn-copy-team" onclick="copyTeamSummary(${tIndex}, this)">📑 Rekap Tim</button>
                         <button class="btn-view-stock" onclick="openStockListModal(${tIndex})">MODEM</button>
                         <span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">0/0</span>
                     </div>
@@ -611,6 +616,10 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                 const isPSB = job.tag.toUpperCase().includes("PSB");
                 const tech = job.technical || {};
 
+                // --- CEK STATE DETAIL (APAKAH HARUS DIBUKA?) ---
+                const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none";
+                // -----------------------------------------------
+
                 let formHTML = '';
                 if (isPSB) {
                     formHTML = `
@@ -637,12 +646,18 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                     </div>`;
                 }
 
+                const layID = job.details['No Layanan'] || job.details['Layanan'] || '';
+                
                 li.innerHTML = `
                     <div class="job-main-row">
                         <div class="job-left">
                             <input type="checkbox" id="${checkboxId}" class="custom-checkbox" ${job.completed ? 'checked' : ''}>
                             <div class="customer-info">
                                 <h3>${job.name} <span class="badge ${job.tagClass}">${job.tag}</span></h3>
+                                <div style="font-weight:bold; color:#d35400; font-size:0.85rem; margin-top:3px;">
+                                    🕒 ${job.time || 'FLEXIBEL'}
+                                    ${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${layID}</span>` : ''}
+                                </div>
                                 <p>📍 ${job.address}</p>
                             </div>
                         </div>
@@ -652,7 +667,7 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                             <button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>
                         </div>
                     </div>
-                    <div id="${uniqueId}" class="job-details">
+                    <div id="${uniqueId}" class="job-details" style="display: ${displayStyle};">
                         <div class="detail-grid">
                             <div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${job.time}</span></div>
                             ${detailHTML}
@@ -660,21 +675,50 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                         ${formHTML}
                     </div>
                 `;
+
                 listContainer.appendChild(li);
 
                 const checkbox = document.getElementById(checkboxId);
                 checkbox.addEventListener('change', (e) => {
-                    teams[tIndex].jobs[index].completed = e.target.checked;
-                    if(e.target.checked) {
+                    const isChecked = e.target.checked;
+                    
+                    if (isPSB && isChecked) {
+                        let currentNo = teams[tIndex].jobs[index].details['No Layanan'] || "";
+                        
+                        if(!currentNo || currentNo.trim() === "") {
+                            let inputLayanan = prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", "");
+                            
+                            if (inputLayanan === null) {
+                                e.target.checked = false;
+                                return;
+                            }
+                            
+                            inputLayanan = inputLayanan.trim();
+                            
+                            if (!/^\d+$/.test(inputLayanan)) {
+                                alert("❌ Error: No Layanan harus format angka!");
+                                e.target.checked = false;
+                                return;
+                            }
+                            
+                            teams[tIndex].jobs[index].details['No Layanan'] = inputLayanan;
+                        }
+                    }
+
+                    teams[tIndex].jobs[index].completed = isChecked;
+                    if(isChecked) {
                         teams[tIndex].jobs[index].completedAt = new Date().toLocaleString('id-ID');
                     } else {
                         teams[tIndex].jobs[index].completedAt = null;
                     }
 
                     saveDataToFirebase(); 
-                    // Update segera UI lokal tanpa menunggu server (biar cepat)
+                    
                     updateProgressUI(team.id, team.jobs);
-                    // Force refresh modem data setelah delay
+                    if(isPSB && isChecked) {
+                        renderJobs(); 
+                    }
+                    
                     setTimeout(() => {
                         syncInstalledModems();
                     }, 500); 
@@ -700,10 +744,22 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
         }
     }
 
+    // --- MODIFIKASI TOGGLE DETAILS DENGAN STATE PRESERVATION ---
+    window.toggleDetails = function(id) {
+        const el = document.getElementById(id);
+        if (el.style.display === "block") {
+            el.style.display = "none";
+            openDetailIds.delete(id); // Hapus dari ingatan
+        } else {
+            el.style.display = "block";
+            openDetailIds.add(id); // Tambah ke ingatan
+        }
+    };
+    // -----------------------------------------------------------
+
     // --- LOGIKA GUDANG MODEM V2 ---
     let currentGudangTab = 'srb';
     
-    // --- UPDATE: MENAMBAHKAN PIN 240525 ---
     window.openGudangModal = function() {
         let pin = prompt("🔒 MASUKKAN PIN GUDANG:");
         if (pin !== "240525") {
@@ -720,7 +776,6 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
 
     window.switchGudangTab = function(type) {
         currentGudangTab = type;
-        // Reset Search saat pindah tab agar tidak bingung
         document.getElementById('gudang-search').value = "";
         
         document.querySelectorAll('.tab-header .tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -827,7 +882,6 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                     </div>`;
             }
 
-            // Highlight keyword
             let snDisplay = item.sn;
             if(searchInput.trim() !== "") {
                  snDisplay = `<span style="background-color: yellow;">${item.sn}</span>`;
@@ -1156,135 +1210,140 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
         saveDataToFirebase();
     }
 
-    // --- FITUR BARU: GENERATE PREVIEW (BULK) ---
+    // --- FITUR BARU: SMART GENERATE PREVIEW (MIXED MODE) ---
     window.generatePreview = function() {
         const raw = document.getElementById('bulk-input-text').value;
         const container = document.getElementById('preview-container');
-        container.innerHTML = ''; // Reset container
+        container.innerHTML = ''; 
 
         if (!raw.trim()) { alert("Paste data dulu!"); return; }
 
-        if (currentTab === 'psb') {
-            generateBulkPSB(raw, container);
-        } else {
-            generateBulkMT(raw, container);
+        // Split text based on either PSB keyword or MT keyword
+        // Regex Lookahead: Memecah string setiap ketemu "Nama Lengkap" atau "Nama Pelanggan"
+        const blocks = raw.split(/(?=(?:Nama Lengkap|Nama Pelanggan)\s*[:=])/gi).filter(b => b.trim().length > 10);
+
+        if(blocks.length === 0) {
+            alert("❌ Format tidak dikenali!\nPastikan ada tulisan 'Nama Lengkap :' (untuk PSB) atau 'Nama Pelanggan :' (untuk MT).");
+            return;
         }
+
+        let psbCount = 0;
+        let mtCount = 0;
+
+        blocks.forEach((block, index) => {
+            // Check Signature to classify
+            if (block.match(/Nama Lengkap\s*[:=]/i)) {
+                // IT IS PSB
+                createPSBCard(block, index, container);
+                psbCount++;
+            } else if (block.match(/Nama Pelanggan\s*[:=]/i)) {
+                // IT IS MT
+                createMTCard(block, index, container);
+                mtCount++;
+            }
+        });
+
+        alert(`✅ SMART GENERATE SELESAI!\nDitemukan:\n- ${psbCount} Tiket PSB\n- ${mtCount} Tiket MT`);
     }
 
-    // --- LOGIKA PARSING PSB (MULTIPLE) ---
-    function generateBulkPSB(rawText, container) {
-        // Pecah berdasarkan kata kunci "Nama Lengkap" (Case insensitive)
-        // Regex Lookahead: Split tapi simpan delimiternya di blok berikutnya
-        const blocks = rawText.split(/(?=Nama Lengkap\s*[:=])/gi).filter(b => b.trim().length > 10);
+    function createPSBCard(block, index, container) {
+        const getValue = (label) => {
+            const regex = new RegExp(label + "\\s*[:=]\\s*(.*)", "i");
+            const match = block.match(regex);
+            return match ? match[1].trim() : "";
+        };
+
+        const nama = getValue("Nama Lengkap");
+        const alamat = getValue("Alamat Lengkap");
+        const email = getValue("Email Aktif");
         
-        if(blocks.length === 0) {
-            alert("Format tidak dikenali! Pastikan ada tulisan 'Nama Lengkap :'");
-            return;
+        // --- LOGIKA VALIDASI WA PSB ---
+        let wa = getValue("No. WA");
+        // Hapus semua karakter non-angka untuk pengecekan
+        const waDigits = wa.replace(/\D/g, ''); 
+        // Jika kurang dari 6 digit, ubah jadi "-"
+        if (waDigits.length < 6) { 
+            wa = "-"; 
         }
+        
+        const paket = getValue("Paket Layanan");
+        const ktp = getValue("No KTP");
+        const tgl = getValue("Tanggal Pemasangan");
+        const statusRaw = getValue("Status kepemilikan rumah").toLowerCase();
+        
+        let statusVal = "Pribadi";
+        if (statusRaw.includes("sewa") || statusRaw.includes("kontrak")) statusVal = "Sewa/Kontrak";
+        else if (statusRaw.includes("kost")) statusVal = "Kost";
 
-        blocks.forEach((block, index) => {
-            const getValue = (label) => {
-                const regex = new RegExp(label + "\\s*[:=]\\s*(.*)", "i");
-                const match = block.match(regex);
-                return match ? match[1].trim() : "";
-            };
-
-            const nama = getValue("Nama Lengkap");
-            const alamat = getValue("Alamat Lengkap");
-            const email = getValue("Email Aktif");
-            const wa = getValue("No. WA");
-            const paket = getValue("Paket Layanan");
-            const ktp = getValue("No KTP");
-            const tgl = getValue("Tanggal Pemasangan");
-            const statusRaw = getValue("Status kepemilikan rumah").toLowerCase();
-            
-            let statusVal = "Pribadi";
-            if (statusRaw.includes("sewa") || statusRaw.includes("kontrak")) statusVal = "Sewa/Kontrak";
-            else if (statusRaw.includes("kost")) statusVal = "Kost";
-
-            // Buat HTML Card Preview
-            const card = document.createElement('div');
-            card.className = 'preview-card';
-            card.innerHTML = `
-                <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
-                <h4>Ticket PSB #${index + 1}: ${nama}</h4>
-                <div class="form-group">
-                    <label>Jam Kunjungan (Wajib Diisi Manual)</label>
-                    <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #ffc107; background: #fffdf5;">
-                </div>
-                <div class="preview-grid">
-                    <input type="hidden" class="bulk-type" value="PSB">
-                    <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
-                    <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
-                    <div class="input-group"><label>Email</label><input type="text" class="bulk-email" value="${email}"></div>
-                    <div class="input-group"><label>WA</label><input type="text" class="bulk-wa" value="${wa}"></div>
-                    <div class="input-group"><label>Paket</label><input type="text" class="bulk-paket" value="${paket}"></div>
-                    <div class="input-group"><label>KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div>
-                    <div class="input-group"><label>Tgl Pasang</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
-                    <div class="input-group"><label>Status</label><input type="text" class="bulk-status" value="${statusVal}"></div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-        alert(`✅ Berhasil mendeteksi ${blocks.length} data PSB! Silakan isi Jam Kunjungan.`);
+        const card = document.createElement('div');
+        card.className = 'preview-card preview-psb';
+        card.innerHTML = `
+            <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+            <h4 style="color:#007bff;">Ticket PSB #${index + 1}: ${nama}</h4>
+            <div class="form-group">
+                <label>Jam Kunjungan (Wajib Diisi Manual)</label>
+                <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;">
+            </div>
+            <div class="preview-grid">
+                <input type="hidden" class="bulk-type" value="PSB">
+                <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
+                <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
+                <div class="input-group"><label>Email</label><input type="text" class="bulk-email" value="${email}"></div>
+                <div class="input-group"><label>WA</label><input type="text" class="bulk-wa" value="${wa}"></div>
+                <div class="input-group"><label>Paket</label><input type="text" class="bulk-paket" value="${paket}"></div>
+                <div class="input-group"><label>KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div>
+                <div class="input-group"><label>Tgl Pasang</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
+                <div class="input-group"><label>Status</label><input type="text" class="bulk-status" value="${statusVal}"></div>
+            </div>
+        `;
+        container.appendChild(card);
     }
 
-    // --- LOGIKA PARSING MT (MULTIPLE) ---
-    function generateBulkMT(rawText, container) {
-        // Format MT kadang "Nama Pelanggan", kadang ada enter sebelum titik dua
-        // Kita split berdasarkan "Nama Pelanggan"
-        const blocks = rawText.split(/(?=Nama Pelanggan)/gi).filter(b => b.trim().length > 10);
+    function createMTCard(block, index, container) {
+        const getValue = (label) => {
+            const regex = new RegExp(label + "[\\s\\n]*[:=][\\s\\n]*(.*)", "i");
+            const match = block.match(regex);
+            return match ? match[1].trim() : "";
+        };
 
-        if(blocks.length === 0) {
-            alert("Format tidak dikenali! Pastikan ada tulisan 'Nama Pelanggan'");
-            return;
+        const nama = getValue("Nama Pelanggan");
+        let layanan = getValue("No Layanan") || getValue("ID Pelanggan");
+        if(layanan.includes("||")) layanan = layanan.split("||")[0].trim();
+
+        // --- LOGIKA VALIDASI WA MT ---
+        let telp = getValue("No Telp") || getValue("No WA");
+        const telpDigits = telp.replace(/\D/g, ''); 
+        if (telpDigits.length < 6) { 
+            telp = "-"; 
         }
 
-        blocks.forEach((block, index) => {
-            const getValue = (label) => {
-                // Regex lebih fleksibel: Label, boleh ada spasi/enter, lalu : atau =, lalu nilai
-                const regex = new RegExp(label + "[\\s\\n]*[:=][\\s\\n]*(.*)", "i");
-                const match = block.match(regex);
-                return match ? match[1].trim() : "";
-            };
+        const tgl = getValue("Tanggal Daftar");
+        const coverage = getValue("Coverage");
+        const alamat = getValue("Alamat");
+        const kendala = getValue("Kendala") || "MT (LAIN)";
 
-            const nama = getValue("Nama Pelanggan");
-            // Handle format yang pakai ||
-            let layanan = getValue("No Layanan") || getValue("ID Pelanggan");
-            if(layanan.includes("||")) layanan = layanan.split("||")[0].trim();
-
-            const telp = getValue("No Telp") || getValue("No WA");
-            const tgl = getValue("Tanggal Daftar");
-            const coverage = getValue("Coverage");
-            const alamat = getValue("Alamat");
-            const kendala = getValue("Kendala") || "MT (LAIN)";
-
-            const card = document.createElement('div');
-            card.className = 'preview-card';
-            card.style.borderLeftColor = "#ffc107"; // Kuning untuk MT
-            card.innerHTML = `
-                <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
-                <h4 style="color:#856404;">Ticket MT #${index + 1}: ${nama}</h4>
-                <div class="form-group">
-                    <label>Jam Kunjungan (Wajib Diisi Manual)</label>
-                    <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #ffc107; background: #fffdf5;">
-                </div>
-                <div class="preview-grid">
-                    <input type="hidden" class="bulk-type" value="MT">
-                    <input type="hidden" class="bulk-type" value="MT">
-                    <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
-                    <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
-                    <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${layanan}"></div>
-                    <div class="input-group"><label>No Telp</label><input type="text" class="bulk-telp" value="${telp}"></div>
-                    <div class="input-group"><label>Kendala</label><input type="text" class="bulk-tag" value="${kendala}"></div>
-                    <div class="input-group"><label>Coverage</label><input type="text" class="bulk-cov" value="${coverage}"></div>
-                    <div class="input-group"><label>Tgl Daftar</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
-                    <div class="input-group" style="grid-column: 1/-1;"><label>Catatan (Opsional)</label><input type="text" class="bulk-catatan" placeholder="Tulis catatan tambahan disini..."></div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-        alert(`✅ Berhasil mendeteksi ${blocks.length} data MT! Silakan isi Jam Kunjungan.`);
+        const card = document.createElement('div');
+        card.className = 'preview-card preview-mt';
+        card.innerHTML = `
+            <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+            <h4 style="color:#856404;">Ticket MT #${index + 1}: ${nama}</h4>
+            <div class="form-group">
+                <label>Jam Kunjungan (Wajib Diisi Manual)</label>
+                <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #ffc107; background: #fffdf5;">
+            </div>
+            <div class="preview-grid">
+                <input type="hidden" class="bulk-type" value="MT">
+                <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
+                <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
+                <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${layanan}"></div>
+                <div class="input-group"><label>No Telp</label><input type="text" class="bulk-telp" value="${telp}"></div>
+                <div class="input-group"><label>Kendala</label><input type="text" class="bulk-tag" value="${kendala}"></div>
+                <div class="input-group"><label>Coverage</label><input type="text" class="bulk-cov" value="${coverage}"></div>
+                <div class="input-group"><label>Tgl Daftar</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
+                <div class="input-group" style="grid-column: 1/-1;"><label>Catatan (Opsional)</label><input type="text" class="bulk-catatan" placeholder="Tulis catatan tambahan disini..."></div>
+            </div>
+        `;
+        container.appendChild(card);
     }
 
     // --- SAVE BULK TICKETS ---
@@ -1369,7 +1428,6 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
                 const tag = card.querySelector('.bulk-tag').value;
                 const coverage = card.querySelector('.bulk-cov').value;
                 const tgl = card.querySelector('.bulk-tgl').value;
-                // AMBIL DATA CATATAN DARI INPUT BARU
                 const catatan = card.querySelector('.bulk-catatan').value; 
 
                 newJob = {
@@ -1411,7 +1469,13 @@ FHTT9C7BA8F8 6C-D7-19-7B-A8-F8 FHTT9C803550 6C-D7-19-80-35-50"></textarea>
 
     window.toggleDetails = function(id) {
         const el = document.getElementById(id);
-        el.style.display = (el.style.display === "block") ? "none" : "block";
+        if (el.style.display === "block") {
+            el.style.display = "none";
+            openDetailIds.delete(id); // Hapus dari ingatan
+        } else {
+            el.style.display = "block";
+            openDetailIds.add(id); // Tambah ke ingatan
+        }
     };
 
     window.copyData = async function(teamIndex, jobIndex, btn) {
@@ -1468,6 +1532,28 @@ Alamat : ${job.address}`;
         copyToClipboard(textToCopy, btn);
     };
 
+    // --- FITUR BARU: COPY REKAP PER TEKNISI/TIM ---
+    window.copyTeamSummary = function(tIndex, btn) {
+        const team = teams[tIndex];
+        let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
+
+        team.jobs.forEach((job, index) => {
+             const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
+             const time = job.time || 'FLEXIBEL';
+             const phone = job.details['No WA'] || job.details['No Telp'] || '-';
+             const statusText = job.completed ? "✅ SELESAI" : "⏳ PENDING";
+
+             // FORMAT KHUSUS SESUAI PERMINTAAN
+             text += `${index + 1}. ${job.name} (🆔${layID} | 🕒${time})\n`;
+             text += `   📱 ${phone} |\n`;
+             text += `   📍 ${job.address}\n`;
+             text += `   🏷️ ${job.tag} | ${statusText}\n\n`;
+        });
+
+        copyToClipboard(text, btn, "✅ Disalin!");
+    }
+
+    // UPDATE JUGA COPY ALL AGAR FORMATNYA KONSISTEN
     window.copyAllSummary = function() {
         let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
         teams.forEach(team => {
@@ -1475,7 +1561,13 @@ Alamat : ${job.address}`;
             team.jobs.forEach((job, index) => {
                 const statusText = job.completed ? "✅ SELESAI" : "⏳ PENDING";
                 const phone = job.details['No WA'] || job.details['No Telp'] || '-';
-                summaryText += `*${index + 1}. ${job.name}*\n   📱 ${phone} | 📍 ${job.address}\n   🏷️ ${job.tag} | ${statusText}\n\n`;
+                const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
+                const time = job.time || 'FLEXIBEL';
+
+                summaryText += `${index + 1}. ${job.name} (🆔${layID} | 🕒${time})\n`;
+                summaryText += `   📱 ${phone} |\n`; 
+                summaryText += `   📍 ${job.address}\n`;
+                summaryText += `   🏷️ ${job.tag} | ${statusText}\n\n`;
             });
         });
         const btn = document.querySelector('.btn-copy-all');
@@ -1496,8 +1588,11 @@ Alamat : ${job.address}`;
                     if(job.address.includes("Jatinegara")) kelurahan = "Jatinegara";
                     if(job.address.includes("Cipinang")) kelurahan = "Cipinang";
                 }
+                
+                const noLayanan = d['No Layanan'] || d['Layanan'] || "-";
+                
                 dataToExport.push({
-                    "No Layanan": d['No Layanan'] || d['Layanan'] || "-",
+                    "No Layanan": noLayanan,
                     "Nama Pelanggan": job.name,
                     "Status Pengerjaan": job.completed ? "Selesai" : "Pending",
                     "Nomor Telpon": d['No WA'] || d['No Telp'] || "-",
@@ -1549,7 +1644,6 @@ Alamat : ${job.address}`;
         }
     }
 
-    let currentTab = 'psb';
     window.openModal = function() {
         let pin = prompt("🔒 Masukkan PIN untuk membuat tiket:");
         if (pin !== "240525") { alert("❌ PIN SALAH! Akses ditolak."); return; }
@@ -1568,7 +1662,6 @@ Alamat : ${job.address}`;
     }
     window.closeModal = function() { 
         document.getElementById("modalTicket").style.display = "none"; 
-        // Reset preview area when closing
         document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
         document.getElementById('bulk-input-text').value = '';
     }
@@ -1579,22 +1672,7 @@ Alamat : ${job.address}`;
         if (event.target == document.getElementById("modalGudang")) closeGudangModal();
         if (event.target == document.getElementById("modalBulk")) closeBulkModal();
     }
-    window.switchTab = function(tab) {
-        currentTab = tab;
-        const btns = document.querySelectorAll('.tab-header .tab-btn');
-        btns.forEach(b => b.classList.remove('active'));
-        if(tab === 'psb') {
-            document.querySelectorAll('.tab-header .tab-btn')[0].classList.add('active');
-            document.getElementById('input-label').innerText = '✨ Paste Data PSB (Bisa Banyak sekaligus)';
-        } else {
-            document.querySelectorAll('.tab-header .tab-btn')[1].classList.add('active');
-            document.getElementById('input-label').innerText = '✨ Paste Data MT (Bisa Banyak sekaligus)';
-        }
-        // Bersihkan preview saat ganti tab
-        document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
-        document.getElementById('bulk-input-text').value = '';
-    }
-
+    
     loadFirebaseData();
 </script>
 
