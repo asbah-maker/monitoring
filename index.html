@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.5</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.5 (Auto Sort)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -113,7 +113,7 @@
         .modal-content { 
             background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; 
             width: 90%; max-width: 900px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
-            max-height: 90vh; overflow-y: auto; /* Agar scroll di HP aman */
+            max-height: 90vh; overflow-y: auto; 
         }
         .close-modal { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .tab-header { display: flex; margin-bottom: 20px; border-bottom: 1px solid #ddd; }
@@ -208,7 +208,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.5 (Rekap Detail)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.5 (Auto Sort)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -575,6 +575,30 @@
 
             if (team.jobs.length === 0) { return; }
             visibleTeamsCount++;
+
+            // --- LOGIKA PENGURUTAN (SORTING) BERDASARKAN JAM ---
+            // Kode ini akan mengurutkan tiket secara otomatis sebelum ditampilkan
+            team.jobs.sort((a, b) => {
+                const getWeight = (t) => {
+                    t = (t || "").toString().toLowerCase().trim();
+                    if (t === "" || t === "-" || t.includes("flexibel")) return 99999; // Paling akhir
+                    if (t.includes("pagi")) return 480;   // 08:00
+                    if (t.includes("siang")) return 780;  // 13:00
+                    if (t.includes("sore")) return 960;   // 16:00
+                    if (t.includes("malam")) return 1140; // 19:00
+                    
+                    // Cek format jam angka (09:00, 09.00, 9)
+                    const match = t.match(/(\d{1,2})[:.]?(\d{2})?/);
+                    if (match) {
+                        const hour = parseInt(match[1]);
+                        const minute = match[2] ? parseInt(match[2]) : 0;
+                        return (hour * 60) + minute;
+                    }
+                    return 99999;
+                };
+                return getWeight(a.time) - getWeight(b.time);
+            });
+            // ----------------------------------------------------
 
             const stockCount = team.inventory.filter(inv => {
                  const st = getModemStatusGlobal(inv.sn);
@@ -1488,6 +1512,19 @@
             openDetailIds.add(id); // Tambah ke ingatan
         }
     };
+    
+    // --- FUNGSI FORMAT MAC BARU ---
+    function formatMacForCopy(input) {
+        if (!input || input === '-' || input.trim() === "") return '-';
+        // Hapus semua karakter selain angka dan huruf a-f
+        let clean = input.replace(/[^a-fA-F0-9]/g, "").toUpperCase();
+        
+        // Pasang titik dua setiap 2 karakter
+        if (clean.length > 2) {
+            return clean.match(/.{1,2}/g).join(':');
+        }
+        return clean;
+    }
 
     window.copyData = async function(teamIndex, jobIndex, btn) {
         const team = teams[teamIndex];
@@ -1499,8 +1536,11 @@
 
         if (isPSB) {
             const snVal = tech.sn || '-';
-            const macVal = tech.mac || '-';
-            const vlanVal = tech.vlan || '-';
+            
+            // GUNAKAN FUNGSI FORMATTER DI SINI
+            const macVal = formatMacForCopy(tech.mac);
+            const vlanVal = formatMacForCopy(tech.vlan);
+            
             const kabelVal = tech.kabel || '-';
             const portVal = tech.port || '-';
             const odpVal = tech.odp || '-';
