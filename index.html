@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.7 (Full Note)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.8 (Updated)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -240,7 +240,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.7 (Full Note)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.8 (Updated)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -958,7 +958,13 @@
                     <span class="tech-badge">@ ${item.teamName || 'Tim ?'}</span>
                     <span class="time-badge">🕒 ${item.pendingDate || '-'}</span>
                 `;
-                aksiContent = `<button class="btn-return" onclick="returnToWarehouse('${type}', ${originalIndex})">↩️ Tarik Balik</button>`;
+                // UPDATE: Menambahkan tombol Set BAD disamping Tarik Balik
+                aksiContent = `
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-return" onclick="returnToWarehouse('${type}', ${originalIndex})">↩️ Tarik Balik</button>
+                        <button class="btn-bad-retur" onclick="processModemAction('${type}', ${originalIndex}, 'bad')">⚠️ Set BAD</button>
+                    </div>
+                `;
             } else if (item.status === 'installed') {
                 statusBadge = `
                     <span class="status-badge st-installed">Terpasang</span>
@@ -1086,7 +1092,27 @@
             }
         } else if (action === 'bad') {
             if(confirm(`⚠️ SET MODEM BAD?\n\nSN: ${item.sn} akan ditandai sebagai RUSAK/BAD.`)) {
+                
+                // UPDATE LOGIC: JIKA MODEM MASIH PENDING/ADA DI TEAM, HAPUS DARI INVENTORY TEAM TERLEBIH DAHULU
+                if (item.status === 'pending' || item.teamName) {
+                    teams.forEach(t => {
+                        if(t.inventory) {
+                            const invIndex = t.inventory.findIndex(inv => inv.sn === item.sn);
+                            if(invIndex > -1) {
+                                t.inventory.splice(invIndex, 1);
+                            }
+                        }
+                    });
+                    // Simpan perubahan inventory team juga
+                    saveDataToFirebase();
+                }
+
                 gudangStock[type][index].status = 'bad';
+                // Bersihkan data team agar tidak nyangkut
+                gudangStock[type][index].teamName = '';
+                gudangStock[type][index].teamId = null;
+                gudangStock[type][index].pendingDate = null;
+                
                 finalizeAction();
             }
         } else if (action === 'reset') {
@@ -1735,8 +1761,8 @@ Alamat : ${job.address}`;
                 
                 // NEW: Tambahkan catatan sukses MT ke excel
                 if(job.status === 'completed' && job.completionNote) {
-                     if(catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`;
-                     else catatanFull += ` | SOLUSI: ${job.completionNote}`;
+                      if(catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`;
+                      else catatanFull += ` | SOLUSI: ${job.completionNote}`;
                 }
                 
                 dataToExport.push({
