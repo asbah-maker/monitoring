@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.9 (Updated)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.0 (Full Features)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -35,6 +35,7 @@
         .btn-excel { background-color: #217346; }
         .btn-ticket { background-color: #6610f2; }
         .btn-gudang { background-color: #d35400; } 
+        .btn-rekap-modem { background-color: #343a40; border: 2px solid #23272b; }
         .btn-reset { background-color: #dc3545; border: 2px solid #b02a37; }
         .btn-action-main:active { transform: scale(0.95); }
 
@@ -239,7 +240,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.9 (MT Stock Update)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.0 (Full Features)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -247,12 +248,32 @@
             <button class="btn-action-main btn-gudang" onclick="openGudangModal()">🏭 Gudang Modem</button>
             <button class="btn-action-main btn-copy-all" onclick="copyAllSummary()">📑 Copy Rekap</button>
             <button class="btn-action-main btn-excel" onclick="downloadExcel()">📊 Download Excel</button>
+            
+            <button class="btn-action-main btn-rekap-modem" onclick="openRekapModemOption()">📠 Copy Rekap Modem</button>
+
             <button class="btn-action-main btn-reset" onclick="resetDatabase()">🔴 Reset Tiket</button>
         </div>
     </div>
 
     <div id="teams-container">
         <p style="text-align: center; color: #888;">Memuat data...</p>
+    </div>
+</div>
+
+<div id="modalRekapOption" class="modal">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <span class="close-modal" onclick="closeRekapModemOption()">&times;</span>
+        <h3 style="margin-top:0; color:#343a40;">📋 Pilih Jenis Rekap Modem</h3>
+        <p style="font-size:0.9rem; color:#666;">Pilih jenis laporan stok modem yang ingin dicopy:</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+            <button class="btn-action-main bg-blue" onclick="copyRekapModem('sisa')">
+                📦 Hanya Sisa Stok (Belum Pasang)
+            </button>
+            <button class="btn-action-main bg-green" onclick="copyRekapModem('all')">
+                📑 Semua (Sisa + Terpasang + Bad)
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1751,6 +1772,70 @@ Alamat : ${job.address}`;
         copyToClipboard(summaryText, btn, "✅ Rekap Tersalin!");
     };
 
+    // --- FUNGSI BARU: REKAP MODEM ---
+    window.openRekapModemOption = function() {
+        document.getElementById('modalRekapOption').style.display = 'block';
+    }
+    
+    window.closeRekapModemOption = function() {
+        document.getElementById('modalRekapOption').style.display = 'none';
+    }
+
+    window.copyRekapModem = function(mode) {
+        let text = `📋 *REKAP MODEM TEKNISI*\n📅 ${new Date().toLocaleDateString('id-ID')}\n`;
+        text += mode === 'sisa' ? "(Hanya Stok Belum Terpasang)\n\n" : "(Semua: Sisa + Terpasang)\n\n";
+
+        teams.forEach(team => {
+            if(!team.inventory || team.inventory.length === 0) return;
+
+            // Filter items based on mode
+            let items = [];
+            if(mode === 'sisa') {
+                items = team.inventory.filter(i => {
+                    const status = getModemStatusGlobal(i.sn);
+                    return status !== 'installed' && status !== 'bad';
+                });
+            } else {
+                items = team.inventory; // All items
+            }
+
+            if(items.length > 0) {
+                text += `👤 *${team.teamName.toUpperCase()}* (${items.length} unit)\n`;
+                items.forEach((item, idx) => {
+                    const status = getModemStatusGlobal(item.sn);
+                    let statusTag = "";
+                    
+                    if(mode === 'all') {
+                         if(status === 'installed') statusTag = " [TERPASANG]";
+                         else if(status === 'bad') statusTag = " [BAD]";
+                         else statusTag = " [READY]";
+                    }
+                    text += `${idx+1}. ${item.sn}${statusTag}\n`;
+                });
+                text += `--------------------\n`;
+            }
+        });
+
+        // Copy logic
+        navigator.clipboard.writeText(text).then(() => {
+            alert("✅ Rekap Modem berhasil disalin ke Clipboard!");
+            closeRekapModemOption();
+        }).catch(err => {
+            // Fallback
+            console.error("Gagal copy", err);
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert("✅ Rekap Modem berhasil disalin!");
+            closeRekapModemOption();
+        });
+    }
+    // ------------------------------------
+
     window.downloadExcel = function() {
         let dataToExport = [];
         const todayStr = new Date().toLocaleDateString('id-ID');
@@ -1864,6 +1949,7 @@ Alamat : ${job.address}`;
         if (event.target == document.getElementById("modalStockList")) closeStockListModal();
         if (event.target == document.getElementById("modalGudang")) closeGudangModal();
         if (event.target == document.getElementById("modalBulk")) closeBulkModal();
+        if (event.target == document.getElementById("modalRekapOption")) closeRekapModemOption();
     }
     
     loadFirebaseData();
