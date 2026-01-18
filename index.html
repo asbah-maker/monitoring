@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.8 (Updated)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.9 (Updated)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -132,7 +132,6 @@
             border: 1px dashed #ef9a9a;
         }
         
-        /* CSS BARU UNTUK NOTE SUKSES MT */
         .success-note-box {
             background: #e8f5e9; color: #2e7d32; padding: 5px 8px; border-radius: 4px;
             font-size: 0.85rem; margin-top: 5px; display: inline-block; font-weight: bold;
@@ -240,7 +239,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.8 (Updated)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.9 (MT Stock Update)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -593,6 +592,20 @@
         set(gudangRef, gudangStock).catch((err) => alert("Gagal update gudang!"));
     }
 
+    // --- LOGIKA BARU UNTUK MT GANTI MODEM ---
+    window.toggleMtModemInput = function(tIndex, jIndex, val) {
+        teams[tIndex].jobs[jIndex].replaceModem = val;
+        // Jika pilih tidak, hapus data teknis agar bersih
+        if(val === 'no') {
+            if(teams[tIndex].jobs[jIndex].technical) {
+                teams[tIndex].jobs[jIndex].technical = {};
+            }
+        }
+        saveDataToFirebase();
+        // Render ulang untuk update UI
+        renderJobs();
+    }
+
     function renderJobs() {
         const container = document.getElementById('teams-container');
         container.innerHTML = ''; 
@@ -719,11 +732,39 @@
                             <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${tIndex}-${index}" class="realtime-input" data-key="redaman" data-team="${tIndex}" data-job="${index}" value="${tech.redaman || ''}" placeholder="-18 dBm"></div>
                         </div>
                     </div>`;
+                } else {
+                    // LOGIKA UNTUK MT / LAIN (Tampilkan Opsi Ganti Modem)
+                    const replaceStatus = job.replaceModem || 'no'; // Default Tidak Ganti
+                    const displayMtTech = replaceStatus === 'yes' ? 'block' : 'none';
+
+                    formHTML = `
+                    <div class="manual-input-section">
+                        <div style="margin-bottom:10px;">
+                            <label style="font-weight:bold; color:#d35400;">🔧 Opsi Perangkat:</label>
+                            <select style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-weight:bold;"
+                                onchange="toggleMtModemInput(${tIndex}, ${index}, this.value)">
+                                <option value="no" ${replaceStatus === 'no' ? 'selected' : ''}>❌ Tidak Ganti Modem</option>
+                                <option value="yes" ${replaceStatus === 'yes' ? 'selected' : ''}>✅ Ganti Modem Baru</option>
+                            </select>
+                        </div>
+
+                        <div id="mt-tech-${tIndex}-${index}" style="display: ${displayMtTech}; border-top:1px dashed #ccc; padding-top:10px;">
+                             <label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label>
+                             <select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})">
+                                ${modemOptions}
+                             </select>
+                             <div class="input-grid">
+                                <div class="input-group" style="grid-column: 1/-1;"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div>
+                                <div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div>
+                                <div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div>
+                             </div>
+                        </div>
+                    </div>
+                    `;
                 }
 
                 const layID = job.details['No Layanan'] || job.details['Layanan'] || '';
                 const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${job.failureNote}</div>` : '';
-                // NEW: Tampilkan catatan sukses jika ada
                 const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${job.completionNote}</div>` : '';
                 
                 li.innerHTML = `
@@ -761,17 +802,16 @@
 
                 listContainer.appendChild(li);
 
-                if(isPSB) {
-                    const inputs = li.querySelectorAll('.realtime-input');
-                    inputs.forEach(input => {
-                        input.addEventListener('change', (e) => {
-                            const key = e.target.getAttribute('data-key');
-                            if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
-                            teams[tIndex].jobs[index].technical[key] = e.target.value;
-                            saveDataToFirebase(); 
-                        });
+                // Tambahkan listener untuk semua input realtime (PSB maupun MT yang muncul)
+                const inputs = li.querySelectorAll('.realtime-input');
+                inputs.forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const key = e.target.getAttribute('data-key');
+                        if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
+                        teams[tIndex].jobs[index].technical[key] = e.target.value;
+                        saveDataToFirebase(); 
                     });
-                }
+                });
             });
             updateProgressUI(team.id, team.jobs);
         });
@@ -792,7 +832,6 @@
             job.status = 'pending';
             job.completed = false;
             job.completedAt = null;
-            // Jika sebelumnya gagal, hapus catatan errornya
             if (oldStatus === 'failed') job.failureNote = null;
             if (oldStatus === 'completed') job.completionNote = null;
         } else {
@@ -812,22 +851,21 @@
                         job.details['No Layanan'] = inputLayanan;
                     }
                 } else {
-                    // LOGIKA BARU: MT / LAIN -> MINTA CATATAN PENYELESAIAN
+                    // LOGIKA MT
                     let note = prompt("✅ TIKET MT SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):", job.completionNote || "");
-                    // Note bersifat opsional, tapi prompt tetap muncul agar teknisi ingat mengisi
-                    if (note === null) return; // Kalau cancel, tidak jadi status selesai
+                    if (note === null) return; 
                     job.completionNote = note; 
                 }
 
                 job.status = 'completed';
                 job.completed = true;
                 job.completedAt = new Date().toLocaleString('id-ID');
-                job.failureNote = null; // Reset note gagal jika sukses
+                job.failureNote = null; 
             } 
             else if (newStatus === 'failed') {
                 // LOGIKA GAGAL
                 let note = prompt("⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || "");
-                if (note === null) return; // Cancelled
+                if (note === null) return; 
                 if (note.trim() === "") {
                     alert("❌ Catatan Gagal wajib diisi!");
                     return;
@@ -836,7 +874,7 @@
                 job.completed = false;
                 job.completedAt = null;
                 job.failureNote = note;
-                job.completionNote = null; // Reset note sukses
+                job.completionNote = null; 
             }
         }
 
@@ -854,13 +892,12 @@
         const el = document.getElementById(id);
         if (el.style.display === "block") {
             el.style.display = "none";
-            openDetailIds.delete(id); // Hapus dari ingatan
+            openDetailIds.delete(id); 
         } else {
             el.style.display = "block";
-            openDetailIds.add(id); // Tambah ke ingatan
+            openDetailIds.add(id); 
         }
     };
-    // -----------------------------------------------------------
 
     // --- LOGIKA GUDANG MODEM V2 ---
     let currentGudangTab = 'srb';
@@ -958,7 +995,6 @@
                     <span class="tech-badge">@ ${item.teamName || 'Tim ?'}</span>
                     <span class="time-badge">🕒 ${item.pendingDate || '-'}</span>
                 `;
-                // UPDATE: Menambahkan tombol Set BAD disamping Tarik Balik
                 aksiContent = `
                     <div style="display:flex; gap:5px;">
                         <button class="btn-return" onclick="returnToWarehouse('${type}', ${originalIndex})">↩️ Tarik Balik</button>
@@ -1093,7 +1129,6 @@
         } else if (action === 'bad') {
             if(confirm(`⚠️ SET MODEM BAD?\n\nSN: ${item.sn} akan ditandai sebagai RUSAK/BAD.`)) {
                 
-                // UPDATE LOGIC: JIKA MODEM MASIH PENDING/ADA DI TEAM, HAPUS DARI INVENTORY TEAM TERLEBIH DAHULU
                 if (item.status === 'pending' || item.teamName) {
                     teams.forEach(t => {
                         if(t.inventory) {
@@ -1103,12 +1138,10 @@
                             }
                         }
                     });
-                    // Simpan perubahan inventory team juga
                     saveDataToFirebase();
                 }
 
                 gudangStock[type][index].status = 'bad';
-                // Bersihkan data team agar tidak nyangkut
                 gudangStock[type][index].teamName = '';
                 gudangStock[type][index].teamId = null;
                 gudangStock[type][index].pendingDate = null;
@@ -1324,7 +1357,6 @@
     function updateProgressUI(teamId, jobs) {
         const total = jobs.length;
         const completed = jobs.filter(j => j.status === 'completed' || j.completed === true).length;
-        // Kita hanya menghitung progres yang SUKSES
         const percent = (total === 0) ? 0 : (completed / total) * 100;
         const bar = document.getElementById(`progress-${teamId}`);
         const txt = document.getElementById(`count-${teamId}`);
@@ -1350,7 +1382,6 @@
 
         if (!raw.trim()) { alert("Paste data dulu!"); return; }
 
-        // Split text based on either PSB keyword or MT keyword
         const blocks = raw.split(/(?=(?:Nama Lengkap|Nama Pelanggan)\s*[:=])/gi).filter(b => b.trim().length > 10);
 
         if(blocks.length === 0) {
@@ -1362,13 +1393,10 @@
         let mtCount = 0;
 
         blocks.forEach((block, index) => {
-            // Check Signature to classify
             if (block.match(/Nama Lengkap\s*[:=]/i)) {
-                // IT IS PSB
                 createPSBCard(block, index, container);
                 psbCount++;
             } else if (block.match(/Nama Pelanggan\s*[:=]/i)) {
-                // IT IS MT
                 createMTCard(block, index, container);
                 mtCount++;
             }
@@ -1388,7 +1416,6 @@
         const alamat = getValue("Alamat Lengkap");
         const email = getValue("Email Aktif");
         
-        // --- LOGIKA VALIDASI WA PSB ---
         let wa = getValue("No. WA");
         const waDigits = wa.replace(/\D/g, ''); 
         if (waDigits.length < 6) { 
@@ -1439,7 +1466,6 @@
         let layanan = getValue("No Layanan") || getValue("ID Pelanggan");
         if(layanan.includes("||")) layanan = layanan.split("||")[0].trim();
 
-        // --- LOGIKA VALIDASI WA MT ---
         let telp = getValue("No Telp") || getValue("No WA");
         const telpDigits = telp.replace(/\D/g, ''); 
         if (telpDigits.length < 6) { 
@@ -1485,7 +1511,6 @@
 
         if(!t1) { alert("Pilih minimal Teknisi 1!"); return; }
 
-        // --- CARI / BUAT TIM ---
         let selectedMembers = [t1.toLowerCase()];
         if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
         selectedMembers.sort(); 
@@ -1522,7 +1547,6 @@
             targetTeamIndex = teams.length - 1;
         }
 
-        // --- LOOP SEMUA KARTU PREVIEW ---
         let count = 0;
         previewCards.forEach(card => {
             const type = card.querySelector('.bulk-type').value;
@@ -1582,7 +1606,6 @@
         closeModal();
         alert(`✅ Berhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}`);
         
-        // Bersihkan form
         document.getElementById('bulk-input-text').value = '';
         document.getElementById('preview-container').innerHTML = '';
     }
@@ -1598,13 +1621,10 @@
         };
     }
     
-    // --- FUNGSI FORMAT MAC BARU ---
     function formatMacForCopy(input) {
         if (!input || input === '-' || input.trim() === "") return '-';
-        // Hapus semua karakter selain angka dan huruf a-f
         let clean = input.replace(/[^a-fA-F0-9]/g, "").toUpperCase();
         
-        // Pasang titik dua setiap 2 karakter
         if (clean.length > 2) {
             return clean.match(/.{1,2}/g).join(':');
         }
@@ -1621,11 +1641,8 @@
 
         if (isPSB) {
             const snVal = tech.sn || '-';
-            
-            // GUNAKAN FUNGSI FORMATTER DI SINI
             const macVal = formatMacForCopy(tech.mac);
             const vlanVal = formatMacForCopy(tech.vlan);
-            
             const kabelVal = tech.kabel || '-';
             const portVal = tech.port || '-';
             const odpVal = tech.odp || '-';
@@ -1664,11 +1681,17 @@ Tanggal Daftar : ${d['Tgl Daftar']||'-'}
 Coverage : ${d['Coverage']||'-'}
 Catatan : ${d['Catatan']||'-'}
 Alamat : ${job.address}`;
+
+            // --- DATA TEKNIS MT (JIKA GANTI MODEM) ---
+            if (job.replaceModem === 'yes' && tech.sn) {
+                 const macVal = formatMacForCopy(tech.mac);
+                 const vlanVal = formatMacForCopy(tech.vlan);
+                 textToCopy += `\n\n--- GANTI MODEM BARU ---\nSN : ${tech.sn}\nMAC : ${macVal}\nVLAN : ${vlanVal}`;
+            }
         }
         copyToClipboard(textToCopy, btn);
     };
 
-    // --- FITUR BARU: COPY REKAP PER TEKNISI/TIM ---
     window.copyTeamSummary = function(tIndex, btn) {
         const team = teams[tIndex];
         let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
@@ -1689,7 +1712,6 @@ Alamat : ${job.address}`;
                  statusText = `⛔ GAGAL KUNJUNGAN: ${job.failureNote}`;
              }
 
-             // FORMAT KHUSUS SESUAI PERMINTAAN
              text += `${index + 1}. ${job.name} (🆔${layID} | 🕒${time})\n`;
              text += `   📱 ${phone} |\n`;
              text += `   📍 ${job.address}\n`;
@@ -1699,7 +1721,6 @@ Alamat : ${job.address}`;
         copyToClipboard(text, btn, "✅ Disalin!");
     }
 
-    // UPDATE JUGA COPY ALL AGAR FORMATNYA KONSISTEN
     window.copyAllSummary = function() {
         let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
         teams.forEach(team => {
@@ -1751,7 +1772,6 @@ Alamat : ${job.address}`;
                 if(job.status === 'completed' || (job.completed && !job.status)) statusExcel = "Selesai";
                 else if(job.status === 'failed') statusExcel = "Gagal Kunjungan";
 
-                // Gabungkan catatan asli dengan alasan gagal/sukses jika ada
                 let catatanFull = d['Catatan'] || "-";
                 
                 if(job.status === 'failed' && job.failureNote) {
@@ -1759,7 +1779,6 @@ Alamat : ${job.address}`;
                     else catatanFull += ` | GAGAL: ${job.failureNote}`;
                 }
                 
-                // NEW: Tambahkan catatan sukses MT ke excel
                 if(job.status === 'completed' && job.completionNote) {
                       if(catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`;
                       else catatanFull += ` | SOLUSI: ${job.completionNote}`;
