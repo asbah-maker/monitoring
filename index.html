@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.5 (Auto Sort)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V4.7 (Full Note)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -60,11 +60,24 @@
 
         /* --- JOB LIST ITEMS --- */
         .job-list { list-style: none; padding: 0; margin: 0; }
-        .job-item { border-bottom: 1px solid #eee; padding: 15px; }
+        .job-item { border-bottom: 1px solid #eee; padding: 15px; transition: background 0.3s; }
         .job-main-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
         .job-left { display: flex; align-items: flex-start; gap: 12px; flex: 1 1 50%; min-width: 250px; }
-        .custom-checkbox { width: 24px; height: 24px; cursor: pointer; accent-color: #28a745; flex-shrink: 0; margin-top: 2px; }
         
+        /* --- STATUS BUTTONS --- */
+        .status-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; margin-top: 2px; }
+        .btn-check-status {
+            width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ddd;
+            background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 16px; transition: all 0.2s; outline: none;
+        }
+        .btn-check-status:hover { background-color: #f8f9fa; }
+        
+        /* State Active Styles */
+        .btn-check-status.active-success { background-color: #28a745; border-color: #28a745; color: white; }
+        .btn-check-status.active-fail { background-color: #dc3545; border-color: #dc3545; color: white; }
+        .btn-check-status.inactive { opacity: 0.4; transform: scale(0.9); }
+
         .customer-info h3 { margin: 0; font-size: 1.05rem; color: #2c3e50; }
         .customer-info p { margin: 4px 0 0; font-size: 0.9rem; color: #666; }
 
@@ -105,8 +118,26 @@
 
         .progress-container { height: 6px; background: #e9ecef; width: 100%; }
         .progress-bar { height: 100%; background: #28a745; width: 0%; transition: width 0.4s ease; }
-        .job-item.completed { background-color: #f6fff9; opacity: 0.8; }
-        .job-item.completed .customer-info h3 { text-decoration: line-through; color: #999; }
+        
+        /* Row States */
+        .job-item.completed { background-color: #f6fff9; opacity: 0.9; }
+        .job-item.completed .customer-info h3 { text-decoration: line-through; color: #28a745; }
+        
+        .job-item.failed { background-color: #fff5f5; border-left: 4px solid #dc3545; }
+        .job-item.failed .customer-info h3 { color: #dc3545; }
+        
+        .fail-reason-box {
+            background: #ffebee; color: #c62828; padding: 5px 8px; border-radius: 4px;
+            font-size: 0.85rem; margin-top: 5px; display: inline-block; font-weight: bold;
+            border: 1px dashed #ef9a9a;
+        }
+        
+        /* CSS BARU UNTUK NOTE SUKSES MT */
+        .success-note-box {
+            background: #e8f5e9; color: #2e7d32; padding: 5px 8px; border-radius: 4px;
+            font-size: 0.85rem; margin-top: 5px; display: inline-block; font-weight: bold;
+            border: 1px dashed #a5d6a7;
+        }
         
         /* --- MODAL STYLES --- */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); padding-top: 50px; }
@@ -185,6 +216,7 @@
             .job-main-row { flex-direction: column; align-items: stretch; }
             .job-left { width: 100%; margin-bottom: 10px; }
             .action-buttons { width: 100%; justify-content: space-between; }
+            .status-actions { flex-direction: row; justify-content: flex-start; margin-bottom: 10px;}
             
             /* Modal di HP */
             .modal-content { width: 95%; padding: 15px; margin-top: 10px; }
@@ -208,7 +240,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.5 (Auto Sort)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V4.7 (Full Note)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -507,7 +539,9 @@
         teams.forEach(team => {
             if(team.jobs) {
                 team.jobs.forEach(job => {
-                    if(job.completed && job.technical && job.technical.sn && job.technical.sn !== '-') {
+                    const status = job.status || (job.completed ? 'completed' : 'pending');
+                    
+                    if(status === 'completed' && job.technical && job.technical.sn && job.technical.sn !== '-') {
                         const time = job.completedAt || new Date().toLocaleString('id-ID');
                         installedData[job.technical.sn] = {
                             teamName: team.teamName,
@@ -526,6 +560,12 @@
                     item.status = 'installed';
                     item.teamName = installedData[item.sn].teamName; 
                     item.installedDate = installedData[item.sn].time;
+                    needsUpdate = true;
+                }
+            } else {
+                if (item.status === 'installed') {
+                    item.status = 'pending';
+                    item.installedDate = null;
                     needsUpdate = true;
                 }
             }
@@ -577,7 +617,6 @@
             visibleTeamsCount++;
 
             // --- LOGIKA PENGURUTAN (SORTING) BERDASARKAN JAM ---
-            // Kode ini akan mengurutkan tiket secara otomatis sebelum ditampilkan
             team.jobs.sort((a, b) => {
                 const getWeight = (t) => {
                     t = (t || "").toString().toLowerCase().trim();
@@ -587,7 +626,6 @@
                     if (t.includes("sore")) return 960;   // 16:00
                     if (t.includes("malam")) return 1140; // 19:00
                     
-                    // Cek format jam angka (09:00, 09.00, 9)
                     const match = t.match(/(\d{1,2})[:.]?(\d{2})?/);
                     if (match) {
                         const hour = parseInt(match[1]);
@@ -598,7 +636,6 @@
                 };
                 return getWeight(a.time) - getWeight(b.time);
             });
-            // ----------------------------------------------------
 
             const stockCount = team.inventory.filter(inv => {
                  const st = getModemStatusGlobal(inv.sn);
@@ -642,7 +679,11 @@
             team.jobs.forEach((job, index) => {
                 const li = document.createElement('li');
                 li.className = 'job-item';
-                if(job.completed) li.classList.add('completed');
+                
+                const currentStatus = job.status || (job.completed ? 'completed' : 'pending');
+                
+                if(currentStatus === 'completed') li.classList.add('completed');
+                else if(currentStatus === 'failed') li.classList.add('failed');
                 
                 let detailHTML = '';
                 for (const [key, value] of Object.entries(job.details)) {
@@ -650,13 +691,9 @@
                 }
 
                 const uniqueId = `details-${team.id}-${index}`;
-                const checkboxId = `chk-${team.id}-${index}`;
                 const isPSB = job.tag.toUpperCase().includes("PSB");
                 const tech = job.technical || {};
-
-                // --- CEK STATE DETAIL (APAKAH HARUS DIBUKA?) ---
                 const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none";
-                // -----------------------------------------------
 
                 let formHTML = '';
                 if (isPSB) {
@@ -685,17 +722,25 @@
                 }
 
                 const layID = job.details['No Layanan'] || job.details['Layanan'] || '';
+                const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${job.failureNote}</div>` : '';
+                // NEW: Tampilkan catatan sukses jika ada
+                const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${job.completionNote}</div>` : '';
                 
                 li.innerHTML = `
                     <div class="job-main-row">
                         <div class="job-left">
-                            <input type="checkbox" id="${checkboxId}" class="custom-checkbox" ${job.completed ? 'checked' : ''}>
+                            <div class="status-actions">
+                                <button class="btn-check-status ${currentStatus === 'completed' ? 'active-success' : (currentStatus === 'failed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'completed')" title="Selesai">✅</button>
+                                <button class="btn-check-status ${currentStatus === 'failed' ? 'active-fail' : (currentStatus === 'completed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'failed')" title="Gagal">❌</button>
+                            </div>
                             <div class="customer-info">
                                 <h3>${job.name} <span class="badge ${job.tagClass}">${job.tag}</span></h3>
                                 <div style="font-weight:bold; color:#d35400; font-size:0.85rem; margin-top:3px;">
                                     🕒 ${job.time || 'FLEXIBEL'}
                                     ${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${layID}</span>` : ''}
                                 </div>
+                                ${failureNote}
+                                ${successNote}
                                 <p>📍 ${job.address}</p>
                             </div>
                         </div>
@@ -716,52 +761,6 @@
 
                 listContainer.appendChild(li);
 
-                const checkbox = document.getElementById(checkboxId);
-                checkbox.addEventListener('change', (e) => {
-                    const isChecked = e.target.checked;
-                    
-                    if (isPSB && isChecked) {
-                        let currentNo = teams[tIndex].jobs[index].details['No Layanan'] || "";
-                        
-                        if(!currentNo || currentNo.trim() === "") {
-                            let inputLayanan = prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", "");
-                            
-                            if (inputLayanan === null) {
-                                e.target.checked = false;
-                                return;
-                            }
-                            
-                            inputLayanan = inputLayanan.trim();
-                            
-                            if (!/^\d+$/.test(inputLayanan)) {
-                                alert("❌ Error: No Layanan harus format angka!");
-                                e.target.checked = false;
-                                return;
-                            }
-                            
-                            teams[tIndex].jobs[index].details['No Layanan'] = inputLayanan;
-                        }
-                    }
-
-                    teams[tIndex].jobs[index].completed = isChecked;
-                    if(isChecked) {
-                        teams[tIndex].jobs[index].completedAt = new Date().toLocaleString('id-ID');
-                    } else {
-                        teams[tIndex].jobs[index].completedAt = null;
-                    }
-
-                    saveDataToFirebase(); 
-                    
-                    updateProgressUI(team.id, team.jobs);
-                    if(isPSB && isChecked) {
-                        renderJobs(); 
-                    }
-                    
-                    setTimeout(() => {
-                        syncInstalledModems();
-                    }, 500); 
-                });
-
                 if(isPSB) {
                     const inputs = li.querySelectorAll('.realtime-input');
                     inputs.forEach(input => {
@@ -780,6 +779,74 @@
         if (visibleTeamsCount === 0) {
             container.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif.<br>Silakan buat tiket baru untuk memunculkan Tim.</div>';
         }
+    }
+
+    // --- LOGIKA BARU STATUS TOMBOL ---
+    window.toggleJobStatus = function(tIndex, jobIndex, newStatus) {
+        const job = teams[tIndex].jobs[jobIndex];
+        const oldStatus = job.status || (job.completed ? 'completed' : 'pending');
+        const isPSB = job.tag.toUpperCase().includes("PSB");
+
+        if (oldStatus === newStatus) {
+            // Jika diklik status yang sama, kembalikan ke pending (toggle off)
+            job.status = 'pending';
+            job.completed = false;
+            job.completedAt = null;
+            // Jika sebelumnya gagal, hapus catatan errornya
+            if (oldStatus === 'failed') job.failureNote = null;
+            if (oldStatus === 'completed') job.completionNote = null;
+        } else {
+            // Jika status baru dipilih
+            if (newStatus === 'completed') {
+                // LOGIKA SELESAI
+                if (isPSB) {
+                    let currentNo = job.details['No Layanan'] || "";
+                    if(!currentNo || currentNo.trim() === "") {
+                        let inputLayanan = prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", "");
+                        if (inputLayanan === null) return; // Cancelled
+                        inputLayanan = inputLayanan.trim();
+                        if (!/^\d+$/.test(inputLayanan)) {
+                            alert("❌ Error: No Layanan harus format angka!");
+                            return;
+                        }
+                        job.details['No Layanan'] = inputLayanan;
+                    }
+                } else {
+                    // LOGIKA BARU: MT / LAIN -> MINTA CATATAN PENYELESAIAN
+                    let note = prompt("✅ TIKET MT SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):", job.completionNote || "");
+                    // Note bersifat opsional, tapi prompt tetap muncul agar teknisi ingat mengisi
+                    if (note === null) return; // Kalau cancel, tidak jadi status selesai
+                    job.completionNote = note; 
+                }
+
+                job.status = 'completed';
+                job.completed = true;
+                job.completedAt = new Date().toLocaleString('id-ID');
+                job.failureNote = null; // Reset note gagal jika sukses
+            } 
+            else if (newStatus === 'failed') {
+                // LOGIKA GAGAL
+                let note = prompt("⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || "");
+                if (note === null) return; // Cancelled
+                if (note.trim() === "") {
+                    alert("❌ Catatan Gagal wajib diisi!");
+                    return;
+                }
+                job.status = 'failed';
+                job.completed = false;
+                job.completedAt = null;
+                job.failureNote = note;
+                job.completionNote = null; // Reset note sukses
+            }
+        }
+
+        saveDataToFirebase();
+        updateProgressUI(teams[tIndex].id, teams[tIndex].jobs);
+        renderJobs(); // Re-render untuk update UI
+        
+        setTimeout(() => {
+            syncInstalledModems();
+        }, 500);
     }
 
     // --- MODIFIKASI TOGGLE DETAILS DENGAN STATE PRESERVATION ---
@@ -1230,12 +1297,13 @@
 
     function updateProgressUI(teamId, jobs) {
         const total = jobs.length;
-        const checked = jobs.filter(j => j.completed).length;
-        const percent = (total === 0) ? 0 : (checked / total) * 100;
+        const completed = jobs.filter(j => j.status === 'completed' || j.completed === true).length;
+        // Kita hanya menghitung progres yang SUKSES
+        const percent = (total === 0) ? 0 : (completed / total) * 100;
         const bar = document.getElementById(`progress-${teamId}`);
         const txt = document.getElementById(`count-${teamId}`);
         if(bar) bar.style.width = percent + '%';
-        if(txt) txt.innerText = `${checked}/${total} Selesai`;
+        if(txt) txt.innerText = `${completed}/${total} Selesai`;
     }
 
     window.deleteTicket = function(teamIndex, jobIndex) {
@@ -1448,6 +1516,7 @@
 
                 newJob = {
                     completed: false,
+                    status: 'pending',
                     completedAt: null, 
                     technical: {},
                     name: nama,
@@ -1467,6 +1536,7 @@
 
                 newJob = {
                     completed: false,
+                    status: 'pending',
                     completedAt: null,
                     technical: {},
                     name: nama,
@@ -1501,17 +1571,6 @@
             kel: kelMatch ? kelMatch[1] : '-'
         };
     }
-
-    window.toggleDetails = function(id) {
-        const el = document.getElementById(id);
-        if (el.style.display === "block") {
-            el.style.display = "none";
-            openDetailIds.delete(id); // Hapus dari ingatan
-        } else {
-            el.style.display = "block";
-            openDetailIds.add(id); // Tambah ke ingatan
-        }
-    };
     
     // --- FUNGSI FORMAT MAC BARU ---
     function formatMacForCopy(input) {
@@ -1592,13 +1651,23 @@ Alamat : ${job.address}`;
              const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
              const time = job.time || 'FLEXIBEL';
              const phone = job.details['No WA'] || job.details['No Telp'] || '-';
-             const statusText = job.completed ? "✅ SELESAI" : "⏳ PENDING";
+             
+             let statusText = "⏳ PENDING";
+             let noteInfo = "";
+
+             if(job.status === 'completed' || (job.completed && !job.status)) {
+                 statusText = "✅ SELESAI";
+                 if(job.completionNote) noteInfo = `(💡 ${job.completionNote})`;
+             }
+             else if(job.status === 'failed') {
+                 statusText = `⛔ GAGAL KUNJUNGAN: ${job.failureNote}`;
+             }
 
              // FORMAT KHUSUS SESUAI PERMINTAAN
              text += `${index + 1}. ${job.name} (🆔${layID} | 🕒${time})\n`;
              text += `   📱 ${phone} |\n`;
              text += `   📍 ${job.address}\n`;
-             text += `   🏷️ ${job.tag} | ${statusText}\n\n`;
+             text += `   🏷️ ${job.tag} | ${statusText} ${noteInfo}\n\n`;
         });
 
         copyToClipboard(text, btn, "✅ Disalin!");
@@ -1610,7 +1679,17 @@ Alamat : ${job.address}`;
         teams.forEach(team => {
             summaryText += `━━━━━━━━━━━━━━━━━━\n🛠️ *${team.teamName.toUpperCase()}*\n━━━━━━━━━━━━━━━━━━\n`;
             team.jobs.forEach((job, index) => {
-                const statusText = job.completed ? "✅ SELESAI" : "⏳ PENDING";
+                let statusText = "⏳ PENDING";
+                let noteInfo = "";
+
+                if(job.status === 'completed' || (job.completed && !job.status)) {
+                    statusText = "✅ SELESAI";
+                    if(job.completionNote) noteInfo = `(💡 ${job.completionNote})`;
+                }
+                else if(job.status === 'failed') {
+                    statusText = `⛔ GAGAL KUNJUNGAN: ${job.failureNote}`;
+                }
+                
                 const phone = job.details['No WA'] || job.details['No Telp'] || '-';
                 const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
                 const time = job.time || 'FLEXIBEL';
@@ -1618,7 +1697,7 @@ Alamat : ${job.address}`;
                 summaryText += `${index + 1}. ${job.name} (🆔${layID} | 🕒${time})\n`;
                 summaryText += `   📱 ${phone} |\n`; 
                 summaryText += `   📍 ${job.address}\n`;
-                summaryText += `   🏷️ ${job.tag} | ${statusText}\n\n`;
+                summaryText += `   🏷️ ${job.tag} | ${statusText} ${noteInfo}\n\n`;
             });
         });
         const btn = document.querySelector('.btn-copy-all');
@@ -1642,24 +1721,42 @@ Alamat : ${job.address}`;
                 
                 const noLayanan = d['No Layanan'] || d['Layanan'] || "-";
                 
+                let statusExcel = "Pending";
+                if(job.status === 'completed' || (job.completed && !job.status)) statusExcel = "Selesai";
+                else if(job.status === 'failed') statusExcel = "Gagal Kunjungan";
+
+                // Gabungkan catatan asli dengan alasan gagal/sukses jika ada
+                let catatanFull = d['Catatan'] || "-";
+                
+                if(job.status === 'failed' && job.failureNote) {
+                    if(catatanFull === "-") catatanFull = `GAGAL: ${job.failureNote}`;
+                    else catatanFull += ` | GAGAL: ${job.failureNote}`;
+                }
+                
+                // NEW: Tambahkan catatan sukses MT ke excel
+                if(job.status === 'completed' && job.completionNote) {
+                     if(catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`;
+                     else catatanFull += ` | SOLUSI: ${job.completionNote}`;
+                }
+                
                 dataToExport.push({
                     "No Layanan": noLayanan,
                     "Nama Pelanggan": job.name,
-                    "Status Pengerjaan": job.completed ? "Selesai" : "Pending",
+                    "Status Pengerjaan": statusExcel,
                     "Nomor Telpon": d['No WA'] || d['No Telp'] || "-",
-                    "Tanggal Selesai Kunjungan": job.completed ? (job.completedAt || todayStr) : "-",
+                    "Tanggal Selesai Kunjungan": job.status === 'completed' ? (job.completedAt || todayStr) : "-",
                     "Nama Teknisi": rawTechName,
                     "Alamat Lengkap": job.address,
                     "RT": addressParts.rt,
                     "RW": addressParts.rw,
                     "Area Kelurahan": kelurahan,
                     "SN": tech.sn || "-",
-                    "Catatan": d['Catatan'] || "-" 
+                    "Catatan": catatanFull 
                 });
             });
         });
         const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const wscols = [{wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 20}];
+        const wscols = [{wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 30}];
         ws['!cols'] = wscols;
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Laporan Teknisi");
