@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.0 (Full Features)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.2 (New Format)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -240,7 +240,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.0 (Full Features)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.2 (New Format)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -365,7 +365,7 @@
 </div>
 
 <div id="modalStockList" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-content" style="max-width: 650px;">
         <span class="close-modal" onclick="closeStockListModal()">&times;</span>
         <h2 style="margin-top: 0; text-align: center; color: #17a2b8;">📦 Data Stok Modem Tim</h2>
         <h4 id="stock-list-title" style="text-align: center; margin: 0 0 15px 0; color: #666;"></h4>
@@ -377,6 +377,7 @@
                         <th style="width: 40px;">No</th>
                         <th>Serial Number (SN)</th>
                         <th>MAC Address</th>
+                        <th style="width: 60px; text-align: center;">Tipe</th>
                         <th style="width: 60px; text-align: center;">Aksi</th>
                     </tr>
                 </thead>
@@ -551,6 +552,13 @@
         });
     }
 
+    // --- HELPER FUNCTION: GET MODEM TYPE (SRB/SYN) ---
+    function getModemType(sn) {
+        if (gudangStock.srb && gudangStock.srb.some(i => i.sn === sn)) return 'SRB';
+        if (gudangStock.syn && gudangStock.syn.some(i => i.sn === sn)) return 'SYN';
+        return 'UNKNOWN';
+    }
+
     // --- SYNC MODEM TERPASANG ---
     function syncInstalledModems() {
         let needsUpdate = false;
@@ -701,12 +709,15 @@
             let modemOptions = `<option value="">-- Pilih Modem dari Stok (${stockCount}) --</option>`;
             team.inventory.forEach(inv => {
                 const status = getModemStatusGlobal(inv.sn);
+                const type = getModemType(inv.sn); // Ambil tipe modem
+                const typeLabel = (type === 'SRB' || type === 'SYN') ? `[${type}] ` : '';
+
                 if (status === 'installed') {
-                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled>❌ ${inv.sn} (Terpasang)</option>`;
+                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled>❌ ${typeLabel}${inv.sn} (Terpasang)</option>`;
                 } else if (status === 'bad') {
-                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled>⚠️ ${inv.sn} (BAD)</option>`;
+                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled>⚠️ ${typeLabel}${inv.sn} (BAD)</option>`;
                 } else {
-                    modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${inv.sn}</option>`;
+                    modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${typeLabel}${inv.sn}</option>`;
                 }
             });
             
@@ -1277,6 +1288,7 @@
         alert("✅ Stok Modem berhasil ditambahkan!");
     }
 
+    // --- UPDATED: OPEN STOCK LIST MODAL WITH TYPE COLUMN ---
     window.openStockListModal = function(teamIndex) {
         const team = teams[teamIndex];
         const tbody = document.getElementById('stock-table-body');
@@ -1294,6 +1306,8 @@
                 const tr = document.createElement('tr');
                 
                 const status = getModemStatusGlobal(item.sn);
+                const type = getModemType(item.sn); // AMBIL TIPE MODEM
+                
                 let displaySN = item.sn;
                 let displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, ${stockIdx})">🗑️</button>`;
 
@@ -1305,11 +1319,17 @@
                         displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 }
 
+                // BUAT BADGE TIPE
+                let typeBadge = '';
+                if(type === 'SRB') typeBadge = '<span class="badge" style="background:#007bff; color:white;">SRB</span>';
+                else if(type === 'SYN') typeBadge = '<span class="badge" style="background:#ffc107; color:black;">SYN</span>';
+                else typeBadge = '<span class="badge" style="background:#ccc; color:black;">?</span>';
+
                 tr.innerHTML = `
                     <td style="text-align:center;">${stockIdx + 1}</td>
                     <td>${displaySN}</td>
                     <td>${item.mac}</td>
-                    <td style="text-align:center;">
+                    <td style="text-align:center;">${typeBadge}</td> <td style="text-align:center;">
                         ${displayAction}
                     </td>
                 `;
@@ -1713,6 +1733,12 @@ Alamat : ${job.address}`;
         copyToClipboard(textToCopy, btn);
     };
 
+    // Helper for Number Emojis
+    function getNumberEmoji(n) {
+        const emojis = ['0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟'];
+        return emojis[n] || `${n}.`;
+    }
+
     window.copyTeamSummary = function(tIndex, btn) {
         const team = teams[tIndex];
         let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
@@ -1720,23 +1746,28 @@ Alamat : ${job.address}`;
         team.jobs.forEach((job, index) => {
              const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
              const time = job.time || 'FLEXIBEL';
-             const phone = job.details['No WA'] || job.details['No Telp'] || '-';
+             const numIcon = getNumberEmoji(index + 1);
              
-             let statusText = "⏳ PENDING";
-             let noteInfo = "";
+             let statusLine = "";
+             let failureLine = "";
+             let noteSuffix = "";
 
              if(job.status === 'completed' || (job.completed && !job.status)) {
-                 statusText = "✅ SELESAI";
-                 if(job.completionNote) noteInfo = `(💡 ${job.completionNote})`;
+                 if(job.completionNote) noteSuffix = ` (${job.completionNote})`;
+                 statusLine = `✅ STATUS: SELESAI${noteSuffix}`;
              }
              else if(job.status === 'failed') {
-                 statusText = `⛔ GAGAL KUNJUNGAN: ${job.failureNote}`;
+                 statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`;
+                 if(job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`;
+             } else {
+                 statusLine = `⏳ STATUS: PENDING`;
              }
 
-             text += `${index + 1}. ${job.name} (🆔${layID} | 🕒${time})\n`;
-             text += `   📱 ${phone} |\n`;
-             text += `   📍 ${job.address}\n`;
-             text += `   🏷️ ${job.tag} | ${statusText} ${noteInfo}\n\n`;
+             text += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n`;
+             text += `${statusLine}${failureLine}\n`;
+             text += `🆔 ${layID} | 🕒 ${time}\n`;
+             text += `📍 ${job.address}\n`;
+             text += `----------------------------------------------\n`;
         });
 
         copyToClipboard(text, btn, "✅ Disalin!");
@@ -1744,35 +1775,44 @@ Alamat : ${job.address}`;
 
     window.copyAllSummary = function() {
         let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
+        
         teams.forEach(team => {
-            summaryText += `━━━━━━━━━━━━━━━━━━\n🛠️ *${team.teamName.toUpperCase()}*\n━━━━━━━━━━━━━━━━━━\n`;
+            summaryText += `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
+            
             team.jobs.forEach((job, index) => {
-                let statusText = "⏳ PENDING";
-                let noteInfo = "";
-
-                if(job.status === 'completed' || (job.completed && !job.status)) {
-                    statusText = "✅ SELESAI";
-                    if(job.completionNote) noteInfo = `(💡 ${job.completionNote})`;
-                }
-                else if(job.status === 'failed') {
-                    statusText = `⛔ GAGAL KUNJUNGAN: ${job.failureNote}`;
-                }
-                
-                const phone = job.details['No WA'] || job.details['No Telp'] || '-';
                 const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
                 const time = job.time || 'FLEXIBEL';
+                const numIcon = getNumberEmoji(index + 1);
+                
+                let statusLine = "";
+                let failureLine = "";
+                let noteSuffix = "";
 
-                summaryText += `${index + 1}. ${job.name} (🆔${layID} | 🕒${time})\n`;
-                summaryText += `   📱 ${phone} |\n`; 
-                summaryText += `   📍 ${job.address}\n`;
-                summaryText += `   🏷️ ${job.tag} | ${statusText} ${noteInfo}\n\n`;
+                if(job.status === 'completed' || (job.completed && !job.status)) {
+                    if(job.completionNote) noteSuffix = ` (${job.completionNote})`;
+                    statusLine = `✅ STATUS: SELESAI${noteSuffix}`;
+                }
+                else if(job.status === 'failed') {
+                    statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`;
+                    if(job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`;
+                } else {
+                    statusLine = `⏳ STATUS: PENDING`;
+                }
+
+                summaryText += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n`;
+                summaryText += `${statusLine}${failureLine}\n`;
+                summaryText += `🆔 ${layID} | 🕒 ${time}\n`;
+                summaryText += `📍 ${job.address}\n`;
+                summaryText += `----------------------------------------------\n`;
             });
+            summaryText += `\n`; // Add space between teams
         });
+        
         const btn = document.querySelector('.btn-copy-all');
         copyToClipboard(summaryText, btn, "✅ Rekap Tersalin!");
     };
 
-    // --- FUNGSI BARU: REKAP MODEM ---
+    // --- FUNGSI BARU: REKAP MODEM (UPDATED WITH TYPE) ---
     window.openRekapModemOption = function() {
         document.getElementById('modalRekapOption').style.display = 'block';
     }
@@ -1803,6 +1843,8 @@ Alamat : ${job.address}`;
                 text += `👤 *${team.teamName.toUpperCase()}* (${items.length} unit)\n`;
                 items.forEach((item, idx) => {
                     const status = getModemStatusGlobal(item.sn);
+                    const type = getModemType(item.sn); // GET TYPE
+                    
                     let statusTag = "";
                     
                     if(mode === 'all') {
@@ -1810,7 +1852,9 @@ Alamat : ${job.address}`;
                          else if(status === 'bad') statusTag = " [BAD]";
                          else statusTag = " [READY]";
                     }
-                    text += `${idx+1}. ${item.sn}${statusTag}\n`;
+                    
+                    // TAMBAHKAN TIPE KE TEXT OUTPUT
+                    text += `${idx+1}. ${item.sn} [${type}]${statusTag}\n`;
                 });
                 text += `--------------------\n`;
             }
@@ -1865,8 +1909,8 @@ Alamat : ${job.address}`;
                 }
                 
                 if(job.status === 'completed' && job.completionNote) {
-                      if(catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`;
-                      else catatanFull += ` | SOLUSI: ${job.completionNote}`;
+                       if(catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`;
+                       else catatanFull += ` | SOLUSI: ${job.completionNote}`;
                 }
                 
                 dataToExport.push({
