@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.2 (New Format)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.3 (Secure Lock)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -187,6 +187,10 @@
         .btn-send-team { background-color: #28a745; color:white; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size:0.8rem;}
         .btn-return { background-color: #ffc107; color: #333; border: 1px solid #e0a800; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size:0.8rem; font-weight:bold;}
         .btn-bad-retur { background-color: #dc3545; color: white; border: 1px solid #b21f2d; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size:0.8rem; font-weight:bold; }
+        
+        .btn-lock { background-color: #6c757d; color: white; border: 1px solid #545b62; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size:0.8rem; }
+        .btn-unlock { background-color: #007bff; color: white; border: 1px solid #0056b3; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size:0.8rem; }
+        .btn-transfer { background-color: #17a2b8; color: white; border: 1px solid #138496; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size:0.8rem; }
 
         .stat-box { display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 8px; flex-wrap: wrap;}
         .stat-item { text-align: center; min-width: 60px; }
@@ -240,7 +244,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.2 (New Format)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.3 (Lock System)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -581,6 +585,11 @@
         });
 
         function updateItem(item) {
+            // PERLINDUNGAN DATA TERKUNCI (LOCK SYSTEM)
+            // Jika data terkunci, jangan diubah oleh sync otomatis.
+            // Ini mencegah data hilang saat tiket direset.
+            if (item.isLocked) return; 
+
             if (item.status === 'bad') return;
 
             if (installedData[item.sn]) {
@@ -592,6 +601,8 @@
                 }
             } else {
                 if (item.status === 'installed') {
+                    // Jika tidak ada di tiket dan status installed, kembalikan ke pending
+                    // KECUALI jika dilock (sudah dihandle di baris pertama fungsi ini)
                     item.status = 'pending';
                     item.installedDate = null;
                     needsUpdate = true;
@@ -975,6 +986,66 @@
         document.getElementById('count-syn').innerText = gudangStock.syn ? gudangStock.syn.length : 0;
     }
 
+    // --- FUNGSI BARU: LOCK & UNLOCK ---
+    window.toggleLock = function(type, index, lockState) {
+        if (!lockState) {
+            // Mau membuka kunci -> Minta PIN
+            let pin = prompt("🔐 Masukkan PIN untuk membuka data:");
+            if(pin !== "240525") {
+                alert("❌ PIN SALAH!");
+                return;
+            }
+        }
+        
+        gudangStock[type][index].isLocked = lockState;
+        saveGudangToFirebase();
+        renderGudangTable(type);
+        alert(lockState ? "🔒 Data Terkunci (Aman dari Reset/Hapus)" : "🔓 Data Terbuka");
+    }
+
+    // --- FUNGSI BARU: TRANSFER / TUKAR TIM ---
+    window.transferModem = function(type, index) {
+        const select = document.getElementById(`transfer-sel-${type}-${index}`);
+        const targetTeamIdx = select.value;
+
+        if (targetTeamIdx === "") {
+            alert("❌ Pilih tim tujuan untuk ditukar!");
+            return;
+        }
+
+        const item = gudangStock[type][index];
+        const oldTeamIdx = item.teamId;
+        const targetTeamName = teams[targetTeamIdx].teamName;
+
+        if(confirm(`🔄 OPER STOK?\nPindahkan modem SN: ${item.sn}\nDari: ${item.teamName}\nKe: ${targetTeamName}?`)) {
+            
+            // 1. Hapus dari stok tim lama
+            if (oldTeamIdx !== null && teams[oldTeamIdx] && teams[oldTeamIdx].inventory) {
+                 const invIdx = teams[oldTeamIdx].inventory.findIndex(inv => inv.sn === item.sn);
+                 if (invIdx > -1) {
+                     teams[oldTeamIdx].inventory.splice(invIdx, 1);
+                 }
+            }
+
+            // 2. Tambah ke stok tim baru
+            if (!teams[targetTeamIdx].inventory) teams[targetTeamIdx].inventory = [];
+            teams[targetTeamIdx].inventory.push({ sn: item.sn, mac: item.mac });
+
+            // 3. Update data gudang
+            gudangStock[type][index].teamName = targetTeamName;
+            gudangStock[type][index].teamId = targetTeamIdx;
+            // Tanggal pending direset ke sekarang agar fresh
+            gudangStock[type][index].pendingDate = new Date().toLocaleString('id-ID');
+
+            saveDataToFirebase(); // Simpan perubahan stok tim
+            saveGudangToFirebase(); // Simpan perubahan status gudang
+            
+            renderGudangTable(type);
+            updateGudangCounts();
+            alert("✅ Berhasil dioper ke tim baru!");
+        }
+    }
+
     // --- LOGIKA FILTER SEARCH BANYAK & RENDER ---
     window.renderGudangTable = function(type) {
         if (!type) {
@@ -1021,6 +1092,16 @@
             let statusBadge = `<span class="status-badge st-ready">Ready</span>`;
             let aksiContent = '';
 
+            // LOGIKA BUTTON LOCK
+            let lockBtn = '';
+            if (item.status === 'installed' || item.status === 'bad') {
+                if (item.isLocked) {
+                    lockBtn = `<button class="btn-unlock" onclick="toggleLock('${type}', ${originalIndex}, false)">🔒 Buka</button>`;
+                } else {
+                    lockBtn = `<button class="btn-lock" onclick="toggleLock('${type}', ${originalIndex}, true)">🔓 Kunci</button>`;
+                }
+            }
+
             if (item.status === 'pending') {
                 statusBadge = `
                     <span class="status-badge st-pending">Pending</span>
@@ -1028,9 +1109,17 @@
                     <span class="time-badge">🕒 ${item.pendingDate || '-'}</span>
                 `;
                 aksiContent = `
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-return" onclick="returnToWarehouse('${type}', ${originalIndex})">↩️ Tarik Balik</button>
-                        <button class="btn-bad-retur" onclick="processModemAction('${type}', ${originalIndex}, 'bad')">⚠️ Set BAD</button>
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-return" onclick="returnToWarehouse('${type}', ${originalIndex})">↩️ Tarik</button>
+                            <button class="btn-bad-retur" onclick="processModemAction('${type}', ${originalIndex}, 'bad')">⚠️ BAD</button>
+                        </div>
+                        <div style="border-top:1px dashed #ccc; padding-top:4px; display:flex; gap:2px; align-items:center;">
+                            <select id="transfer-sel-${type}-${originalIndex}" class="gudang-select" style="width:100px;">
+                                ${teamOptions}
+                            </select>
+                            <button class="btn-transfer" onclick="transferModem('${type}', ${originalIndex})">🔄 Oper</button>
+                        </div>
                     </div>
                 `;
             } else if (item.status === 'installed') {
@@ -1039,18 +1128,40 @@
                     <span class="tech-badge">👤 ${item.teamName || 'Teknisi ?'}</span>
                     <span class="time-badge">✅ ${item.installedDate || '-'}</span>
                 `;
-                aksiContent = `
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'retur')">↩️ Retur</button>
-                        <button class="btn-bad-retur" onclick="processModemAction('${type}', ${originalIndex}, 'bad')">⚠️ Set BAD</button>
-                    </div>
-                `;
+                
+                if (item.isLocked) {
+                    aksiContent = `<div style="text-align:center;">${lockBtn}<br><span style="font-size:0.75rem; color:red; font-weight:bold;">Terkunci</span></div>`;
+                } else {
+                    aksiContent = `
+                        <div style="display:flex; flex-direction:column; gap:5px;">
+                             <div style="text-align:center;">${lockBtn}</div>
+                             <div style="display:flex; gap:5px;">
+                                <button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'retur')">↩️ Retur</button>
+                                <button class="btn-bad-retur" onclick="processModemAction('${type}', ${originalIndex}, 'bad')">⚠️ Set BAD</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
             } else if (item.status === 'bad') {
                 statusBadge = `
                     <span class="status-badge st-bad">BAD / RUSAK</span>
                     <span class="time-badge">⛔ Tidak Layak</span>
                 `;
-                aksiContent = `<button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'reset')">🔄 Reset Ready</button> <button class="btn-icon-del" onclick="deleteFromWarehouse('${type}', ${originalIndex})">🗑️</button>`;
+                
+                if (item.isLocked) {
+                    aksiContent = `<div style="text-align:center;">${lockBtn}<br><span style="font-size:0.75rem; color:red; font-weight:bold;">Terkunci</span></div>`;
+                } else {
+                     aksiContent = `
+                        <div style="display:flex; flex-direction:column; gap:5px;">
+                             <div style="text-align:center;">${lockBtn}</div>
+                             <div style="display:flex; gap:5px;">
+                                <button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'reset')">🔄 Reset</button> 
+                                <button class="btn-icon-del" onclick="deleteFromWarehouse('${type}', ${originalIndex})">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }
             } else {
                 aksiContent = `
                     <div class="gudang-control">
@@ -1105,7 +1216,8 @@
                     gudangStock[type].push({
                         sn: sn,
                         mac: mac,
-                        status: 'ready'
+                        status: 'ready',
+                        isLocked: false
                     });
                     successCount++;
                 }
@@ -1128,16 +1240,21 @@
         let pin = prompt("⚠️ PERINGATAN: INI AKAN MENGHAPUS DATA MODEM YANG BERSTATUS 'TERPASANG'!\n\nData Ready, Pending, dan BAD tidak akan terhapus.\nMasukkan PIN untuk konfirmasi:");
         
         if(pin === "240525") {
+            // FILTER: Hapus hanya jika status installed DAN TIDAK TERKUNCI
             const srbCountBefore = gudangStock.srb.length;
-            gudangStock.srb = gudangStock.srb.filter(item => item.status !== 'installed');
+            gudangStock.srb = gudangStock.srb.filter(item => !(item.status === 'installed' && !item.isLocked));
             const srbDeleted = srbCountBefore - gudangStock.srb.length;
 
             const synCountBefore = gudangStock.syn.length;
-            gudangStock.syn = gudangStock.syn.filter(item => item.status !== 'installed');
+            gudangStock.syn = gudangStock.syn.filter(item => !(item.status === 'installed' && !item.isLocked));
             const synDeleted = synCountBefore - gudangStock.syn.length;
 
             saveGudangToFirebase();
-            alert(`✅ PEMBERSIHAN SELESAI!\nDeleted SRB: ${srbDeleted}\nDeleted SYN: ${synDeleted}`);
+            let msg = `✅ PEMBERSIHAN SELESAI!\nDeleted SRB: ${srbDeleted}\nDeleted SYN: ${synDeleted}`;
+            if (srbDeleted === 0 && synDeleted === 0) {
+                msg += "\n\n(Tidak ada data yang dihapus. Mungkin data Terpasang dalam status TERKUNCI 🔒)";
+            }
+            alert(msg);
             renderGudangTable(currentGudangTab);
             updateGudangCounts();
 
