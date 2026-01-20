@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.3 (Secure Lock)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.4 (Secure Lock Fix)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -244,7 +244,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.3 (Lock System)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.4 (Secure Fix)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -563,11 +563,12 @@
         return 'UNKNOWN';
     }
 
-    // --- SYNC MODEM TERPASANG ---
+    // --- SYNC MODEM TERPASANG (PERBAIKAN LOCK LOGIC) ---
     function syncInstalledModems() {
         let needsUpdate = false;
         const installedData = {};
         
+        // 1. Kumpulkan data dari tiket yang sudah selesai
         teams.forEach(team => {
             if(team.jobs) {
                 team.jobs.forEach(job => {
@@ -585,10 +586,11 @@
         });
 
         function updateItem(item) {
-            // PERLINDUNGAN DATA TERKUNCI (LOCK SYSTEM)
-            // Jika data terkunci, jangan diubah oleh sync otomatis.
-            // Ini mencegah data hilang saat tiket direset.
-            if (item.isLocked) return; 
+            // --- FIX UTAMA: PROTEKSI KUNCI ---
+            // Jika isLocked bernilai true, KITA STOP DISINI.
+            // Jangan biarkan logika sync mengubah apapun.
+            if (item.isLocked === true) return; 
+            // --------------------------------
 
             if (item.status === 'bad') return;
 
@@ -602,7 +604,6 @@
             } else {
                 if (item.status === 'installed') {
                     // Jika tidak ada di tiket dan status installed, kembalikan ke pending
-                    // KECUALI jika dilock (sudah dihandle di baris pertama fungsi ini)
                     item.status = 'pending';
                     item.installedDate = null;
                     needsUpdate = true;
@@ -986,7 +987,7 @@
         document.getElementById('count-syn').innerText = gudangStock.syn ? gudangStock.syn.length : 0;
     }
 
-    // --- FUNGSI BARU: LOCK & UNLOCK ---
+    // --- FUNGSI BARU: LOCK & UNLOCK (FIXED) ---
     window.toggleLock = function(type, index, lockState) {
         if (!lockState) {
             // Mau membuka kunci -> Minta PIN
@@ -997,10 +998,18 @@
             }
         }
         
-        gudangStock[type][index].isLocked = lockState;
+        // Pastikan boolean strict
+        gudangStock[type][index].isLocked = (lockState === true);
+        
         saveGudangToFirebase();
         renderGudangTable(type);
-        alert(lockState ? "🔒 Data Terkunci (Aman dari Reset/Hapus)" : "🔓 Data Terbuka");
+        
+        // Alert feedback
+        if (lockState) {
+            alert("🔒 Data Terkunci (Aman dari Reset/Hapus)");
+        } else {
+            alert("🔓 Data Terbuka");
+        }
     }
 
     // --- FUNGSI BARU: TRANSFER / TUKAR TIM ---
@@ -1094,8 +1103,9 @@
 
             // LOGIKA BUTTON LOCK
             let lockBtn = '';
+            // Cek strictly true
             if (item.status === 'installed' || item.status === 'bad') {
-                if (item.isLocked) {
+                if (item.isLocked === true) {
                     lockBtn = `<button class="btn-unlock" onclick="toggleLock('${type}', ${originalIndex}, false)">🔒 Buka</button>`;
                 } else {
                     lockBtn = `<button class="btn-lock" onclick="toggleLock('${type}', ${originalIndex}, true)">🔓 Kunci</button>`;
@@ -1129,7 +1139,7 @@
                     <span class="time-badge">✅ ${item.installedDate || '-'}</span>
                 `;
                 
-                if (item.isLocked) {
+                if (item.isLocked === true) {
                     aksiContent = `<div style="text-align:center;">${lockBtn}<br><span style="font-size:0.75rem; color:red; font-weight:bold;">Terkunci</span></div>`;
                 } else {
                     aksiContent = `
@@ -1149,10 +1159,10 @@
                     <span class="time-badge">⛔ Tidak Layak</span>
                 `;
                 
-                if (item.isLocked) {
+                if (item.isLocked === true) {
                     aksiContent = `<div style="text-align:center;">${lockBtn}<br><span style="font-size:0.75rem; color:red; font-weight:bold;">Terkunci</span></div>`;
                 } else {
-                     aksiContent = `
+                      aksiContent = `
                         <div style="display:flex; flex-direction:column; gap:5px;">
                              <div style="text-align:center;">${lockBtn}</div>
                              <div style="display:flex; gap:5px;">
@@ -1217,7 +1227,7 @@
                         sn: sn,
                         mac: mac,
                         status: 'ready',
-                        isLocked: false
+                        isLocked: false // Default false
                     });
                     successCount++;
                 }
@@ -1273,6 +1283,7 @@
                 gudangStock[type][index].teamId = null;
                 gudangStock[type][index].pendingDate = null;
                 gudangStock[type][index].installedDate = null;
+                gudangStock[type][index].isLocked = false; // Reset lock saat retur
                 finalizeAction();
             }
         } else if (action === 'bad') {
@@ -1300,6 +1311,7 @@
         } else if (action === 'reset') {
              if(confirm(`Kembalikan modem BAD (SN: ${item.sn}) menjadi READY?`)) {
                 gudangStock[type][index].status = 'ready';
+                gudangStock[type][index].isLocked = false;
                 finalizeAction();
              }
         }
