@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.4 (Secure Lock Fix)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.6 (Full Editable ISOLIR)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -85,6 +85,7 @@
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-top: 4px; }
         .badge-psb { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
         .badge-mt { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .badge-isolir { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
         .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
         .toggle-btn, .btn-copy, .btn-delete, .btn-copy-team { 
@@ -165,6 +166,7 @@
         .preview-card { background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px; position: relative; }
         .preview-psb { border-left: 5px solid #007bff; }
         .preview-mt { border-left: 5px solid #ffc107; }
+        .preview-isolir { border-left: 5px solid #c0392b; background-color: #fff9f9; }
         .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-remove-preview { position: absolute; top: 10px; right: 10px; background: #ffebee; color: #dc3545; border: 1px solid #dc3545; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; }
 
@@ -244,7 +246,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.4 (Secure Fix)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.6 (Full Editable ISOLIR)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -398,7 +400,7 @@
 <div id="modalTicket" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru (Smart Filter)</h2>
+        <h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru</h2>
         
         <div class="tech-select-container">
             <div class="tech-select-wrapper">
@@ -415,10 +417,10 @@
 
         <div class="generator-box">
             <label id="input-label" style="color: #1a73e8; font-weight: bold; font-size: 0.9rem;">
-                ✨ SMART INPUT: Paste Tiket PSB & MT Disini (Campur Otomatis)
+                ✨ SMART INPUT (PSB / MT / ISOLIR)
             </label>
-            <p style="font-size:0.75rem; color:#666; margin:3px 0 5px 0;">Sistem akan otomatis mendeteksi mana data PSB dan mana data MT.</p>
-            <textarea id="bulk-input-text" rows="8" placeholder="Contoh Paste Campur:&#10;Nama Lengkap : Budi (Format PSB) ...&#10;&#10;Nama Pelanggan : Ani (Format MT) ..."></textarea>
+            <p style="font-size:0.75rem; color:#666; margin:3px 0 5px 0;">Paste tiket disini. Sistem akan otomatis mendeteksi format (Termasuk format ISOLIR baru).</p>
+            <textarea id="bulk-input-text" rows="8" placeholder="Paste data tiket disini..."></textarea>
             <button class="btn-generate" onclick="generatePreview()">⚡ Generate Smart Preview</button>
         </div>
 
@@ -450,10 +452,7 @@
     const dbRef = ref(db, 'monitoring_teams_master'); 
     const gudangRef = ref(db, 'gudang_master_stock_v2');
 
-    // --- VARIABEL GLOBAL UNTUK MENYIMPAN STATE DETAIL ---
     let openDetailIds = new Set();
-    // ----------------------------------------------------
-
     const techList = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Kholis", "Yudha", "Rival"];
     techList.sort(); 
 
@@ -476,23 +475,19 @@
         }
     }
     
-    // --- FITUR BARU: FORMAT DATABASE ---
     window.formatDatabase = function() {
         let pin = prompt("⚠️ DANGER ZONE: FORMAT DATABASE GUDANG ⚠️\n\nFitur ini akan menghapus database modem (salah satu jenis) secara total.\nMasukkan PIN Administrator:");
         if (pin !== "240525") {
             alert("❌ PIN SALAH!");
             return;
         }
-
         let type = prompt("Ketik jenis modem yang ingin DIHAPUS TOTAL (Permanen):\nKetik 'SRB' atau 'SYN'").toLowerCase();
-
         if (type !== 'srb' && type !== 'syn') {
             alert("❌ Jenis tidak dikenali. Ketik SRB atau SYN.");
             return;
         }
-
         if (confirm(`⚠️ PERINGATAN TERAKHIR!\n\nAnda akan menghapus SEMUA DATA MODEM ${type.toUpperCase()} (Ready, Pending, Installed, Bad).\n\nData tidak bisa dikembalikan. Lanjut?`)) {
-            gudangStock[type] = []; // KOSONGKAN ARRAY
+            gudangStock[type] = []; 
             saveGudangToFirebase();
             renderGudangTable(currentGudangTab);
             updateGudangCounts();
@@ -556,24 +551,20 @@
         });
     }
 
-    // --- HELPER FUNCTION: GET MODEM TYPE (SRB/SYN) ---
     function getModemType(sn) {
         if (gudangStock.srb && gudangStock.srb.some(i => i.sn === sn)) return 'SRB';
         if (gudangStock.syn && gudangStock.syn.some(i => i.sn === sn)) return 'SYN';
         return 'UNKNOWN';
     }
 
-    // --- SYNC MODEM TERPASANG (PERBAIKAN LOCK LOGIC) ---
     function syncInstalledModems() {
         let needsUpdate = false;
         const installedData = {};
         
-        // 1. Kumpulkan data dari tiket yang sudah selesai
         teams.forEach(team => {
             if(team.jobs) {
                 team.jobs.forEach(job => {
                     const status = job.status || (job.completed ? 'completed' : 'pending');
-                    
                     if(status === 'completed' && job.technical && job.technical.sn && job.technical.sn !== '-') {
                         const time = job.completedAt || new Date().toLocaleString('id-ID');
                         installedData[job.technical.sn] = {
@@ -586,12 +577,7 @@
         });
 
         function updateItem(item) {
-            // --- FIX UTAMA: PROTEKSI KUNCI ---
-            // Jika isLocked bernilai true, KITA STOP DISINI.
-            // Jangan biarkan logika sync mengubah apapun.
             if (item.isLocked === true) return; 
-            // --------------------------------
-
             if (item.status === 'bad') return;
 
             if (installedData[item.sn]) {
@@ -603,17 +589,14 @@
                 }
             } else {
                 if (item.status === 'installed') {
-                    // Jika tidak ada di tiket dan status installed, kembalikan ke pending
                     item.status = 'pending';
                     item.installedDate = null;
                     needsUpdate = true;
                 }
             }
         }
-
         gudangStock.srb.forEach(updateItem);
         gudangStock.syn.forEach(updateItem);
-
         if (needsUpdate) {
             saveGudangToFirebase();
         }
@@ -633,17 +616,14 @@
         set(gudangRef, gudangStock).catch((err) => alert("Gagal update gudang!"));
     }
 
-    // --- LOGIKA BARU UNTUK MT GANTI MODEM ---
     window.toggleMtModemInput = function(tIndex, jIndex, val) {
         teams[tIndex].jobs[jIndex].replaceModem = val;
-        // Jika pilih tidak, hapus data teknis agar bersih
         if(val === 'no') {
             if(teams[tIndex].jobs[jIndex].technical) {
                 teams[tIndex].jobs[jIndex].technical = {};
             }
         }
         saveDataToFirebase();
-        // Render ulang untuk update UI
         renderJobs();
     }
 
@@ -670,15 +650,14 @@
             if (team.jobs.length === 0) { return; }
             visibleTeamsCount++;
 
-            // --- LOGIKA PENGURUTAN (SORTING) BERDASARKAN JAM ---
             team.jobs.sort((a, b) => {
                 const getWeight = (t) => {
                     t = (t || "").toString().toLowerCase().trim();
-                    if (t === "" || t === "-" || t.includes("flexibel")) return 99999; // Paling akhir
-                    if (t.includes("pagi")) return 480;   // 08:00
-                    if (t.includes("siang")) return 780;  // 13:00
-                    if (t.includes("sore")) return 960;   // 16:00
-                    if (t.includes("malam")) return 1140; // 19:00
+                    if (t === "" || t === "-" || t.includes("flexibel")) return 99999;
+                    if (t.includes("pagi")) return 480;   
+                    if (t.includes("siang")) return 780;  
+                    if (t.includes("sore")) return 960;   
+                    if (t.includes("malam")) return 1140; 
                     
                     const match = t.match(/(\d{1,2})[:.]?(\d{2})?/);
                     if (match) {
@@ -721,7 +700,7 @@
             let modemOptions = `<option value="">-- Pilih Modem dari Stok (${stockCount}) --</option>`;
             team.inventory.forEach(inv => {
                 const status = getModemStatusGlobal(inv.sn);
-                const type = getModemType(inv.sn); // Ambil tipe modem
+                const type = getModemType(inv.sn);
                 const typeLabel = (type === 'SRB' || type === 'SYN') ? `[${type}] ` : '';
 
                 if (status === 'installed') {
@@ -757,14 +736,12 @@
                     formHTML = `
                     <div class="manual-input-section">
                         <h4 style="margin:0 0 10px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4>
-                        
                         <div style="margin-bottom:10px;">
                             <label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label>
                             <select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})">
                                 ${modemOptions}
                             </select>
                         </div>
-
                         <div class="input-grid">
                             <div class="input-group"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div>
                             <div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div>
@@ -777,8 +754,7 @@
                         </div>
                     </div>`;
                 } else {
-                    // LOGIKA UNTUK MT / LAIN (Tampilkan Opsi Ganti Modem)
-                    const replaceStatus = job.replaceModem || 'no'; // Default Tidak Ganti
+                    const replaceStatus = job.replaceModem || 'no'; 
                     const displayMtTech = replaceStatus === 'yes' ? 'block' : 'none';
 
                     formHTML = `
@@ -846,7 +822,6 @@
 
                 listContainer.appendChild(li);
 
-                // Tambahkan listener untuk semua input realtime (PSB maupun MT yang muncul)
                 const inputs = li.querySelectorAll('.realtime-input');
                 inputs.forEach(input => {
                     input.addEventListener('change', (e) => {
@@ -865,28 +840,24 @@
         }
     }
 
-    // --- LOGIKA BARU STATUS TOMBOL ---
     window.toggleJobStatus = function(tIndex, jobIndex, newStatus) {
         const job = teams[tIndex].jobs[jobIndex];
         const oldStatus = job.status || (job.completed ? 'completed' : 'pending');
         const isPSB = job.tag.toUpperCase().includes("PSB");
 
         if (oldStatus === newStatus) {
-            // Jika diklik status yang sama, kembalikan ke pending (toggle off)
             job.status = 'pending';
             job.completed = false;
             job.completedAt = null;
             if (oldStatus === 'failed') job.failureNote = null;
             if (oldStatus === 'completed') job.completionNote = null;
         } else {
-            // Jika status baru dipilih
             if (newStatus === 'completed') {
-                // LOGIKA SELESAI
                 if (isPSB) {
                     let currentNo = job.details['No Layanan'] || "";
                     if(!currentNo || currentNo.trim() === "") {
                         let inputLayanan = prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", "");
-                        if (inputLayanan === null) return; // Cancelled
+                        if (inputLayanan === null) return; 
                         inputLayanan = inputLayanan.trim();
                         if (!/^\d+$/.test(inputLayanan)) {
                             alert("❌ Error: No Layanan harus format angka!");
@@ -895,8 +866,7 @@
                         job.details['No Layanan'] = inputLayanan;
                     }
                 } else {
-                    // LOGIKA MT
-                    let note = prompt("✅ TIKET MT SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):", job.completionNote || "");
+                    let note = prompt("✅ TIKET SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):", job.completionNote || "");
                     if (note === null) return; 
                     job.completionNote = note; 
                 }
@@ -907,7 +877,6 @@
                 job.failureNote = null; 
             } 
             else if (newStatus === 'failed') {
-                // LOGIKA GAGAL
                 let note = prompt("⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || "");
                 if (note === null) return; 
                 if (note.trim() === "") {
@@ -924,14 +893,13 @@
 
         saveDataToFirebase();
         updateProgressUI(teams[tIndex].id, teams[tIndex].jobs);
-        renderJobs(); // Re-render untuk update UI
+        renderJobs(); 
         
         setTimeout(() => {
             syncInstalledModems();
         }, 500);
     }
 
-    // --- MODIFIKASI TOGGLE DETAILS DENGAN STATE PRESERVATION ---
     window.toggleDetails = function(id) {
         const el = document.getElementById(id);
         if (el.style.display === "block") {
@@ -943,7 +911,6 @@
         }
     };
 
-    // --- LOGIKA GUDANG MODEM V2 ---
     let currentGudangTab = 'srb';
     
     window.openGudangModal = function() {
@@ -987,32 +954,21 @@
         document.getElementById('count-syn').innerText = gudangStock.syn ? gudangStock.syn.length : 0;
     }
 
-    // --- FUNGSI BARU: LOCK & UNLOCK (FIXED) ---
     window.toggleLock = function(type, index, lockState) {
         if (!lockState) {
-            // Mau membuka kunci -> Minta PIN
             let pin = prompt("🔐 Masukkan PIN untuk membuka data:");
             if(pin !== "240525") {
                 alert("❌ PIN SALAH!");
                 return;
             }
         }
-        
-        // Pastikan boolean strict
         gudangStock[type][index].isLocked = (lockState === true);
-        
         saveGudangToFirebase();
         renderGudangTable(type);
-        
-        // Alert feedback
-        if (lockState) {
-            alert("🔒 Data Terkunci (Aman dari Reset/Hapus)");
-        } else {
-            alert("🔓 Data Terbuka");
-        }
+        if (lockState) alert("🔒 Data Terkunci (Aman dari Reset/Hapus)");
+        else alert("🔓 Data Terbuka");
     }
 
-    // --- FUNGSI BARU: TRANSFER / TUKAR TIM ---
     window.transferModem = function(type, index) {
         const select = document.getElementById(`transfer-sel-${type}-${index}`);
         const targetTeamIdx = select.value;
@@ -1028,7 +984,6 @@
 
         if(confirm(`🔄 OPER STOK?\nPindahkan modem SN: ${item.sn}\nDari: ${item.teamName}\nKe: ${targetTeamName}?`)) {
             
-            // 1. Hapus dari stok tim lama
             if (oldTeamIdx !== null && teams[oldTeamIdx] && teams[oldTeamIdx].inventory) {
                  const invIdx = teams[oldTeamIdx].inventory.findIndex(inv => inv.sn === item.sn);
                  if (invIdx > -1) {
@@ -1036,18 +991,15 @@
                  }
             }
 
-            // 2. Tambah ke stok tim baru
             if (!teams[targetTeamIdx].inventory) teams[targetTeamIdx].inventory = [];
             teams[targetTeamIdx].inventory.push({ sn: item.sn, mac: item.mac });
 
-            // 3. Update data gudang
             gudangStock[type][index].teamName = targetTeamName;
             gudangStock[type][index].teamId = targetTeamIdx;
-            // Tanggal pending direset ke sekarang agar fresh
             gudangStock[type][index].pendingDate = new Date().toLocaleString('id-ID');
 
-            saveDataToFirebase(); // Simpan perubahan stok tim
-            saveGudangToFirebase(); // Simpan perubahan status gudang
+            saveDataToFirebase(); 
+            saveGudangToFirebase(); 
             
             renderGudangTable(type);
             updateGudangCounts();
@@ -1055,7 +1007,6 @@
         }
     }
 
-    // --- LOGIKA FILTER SEARCH BANYAK & RENDER ---
     window.renderGudangTable = function(type) {
         if (!type) {
             type = currentGudangTab;
@@ -1065,7 +1016,6 @@
         tbody.innerHTML = '';
         let data = gudangStock[type] || [];
 
-        // 1. FILTER SEARCH LOGIC (MULTI KEYWORD)
         const searchInput = document.getElementById('gudang-search').value;
         if (searchInput.trim() !== "") {
             const keywords = searchInput.toUpperCase().split(/[\s,]+/).filter(k => k.length > 0);
@@ -1101,9 +1051,7 @@
             let statusBadge = `<span class="status-badge st-ready">Ready</span>`;
             let aksiContent = '';
 
-            // LOGIKA BUTTON LOCK
             let lockBtn = '';
-            // Cek strictly true
             if (item.status === 'installed' || item.status === 'bad') {
                 if (item.isLocked === true) {
                     lockBtn = `<button class="btn-unlock" onclick="toggleLock('${type}', ${originalIndex}, false)">🔒 Buka</button>`;
@@ -1162,7 +1110,7 @@
                 if (item.isLocked === true) {
                     aksiContent = `<div style="text-align:center;">${lockBtn}<br><span style="font-size:0.75rem; color:red; font-weight:bold;">Terkunci</span></div>`;
                 } else {
-                      aksiContent = `
+                       aksiContent = `
                         <div style="display:flex; flex-direction:column; gap:5px;">
                              <div style="text-align:center;">${lockBtn}</div>
                              <div style="display:flex; gap:5px;">
@@ -1198,7 +1146,6 @@
         });
     }
 
-    // --- LOGIKA BULK INPUT & CLEANER ---
     window.openBulkModal = function() {
         document.getElementById('modalBulk').style.display = "block";
     }
@@ -1227,7 +1174,7 @@
                         sn: sn,
                         mac: mac,
                         status: 'ready',
-                        isLocked: false // Default false
+                        isLocked: false 
                     });
                     successCount++;
                 }
@@ -1250,7 +1197,6 @@
         let pin = prompt("⚠️ PERINGATAN: INI AKAN MENGHAPUS DATA MODEM YANG BERSTATUS 'TERPASANG'!\n\nData Ready, Pending, dan BAD tidak akan terhapus.\nMasukkan PIN untuk konfirmasi:");
         
         if(pin === "240525") {
-            // FILTER: Hapus hanya jika status installed DAN TIDAK TERKUNCI
             const srbCountBefore = gudangStock.srb.length;
             gudangStock.srb = gudangStock.srb.filter(item => !(item.status === 'installed' && !item.isLocked));
             const srbDeleted = srbCountBefore - gudangStock.srb.length;
@@ -1283,7 +1229,7 @@
                 gudangStock[type][index].teamId = null;
                 gudangStock[type][index].pendingDate = null;
                 gudangStock[type][index].installedDate = null;
-                gudangStock[type][index].isLocked = false; // Reset lock saat retur
+                gudangStock[type][index].isLocked = false; 
                 finalizeAction();
             }
         } else if (action === 'bad') {
@@ -1417,7 +1363,6 @@
         alert("✅ Stok Modem berhasil ditambahkan!");
     }
 
-    // --- UPDATED: OPEN STOCK LIST MODAL WITH TYPE COLUMN ---
     window.openStockListModal = function(teamIndex) {
         const team = teams[teamIndex];
         const tbody = document.getElementById('stock-table-body');
@@ -1435,7 +1380,7 @@
                 const tr = document.createElement('tr');
                 
                 const status = getModemStatusGlobal(item.sn);
-                const type = getModemType(item.sn); // AMBIL TIPE MODEM
+                const type = getModemType(item.sn); 
                 
                 let displaySN = item.sn;
                 let displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, ${stockIdx})">🗑️</button>`;
@@ -1448,7 +1393,6 @@
                         displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 }
 
-                // BUAT BADGE TIPE
                 let typeBadge = '';
                 if(type === 'SRB') typeBadge = '<span class="badge" style="background:#007bff; color:white;">SRB</span>';
                 else if(type === 'SYN') typeBadge = '<span class="badge" style="background:#ffc107; color:black;">SYN</span>';
@@ -1512,9 +1456,13 @@
             console.error("Error calculating vlan mac", e);
         }
 
-        document.getElementById(`sn-${teamIdx}-${jobIdx}`).value = sn;
-        document.getElementById(`mac-${teamIdx}-${jobIdx}`).value = mac;
-        document.getElementById(`vlan-${teamIdx}-${jobIdx}`).value = vlanMac;
+        const snEl = document.getElementById(`sn-${teamIdx}-${jobIdx}`);
+        const macEl = document.getElementById(`mac-${teamIdx}-${jobIdx}`);
+        const vlanEl = document.getElementById(`vlan-${teamIdx}-${jobIdx}`);
+
+        if(snEl) snEl.value = sn;
+        if(macEl) macEl.value = mac;
+        if(vlanEl) vlanEl.value = vlanMac;
 
         if(!teams[teamIdx].jobs[jobIdx].technical) teams[teamIdx].jobs[jobIdx].technical = {};
         teams[teamIdx].jobs[jobIdx].technical['sn'] = sn;
@@ -1544,7 +1492,7 @@
         saveDataToFirebase();
     }
 
-    // --- FITUR BARU: SMART GENERATE PREVIEW (MIXED MODE) ---
+    // --- SMART GENERATE PREVIEW (ISOLIR ADDED) ---
     window.generatePreview = function() {
         const raw = document.getElementById('bulk-input-text').value;
         const container = document.getElementById('preview-container');
@@ -1552,27 +1500,37 @@
 
         if (!raw.trim()) { alert("Paste data dulu!"); return; }
 
+        // Split by "Nama Pelanggan" or "Nama Lengkap" or standard breaks
+        // Updated regex to catch blocks
         const blocks = raw.split(/(?=(?:Nama Lengkap|Nama Pelanggan)\s*[:=])/gi).filter(b => b.trim().length > 10);
 
         if(blocks.length === 0) {
-            alert("❌ Format tidak dikenali!\nPastikan ada tulisan 'Nama Lengkap :' (untuk PSB) atau 'Nama Pelanggan :' (untuk MT).");
+            alert("❌ Format tidak dikenali!\nPastikan ada tulisan 'Nama Lengkap :' (untuk PSB) atau 'Nama Pelanggan :' (untuk MT/ISOLIR).");
             return;
         }
 
         let psbCount = 0;
         let mtCount = 0;
+        let isolirCount = 0;
 
         blocks.forEach((block, index) => {
+            // DETEKSI JENIS TIKET
             if (block.match(/Nama Lengkap\s*[:=]/i)) {
+                // INI PSB
                 createPSBCard(block, index, container);
                 psbCount++;
-            } else if (block.match(/Nama Pelanggan\s*[:=]/i)) {
+            } else if (block.match(/Last DBM/i) || block.match(/User PPPOE/i) || block.match(/OLT SN/i)) {
+                // INI ISOLIR (Punya detail teknis lengkap)
+                createISOLIRCard(block, index, container);
+                isolirCount++;
+            } else {
+                // INI MT BIASA
                 createMTCard(block, index, container);
                 mtCount++;
             }
         });
 
-        alert(`✅ SMART GENERATE SELESAI!\nDitemukan:\n- ${psbCount} Tiket PSB\n- ${mtCount} Tiket MT`);
+        alert(`✅ SMART GENERATE SELESAI!\nDitemukan:\n- ${psbCount} Tiket PSB\n- ${mtCount} Tiket MT\n- ${isolirCount} Tiket ISOLIR`);
     }
 
     function createPSBCard(block, index, container) {
@@ -1671,7 +1629,75 @@
         container.appendChild(card);
     }
 
-    // --- SAVE BULK TICKETS ---
+    function createISOLIRCard(block, index, container) {
+        const getValue = (label) => {
+            const regex = new RegExp(label + "[\\s\\n]*[:=][\\s\\n]*(.*)", "i");
+            const match = block.match(regex);
+            return match ? match[1].trim() : "";
+        };
+
+        // Extract Standard Fields
+        const nama = getValue("Nama Pelanggan");
+        let layananFull = getValue("No Layanan"); // Keep full format e.g. 1393005090||PROMO...
+        const masaAktif = getValue("Masa Aktif s/d");
+        const telp = getValue("No Telp\\.?");
+        const tglDaftar = getValue("Tanggal Daftar");
+        const coverage = getValue("Coverage");
+        const alamat = getValue("Alamat");
+        
+        // Extract Technical Fields (ISOLIR SPECIFIC)
+        const pppoe = getValue("User PPPOE_RADIUS");
+        const odc = getValue("ODC");
+        const odp = getValue("ODP");
+        const port = getValue("Port ODP");
+        const oltSn = getValue("OLT SN/MAC");
+        const dbm = getValue("Last DBM");
+        const dbmTime = getValue("Last DBM Time");
+        const ssid = getValue("Nama WiFi \\(SSID\\)");
+        const sandi = getValue("Sandi WiFi");
+        const router = getValue("Router");
+        const kordinat = getValue("Titik kordinat");
+
+        const card = document.createElement('div');
+        card.className = 'preview-card preview-isolir';
+        card.innerHTML = `
+            <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+            <h4 style="color:#c0392b;">Ticket ISOLIR #${index + 1}: ${nama}</h4>
+            <div class="form-group">
+                <label>Jam Kunjungan (Wajib Diisi Manual)</label>
+                <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #c0392b; background: #fffdf5;">
+            </div>
+            <div class="preview-grid">
+                <input type="hidden" class="bulk-type" value="ISOLIR">
+                
+                <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
+                <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
+                <div class="input-group"><label>No Layanan (Full)</label><input type="text" class="bulk-layanan" value="${layananFull}"></div>
+                <div class="input-group"><label>Masa Aktif</label><input type="text" class="bulk-masa" value="${masaAktif}"></div>
+                
+                <input type="hidden" class="iso-telp" value="${telp}">
+                <input type="hidden" class="iso-tgl" value="${tglDaftar}">
+                <input type="hidden" class="iso-cov" value="${coverage}">
+                
+                <div style="grid-column: 1/-1; border-top: 1px dashed #ccc; margin-top: 5px; padding-top: 5px; font-weight: bold; color: #c0392b;">Detail Teknis (Editable):</div>
+                
+                <div class="input-group"><label>ODP</label><input type="text" class="iso-odp" value="${odp}"></div>
+                <div class="input-group"><label>Port</label><input type="text" class="iso-port" value="${port}"></div>
+                <div class="input-group"><label>OLT SN</label><input type="text" class="iso-oltsn" value="${oltSn}"></div>
+                <div class="input-group"><label>Last DBM</label><input type="text" class="iso-dbm" value="${dbm}"></div>
+                <div class="input-group"><label>DBM Time</label><input type="text" class="iso-dbmtime" value="${dbmTime}"></div>
+                <div class="input-group"><label>User PPPOE</label><input type="text" class="iso-pppoe" value="${pppoe}"></div>
+                <div class="input-group"><label>ODC</label><input type="text" class="iso-odc" value="${odc}"></div>
+                <div class="input-group"><label>SSID</label><input type="text" class="iso-ssid" value="${ssid}"></div>
+                <div class="input-group"><label>Sandi</label><input type="text" class="iso-sandi" value="${sandi}"></div>
+                <div class="input-group"><label>Router</label><input type="text" class="iso-router" value="${router}"></div>
+                <div class="input-group"><label>Koordinat</label><input type="text" class="iso-kordinat" value="${kordinat}"></div>
+            </div>
+        `;
+        container.appendChild(card);
+    }
+
+    // --- SAVE BULK TICKETS (Updated for ISOLIR) ---
     window.saveBulkTickets = function() {
         const previewCards = document.querySelectorAll('.preview-card');
         if(previewCards.length === 0) { alert("Generate preview dulu!"); return; }
@@ -1746,7 +1772,60 @@
                     address: alamat,
                     details: { "Paket": paket, "Email": email, "No WA": wa, "No KTP": ktp, "Status": status, "Tgl Pasang": tgl }
                 };
+            } else if (type === 'ISOLIR') {
+                // DATA ISOLIR
+                const layanan = card.querySelector('.bulk-layanan').value;
+                const masaAktif = card.querySelector('.bulk-masa').value;
+                
+                // Get Hidden Inputs
+                const telp = card.querySelector('.iso-telp').value;
+                const tgl = card.querySelector('.iso-tgl').value;
+                const cov = card.querySelector('.iso-cov').value;
+                
+                // Get Editable Technical Inputs (Updated Selector to match createISOLIRCard)
+                const pppoe = card.querySelector('.iso-pppoe').value;
+                const odc = card.querySelector('.iso-odc').value;
+                const odp = card.querySelector('.iso-odp').value;
+                const port = card.querySelector('.iso-port').value;
+                const oltsn = card.querySelector('.iso-oltsn').value;
+                const dbm = card.querySelector('.iso-dbm').value;
+                const dbmtime = card.querySelector('.iso-dbmtime').value;
+                const ssid = card.querySelector('.iso-ssid').value;
+                const sandi = card.querySelector('.iso-sandi').value;
+                const router = card.querySelector('.iso-router').value;
+                const kordinat = card.querySelector('.iso-kordinat').value;
+
+                newJob = {
+                    completed: false,
+                    status: 'pending',
+                    technical: {},
+                    name: nama,
+                    tag: 'ISOLIR',
+                    tagClass: "badge-isolir",
+                    time: jam,
+                    address: alamat,
+                    details: {
+                        "Layanan": layanan,
+                        "Masa Aktif": masaAktif,
+                        "No Telp": telp,
+                        "Tgl Daftar": tgl,
+                        "Coverage": cov,
+                        "User PPPOE": pppoe,
+                        "ODC": odc,
+                        "ODP": odp,
+                        "Port": port,
+                        "OLT SN": oltsn,
+                        "Last DBM": dbm,
+                        "DBM Time": dbmtime,
+                        "SSID": ssid,
+                        "Sandi": sandi,
+                        "Router": router,
+                        "Koordinat": kordinat
+                    }
+                };
+
             } else {
+                // DATA MT
                 const layanan = card.querySelector('.bulk-layanan').value;
                 const telp = card.querySelector('.bulk-telp').value;
                 const tag = card.querySelector('.bulk-tag').value;
@@ -1807,9 +1886,31 @@
         const d = job.details;
         const tech = job.technical || {};
         const isPSB = job.tag.toUpperCase().includes("PSB");
+        const isISOLIR = job.tag === 'ISOLIR';
         let textToCopy = "";
 
-        if (isPSB) {
+        if (isISOLIR) {
+            // FORMAT KHUSUS ISOLIR (Sesuai Permintaan)
+            textToCopy = `(Nama Pelanggan: ${job.name}
+No Layanan: ${d['Layanan'] || '-'}
+Masa Aktif s/d: ${d['Masa Aktif'] || '-'}
+No Telp.: ${d['No Telp'] || '-'}
+Tanggal Daftar: ${d['Tgl Daftar'] || '-'}
+Coverage: ${d['Coverage'] || '-'}
+Alamat: ${job.address}
+User PPPOE_RADIUS: ${d['User PPPOE'] || '-'}
+ODC: ${d['ODC'] || '-'}
+ODP: ${d['ODP'] || '-'}
+Port ODP: ${d['Port'] || '-'}
+OLT SN/MAC: ${d['OLT SN'] || '-'}
+Last DBM: ${d['Last DBM'] || '-'}
+Last DBM Time: ${d['DBM Time'] || '-'}
+Nama WiFi (SSID): ${d['SSID'] || '-'}
+Sandi WiFi: ${d['Sandi'] || '-'}
+Router: ${d['Router'] || '-'}
+Titik kordinat: ${d['Koordinat'] || '-'})`;
+
+        } else if (isPSB) {
             const snVal = tech.sn || '-';
             const macVal = formatMacForCopy(tech.mac);
             const vlanVal = formatMacForCopy(tech.vlan);
@@ -1841,6 +1942,7 @@ Port : ${portVal}
 Id ODP : ${odpVal}
 Redaman : ${redamanVal}`;
         } else {
+            // FORMAT MT
             textToCopy = `TEKNISI : ${team.teamName}
 KATEGORI : ${job.tag}
 --------------------------------
@@ -1852,7 +1954,6 @@ Coverage : ${d['Coverage']||'-'}
 Catatan : ${d['Catatan']||'-'}
 Alamat : ${job.address}`;
 
-            // --- DATA TEKNIS MT (JIKA GANTI MODEM) ---
             if (job.replaceModem === 'yes' && tech.sn) {
                  const macVal = formatMacForCopy(tech.mac);
                  const vlanVal = formatMacForCopy(tech.vlan);
@@ -1862,7 +1963,6 @@ Alamat : ${job.address}`;
         copyToClipboard(textToCopy, btn);
     };
 
-    // Helper for Number Emojis
     function getNumberEmoji(n) {
         const emojis = ['0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟'];
         return emojis[n] || `${n}.`;
@@ -1934,14 +2034,13 @@ Alamat : ${job.address}`;
                 summaryText += `📍 ${job.address}\n`;
                 summaryText += `----------------------------------------------\n`;
             });
-            summaryText += `\n`; // Add space between teams
+            summaryText += `\n`; 
         });
         
         const btn = document.querySelector('.btn-copy-all');
         copyToClipboard(summaryText, btn, "✅ Rekap Tersalin!");
     };
 
-    // --- FUNGSI BARU: REKAP MODEM (UPDATED WITH TYPE) ---
     window.openRekapModemOption = function() {
         document.getElementById('modalRekapOption').style.display = 'block';
     }
@@ -1957,7 +2056,6 @@ Alamat : ${job.address}`;
         teams.forEach(team => {
             if(!team.inventory || team.inventory.length === 0) return;
 
-            // Filter items based on mode
             let items = [];
             if(mode === 'sisa') {
                 items = team.inventory.filter(i => {
@@ -1965,36 +2063,32 @@ Alamat : ${job.address}`;
                     return status !== 'installed' && status !== 'bad';
                 });
             } else {
-                items = team.inventory; // All items
+                items = team.inventory;
             }
 
             if(items.length > 0) {
                 text += `👤 *${team.teamName.toUpperCase()}* (${items.length} unit)\n`;
                 items.forEach((item, idx) => {
                     const status = getModemStatusGlobal(item.sn);
-                    const type = getModemType(item.sn); // GET TYPE
+                    const type = getModemType(item.sn); 
                     
                     let statusTag = "";
-                    
                     if(mode === 'all') {
                          if(status === 'installed') statusTag = " [TERPASANG]";
                          else if(status === 'bad') statusTag = " [BAD]";
                          else statusTag = " [READY]";
                     }
                     
-                    // TAMBAHKAN TIPE KE TEXT OUTPUT
                     text += `${idx+1}. ${item.sn} [${type}]${statusTag}\n`;
                 });
                 text += `--------------------\n`;
             }
         });
 
-        // Copy logic
         navigator.clipboard.writeText(text).then(() => {
             alert("✅ Rekap Modem berhasil disalin ke Clipboard!");
             closeRekapModemOption();
         }).catch(err => {
-            // Fallback
             console.error("Gagal copy", err);
             const textArea = document.createElement("textarea");
             textArea.value = text;
@@ -2007,7 +2101,6 @@ Alamat : ${job.address}`;
             closeRekapModemOption();
         });
     }
-    // ------------------------------------
 
     window.downloadExcel = function() {
         let dataToExport = [];
