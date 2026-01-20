@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.6 (Full Editable ISOLIR)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.7 (Multi-Feature)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -162,6 +162,17 @@
         .generator-box textarea { width: 100%; border: 1px solid #b1ccf0; border-radius: 4px; padding: 8px; margin-top: 5px; font-size: 0.85rem; resize: vertical; }
         .btn-generate { width: 100%; background-color: #1a73e8; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; margin-top: 8px; cursor: pointer; }
 
+        /* --- MENU SELECTION CARD --- */
+        .menu-selection-container { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .menu-btn { 
+            padding: 20px; text-align: left; border: 2px solid #eee; border-radius: 8px; 
+            background: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 15px;
+        }
+        .menu-btn:hover { border-color: #007bff; background: #f0f7ff; transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .menu-icon { font-size: 2rem; }
+        .menu-text h3 { margin: 0 0 5px 0; color: #333; }
+        .menu-text p { margin: 0; color: #666; font-size: 0.85rem; }
+
         /* --- PREVIEW CARD --- */
         .preview-card { background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px; position: relative; }
         .preview-psb { border-left: 5px solid #007bff; }
@@ -206,6 +217,12 @@
 
         .search-gudang-box { width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 6px; font-size: 0.95rem; margin-bottom: 5px; background-color: #f0f7ff; height: 60px; resize: vertical; }
 
+        /* Transfer Ticket Styles */
+        .transfer-list { max-height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; margin-bottom: 15px; background: #f9f9f9; }
+        .transfer-item { display: flex; gap: 10px; padding: 8px; border-bottom: 1px solid #ddd; align-items: center; background: white; }
+        .transfer-item:last-child { border-bottom: none; }
+        .transfer-item label { cursor: pointer; font-size: 0.9rem; flex: 1; margin: 0; }
+
         /* --- MEDIA QUERIES (RESPONSIVE KHUSUS HP) --- */
         @media (max-width: 600px) {
             body { padding: 5px; background-color: #fff; }
@@ -246,11 +263,11 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.6 (Full Editable ISOLIR)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.7 (Multi-Feature)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
-            <button class="btn-action-main btn-ticket" onclick="openModal()">📝 Buat Tiket</button>
+            <button class="btn-action-main btn-ticket" onclick="openTicketOption()">📝 Buat Tiket</button>
             <button class="btn-action-main btn-gudang" onclick="openGudangModal()">🏭 Gudang Modem</button>
             <button class="btn-action-main btn-copy-all" onclick="copyAllSummary()">📑 Copy Rekap</button>
             <button class="btn-action-main btn-excel" onclick="downloadExcel()">📊 Download Excel</button>
@@ -265,6 +282,104 @@
         <p style="text-align: center; color: #888;">Memuat data...</p>
     </div>
 </div>
+
+<div id="modalTicketSelection" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close-modal" onclick="closeTicketOption()">&times;</span>
+        <h2 style="text-align: center; margin-bottom: 25px;">🛠️ Pilih Aksi</h2>
+        <div class="menu-selection-container">
+            <div class="menu-btn" onclick="openCreateTicketModal()">
+                <div class="menu-icon">📝</div>
+                <div class="menu-text">
+                    <h3>Buat Tiket Baru</h3>
+                    <p>Input tiket dari pesan WhatsApp (PSB/MT/ISOLIR).</p>
+                </div>
+            </div>
+            <div class="menu-btn" onclick="openEditTechModal()">
+                <div class="menu-icon">👥</div>
+                <div class="menu-text">
+                    <h3>Edit Personil Tim</h3>
+                    <p>Ubah nama teknisi 1 atau 2 pada tim yang sudah ada.</p>
+                </div>
+            </div>
+            <div class="menu-btn" onclick="openTransferModal()">
+                <div class="menu-icon">🔄</div>
+                <div class="menu-text">
+                    <h3>Edit Tiket (Transfer/Lempar)</h3>
+                    <p>Pindahkan tiket ke tim lain atau buat tim baru dari pecahan tiket.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalEditTech" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close-modal" onclick="closeEditTechModal()">&times;</span>
+        <h2 style="text-align: center; color: #007bff;">👥 Edit Personil Tim</h2>
+        <div class="form-group">
+            <label>Pilih Tim yang akan diedit:</label>
+            <select id="edit-tech-team-select" onchange="loadTeamMembersForEdit()"></select>
+        </div>
+        <div class="tech-select-container">
+            <div class="tech-select-wrapper">
+                <label>👤 Teknisi 1 (Baru)</label>
+                <select id="edit-tech-1"></select>
+            </div>
+            <div class="tech-select-wrapper">
+                <label>👤 Teknisi 2 (Baru)</label>
+                <select id="edit-tech-2">
+                    <option value="">-- Kosong --</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn-add-list" style="background-color: #007bff;" onclick="saveEditTech()">💾 Simpan Perubahan</button>
+    </div>
+</div>
+
+<div id="modalTransferTicket" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <span class="close-modal" onclick="closeTransferModal()">&times;</span>
+        <h2 style="text-align: center; color: #17a2b8;">🔄 Transfer Tiket (Lempar)</h2>
+        
+        <div class="form-group" style="background: #e8f4f8; padding: 10px; border-radius: 8px;">
+            <label>1️⃣ Pilih Tim Asal:</label>
+            <select id="transfer-source-team" onchange="renderTransferJobs()"></select>
+        </div>
+
+        <div id="transfer-job-section" style="display: none;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">2️⃣ Pilih Tiket yang akan dilempar:</label>
+            <div id="transfer-job-list" class="transfer-list"></div>
+            
+            <div class="form-group" style="background: #e8f4f8; padding: 10px; border-radius: 8px; margin-top: 15px;">
+                <label>3️⃣ Pilih Tim Tujuan:</label>
+                <select id="transfer-target-team" onchange="checkNewTeamOption()">
+                    <option value="">-- Pilih Tujuan --</option>
+                    <option value="new_team">➕ BUAT TIM BARU</option>
+                </select>
+            </div>
+
+            <div id="new-team-input-section" style="display: none; border: 1px dashed #17a2b8; padding: 10px; border-radius: 8px; margin-top: 10px;">
+                <h4 style="margin: 0 0 10px 0; color: #17a2b8;">Buat Tim Baru</h4>
+                <div class="tech-select-container">
+                    <div class="tech-select-wrapper">
+                        <label>👤 Teknisi 1</label>
+                        <select id="transfer-new-tech-1"></select>
+                    </div>
+                    <div class="tech-select-wrapper">
+                        <label>👤 Teknisi 2</label>
+                        <select id="transfer-new-tech-2">
+                            <option value="">-- Kosong --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-add-list" style="background-color: #17a2b8; margin-top: 15px;" onclick="processTransfer()">🚀 Proses Transfer Tiket</button>
+        </div>
+    </div>
+</div>
+
 
 <div id="modalRekapOption" class="modal">
     <div class="modal-content" style="max-width: 400px; text-align: center;">
@@ -399,7 +514,7 @@
 
 <div id="modalTicket" class="modal">
     <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <span class="close-modal" onclick="closeCreateTicketModal()">&times;</span>
         <h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru</h2>
         
         <div class="tech-select-container">
@@ -460,6 +575,8 @@
     const extraColors = ["bg-orange", "bg-purple", "bg-teal", "bg-dark"];
     let teams = [];
     let gudangStock = { srb: [], syn: [] };
+
+    // --- MAIN LOGIC START ---
 
     window.resetDatabase = function() {
         let pin = prompt("⚠️ PERINGATAN: INI AKAN MENGHAPUS SEMUA TIKET!\n\nData Gudang (Pending/Terpasang) TIDAK AKAN DIHAPUS.\nMasukkan PIN untuk konfirmasi:");
@@ -550,6 +667,254 @@
             }
         });
     }
+
+    // --- NEW FEATURE FUNCTIONS START ---
+
+    // 1. OPEN SELECTION MODAL
+    window.openTicketOption = function() {
+        let pin = prompt("🔒 Masukkan PIN untuk akses menu tiket:");
+        if (pin !== "240525") { alert("❌ PIN SALAH! Akses ditolak."); return; }
+        document.getElementById('modalTicketSelection').style.display = "block";
+    }
+    window.closeTicketOption = function() {
+        document.getElementById('modalTicketSelection').style.display = "none";
+    }
+
+    // 2. OPEN CREATE TICKET (Original Logic)
+    window.openCreateTicketModal = function() {
+        closeTicketOption();
+        populateTechSelect('tech-1', 'tech-2'); 
+        document.getElementById("modalTicket").style.display = "block";
+    }
+    window.closeCreateTicketModal = function() { 
+        document.getElementById("modalTicket").style.display = "none"; 
+        document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
+        document.getElementById('bulk-input-text').value = '';
+    }
+
+    // 3. EDIT TECH LOGIC
+    window.openEditTechModal = function() {
+        closeTicketOption();
+        const select = document.getElementById('edit-tech-team-select');
+        select.innerHTML = '<option value="">-- Pilih Tim --</option>';
+        teams.forEach((t, index) => {
+            select.add(new Option(t.teamName, index));
+        });
+        populateTechSelect('edit-tech-1', 'edit-tech-2');
+        document.getElementById('modalEditTech').style.display = 'block';
+    }
+    window.closeEditTechModal = function() {
+        document.getElementById('modalEditTech').style.display = 'none';
+    }
+    window.loadTeamMembersForEdit = function() {
+        const teamIdx = document.getElementById('edit-tech-team-select').value;
+        if(teamIdx === "") return;
+        
+        const team = teams[teamIdx];
+        const t1Select = document.getElementById('edit-tech-1');
+        const t2Select = document.getElementById('edit-tech-2');
+        
+        // Members is array like ["budi", "andi"]
+        if(team.members && team.members.length > 0) {
+            // Helper to match casing
+            const matchOption = (sel, val) => {
+                for(let i=0; i<sel.options.length; i++) {
+                    if(sel.options[i].value.toLowerCase() === val.toLowerCase()) {
+                        sel.selectedIndex = i;
+                        return;
+                    }
+                }
+            };
+            
+            matchOption(t1Select, team.members[0]);
+            if(team.members.length > 1) {
+                matchOption(t2Select, team.members[1]);
+            } else {
+                t2Select.value = "";
+            }
+        }
+    }
+    window.saveEditTech = function() {
+        const teamIdx = document.getElementById('edit-tech-team-select').value;
+        const t1 = document.getElementById('edit-tech-1').value;
+        const t2 = document.getElementById('edit-tech-2').value;
+
+        if(teamIdx === "") { alert("Pilih tim dulu!"); return; }
+        if(!t1) { alert("Teknisi 1 wajib diisi!"); return; }
+
+        let newMembers = [t1.toLowerCase()];
+        if(t2 && t2 !== "") newMembers.push(t2.toLowerCase());
+        newMembers.sort();
+
+        // Preserve "Tim X" prefix
+        const oldName = teams[teamIdx].teamName;
+        const match = oldName.match(/Tim\s+(\d+)/i);
+        let prefix = match ? match[0] : `Tim ${Date.now().toString().substr(-4)}`; // Fallback
+
+        const newTeamName = `${prefix}: ${t1}${t2 ? ' & '+t2 : ''}`;
+
+        teams[teamIdx].members = newMembers;
+        teams[teamIdx].teamName = newTeamName;
+
+        saveDataToFirebase();
+        alert(`✅ Berhasil diubah menjadi: ${newTeamName}`);
+        closeEditTechModal();
+    }
+
+    // 4. TRANSFER TICKET LOGIC
+    window.openTransferModal = function() {
+        closeTicketOption();
+        const sourceSel = document.getElementById('transfer-source-team');
+        sourceSel.innerHTML = '<option value="">-- Pilih Tim Asal --</option>';
+        teams.forEach((t, index) => {
+            if(t.jobs && t.jobs.length > 0) {
+                sourceSel.add(new Option(`${t.teamName} (${t.jobs.length} Tiket)`, index));
+            }
+        });
+        
+        document.getElementById('transfer-job-section').style.display = 'none';
+        document.getElementById('modalTransferTicket').style.display = 'block';
+    }
+    window.closeTransferModal = function() {
+        document.getElementById('modalTransferTicket').style.display = 'none';
+    }
+    window.renderTransferJobs = function() {
+        const teamIdx = document.getElementById('transfer-source-team').value;
+        const container = document.getElementById('transfer-job-list');
+        const targetSel = document.getElementById('transfer-target-team');
+        
+        container.innerHTML = '';
+        targetSel.innerHTML = '<option value="">-- Pilih Tujuan --</option><option value="new_team">➕ BUAT TIM BARU</option>';
+        
+        if(teamIdx === "") {
+            document.getElementById('transfer-job-section').style.display = 'none';
+            return;
+        }
+
+        teams[teamIdx].jobs.forEach((job, idx) => {
+            const div = document.createElement('div');
+            div.className = 'transfer-item';
+            div.innerHTML = `
+                <input type="checkbox" class="job-transfer-cb" value="${idx}" id="cb-trans-${idx}">
+                <label for="cb-trans-${idx}">
+                    <strong>${job.name}</strong> (${job.tag})<br>
+                    <span style="font-size:0.8em; color:#666;">${job.address.substr(0,40)}...</span>
+                </label>
+            `;
+            container.appendChild(div);
+        });
+
+        // Populate Target with OTHER teams
+        teams.forEach((t, index) => {
+            if(index != teamIdx) {
+                targetSel.add(new Option(t.teamName, index));
+            }
+        });
+
+        document.getElementById('transfer-job-section').style.display = 'block';
+    }
+    window.checkNewTeamOption = function() {
+        const val = document.getElementById('transfer-target-team').value;
+        const newTeamDiv = document.getElementById('new-team-input-section');
+        if(val === 'new_team') {
+            newTeamDiv.style.display = 'block';
+            populateTechSelect('transfer-new-tech-1', 'transfer-new-tech-2');
+        } else {
+            newTeamDiv.style.display = 'none';
+        }
+    }
+    window.processTransfer = function() {
+        const sourceIdx = document.getElementById('transfer-source-team').value;
+        const targetVal = document.getElementById('transfer-target-team').value;
+        
+        if(sourceIdx === "" || targetVal === "") { alert("Lengkapi pilihan tim!"); return; }
+
+        const cbs = document.querySelectorAll('.job-transfer-cb:checked');
+        if(cbs.length === 0) { alert("Pilih minimal 1 tiket untuk dilempar!"); return; }
+
+        let jobIndices = Array.from(cbs).map(cb => parseInt(cb.value)).sort((a,b) => b-a); // Sort desc for splice
+        let jobsToMove = [];
+
+        // Extract jobs
+        jobIndices.forEach(idx => {
+            jobsToMove.push(teams[sourceIdx].jobs[idx]);
+        });
+
+        // Determine Target
+        let targetTeamIdx;
+
+        if (targetVal === 'new_team') {
+            // Create New Team Logic
+            const t1 = document.getElementById('transfer-new-tech-1').value;
+            const t2 = document.getElementById('transfer-new-tech-2').value;
+            if(!t1) { alert("Pilih teknisi untuk tim baru!"); return; }
+
+            let selectedMembers = [t1.toLowerCase()];
+            if(t2) selectedMembers.push(t2.toLowerCase());
+            selectedMembers.sort();
+
+            // Find ID and Color
+            const newId = Date.now(); 
+            const colorIndex = (teams.length) % extraColors.length; 
+            
+            // Find next Tim number
+            const usedNumbers = teams.map(t => {
+                const match = t.teamName.match(/Tim\s+(\d+)/i);
+                return match ? parseInt(match[1]) : 0;
+            });
+            let nextNum = 1;
+            while (usedNumbers.includes(nextNum)) nextNum++;
+            
+            const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`;
+
+            const newTeamObj = {
+                id: newId,
+                teamName: teamNameStr,
+                colorClass: extraColors[colorIndex] || "bg-dark",
+                members: selectedMembers,
+                jobs: [],
+                inventory: []
+            };
+            teams.push(newTeamObj);
+            targetTeamIdx = teams.length - 1;
+
+        } else {
+            targetTeamIdx = parseInt(targetVal);
+        }
+
+        // Push jobs to target
+        jobsToMove.forEach(j => {
+            // Optional: Reset status on transfer? User request "Lempar Tiket". usually implies re-assigning. 
+            // Keeping status same for now, or reset to pending if completed? Assuming raw transfer.
+            teams[targetTeamIdx].jobs.push(j);
+        });
+
+        // Remove from source (iterate reverse because splicing shifts indices)
+        jobIndices.forEach(idx => {
+            teams[sourceIdx].jobs.splice(idx, 1);
+        });
+
+        saveDataToFirebase();
+        alert(`✅ Berhasil melempar ${jobsToMove.length} tiket ke ${teams[targetTeamIdx].teamName}!`);
+        closeTransferModal();
+    }
+
+    function populateTechSelect(id1, id2) {
+        const s1 = document.getElementById(id1);
+        const s2 = document.getElementById(id2);
+        
+        // Clear except option 0 (empty) for s2 if needed, but here regenerate all
+        s1.innerHTML = '';
+        s2.innerHTML = '<option value="">-- Kosong --</option>';
+
+        techList.forEach(name => {
+            s1.add(new Option(name, name));
+            s2.add(new Option(name, name));
+        });
+        s1.selectedIndex = 0; s2.value = ""; 
+    }
+
+    // --- NEW FEATURE FUNCTIONS END ---
 
     function getModemType(sn) {
         if (gudangStock.srb && gudangStock.srb.some(i => i.sn === sn)) return 'SRB';
@@ -1500,8 +1865,6 @@
 
         if (!raw.trim()) { alert("Paste data dulu!"); return; }
 
-        // Split by "Nama Pelanggan" or "Nama Lengkap" or standard breaks
-        // Updated regex to catch blocks
         const blocks = raw.split(/(?=(?:Nama Lengkap|Nama Pelanggan)\s*[:=])/gi).filter(b => b.trim().length > 10);
 
         if(blocks.length === 0) {
@@ -1516,15 +1879,12 @@
         blocks.forEach((block, index) => {
             // DETEKSI JENIS TIKET
             if (block.match(/Nama Lengkap\s*[:=]/i)) {
-                // INI PSB
                 createPSBCard(block, index, container);
                 psbCount++;
             } else if (block.match(/Last DBM/i) || block.match(/User PPPOE/i) || block.match(/OLT SN/i)) {
-                // INI ISOLIR (Punya detail teknis lengkap)
                 createISOLIRCard(block, index, container);
                 isolirCount++;
             } else {
-                // INI MT BIASA
                 createMTCard(block, index, container);
                 mtCount++;
             }
@@ -1636,16 +1996,14 @@
             return match ? match[1].trim() : "";
         };
 
-        // Extract Standard Fields
         const nama = getValue("Nama Pelanggan");
-        let layananFull = getValue("No Layanan"); // Keep full format e.g. 1393005090||PROMO...
+        let layananFull = getValue("No Layanan");
         const masaAktif = getValue("Masa Aktif s/d");
         const telp = getValue("No Telp\\.?");
         const tglDaftar = getValue("Tanggal Daftar");
         const coverage = getValue("Coverage");
         const alamat = getValue("Alamat");
         
-        // Extract Technical Fields (ISOLIR SPECIFIC)
         const pppoe = getValue("User PPPOE_RADIUS");
         const odc = getValue("ODC");
         const odp = getValue("ODP");
@@ -1697,7 +2055,6 @@
         container.appendChild(card);
     }
 
-    // --- SAVE BULK TICKETS (Updated for ISOLIR) ---
     window.saveBulkTickets = function() {
         const previewCards = document.querySelectorAll('.preview-card');
         if(previewCards.length === 0) { alert("Generate preview dulu!"); return; }
@@ -1773,16 +2130,13 @@
                     details: { "Paket": paket, "Email": email, "No WA": wa, "No KTP": ktp, "Status": status, "Tgl Pasang": tgl }
                 };
             } else if (type === 'ISOLIR') {
-                // DATA ISOLIR
                 const layanan = card.querySelector('.bulk-layanan').value;
                 const masaAktif = card.querySelector('.bulk-masa').value;
                 
-                // Get Hidden Inputs
                 const telp = card.querySelector('.iso-telp').value;
                 const tgl = card.querySelector('.iso-tgl').value;
                 const cov = card.querySelector('.iso-cov').value;
                 
-                // Get Editable Technical Inputs (Updated Selector to match createISOLIRCard)
                 const pppoe = card.querySelector('.iso-pppoe').value;
                 const odc = card.querySelector('.iso-odc').value;
                 const odp = card.querySelector('.iso-odp').value;
@@ -1825,7 +2179,6 @@
                 };
 
             } else {
-                // DATA MT
                 const layanan = card.querySelector('.bulk-layanan').value;
                 const telp = card.querySelector('.bulk-telp').value;
                 const tag = card.querySelector('.bulk-tag').value;
@@ -1852,7 +2205,7 @@
         });
 
         saveDataToFirebase();
-        closeModal();
+        closeCreateTicketModal();
         alert(`✅ Berhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}`);
         
         document.getElementById('bulk-input-text').value = '';
@@ -1890,7 +2243,6 @@
         let textToCopy = "";
 
         if (isISOLIR) {
-            // FORMAT KHUSUS ISOLIR (Sesuai Permintaan)
             textToCopy = `(Nama Pelanggan: ${job.name}
 No Layanan: ${d['Layanan'] || '-'}
 Masa Aktif s/d: ${d['Masa Aktif'] || '-'}
@@ -1942,7 +2294,6 @@ Port : ${portVal}
 Id ODP : ${odpVal}
 Redaman : ${redamanVal}`;
         } else {
-            // FORMAT MT
             textToCopy = `TEKNISI : ${team.teamName}
 KATEGORI : ${job.tag}
 --------------------------------
@@ -2188,29 +2539,12 @@ Alamat : ${job.address}`;
         }
     }
 
-    window.openModal = function() {
-        let pin = prompt("🔒 Masukkan PIN untuk membuat tiket:");
-        if (pin !== "240525") { alert("❌ PIN SALAH! Akses ditolak."); return; }
-        populateTechSelect(); 
-        document.getElementById("modalTicket").style.display = "block";
-    }
-    function populateTechSelect() {
-        const s1 = document.getElementById('tech-1');
-        const s2 = document.getElementById('tech-2');
-        if (s1.options.length > 0) return; 
-        techList.forEach(name => {
-            s1.add(new Option(name, name));
-            s2.add(new Option(name, name));
-        });
-        s1.selectedIndex = 0; s2.value = ""; 
-    }
-    window.closeModal = function() { 
-        document.getElementById("modalTicket").style.display = "none"; 
-        document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
-        document.getElementById('bulk-input-text').value = '';
-    }
+    // Modal Closing Logic Fixes
     window.onclick = function(event) { 
-        if (event.target == document.getElementById("modalTicket")) closeModal();
+        if (event.target == document.getElementById("modalTicket")) closeCreateTicketModal();
+        if (event.target == document.getElementById("modalTicketSelection")) closeTicketOption();
+        if (event.target == document.getElementById("modalEditTech")) closeEditTechModal();
+        if (event.target == document.getElementById("modalTransferTicket")) closeTransferModal();
         if (event.target == document.getElementById("modalStock")) closeStockModal();
         if (event.target == document.getElementById("modalStockList")) closeStockListModal();
         if (event.target == document.getElementById("modalGudang")) closeGudangModal();
