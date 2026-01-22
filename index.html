@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.7 (Multi-Feature)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.8 (Excel Update)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -13,6 +13,29 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f4f6f9; padding: 10px; color: #333; margin: 0; font-size: 14px;
         }
+
+        /* --- BUTTONS BARU (LOCK & UNLOCK) --- */
+        .btn-lock-all { 
+            background: #343a40; 
+            color: white; 
+            border: 2px solid #1d2124; 
+            padding: 8px 15px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        .btn-lock-all:hover { background: #23272b; }
+
+        .btn-unlock-all { 
+            background: #ffc107; 
+            color: #212529; 
+            border: 2px solid #d39e00; 
+            padding: 8px 15px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        .btn-unlock-all:hover { background: #e0a800; }
 
         /* --- LAYOUT CONTAINER --- */
         .container { max-width: 1000px; margin: 0 auto; width: 100%; }
@@ -263,14 +286,14 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.7 (Multi-Feature)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.8 (Excel Update)</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
             <button class="btn-action-main btn-ticket" onclick="openTicketOption()">📝 Buat Tiket</button>
             <button class="btn-action-main btn-gudang" onclick="openGudangModal()">🏭 Gudang Modem</button>
             <button class="btn-action-main btn-copy-all" onclick="copyAllSummary()">📑 Copy Rekap</button>
-            <button class="btn-action-main btn-excel" onclick="downloadExcel()">📊 Download Excel</button>
+            <button class="btn-action-main btn-excel" onclick="openExcelOption()">📊 Download Excel</button>
             
             <button class="btn-action-main btn-rekap-modem" onclick="openRekapModemOption()">📠 Copy Rekap Modem</button>
 
@@ -280,6 +303,26 @@
 
     <div id="teams-container">
         <p style="text-align: center; color: #888;">Memuat data...</p>
+    </div>
+</div>
+
+<div id="modalExcelOption" class="modal">
+    <div class="modal-content" style="max-width: 450px; text-align: center;">
+        <span class="close-modal" onclick="closeExcelOption()">&times;</span>
+        <h3 style="margin-top:0; color:#217346;">📊 Download Laporan Excel</h3>
+        <p style="font-size:0.9rem; color:#666;">Pilih jenis data yang ingin diunduh:</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+            <button class="btn-action-main" style="background-color: #007bff;" onclick="downloadExcel('psb')">
+                📄 Download Khusus PSB
+            </button>
+            <button class="btn-action-main" style="background-color: #ffc107; color:#333;" onclick="downloadExcel('non_psb')">
+                🛠️ Download Khusus Selain PSB
+            </button>
+            <button class="btn-action-main" style="background-color: #217346;" onclick="downloadExcel('all')">
+                🗂️ Download Semua Data
+            </button>
+        </div>
     </div>
 </div>
 
@@ -410,8 +453,10 @@
             <div class="stat-item"><span id="stat-bad" class="stat-num" style="color:#dc3545;">0</span><span class="stat-lbl">BAD</span></div>
         </div>
 
-        <div class="gudang-actions-header">
+       <div class="gudang-actions-header">
             <button class="btn-bulk" onclick="openBulkModal()">➕ Input Stok Massal</button>
+            <button class="btn-lock-all" onclick="bulkLockAction(true)">🔒 Kunci Semua</button>
+            <button class="btn-unlock-all" onclick="bulkLockAction(false)">🔓 Buka Semua</button>
             <button class="btn-clean" onclick="clearInstalledModems()">🗑️ Hapus Data Terpasang</button>
             <button class="btn-format" onclick="formatDatabase()">🔥 Format Database</button>
         </div>
@@ -548,6 +593,35 @@
 </div>
 
 <script type="module">
+
+    // --- FITUR BARU: BULK LOCK / UNLOCK ---
+    window.bulkLockAction = function(lockState) {
+        let actionName = lockState ? "MENGUNCI (LOCK)" : "MEMBUKA KUNCI (UNLOCK)";
+        let pin = prompt(`🔐 KEAMANAN MASSAL\n\nAnda akan ${actionName} SEMUA modem di tab ${currentGudangTab.toUpperCase()}.\nModem terkunci TIDAK BISA dihapus/diubah statusnya oleh sistem.\n\nMasukkan PIN Konfirmasi:`);
+        
+        if (pin !== "240525") {
+            alert("❌ PIN SALAH!");
+            return;
+        }
+
+        let count = 0;
+        // Iterasi semua modem di tab saat ini (SRB/SYN)
+        gudangStock[currentGudangTab].forEach(item => {
+            // Ubah status lock
+            item.isLocked = lockState;
+            count++;
+        });
+
+        saveGudangToFirebase();
+        renderGudangTable(currentGudangTab);
+        
+        let msg = lockState 
+            ? `🔒 Berhasil MENGUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.\nModem ini sekarang aman dari Reset/Hapus.` 
+            : `🔓 Berhasil MEMBUKA KUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.`;
+            
+        alert(msg);
+    }
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, update, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -592,23 +666,31 @@
         }
     }
     
-    window.formatDatabase = function() {
-        let pin = prompt("⚠️ DANGER ZONE: FORMAT DATABASE GUDANG ⚠️\n\nFitur ini akan menghapus database modem (salah satu jenis) secara total.\nMasukkan PIN Administrator:");
+   window.formatDatabase = function() {
+        let pin = prompt("⚠️ DANGER ZONE: FORMAT DATABASE GUDANG ⚠️\n\nFitur ini akan menghapus database modem.\nTAPI: Modem yang statusnya TERKUNCI (🔒) akan TETAP DISIMPAN.\n\nMasukkan PIN Administrator:");
         if (pin !== "240525") {
             alert("❌ PIN SALAH!");
             return;
         }
-        let type = prompt("Ketik jenis modem yang ingin DIHAPUS TOTAL (Permanen):\nKetik 'SRB' atau 'SYN'").toLowerCase();
+        let type = prompt("Ketik jenis modem yang ingin DIHAPUS (SRB / SYN):").toLowerCase();
         if (type !== 'srb' && type !== 'syn') {
             alert("❌ Jenis tidak dikenali. Ketik SRB atau SYN.");
             return;
         }
-        if (confirm(`⚠️ PERINGATAN TERAKHIR!\n\nAnda akan menghapus SEMUA DATA MODEM ${type.toUpperCase()} (Ready, Pending, Installed, Bad).\n\nData tidak bisa dikembalikan. Lanjut?`)) {
-            gudangStock[type] = []; 
+        
+        // Hitung data terkunci
+        let lockedItems = gudangStock[type].filter(i => i.isLocked === true);
+        let totalItems = gudangStock[type].length;
+        let deletedCount = totalItems - lockedItems.length;
+
+        if (confirm(`⚠️ PERINGATAN TERAKHIR!\n\nTotal Modem: ${totalItems}\nModem Terkunci (Aman): ${lockedItems.length}\nModem Akan Dihapus: ${deletedCount}\n\nLanjut menghapus?`)) {
+            // HANYA SISAKAN YANG TERKUNCI
+            gudangStock[type] = lockedItems; 
+            
             saveGudangToFirebase();
             renderGudangTable(currentGudangTab);
             updateGudangCounts();
-            alert(`✅ Database Modem ${type.toUpperCase()} berhasil diformat (0 Data).`);
+            alert(`✅ Database diformat.\n${deletedCount} Data dihapus.\n${lockedItems.length} Data TERKUNCI berhasil diselamatkan.`);
         }
     }
 
@@ -922,16 +1004,22 @@
         return 'UNKNOWN';
     }
 
-    function syncInstalledModems() {
+   function syncInstalledModems() {
         let needsUpdate = false;
         const installedData = {};
         
+        // 1. Kumpulkan semua data modem yang sedang terpasang di Tiket (Status Completed)
         teams.forEach(team => {
             if(team.jobs) {
                 team.jobs.forEach(job => {
+                    // Cek status tiket (completed)
                     const status = job.status || (job.completed ? 'completed' : 'pending');
+                    
+                    // Jika tiket selesai DAN ada data teknis SN
                     if(status === 'completed' && job.technical && job.technical.sn && job.technical.sn !== '-') {
                         const time = job.completedAt || new Date().toLocaleString('id-ID');
+                        
+                        // Simpan ke daftar sementara
                         installedData[job.technical.sn] = {
                             teamName: team.teamName,
                             time: time
@@ -941,11 +1029,22 @@
             }
         });
 
+        // 2. Fungsi Logika Update Item (Jantungnya ada disini)
         function updateItem(item) {
+            // --- KEKEBALAN (IMMUNITY) DIMULAI ---
+            
+            // JIKA TERKUNCI: Berhenti disini. Jangan ubah apapun. 
+            // Meskipun tiket di-reset, status modem ini akan tetap 'installed' (atau status terakhirnya).
             if (item.isLocked === true) return; 
+
+            // JIKA BAD: Jangan diapa-apakan oleh sistem otomatis.
             if (item.status === 'bad') return;
 
+            // --- KEKEBALAN SELESAI ---
+
+            // Cek apakah SN modem ini ada di daftar tiket yang selesai?
             if (installedData[item.sn]) {
+                // TIKET ADA: Pastikan status di gudang jadi 'installed'
                 if (item.status !== 'installed' || !item.installedDate) {
                     item.status = 'installed';
                     item.teamName = installedData[item.sn].teamName; 
@@ -953,6 +1052,8 @@
                     needsUpdate = true;
                 }
             } else {
+                // TIKET TIDAK ADA (Mungkin tiket baru di-reset/dihapus):
+                // Jika status sebelumnya 'installed', kembalikan jadi 'pending' (stok dibawa teknisi)
                 if (item.status === 'installed') {
                     item.status = 'pending';
                     item.installedDate = null;
@@ -960,8 +1061,12 @@
                 }
             }
         }
-        gudangStock.srb.forEach(updateItem);
-        gudangStock.syn.forEach(updateItem);
+
+        // 3. Jalankan logika di atas untuk semua modem SRB dan SYN
+        if (gudangStock.srb) gudangStock.srb.forEach(updateItem);
+        if (gudangStock.syn) gudangStock.syn.forEach(updateItem);
+
+        // 4. Jika ada perubahan, simpan ke database
         if (needsUpdate) {
             saveGudangToFirebase();
         }
@@ -1475,7 +1580,7 @@
                 if (item.isLocked === true) {
                     aksiContent = `<div style="text-align:center;">${lockBtn}<br><span style="font-size:0.75rem; color:red; font-weight:bold;">Terkunci</span></div>`;
                 } else {
-                       aksiContent = `
+                        aksiContent = `
                         <div style="display:flex; flex-direction:column; gap:5px;">
                              <div style="text-align:center;">${lockBtn}</div>
                              <div style="display:flex; gap:5px;">
@@ -2453,61 +2558,151 @@ Alamat : ${job.address}`;
         });
     }
 
-    window.downloadExcel = function() {
+    // --- FITUR BARU: PILIHAN EXCEL ---
+
+    window.openExcelOption = function() {
+        document.getElementById('modalExcelOption').style.display = 'block';
+    }
+
+    window.closeExcelOption = function() {
+        document.getElementById('modalExcelOption').style.display = 'none';
+    }
+
+    // Helper: Format Tanggal Indonesia (DD BULAN YYYY) Tanpa Jam
+    function formatDateIndo(dateStr) {
+        if (!dateStr || dateStr === '-' || dateStr === "") return "-";
+        
+        // Asumsi format input dari sistem: "DD/MM/YYYY, HH:mm:ss" atau "DD/MM/YYYY"
+        // Kita ambil bagian tanggalnya saja sebelum koma
+        const rawDate = dateStr.split(',')[0].trim(); 
+        const parts = rawDate.split('/'); // [DD, MM, YYYY]
+
+        if(parts.length === 3) {
+            const months = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+            const day = parts[0];
+            const monthIdx = parseInt(parts[1]) - 1;
+            const year = parts[2];
+            
+            if(months[monthIdx]) {
+                return `${day} ${months[monthIdx]} ${year}`;
+            }
+        }
+        return rawDate; // Fallback jika format beda
+    }
+
+    window.downloadExcel = function(mode) {
         let dataToExport = [];
-        const todayStr = new Date().toLocaleDateString('id-ID');
+        const todayRaw = new Date().toLocaleString('id-ID'); // Format lokal
+        
+        let rowNumber = 1; // Untuk penomoran urut
+
         teams.forEach(team => {
             const rawTechName = team.teamName.split(':')[1]?.trim() || team.teamName;
-            team.jobs.forEach((job, index) => {
+            
+            team.jobs.forEach((job) => {
+                const isPSB = job.tag.toUpperCase().includes("PSB");
+                
+                // FILTER MODE
+                if (mode === 'psb' && !isPSB) return; // Skip jika minta PSB tapi bukan PSB
+                if (mode === 'non_psb' && isPSB) return; // Skip jika minta Non-PSB tapi ini PSB
+
                 const d = job.details;
                 const tech = job.technical || {};
                 const addressParts = parseAddress(job.address);
-                let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel;
-                if(kelurahan === '-') { 
-                    if(job.address.includes("Jatinegara")) kelurahan = "Jatinegara";
-                    if(job.address.includes("Cipinang")) kelurahan = "Cipinang";
+                
+                // Format Tanggal (Tanpa Jam)
+                let rawDate = job.status === 'completed' ? (job.completedAt || todayRaw) : "-";
+                // Jika PSB, pakai Tanggal Pemasangan dari details jika completedAt kosong
+                if(isPSB && rawDate === "-") {
+                    rawDate = d['Tgl Pasang'] || d['Tanggal Pemasangan'] || "-";
                 }
-                
-                const noLayanan = d['No Layanan'] || d['Layanan'] || "-";
-                
-                let statusExcel = "Pending";
-                if(job.status === 'completed' || (job.completed && !job.status)) statusExcel = "Selesai";
-                else if(job.status === 'failed') statusExcel = "Gagal Kunjungan";
+                const finalDate = formatDateIndo(rawDate);
 
-                let catatanFull = d['Catatan'] || "-";
-                
-                if(job.status === 'failed' && job.failureNote) {
-                    if(catatanFull === "-") catatanFull = `GAGAL: ${job.failureNote}`;
-                    else catatanFull += ` | GAGAL: ${job.failureNote}`;
+                // --- LOGIKA DATA KHUSUS PSB ---
+                if (mode === 'psb') {
+                    dataToExport.push({
+                        "No": rowNumber++,
+                        "No layanan": d['No Layanan'] || d['Layanan'] || "-",
+                        "Nama": job.name,
+                        "Alamat": job.address,
+                        "RT": addressParts.rt,
+                        "RW": addressParts.rw,
+                        "Kode Pos": "-", // Default strip karena data tidak tersedia di inputan
+                        "No Handphone": d['No WA'] || d['No Telp'] || "-",
+                        "Tanggal pemasangan": finalDate,
+                        "Paket Layanan": d['Paket'] || "-"
+                    });
+                } 
+                // --- LOGIKA DATA LAINNYA (Non-PSB atau All) ---
+                else {
+                    let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel;
+                    if(kelurahan === '-') { 
+                        if(job.address.includes("Jatinegara")) kelurahan = "Jatinegara";
+                        if(job.address.includes("Cipinang")) kelurahan = "Cipinang";
+                    }
+
+                    let statusExcel = "Pending";
+                    if(job.status === 'completed' || (job.completed && !job.status)) statusExcel = "Selesai";
+                    else if(job.status === 'failed') statusExcel = "Gagal Kunjungan";
+
+                    let catatanFull = d['Catatan'] || "-";
+                    if(job.status === 'failed' && job.failureNote) {
+                        if(catatanFull === "-") catatanFull = `GAGAL: ${job.failureNote}`;
+                        else catatanFull += ` | GAGAL: ${job.failureNote}`;
+                    }
+                    if(job.status === 'completed' && job.completionNote) {
+                        if(catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`;
+                        else catatanFull += ` | SOLUSI: ${job.completionNote}`;
+                    }
+
+                    dataToExport.push({
+                        "No": rowNumber++,
+                        "No Layanan": d['No Layanan'] || d['Layanan'] || "-",
+                        "Nama Pelanggan": job.name,
+                        "Status Pengerjaan": statusExcel,
+                        "Nomor Telpon": d['No WA'] || d['No Telp'] || "-",
+                        "Tanggal Selesai Kunjungan": finalDate,
+                        "Nama Teknisi": rawTechName,
+                        "Alamat Lengkap": job.address,
+                        "RT": addressParts.rt,
+                        "RW": addressParts.rw,
+                        "Area Kelurahan": kelurahan,
+                        "SN": tech.sn || "-",
+                        "Catatan": catatanFull 
+                    });
                 }
-                
-                if(job.status === 'completed' && job.completionNote) {
-                       if(catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`;
-                       else catatanFull += ` | SOLUSI: ${job.completionNote}`;
-                }
-                
-                dataToExport.push({
-                    "No Layanan": noLayanan,
-                    "Nama Pelanggan": job.name,
-                    "Status Pengerjaan": statusExcel,
-                    "Nomor Telpon": d['No WA'] || d['No Telp'] || "-",
-                    "Tanggal Selesai Kunjungan": job.status === 'completed' ? (job.completedAt || todayStr) : "-",
-                    "Nama Teknisi": rawTechName,
-                    "Alamat Lengkap": job.address,
-                    "RT": addressParts.rt,
-                    "RW": addressParts.rw,
-                    "Area Kelurahan": kelurahan,
-                    "SN": tech.sn || "-",
-                    "Catatan": catatanFull 
-                });
             });
         });
+
+        if (dataToExport.length === 0) {
+            alert("⚠️ Tidak ada data untuk kategori ini.");
+            closeExcelOption();
+            return;
+        }
+
         const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const wscols = [{wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 30}];
-        ws['!cols'] = wscols;
+        
+        // Atur Lebar Kolom
+        if (mode === 'psb') {
+            const wscols = [{wch: 5}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 10}, {wch: 15}, {wch: 25}, {wch: 20}];
+            ws['!cols'] = wscols;
+        } else {
+            const wscols = [{wch: 5}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 30}];
+            ws['!cols'] = wscols;
+        }
+
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Laporan Teknisi");
-        XLSX.writeFile(wb, "Laporan_Teknisi_Sinyalku.xlsx");
+        let fileName = "Laporan_Teknisi.xlsx";
+        let sheetName = "Data";
+
+        if(mode === 'psb') { fileName = "Laporan_PSB_New.xlsx"; sheetName = "PSB"; }
+        else if(mode === 'non_psb') { fileName = "Laporan_Maintenance_Isolir.xlsx"; sheetName = "MT_ISO"; }
+        else { fileName = "Laporan_Semua_Data.xlsx"; sheetName = "All_Data"; }
+
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        XLSX.writeFile(wb, fileName);
+        
+        closeExcelOption();
     };
 
     async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") {
@@ -2550,6 +2745,8 @@ Alamat : ${job.address}`;
         if (event.target == document.getElementById("modalGudang")) closeGudangModal();
         if (event.target == document.getElementById("modalBulk")) closeBulkModal();
         if (event.target == document.getElementById("modalRekapOption")) closeRekapModemOption();
+        // --- TAMBAHAN EXCEL ---
+        if (event.target == document.getElementById("modalExcelOption")) closeExcelOption();
     }
     
     loadFirebaseData();
