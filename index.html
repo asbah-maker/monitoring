@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V5.8 (Excel Update)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V6.0 (Smart Stock)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -12,6 +12,13 @@
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f4f6f9; padding: 10px; color: #333; margin: 0; font-size: 14px;
+        }
+
+        /* --- STRIKETHROUGH STYLE KHUSUS --- */
+        .text-coret {
+            text-decoration: line-through;
+            color: #dc3545 !important; /* Warna Merah */
+            font-weight: bold;
         }
 
         /* --- BUTTONS BARU (LOCK & UNLOCK) --- */
@@ -139,6 +146,8 @@
         
         .locked-input { background-color: #e9ecef; color: #495057; cursor: not-allowed; border: 1px solid #ced4da; font-weight: bold; }
         .modem-selector { background-color: #e8f0fe; border: 1px solid #1a73e8; color: #1a73e8; font-weight: bold; margin-bottom: 10px; width: 100%; padding: 10px; border-radius: 5px;}
+        
+        /* STYLE KHUSUS OPTION DISABLED (CORETAAN) */
         option:disabled { color: red; background-color: #f2f2f2; text-decoration: line-through; }
 
         .progress-container { height: 6px; background: #e9ecef; width: 100%; }
@@ -286,7 +295,7 @@
     <div class="header-section">
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V5.8 (Excel Update)</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V6.0</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         <div class="btn-group-header">
@@ -1173,10 +1182,12 @@
                 const type = getModemType(inv.sn);
                 const typeLabel = (type === 'SRB' || type === 'SYN') ? `[${type}] ` : '';
 
+                // --- UPDATE: CORET DAN DISABLE JIKA SUDAH TERPAKAI / BAD ---
                 if (status === 'installed') {
-                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled>❌ ${typeLabel}${inv.sn} (Terpasang)</option>`;
+                    // Tanda silang, teks dicoret (lewat CSS option:disabled atau style inline)
+                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="color:red; text-decoration:line-through;">❌ ${typeLabel}${inv.sn} (TERPAKAI)</option>`;
                 } else if (status === 'bad') {
-                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled>⚠️ ${typeLabel}${inv.sn} (BAD)</option>`;
+                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="color:red; text-decoration:line-through;">⚠️ ${typeLabel}${inv.sn} (BAD)</option>`;
                 } else {
                     modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${typeLabel}${inv.sn}</option>`;
                 }
@@ -1600,15 +1611,25 @@
                     </div>`;
             }
 
+            // --- UPDATE: CORET SN & MAC JIKA SUDAH TERPAKAI / BAD ---
             let snDisplay = item.sn;
+            let macDisplay = item.mac;
+
+            // Jika ada pencarian, highlight kuning
             if(searchInput.trim() !== "") {
                  snDisplay = `<span style="background-color: yellow;">${item.sn}</span>`;
+            }
+
+            // Jika status Installed atau Bad, coret dan merah
+            if (item.status === 'installed' || item.status === 'bad') {
+                snDisplay = `<span class="text-coret">${item.sn}</span>`;
+                macDisplay = `<span class="text-coret">${item.mac}</span>`;
             }
 
             tr.innerHTML = `
                 <td style="text-align:center;">${index + 1}</td>
                 <td><span style="font-weight:bold; color:#333;">${snDisplay}</span></td>
-                <td>${item.mac}</td>
+                <td>${macDisplay}</td>
                 <td>${statusBadge}</td>
                 <td>${aksiContent}</td>
             `;
@@ -1852,14 +1873,17 @@
                 const status = getModemStatusGlobal(item.sn);
                 const type = getModemType(item.sn); 
                 
+                // --- UPDATE: CORET TAMPILAN JIKA TERPAKAI ---
                 let displaySN = item.sn;
                 let displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, ${stockIdx})">🗑️</button>`;
 
                 if(status === 'installed') {
-                        displaySN = `<span style="text-decoration:line-through; color:red;">${item.sn}</span> <span class="badge badge-psb">Terpasang</span>`;
+                        // Coret merah untuk Installed
+                        displaySN = `<span style="text-decoration:line-through; color:red; font-weight:bold;">${item.sn}</span> <span class="badge badge-psb">Terpasang</span>`;
                         displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 } else if(status === 'bad') {
-                        displaySN = `<span style="text-decoration:line-through; color:darkred;">${item.sn}</span> <span class="badge badge-reset" style="background:red; color:white;">BAD</span>`;
+                        // Coret merah tua untuk BAD
+                        displaySN = `<span style="text-decoration:line-through; color:darkred; font-weight:bold;">${item.sn}</span> <span class="badge badge-reset" style="background:red; color:white;">BAD</span>`;
                         displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 }
 
@@ -2754,4 +2778,3 @@ Alamat : ${job.address}`;
 
 </body>
 </html>
-
