@@ -14,7 +14,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent; /* Hilangkan highlight biru saat tap di Android */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -23,7 +23,7 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center; /* Tengah vertikal untuk desktop */
+            align-items: center;
             padding: 20px;
         }
 
@@ -33,7 +33,7 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             width: 100%;
-            max-width: 1000px; /* Lebar maksimal di desktop */
+            max-width: 1000px;
             text-align: center;
         }
 
@@ -50,13 +50,9 @@
             font-size: 14px;
         }
 
-        /* --- PENGATURAN GRID (INTI RESPONSIVE) --- */
+        /* --- PENGATURAN GRID --- */
         .grid-menu {
             display: grid;
-            /* Logika: Buat kolom sebanyak mungkin yang muat. 
-               Minimal lebar 1 145px (cukup untuk HP agar jadi 2 kolom).
-               Jika layar lebar, dia akan mengisi sisa ruang (1fr).
-            */
             grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
             gap: 20px;
         }
@@ -76,17 +72,15 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             position: relative;
             overflow: hidden;
-            height: 100%; /* Agar tinggi kartu seragam */
+            height: 100%;
         }
 
-        /* Efek Hover (Mouse) */
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0,0,0,0.15);
             border-color: transparent;
         }
 
-        /* Efek Active (Saat disentuh di HP) */
         .card:active {
             transform: scale(0.98);
             background-color: #f5f5f5;
@@ -100,7 +94,7 @@
 
         .card span {
             font-weight: 600;
-            font-size: 13px; /* Ukuran font sedikit dikecilkan agar muat di HP */
+            font-size: 13px;
             line-height: 1.4;
         }
 
@@ -126,6 +120,10 @@
 
         .monitor:hover { border-top: 4px solid #2980b9; }
         .monitor i { color: #2980b9; }
+        
+        /* Style Baru untuk Web PSB */
+        .psb:hover { border-top: 4px solid #16a085; }
+        .psb i { color: #16a085; }
 
         .github:hover { border-top: 4px solid #333; background-color: #f9f9f9; }
         .github i { color: #333; }
@@ -148,10 +146,10 @@
             padding-top: 20px;
         }
 
-        /* --- MEDIA QUERIES (KHUSUS TAMPILAN HP) --- */
+        /* --- MEDIA QUERIES --- */
         @media (max-width: 768px) {
             body {
-                align-items: flex-start; /* Agar bisa di-scroll jika konten panjang */
+                align-items: flex-start;
                 padding: 15px;
             }
 
@@ -161,19 +159,19 @@
             }
 
             h1 {
-                font-size: 24px; /* Judul lebih kecil di HP */
+                font-size: 24px;
             }
 
             .grid-menu {
-                gap: 15px; /* Jarak antar kotak lebih rapat di HP */
+                gap: 15px;
             }
 
             .card {
-                padding: 20px 10px; /* Padding dalam kartu dikurangi */
+                padding: 20px 10px;
             }
             
             .card i {
-                font-size: 28px; /* Ikon sedikit lebih kecil */
+                font-size: 28px;
                 margin-bottom: 10px;
             }
         }
@@ -220,6 +218,11 @@
             <a href="https://asbah-maker.github.io/monitoring/" target="_blank" class="card monitor">
                 <i class="fas fa-chart-line"></i>
                 <span>Monitoring Teknisi</span>
+            </a>
+
+            <a href="https://asbah-maker.github.io/monitoring/web-psb" target="_blank" class="card psb">
+                <i class="fas fa-user-plus"></i>
+                <span>Web PSB</span>
             </a>
 
             <a href="https://github.com/asbah-maker/monitoring/settings/pages" target="_blank" class="card github">
