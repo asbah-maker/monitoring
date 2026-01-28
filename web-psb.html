@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Data PSB ke Gemini</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #10b981;
+            --secondary-hover: #059669;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.5;
+        }
+
+        .main-wrapper {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0;
+            letter-spacing: -0.025em;
+        }
+        header p {
+            color: var(--text-sub);
+            margin-top: 8px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Adjusted for badge */
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .step-badge {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 700;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 12px;
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        /* Count Badge Style */
+        .count-badge {
+            background-color: #e0e7ff;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        p.desc {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 15px;
+        }
+
+        /* Input & Textarea */
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            transition: all 0.2s;
+            resize: vertical;
+            background-color: #f9fafb;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .input-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 5px;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        button {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background-color: var(--secondary);
+            color: white;
+            width: 100%;
+            font-size: 1.1rem;
+            padding: 16px;
+        }
+        .btn-success:hover {
+            background-color: var(--secondary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Generated Forms Grid */
+        .form-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .form-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+            position: relative;
+        }
+        
+        .form-item label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .form-item textarea {
+            height: 100px;
+        }
+
+        /* Animations */
+        #step2, #step3 {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Toast */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            right: 30px;
+            top: 30px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transition: opacity 0.3s, top 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            top: 50px;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    
+    <header>
+        <h1>PSB Data Tools</h1>
+        <p>Generator Prompt Otomatis untuk Gemini AI</p>
+    </header>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="header-left">
+                <div class="step-badge">1</div>
+                <h2>Input Nomor Layanan</h2>
+            </div>
+        </div>
+        <p class="desc">Tempelkan daftar nomor (format: angka enter angka).</p>
+        
+        <textarea id="inputList" style="height: 150px;" placeholder="1347005972&#10;1347005975&#10;..."></textarea>
+        
+        <div class="input-footer">
+            <span id="realtimeCounter">Total Baris: 0</span>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button class="btn-primary" onclick="generateForms()">
+                <span>Generate Form Input</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="step2" class="card">
+        <div class="card-header">
+            <div class="header-left">
+                <div class="step-badge">2</div>
+                <h2>Lengkapi Data PSB</h2>
+            </div>
+            <div class="count-badge" id="step2Counter">Total: 0</div>
+        </div>
+        <p class="desc">Silakan paste data mentah PSB sesuai nomor layanan di bawah ini.</p>
+        <div id="formsContainer" class="form-grid"></div>
+    </div>
+
+    <div id="step3" class="card" style="border-color: var(--secondary);">
+        <div class="card-header">
+            <div class="header-left">
+                <div class="step-badge" style="background-color: var(--secondary);">3</div>
+                <h2>Proses Final</h2>
+            </div>
+        </div>
+        <p class="desc">Script akan menggabungkan data, menyalin ke clipboard, dan membuka tab Gemini.</p>
+        <button class="btn-success" onclick="processAndOpen()">
+            <span>Gabungkan, Copy & Buka Gemini</span>
+        </button>
+        <p class="desc" style="text-align: center; margin-top: 15px; font-style: italic;">
+            *Setelah Gemini terbuka, tekan <strong>Ctrl+V</strong> di kolom chat.
+        </p>
+    </div>
+
+    <div class="footer-note">
+        &copy; 2024 PSB Automation Tool
+    </div>
+
+</div>
+
+<div id="toast">Pesan Notifikasi</div>
+
+<script>
+    // --- KONFIGURASI ---
+    const PROMPT_TEMPLATE = `berikan saya table excel dengan urutan nomor layanan yang angka awal, nama, kolom alamat harus sesuai dengan apa yang ada di kolom alamat dan jangan ada yang dihapus atau ubah, format rt nanti didepannya tidak ada angka 0, format rw nanti didepannya tidak ada angka 0, kodepos ambil 5 angka dari depan nomor layanan, nomor handphone, tanggal terdaftar, paket layanan.`;
+    const GEMINI_URL = "https://gemini.google.com/app/9057bf9b0199d227?hl=id";
+
+    // --- EVENT LISTENER UNTUK COUNTER STEP 1 ---
+    document.getElementById('inputList').addEventListener('input', function() {
+        // Hitung baris yang tidak kosong
+        const lines = this.value.split('\n').filter(line => line.trim() !== '').length;
+        document.getElementById('realtimeCounter').innerText = `Total Baris: ${lines}`;
+    });
+
+    // --- FUNGSI UTAMA ---
+
+    function generateForms() {
+        const rawInput = document.getElementById('inputList').value;
+        
+        // Membersihkan input
+        let lines = rawInput.replace(/[()]/g, '').split('\n').filter(line => line.trim() !== '');
+        
+        const container = document.getElementById('formsContainer');
+        container.innerHTML = ''; // Reset container
+        
+        let validCount = 0;
+
+        lines.forEach(line => {
+            const cleanLine = line.trim();
+            // Validasi: harus angka dan panjang minimal 6 digit
+            if (cleanLine.length > 5 && !isNaN(cleanLine)) { 
+                validCount++;
+                
+                const div = document.createElement('div');
+                div.className = 'form-item';
+                
+                const label = document.createElement('label');
+                label.innerHTML = `No. Layanan: <span style="color:#333">${cleanLine}</span>`;
+                
+                const textarea = document.createElement('textarea');
+                textarea.id = `data_${cleanLine}`;
+                textarea.placeholder = `Paste detail data PSB untuk ${cleanLine} disini...`;
+                textarea.setAttribute('data-nolayanan', cleanLine);
+
+                div.appendChild(label);
+                div.appendChild(textarea);
+                container.appendChild(div);
+            }
+        });
+
+        if (validCount > 0) {
+            // Update UI
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('step3').style.display = 'block';
+            
+            // UPDATE COUNTER DI STEP 2
+            document.getElementById('step2Counter').innerText = `Total: ${validCount} Nomor`;
+
+            // Smooth scroll
+            setTimeout(() => {
+                document.getElementById('step2').scrollIntoView({behavior: "smooth", block: "start"});
+            }, 100);
+            
+            showToast(`Berhasil: ${validCount} Nomor Layanan`);
+        } else {
+            showToast("Tidak ada nomor layanan valid. Cek input Anda.");
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'none';
+        }
+    }
+
+    function processAndOpen() {
+        const textareas = document.querySelectorAll('#formsContainer textarea');
+        let combinedData = "";
+        let filledCount = 0;
+
+        textareas.forEach(ta => {
+            let val = ta.value.trim();
+            let noLay = ta.getAttribute('data-nolayanan');
+            
+            if (val) {
+                // Format gabungan
+                combinedData += `${noLay} ${val}\n\n`;
+                filledCount++;
+            }
+        });
+
+        if (filledCount === 0) {
+            showToast("Data PSB masih kosong. Mohon isi minimal satu.");
+            return;
+        }
+
+        // Format Final prompt
+        const finalString = `((\n${combinedData})) ${PROMPT_TEMPLATE}`;
+
+        // Copy Clipboard
+        navigator.clipboard.writeText(finalString).then(() => {
+            showToast("Data Tersalin! Membuka Gemini...");
+            
+            setTimeout(() => {
+                window.open(GEMINI_URL, '_blank');
+            }, 1000);
+
+        }).catch(err => {
+            console.error('Gagal copy: ', err);
+            showToast("Gagal auto-copy. Cek console.");
+        });
+    }
+
+    // --- FUNGSI UTILITAS (Toast) ---
+    function showToast(message) {
+        var x = document.getElementById("toast");
+        x.innerText = message;
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
+</script>
+
+</body>
+</html>
