@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Operasional</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Reset CSS dasar */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Hilangkan highlight biru saat tap di Android */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Tengah vertikal untuk desktop */
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 1000px; /* Lebar maksimal di desktop */
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* --- PENGATURAN GRID (INTI RESPONSIVE) --- */
+        .grid-menu {
+            display: grid;
+            /* Logika: Buat kolom sebanyak mungkin yang muat. 
+               Minimal lebar 1 145px (cukup untuk HP agar jadi 2 kolom).
+               Jika layar lebar, dia akan mengisi sisa ruang (1fr).
+            */
+            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid #eee;
+            border-radius: 15px;
+            padding: 25px 15px;
+            text-decoration: none;
+            color: #444;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            height: 100%; /* Agar tinggi kartu seragam */
+        }
+
+        /* Efek Hover (Mouse) */
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            border-color: transparent;
+        }
+
+        /* Efek Active (Saat disentuh di HP) */
+        .card:active {
+            transform: scale(0.98);
+            background-color: #f5f5f5;
+        }
+
+        .card i {
+            font-size: 32px;
+            margin-bottom: 15px;
+            transition: color 0.3s;
+        }
+
+        .card span {
+            font-weight: 600;
+            font-size: 13px; /* Ukuran font sedikit dikecilkan agar muat di HP */
+            line-height: 1.4;
+        }
+
+        /* --- WARNA & ICONS --- */
+        
+        .social:hover { border-top: 4px solid #00a8ff; }
+        .social i { color: #00a8ff; }
+
+        .acs:hover { border-top: 4px solid #e67e22; }
+        .acs i { color: #e67e22; }
+
+        .member:hover { border-top: 4px solid #9b59b6; }
+        .member i { color: #9b59b6; }
+
+        .barantum:hover { border-top: 4px solid #ff4757; }
+        .barantum i { color: #ff4757; }
+
+        .wa:hover { border-top: 4px solid #25D366; }
+        .wa i { color: #25D366; }
+
+        .petak:hover { border-top: 4px solid #c0392b; }
+        .petak i { color: #c0392b; }
+
+        .monitor:hover { border-top: 4px solid #2980b9; }
+        .monitor i { color: #2980b9; }
+
+        .github:hover { border-top: 4px solid #333; background-color: #f9f9f9; }
+        .github i { color: #333; }
+
+        .gemini:hover { border-top: 4px solid #4E54C8; }
+        .gemini i { 
+            background: -webkit-linear-gradient(#4E54C8, #8F94FB);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .excel:hover { border-top: 4px solid #217346; }
+        .excel i { color: #217346; }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        /* --- MEDIA QUERIES (KHUSUS TAMPILAN HP) --- */
+        @media (max-width: 768px) {
+            body {
+                align-items: flex-start; /* Agar bisa di-scroll jika konten panjang */
+                padding: 15px;
+            }
+
+            .container {
+                padding: 25px 20px;
+                margin-top: 10px;
+            }
+
+            h1 {
+                font-size: 24px; /* Judul lebih kecil di HP */
+            }
+
+            .grid-menu {
+                gap: 15px; /* Jarak antar kotak lebih rapat di HP */
+            }
+
+            .card {
+                padding: 20px 10px; /* Padding dalam kartu dikurangi */
+            }
+            
+            .card i {
+                font-size: 28px; /* Ikon sedikit lebih kecil */
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Dashboard Akses Cepat</h1>
+        <p>Silakan pilih menu operasional:</p>
+        
+        <div class="grid-menu">
+            
+            <a href="https://app.socialchat.id/app/chat" target="_blank" class="card social">
+                <i class="fas fa-comments"></i>
+                <span>Social Chat</span>
+            </a>
+
+            <a href="http://192.168.31.1:3000/#!/devices" target="_blank" class="card acs">
+                <i class="fas fa-wifi"></i>
+                <span>ACS Sinyalku</span>
+            </a>
+
+            <a href="https://member.sinyalku.net/dashboard" target="_blank" class="card member">
+                <i class="fas fa-users"></i>
+                <span>Member Sinyalku</span>
+            </a>
+
+            <a href="https://my.barantum.com/barantumchat" target="_blank" class="card barantum">
+                <i class="fas fa-headset"></i>
+                <span>Barantum</span>
+            </a>
+
+            <a href="https://web.whatsapp.com/" target="_blank" class="card wa">
+                <i class="fab fa-whatsapp"></i>
+                <span>WhatsApp Web</span>
+            </a>
+
+            <a href="http://edot92:pernahganteng2025@192.168.31.1:4021/monitoroffline?a=3" target="_blank" class="card petak">
+                <i class="fas fa-network-wired"></i>
+                <span>PETAK Monitor</span>
+            </a>
+
+            <a href="https://asbah-maker.github.io/monitoring/" target="_blank" class="card monitor">
+                <i class="fas fa-chart-line"></i>
+                <span>Monitoring Teknisi</span>
+            </a>
+
+            <a href="https://github.com/asbah-maker/monitoring/settings/pages" target="_blank" class="card github">
+                <i class="fab fa-github"></i>
+                <span>GitHub Config</span>
+            </a>
+
+            <a href="https://gemini.google.com/app?hl=id" target="_blank" class="card gemini">
+                <i class="fas fa-brain"></i>
+                <span>Gemini AI</span>
+            </a>
+
+            <a href="https://onedrive.live.com/personal/4955526dc9bda579/_layouts/15/Doc.aspx?sourcedoc=%7B54F8914A-8D8F-49B4-AE0B-FE8D43080041%7D&file=data%20pengambilan%20alat.xlsx&action=default&mobileredirect=true" target="_blank" class="card excel">
+                <i class="fas fa-file-excel"></i>
+                <span>Data Alat (Excel)</span>
+            </a>
+
+        </div>
+
+        <div class="footer">
+            &copy; 2026 Tim Operasional.
+        </div>
+    </div>
+
+</body>
+</html>
