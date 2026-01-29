@@ -17,7 +17,7 @@
         /* --- STRIKETHROUGH STYLE KHUSUS --- */
         .text-coret {
             text-decoration: line-through;
-            color: #dc3545 !important; /* Warna Merah */
+            color: #dc3545 !important;
             font-weight: bold;
         }
 
@@ -226,6 +226,7 @@
         .st-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .st-installed { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
         .st-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; } 
+        .st-unknown { background-color: #6c757d; color: white; border: 1px solid #545b62; } 
         
         .gudang-control { display:flex; gap: 5px; align-items: center; flex-wrap: wrap; }
         .gudang-select { padding: 5px; border-radius: 4px; border:1px solid #ccc; width: 120px; font-size: 0.8rem;}
@@ -262,7 +263,7 @@
             
             /* Header di HP */
             .header-section { margin: 15px 5px; }
-            .btn-action-main { width: 100%; margin-bottom: 5px; } /* Tombol jadi full width */
+            .btn-action-main { width: 100%; margin-bottom: 5px; }
             
             /* Kartu Tim di HP */
             .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #ddd; margin-bottom: 15px; }
@@ -446,6 +447,9 @@
             <button class="btn-action-main bg-green" onclick="copyRekapModem('all')">
                 📑 Semua (Sisa + Terpasang + Bad)
             </button>
+            <button class="btn-action-main bg-dark" onclick="copyRekapModem('gudang')">
+                🏭 Copy Rekap Gudang Modem
+            </button>
         </div>
     </div>
 </div>
@@ -460,6 +464,7 @@
             <div class="stat-item"><span id="stat-pending" class="stat-num" style="color:#fd7e14;">0</span><span class="stat-lbl">Pending</span></div>
             <div class="stat-item"><span id="stat-installed" class="stat-num" style="color:#007bff;">0</span><span class="stat-lbl">Terpasang</span></div>
             <div class="stat-item"><span id="stat-bad" class="stat-num" style="color:#dc3545;">0</span><span class="stat-lbl">BAD</span></div>
+            <div class="stat-item"><span id="stat-unknown" class="stat-num" style="color:#6c757d;">0</span><span class="stat-lbl">Tidak Diketahui</span></div>
         </div>
 
        <div class="gudang-actions-header">
@@ -614,9 +619,7 @@
         }
 
         let count = 0;
-        // Iterasi semua modem di tab saat ini (SRB/SYN)
         gudangStock[currentGudangTab].forEach(item => {
-            // Ubah status lock
             item.isLocked = lockState;
             count++;
         });
@@ -687,13 +690,11 @@
             return;
         }
         
-        // Hitung data terkunci
         let lockedItems = gudangStock[type].filter(i => i.isLocked === true);
         let totalItems = gudangStock[type].length;
         let deletedCount = totalItems - lockedItems.length;
 
         if (confirm(`⚠️ PERINGATAN TERAKHIR!\n\nTotal Modem: ${totalItems}\nModem Terkunci (Aman): ${lockedItems.length}\nModem Akan Dihapus: ${deletedCount}\n\nLanjut menghapus?`)) {
-            // HANYA SISAKAN YANG TERKUNCI
             gudangStock[type] = lockedItems; 
             
             saveGudangToFirebase();
@@ -739,6 +740,13 @@
                 gudangStock = data;
                 if(!gudangStock.srb) gudangStock.srb = [];
                 if(!gudangStock.syn) gudangStock.syn = [];
+                
+                gudangStock.srb.forEach(item => {
+                    if (!item.status || item.status === '') item.status = 'ready';
+                });
+                gudangStock.syn.forEach(item => {
+                    if (!item.status || item.status === '') item.status = 'ready';
+                });
             } else {
                 const newStock = { srb: [], syn: [] };
                 set(gudangRef, newStock);
@@ -805,9 +813,7 @@
         const t1Select = document.getElementById('edit-tech-1');
         const t2Select = document.getElementById('edit-tech-2');
         
-        // Members is array like ["budi", "andi"]
         if(team.members && team.members.length > 0) {
-            // Helper to match casing
             const matchOption = (sel, val) => {
                 for(let i=0; i<sel.options.length; i++) {
                     if(sel.options[i].value.toLowerCase() === val.toLowerCase()) {
@@ -837,10 +843,9 @@
         if(t2 && t2 !== "") newMembers.push(t2.toLowerCase());
         newMembers.sort();
 
-        // Preserve "Tim X" prefix
         const oldName = teams[teamIdx].teamName;
         const match = oldName.match(/Tim\s+(\d+)/i);
-        let prefix = match ? match[0] : `Tim ${Date.now().toString().substr(-4)}`; // Fallback
+        let prefix = match ? match[0] : `Tim ${Date.now().toString().substr(-4)}`;
 
         const newTeamName = `${prefix}: ${t1}${t2 ? ' & '+t2 : ''}`;
 
@@ -895,7 +900,6 @@
             container.appendChild(div);
         });
 
-        // Populate Target with OTHER teams
         teams.forEach((t, index) => {
             if(index != teamIdx) {
                 targetSel.add(new Option(t.teamName, index));
@@ -923,19 +927,16 @@
         const cbs = document.querySelectorAll('.job-transfer-cb:checked');
         if(cbs.length === 0) { alert("Pilih minimal 1 tiket untuk dilempar!"); return; }
 
-        let jobIndices = Array.from(cbs).map(cb => parseInt(cb.value)).sort((a,b) => b-a); // Sort desc for splice
+        let jobIndices = Array.from(cbs).map(cb => parseInt(cb.value)).sort((a,b) => b-a);
         let jobsToMove = [];
 
-        // Extract jobs
         jobIndices.forEach(idx => {
             jobsToMove.push(teams[sourceIdx].jobs[idx]);
         });
 
-        // Determine Target
         let targetTeamIdx;
 
         if (targetVal === 'new_team') {
-            // Create New Team Logic
             const t1 = document.getElementById('transfer-new-tech-1').value;
             const t2 = document.getElementById('transfer-new-tech-2').value;
             if(!t1) { alert("Pilih teknisi untuk tim baru!"); return; }
@@ -944,11 +945,9 @@
             if(t2) selectedMembers.push(t2.toLowerCase());
             selectedMembers.sort();
 
-            // Find ID and Color
             const newId = Date.now(); 
             const colorIndex = (teams.length) % extraColors.length; 
             
-            // Find next Tim number
             const usedNumbers = teams.map(t => {
                 const match = t.teamName.match(/Tim\s+(\d+)/i);
                 return match ? parseInt(match[1]) : 0;
@@ -973,14 +972,10 @@
             targetTeamIdx = parseInt(targetVal);
         }
 
-        // Push jobs to target
         jobsToMove.forEach(j => {
-            // Optional: Reset status on transfer? User request "Lempar Tiket". usually implies re-assigning. 
-            // Keeping status same for now, or reset to pending if completed? Assuming raw transfer.
             teams[targetTeamIdx].jobs.push(j);
         });
 
-        // Remove from source (iterate reverse because splicing shifts indices)
         jobIndices.forEach(idx => {
             teams[sourceIdx].jobs.splice(idx, 1);
         });
@@ -994,7 +989,6 @@
         const s1 = document.getElementById(id1);
         const s2 = document.getElementById(id2);
         
-        // Clear except option 0 (empty) for s2 if needed, but here regenerate all
         s1.innerHTML = '';
         s2.innerHTML = '<option value="">-- Kosong --</option>';
 
@@ -1017,18 +1011,14 @@
         let needsUpdate = false;
         const installedData = {};
         
-        // 1. Kumpulkan semua data modem yang sedang terpasang di Tiket (Status Completed)
         teams.forEach(team => {
             if(team.jobs) {
                 team.jobs.forEach(job => {
-                    // Cek status tiket (completed)
                     const status = job.status || (job.completed ? 'completed' : 'pending');
                     
-                    // Jika tiket selesai DAN ada data teknis SN
                     if(status === 'completed' && job.technical && job.technical.sn && job.technical.sn !== '-') {
                         const time = job.completedAt || new Date().toLocaleString('id-ID');
                         
-                        // Simpan ke daftar sementara
                         installedData[job.technical.sn] = {
                             teamName: team.teamName,
                             time: time
@@ -1038,22 +1028,11 @@
             }
         });
 
-        // 2. Fungsi Logika Update Item (Jantungnya ada disini)
         function updateItem(item) {
-            // --- KEKEBALAN (IMMUNITY) DIMULAI ---
-            
-            // JIKA TERKUNCI: Berhenti disini. Jangan ubah apapun. 
-            // Meskipun tiket di-reset, status modem ini akan tetap 'installed' (atau status terakhirnya).
             if (item.isLocked === true) return; 
+            if (item.status === 'bad' || item.status === 'unknown') return;
 
-            // JIKA BAD: Jangan diapa-apakan oleh sistem otomatis.
-            if (item.status === 'bad') return;
-
-            // --- KEKEBALAN SELESAI ---
-
-            // Cek apakah SN modem ini ada di daftar tiket yang selesai?
             if (installedData[item.sn]) {
-                // TIKET ADA: Pastikan status di gudang jadi 'installed'
                 if (item.status !== 'installed' || !item.installedDate) {
                     item.status = 'installed';
                     item.teamName = installedData[item.sn].teamName; 
@@ -1061,8 +1040,6 @@
                     needsUpdate = true;
                 }
             } else {
-                // TIKET TIDAK ADA (Mungkin tiket baru di-reset/dihapus):
-                // Jika status sebelumnya 'installed', kembalikan jadi 'pending' (stok dibawa teknisi)
                 if (item.status === 'installed') {
                     item.status = 'pending';
                     item.installedDate = null;
@@ -1071,11 +1048,9 @@
             }
         }
 
-        // 3. Jalankan logika di atas untuk semua modem SRB dan SYN
         if (gudangStock.srb) gudangStock.srb.forEach(updateItem);
         if (gudangStock.syn) gudangStock.syn.forEach(updateItem);
 
-        // 4. Jika ada perubahan, simpan ke database
         if (needsUpdate) {
             saveGudangToFirebase();
         }
@@ -1105,6 +1080,49 @@
         saveDataToFirebase();
         renderJobs();
     }
+
+    // --- PERUBAHAN: Fungsi untuk mengubah status modem di gudang ---
+    window.changeModemStatus = function(type, index, newStatus) {
+        const item = gudangStock[type][index];
+        const oldStatus = item.status || 'ready';
+        
+        if (oldStatus === newStatus) return;
+        
+        if (!confirm(`Ubah status modem ${item.sn} dari ${oldStatus} menjadi ${newStatus}?`)) return;
+        
+        item.status = newStatus;
+        
+        const currentTime = new Date().toLocaleString('id-ID');
+        
+        if (newStatus === 'installed') {
+            item.installedDate = item.installedDate || currentTime;
+        } else if (newStatus === 'bad') {
+            item.badDate = item.badDate || currentTime;
+        } else if (newStatus === 'unknown') {
+            item.unknownDate = item.unknownDate || currentTime;
+        } else if (newStatus === 'ready') {
+            // PERUBAHAN PENTING: Hapus dari inventory tim ketika status menjadi ready
+            teams.forEach(t => {
+                if (t.inventory) {
+                    const invIndex = t.inventory.findIndex(inv => inv.sn === item.sn);
+                    if (invIndex > -1) {
+                        t.inventory.splice(invIndex, 1);
+                    }
+                }
+            });
+            
+            item.teamName = '';
+            item.teamId = null;
+            item.pendingDate = null;
+            item.installedDate = null;
+            item.badDate = null;
+            item.unknownDate = null;
+        }
+        
+        saveGudangToFirebase();
+        renderGudangTable(type);
+        updateGudangCounts();
+    };
 
     function renderJobs() {
         const container = document.getElementById('teams-container');
@@ -1149,9 +1167,10 @@
                 return getWeight(a.time) - getWeight(b.time);
             });
 
+            // PERUBAHAN: Hanya hitung modem dengan status pending sebagai sisa stok
             const stockCount = team.inventory.filter(inv => {
                  const st = getModemStatusGlobal(inv.sn);
-                 return st !== 'installed' && st !== 'bad';
+                 return st === 'pending';
             }).length;
             
             const teamDiv = document.createElement('div');
@@ -1176,21 +1195,23 @@
 
             const listContainer = document.getElementById(`list-${team.id}`);
             
+            // PERUBAHAN PENTING: Filter dropdown hanya menampilkan modem yang statusnya PENDING
+            // dan tidak menampilkan yang statusnya READY
             let modemOptions = `<option value="">-- Pilih Modem dari Stok (${stockCount}) --</option>`;
             team.inventory.forEach(inv => {
                 const status = getModemStatusGlobal(inv.sn);
                 const type = getModemType(inv.sn);
                 const typeLabel = (type === 'SRB' || type === 'SYN') ? `[${type}] ` : '';
 
-                // --- UPDATE: CORET DAN DISABLE JIKA SUDAH TERPAKAI / BAD ---
-                if (status === 'installed') {
-                    // Tanda silang, teks dicoret (lewat CSS option:disabled atau style inline)
-                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="color:red; text-decoration:line-through;">❌ ${typeLabel}${inv.sn} (TERPAKAI)</option>`;
-                } else if (status === 'bad') {
-                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="color:red; text-decoration:line-through;">⚠️ ${typeLabel}${inv.sn} (BAD)</option>`;
-                } else {
+                // Hanya tampilkan modem dengan status PENDING untuk bisa dipilih
+                // Modem dengan status READY tidak ditampilkan sama sekali karena sudah tidak dipegang teknisi
+                if (status === 'pending') {
                     modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${typeLabel}${inv.sn}</option>`;
+                } else if (status === 'installed' || status === 'bad' || status === 'unknown') {
+                    // Tampilkan sebagai disabled untuk informasi
+                    modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="color:red; text-decoration:line-through;">❌ ${typeLabel}${inv.sn} (${status.toUpperCase()})</option>`;
                 }
+                // Modem dengan status READY tidak ditampilkan
             });
             
             team.jobs.forEach((job, index) => {
@@ -1421,15 +1442,17 @@
 
     function updateGudangCounts() {
         const allItems = [...(gudangStock.srb || []), ...(gudangStock.syn || [])];
-        const ready = allItems.filter(i => !i.status || i.status === 'ready').length;
+        const ready = allItems.filter(i => i.status === 'ready' || !i.status).length;
         const pending = allItems.filter(i => i.status === 'pending').length;
         const installed = allItems.filter(i => i.status === 'installed').length;
         const bad = allItems.filter(i => i.status === 'bad').length;
+        const unknown = allItems.filter(i => i.status === 'unknown').length;
 
         document.getElementById('stat-ready').innerText = ready;
         document.getElementById('stat-pending').innerText = pending;
         document.getElementById('stat-installed').innerText = installed;
         document.getElementById('stat-bad').innerText = bad;
+        document.getElementById('stat-unknown').innerText = unknown;
 
         document.getElementById('count-srb').innerText = gudangStock.srb ? gudangStock.srb.length : 0;
         document.getElementById('count-syn').innerText = gudangStock.syn ? gudangStock.syn.length : 0;
@@ -1509,7 +1532,7 @@
             }
         }
 
-        const statusOrder = { 'ready': 1, 'pending': 2, 'installed': 3, 'bad': 4 };
+        const statusOrder = { 'ready': 1, 'pending': 2, 'installed': 3, 'bad': 4, 'unknown': 5 };
         data.sort((a, b) => (statusOrder[a.status || 'ready'] - statusOrder[b.status || 'ready']));
 
         let teamOptions = '<option value="">-- Pilih Tim --</option>';
@@ -1529,24 +1552,49 @@
 
             const tr = document.createElement('tr');
             
-            let statusBadge = `<span class="status-badge st-ready">Ready</span>`;
-            let aksiContent = '';
-
-            let lockBtn = '';
-            if (item.status === 'installed' || item.status === 'bad') {
-                if (item.isLocked === true) {
-                    lockBtn = `<button class="btn-unlock" onclick="toggleLock('${type}', ${originalIndex}, false)">🔒 Buka</button>`;
-                } else {
-                    lockBtn = `<button class="btn-lock" onclick="toggleLock('${type}', ${originalIndex}, true)">🔓 Kunci</button>`;
-                }
+            let statusSelect = `
+                <select class="status-select" data-type="${type}" data-index="${originalIndex}" style="width:100%; margin-bottom:5px; font-size:0.8rem; padding:3px;">
+                    <option value="ready" ${(item.status === 'ready' || !item.status) ? 'selected' : ''}>Ready</option>
+                    <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+                    <option value="installed" ${item.status === 'installed' ? 'selected' : ''}>Terpasang</option>
+                    <option value="bad" ${item.status === 'bad' ? 'selected' : ''}>Bad</option>
+                    <option value="unknown" ${item.status === 'unknown' ? 'selected' : ''}>Tidak Diketahui</option>
+                </select>
+            `;
+            
+            let statusInfo = '';
+            if (item.status === 'pending' && item.teamName) {
+                statusInfo = `<span style="font-size:0.7rem; color:#856404;">@ ${item.teamName} (${item.pendingDate || '-'})</span>`;
+            } else if (item.status === 'installed' && item.teamName) {
+                statusInfo = `<span style="font-size:0.7rem; color:#004085;">✅ ${item.teamName} (${item.installedDate || '-'})</span>`;
+            } else if (item.status === 'bad' && item.teamName) {
+                statusInfo = `<span style="font-size:0.7rem; color:#721c24;">⚠️ ${item.teamName} (${item.badDate || '-'})</span>`;
+            } else if (item.status === 'unknown' && item.teamName) {
+                statusInfo = `<span style="font-size:0.7rem; color:#6c757d;">❓ ${item.teamName} (${item.unknownDate || '-'})</span>`;
             }
 
-            if (item.status === 'pending') {
-                statusBadge = `
-                    <span class="status-badge st-pending">Pending</span>
-                    <span class="tech-badge">@ ${item.teamName || 'Tim ?'}</span>
-                    <span class="time-badge">🕒 ${item.pendingDate || '-'}</span>
+            let lockBtn = '';
+            if (item.isLocked === true) {
+                lockBtn = `<button class="btn-unlock" onclick="toggleLock('${type}', ${originalIndex}, false)">🔒 Buka</button>`;
+            } else {
+                lockBtn = `<button class="btn-lock" onclick="toggleLock('${type}', ${originalIndex}, true)">🔓 Kunci</button>`;
+            }
+
+            let aksiContent = '';
+
+            if (item.status === 'ready' || !item.status) {
+                aksiContent = `
+                    <div class="gudang-control">
+                        <select id="team-sel-${type}-${originalIndex}" class="gudang-select">
+                            ${teamOptions}
+                        </select>
+                        <button class="btn-send-team" onclick="sendToTeam('${type}', ${originalIndex})">➡️ Kirim</button>
+                    </div>
+                    <div style="margin-top:5px;">
+                        ${lockBtn}
+                    </div>
                 `;
+            } else if (item.status === 'pending') {
                 aksiContent = `
                     <div style="display:flex; flex-direction:column; gap:5px;">
                         <div style="display:flex; gap:5px;">
@@ -1559,69 +1607,36 @@
                             </select>
                             <button class="btn-transfer" onclick="transferModem('${type}', ${originalIndex})">🔄 Oper</button>
                         </div>
+                        <div>
+                            ${lockBtn}
+                        </div>
                     </div>
                 `;
             } else if (item.status === 'installed') {
-                statusBadge = `
-                    <span class="status-badge st-installed">Terpasang</span>
-                    <span class="tech-badge">👤 ${item.teamName || 'Teknisi ?'}</span>
-                    <span class="time-badge">✅ ${item.installedDate || '-'}</span>
-                `;
-                
-                if (item.isLocked === true) {
-                    aksiContent = `<div style="text-align:center;">${lockBtn}<br><span style="font-size:0.75rem; color:red; font-weight:bold;">Terkunci</span></div>`;
-                } else {
-                    aksiContent = `
-                        <div style="display:flex; flex-direction:column; gap:5px;">
-                             <div style="text-align:center;">${lockBtn}</div>
-                             <div style="display:flex; gap:5px;">
-                                <button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'retur')">↩️ Retur</button>
-                                <button class="btn-bad-retur" onclick="processModemAction('${type}', ${originalIndex}, 'bad')">⚠️ Set BAD</button>
-                            </div>
-                        </div>
-                    `;
-                }
-
-            } else if (item.status === 'bad') {
-                statusBadge = `
-                    <span class="status-badge st-bad">BAD / RUSAK</span>
-                    <span class="time-badge">⛔ Tidak Layak</span>
-                `;
-                
-                if (item.isLocked === true) {
-                    aksiContent = `<div style="text-align:center;">${lockBtn}<br><span style="font-size:0.75rem; color:red; font-weight:bold;">Terkunci</span></div>`;
-                } else {
-                        aksiContent = `
-                        <div style="display:flex; flex-direction:column; gap:5px;">
-                             <div style="text-align:center;">${lockBtn}</div>
-                             <div style="display:flex; gap:5px;">
-                                <button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'reset')">🔄 Reset</button> 
-                                <button class="btn-icon-del" onclick="deleteFromWarehouse('${type}', ${originalIndex})">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                }
-            } else {
                 aksiContent = `
-                    <div class="gudang-control">
-                        <select id="team-sel-${type}-${originalIndex}" class="gudang-select">
-                            ${teamOptions}
-                        </select>
-                        <button class="btn-send-team" onclick="sendToTeam('${type}', ${originalIndex})">➡️ Kirim</button>
-                    </div>`;
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <div style="text-align:center;">${lockBtn}</div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'retur')">↩️ Retur</button>
+                            <button class="btn-bad-retur" onclick="processModemAction('${type}', ${originalIndex}, 'bad')">⚠️ Set BAD</button>
+                        </div>
+                    </div>
+                `;
+            } else if (item.status === 'bad' || item.status === 'unknown') {
+                aksiContent = `
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <div style="text-align:center;">${lockBtn}</div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'reset')">🔄 Reset</button> 
+                            <button class="btn-icon-del" onclick="deleteFromWarehouse('${type}', ${originalIndex})">🗑️</button>
+                        </div>
+                    </div>
+                `;
             }
 
-            // --- UPDATE: CORET SN & MAC JIKA SUDAH TERPAKAI / BAD ---
             let snDisplay = item.sn;
             let macDisplay = item.mac;
-
-            // Jika ada pencarian, highlight kuning
-            if(searchInput.trim() !== "") {
-                 snDisplay = `<span style="background-color: yellow;">${item.sn}</span>`;
-            }
-
-            // Jika status Installed atau Bad, coret dan merah
-            if (item.status === 'installed' || item.status === 'bad') {
+            if (item.status === 'installed' || item.status === 'bad' || item.status === 'unknown') {
                 snDisplay = `<span class="text-coret">${item.sn}</span>`;
                 macDisplay = `<span class="text-coret">${item.mac}</span>`;
             }
@@ -1630,10 +1645,19 @@
                 <td style="text-align:center;">${index + 1}</td>
                 <td><span style="font-weight:bold; color:#333;">${snDisplay}</span></td>
                 <td>${macDisplay}</td>
-                <td>${statusBadge}</td>
+                <td>
+                    ${statusSelect}
+                    ${statusInfo}
+                </td>
                 <td>${aksiContent}</td>
             `;
             tbody.appendChild(tr);
+
+            const statusSelectEl = tr.querySelector('.status-select');
+            statusSelectEl.addEventListener('change', function() {
+                const newStatus = this.value;
+                changeModemStatus(type, originalIndex, newStatus);
+            });
         });
     }
 
@@ -1739,14 +1763,14 @@
                 }
 
                 gudangStock[type][index].status = 'bad';
-                gudangStock[type][index].teamName = '';
-                gudangStock[type][index].teamId = null;
-                gudangStock[type][index].pendingDate = null;
+                gudangStock[type][index].teamName = item.teamName || '';
+                gudangStock[type][index].teamId = item.teamId || null;
+                gudangStock[type][index].badDate = new Date().toLocaleString('id-ID');
                 
                 finalizeAction();
             }
         } else if (action === 'reset') {
-             if(confirm(`Kembalikan modem BAD (SN: ${item.sn}) menjadi READY?`)) {
+             if(confirm(`Kembalikan modem BAD/UNKNOWN (SN: ${item.sn}) menjadi READY?`)) {
                 gudangStock[type][index].status = 'ready';
                 gudangStock[type][index].isLocked = false;
                 finalizeAction();
@@ -1763,6 +1787,17 @@
 
     window.deleteFromWarehouse = function(type, index) {
         if(confirm("Hapus modem ini permanen dari database gudang?")) {
+            // PERUBAHAN: Hapus juga dari inventory tim jika ada
+            const item = gudangStock[type][index];
+            teams.forEach(t => {
+                if (t.inventory) {
+                    const invIndex = t.inventory.findIndex(inv => inv.sn === item.sn);
+                    if (invIndex > -1) {
+                        t.inventory.splice(invIndex, 1);
+                    }
+                }
+            });
+            
             gudangStock[type].splice(index, 1);
             saveGudangToFirebase();
             renderGudangTable(type);
@@ -1863,28 +1898,42 @@
         title.innerText = team.teamName;
         tbody.innerHTML = '';
 
-        if (!team.inventory || team.inventory.length === 0) {
+        // PERUBAHAN PENTING: Filter inventory tim untuk HANYA menampilkan modem yang:
+        // 1. Statusnya BUKAN 'ready' (karena yang ready sudah tidak dipegang teknisi)
+        // 2. Statusnya pending, installed, bad, atau unknown
+        const filteredInventory = team.inventory.filter(item => {
+            const status = getModemStatusGlobal(item.sn);
+            return status !== 'ready';
+        });
+
+        if (!filteredInventory || filteredInventory.length === 0) {
             emptyMsg.style.display = 'block';
         } else {
             emptyMsg.style.display = 'none';
-            team.inventory.forEach((item, stockIdx) => {
+            filteredInventory.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 
                 const status = getModemStatusGlobal(item.sn);
                 const type = getModemType(item.sn); 
                 
-                // --- UPDATE: CORET TAMPILAN JIKA TERPAKAI ---
                 let displaySN = item.sn;
-                let displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, ${stockIdx})">🗑️</button>`;
+                let statusBadge = '';
+                let displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, '${item.sn}')">🗑️</button>`;
 
-                if(status === 'installed') {
-                        // Coret merah untuk Installed
-                        displaySN = `<span style="text-decoration:line-through; color:red; font-weight:bold;">${item.sn}</span> <span class="badge badge-psb">Terpasang</span>`;
-                        displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
+                if(status === 'pending') {
+                    statusBadge = `<span class="badge" style="background:#ffc107; color:#000;">PENDING</span>`;
+                } else if(status === 'installed') {
+                    displaySN = `<span style="text-decoration:line-through; color:red; font-weight:bold;">${item.sn}</span>`;
+                    statusBadge = `<span class="badge" style="background:#007bff; color:white;">TERPASANG</span>`;
+                    displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 } else if(status === 'bad') {
-                        // Coret merah tua untuk BAD
-                        displaySN = `<span style="text-decoration:line-through; color:darkred; font-weight:bold;">${item.sn}</span> <span class="badge badge-reset" style="background:red; color:white;">BAD</span>`;
-                        displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
+                    displaySN = `<span style="text-decoration:line-through; color:darkred; font-weight:bold;">${item.sn}</span>`;
+                    statusBadge = `<span class="badge" style="background:red; color:white;">BAD</span>`;
+                    displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
+                } else if(status === 'unknown') {
+                    displaySN = `<span style="text-decoration:line-through; color:#6c757d; font-weight:bold;">${item.sn}</span>`;
+                    statusBadge = `<span class="badge" style="background:#6c757d; color:white;">TIDAK DIKETAHUI</span>`;
+                    displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
                 }
 
                 let typeBadge = '';
@@ -1893,10 +1942,11 @@
                 else typeBadge = '<span class="badge" style="background:#ccc; color:black;">?</span>';
 
                 tr.innerHTML = `
-                    <td style="text-align:center;">${stockIdx + 1}</td>
-                    <td>${displaySN}</td>
+                    <td style="text-align:center;">${index + 1}</td>
+                    <td>${displaySN} ${statusBadge}</td>
                     <td>${item.mac}</td>
-                    <td style="text-align:center;">${typeBadge}</td> <td style="text-align:center;">
+                    <td style="text-align:center;">${typeBadge}</td>
+                    <td style="text-align:center;">
                         ${displayAction}
                     </td>
                 `;
@@ -1911,15 +1961,19 @@
         document.getElementById('modalStockList').style.display = "none";
     }
 
-    window.deleteStock = function(teamIndex, stockIndex) {
+    window.deleteStock = function(teamIndex, sn) {
         let pin = prompt("🔒 Masukkan PIN untuk Hapus Stok Modem:");
         if (pin !== "240525") {
             alert("❌ PIN SALAH! Akses ditolak.");
             return;
         }
-        teams[teamIndex].inventory.splice(stockIndex, 1);
-        saveDataToFirebase();
-        openStockListModal(teamIndex);
+        const team = teams[teamIndex];
+        const index = team.inventory.findIndex(inv => inv.sn === sn);
+        if (index !== -1) {
+            team.inventory.splice(index, 1);
+            saveDataToFirebase();
+            openStockListModal(teamIndex);
+        }
     }
 
     window.fillModemData = function(selectEl, teamIdx, jobIdx) {
@@ -2006,7 +2060,6 @@
         let isolirCount = 0;
 
         blocks.forEach((block, index) => {
-            // DETEKSI JENIS TIKET
             if (block.match(/Nama Lengkap\s*[:=]/i)) {
                 createPSBCard(block, index, container);
                 psbCount++;
@@ -2530,8 +2583,43 @@ Alamat : ${job.address}`;
     }
 
     window.copyRekapModem = function(mode) {
+        if (mode === 'gudang') {
+            let text = `📋 *REKAP GUDANG MODEM PUSAT*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
+            
+            const srbReady = gudangStock.srb.filter(i => i.status === 'ready' || !i.status).length;
+            const synReady = gudangStock.syn.filter(i => i.status === 'ready' || !i.status).length;
+            
+            text += `📊 *TOTAL STOK READY:*\n`;
+            text += `• Modem SRB: ${srbReady} unit\n`;
+            text += `• Modem SYN: ${synReady} unit\n\n`;
+            
+            const allItems = [...gudangStock.srb, ...gudangStock.syn];
+            const badItems = allItems.filter(i => i.status === 'bad');
+            const unknownItems = allItems.filter(i => i.status === 'unknown');
+            
+            if (badItems.length > 0) {
+                text += `⚠️ *MODEM BAD (Total: ${badItems.length}):*\n`;
+                badItems.forEach((item, idx) => {
+                    text += `${idx+1}. ${item.sn} - ${item.teamName || 'Tidak diketahui'} (${item.badDate || 'Tanpa tanggal'})\n`;
+                });
+                text += `\n`;
+            }
+            
+            if (unknownItems.length > 0) {
+                text += `❓ *MODEM TIDAK DIKETAHUI (Total: ${unknownItems.length}):*\n`;
+                unknownItems.forEach((item, idx) => {
+                    text += `${idx+1}. ${item.sn} - ${item.teamName || 'Tidak diketahui'} (${item.unknownDate || 'Tanpa tanggal'})\n`;
+                });
+                text += `\n`;
+            }
+            
+            copyToClipboard(text, null, "✅ Rekap Gudang Modem berhasil disalin!");
+            closeRekapModemOption();
+            return;
+        }
+        
         let text = `📋 *REKAP MODEM TEKNISI*\n📅 ${new Date().toLocaleDateString('id-ID')}\n`;
-        text += mode === 'sisa' ? "(Hanya Stok Belum Terpasang)\n\n" : "(Semua: Sisa + Terpasang)\n\n";
+        text += mode === 'sisa' ? "(Hanya Stok Belum Terpasang)\n\n" : "(Semua: Sisa + Terpasang + Bad)\n\n";
 
         teams.forEach(team => {
             if(!team.inventory || team.inventory.length === 0) return;
@@ -2540,7 +2628,7 @@ Alamat : ${job.address}`;
             if(mode === 'sisa') {
                 items = team.inventory.filter(i => {
                     const status = getModemStatusGlobal(i.sn);
-                    return status !== 'installed' && status !== 'bad';
+                    return status === 'pending';
                 });
             } else {
                 items = team.inventory;
@@ -2556,6 +2644,8 @@ Alamat : ${job.address}`;
                     if(mode === 'all') {
                          if(status === 'installed') statusTag = " [TERPASANG]";
                          else if(status === 'bad') statusTag = " [BAD]";
+                         else if(status === 'unknown') statusTag = " [TIDAK DIKETAHUI]";
+                         else if(status === 'pending') statusTag = " [PENDING]";
                          else statusTag = " [READY]";
                     }
                     
@@ -2592,14 +2682,11 @@ Alamat : ${job.address}`;
         document.getElementById('modalExcelOption').style.display = 'none';
     }
 
-    // Helper: Format Tanggal Indonesia (DD BULAN YYYY) Tanpa Jam
     function formatDateIndo(dateStr) {
         if (!dateStr || dateStr === '-' || dateStr === "") return "-";
         
-        // Asumsi format input dari sistem: "DD/MM/YYYY, HH:mm:ss" atau "DD/MM/YYYY"
-        // Kita ambil bagian tanggalnya saja sebelum koma
         const rawDate = dateStr.split(',')[0].trim(); 
-        const parts = rawDate.split('/'); // [DD, MM, YYYY]
+        const parts = rawDate.split('/');
 
         if(parts.length === 3) {
             const months = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
@@ -2611,14 +2698,14 @@ Alamat : ${job.address}`;
                 return `${day} ${months[monthIdx]} ${year}`;
             }
         }
-        return rawDate; // Fallback jika format beda
+        return rawDate;
     }
 
     window.downloadExcel = function(mode) {
         let dataToExport = [];
-        const todayRaw = new Date().toLocaleString('id-ID'); // Format lokal
+        const todayRaw = new Date().toLocaleString('id-ID');
         
-        let rowNumber = 1; // Untuk penomoran urut
+        let rowNumber = 1;
 
         teams.forEach(team => {
             const rawTechName = team.teamName.split(':')[1]?.trim() || team.teamName;
@@ -2626,23 +2713,19 @@ Alamat : ${job.address}`;
             team.jobs.forEach((job) => {
                 const isPSB = job.tag.toUpperCase().includes("PSB");
                 
-                // FILTER MODE
-                if (mode === 'psb' && !isPSB) return; // Skip jika minta PSB tapi bukan PSB
-                if (mode === 'non_psb' && isPSB) return; // Skip jika minta Non-PSB tapi ini PSB
+                if (mode === 'psb' && !isPSB) return;
+                if (mode === 'non_psb' && isPSB) return;
 
                 const d = job.details;
                 const tech = job.technical || {};
                 const addressParts = parseAddress(job.address);
                 
-                // Format Tanggal (Tanpa Jam)
                 let rawDate = job.status === 'completed' ? (job.completedAt || todayRaw) : "-";
-                // Jika PSB, pakai Tanggal Pemasangan dari details jika completedAt kosong
                 if(isPSB && rawDate === "-") {
                     rawDate = d['Tgl Pasang'] || d['Tanggal Pemasangan'] || "-";
                 }
                 const finalDate = formatDateIndo(rawDate);
 
-                // --- LOGIKA DATA KHUSUS PSB ---
                 if (mode === 'psb') {
                     dataToExport.push({
                         "No": rowNumber++,
@@ -2651,13 +2734,12 @@ Alamat : ${job.address}`;
                         "Alamat": job.address,
                         "RT": addressParts.rt,
                         "RW": addressParts.rw,
-                        "Kode Pos": "-", // Default strip karena data tidak tersedia di inputan
+                        "Kode Pos": "-",
                         "No Handphone": d['No WA'] || d['No Telp'] || "-",
                         "Tanggal pemasangan": finalDate,
                         "Paket Layanan": d['Paket'] || "-"
                     });
                 } 
-                // --- LOGIKA DATA LAINNYA (Non-PSB atau All) ---
                 else {
                     let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel;
                     if(kelurahan === '-') { 
@@ -2706,7 +2788,6 @@ Alamat : ${job.address}`;
 
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         
-        // Atur Lebar Kolom
         if (mode === 'psb') {
             const wscols = [{wch: 5}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 10}, {wch: 15}, {wch: 25}, {wch: 20}];
             ws['!cols'] = wscols;
@@ -2769,7 +2850,6 @@ Alamat : ${job.address}`;
         if (event.target == document.getElementById("modalGudang")) closeGudangModal();
         if (event.target == document.getElementById("modalBulk")) closeBulkModal();
         if (event.target == document.getElementById("modalRekapOption")) closeRekapModemOption();
-        // --- TAMBAHAN EXCEL ---
         if (event.target == document.getElementById("modalExcelOption")) closeExcelOption();
     }
     
