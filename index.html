@@ -2040,24 +2040,55 @@
         saveDataToFirebase();
     }
 
-    // --- SMART GENERATE PREVIEW (REVISI SESUAI PERMINTAAN) ---
+    // --- PERBAIKAN FUNGSI GENERATE PREVIEW ---
     window.generatePreview = function() {
         const raw = document.getElementById('bulk-input-text').value;
         const container = document.getElementById('preview-container');
         container.innerHTML = ''; 
 
-        if (!raw.trim()) { alert("Paste data dulu!"); return; }
+        if (!raw.trim()) { 
+            alert("Paste data dulu!"); 
+            return; 
+        }
 
-        // Pisahkan blok berdasarkan pola "Nama Lengkap" atau "Nama Pelanggan"
-        const blocks = raw.split(/(?=(?:Nama Lengkap|Nama Pelanggan)\s*[:=])/gi).filter(b => b.trim().length > 10);
+        // Pisahkan berdasarkan blok tiket (berdasarkan pattern "Jam:" di awal)
+        const lines = raw.trim().split('\n');
+        let blocks = [];
+        let currentBlock = [];
+        
+        for (let line of lines) {
+            line = line.trim();
+            if (line === '') continue;
+            
+            // Jika baris dimulai dengan "Jam:" atau "Kendala:" (untuk MT), mulai blok baru
+            if (line.startsWith('Jam:') || line.startsWith('Kendala:')) {
+                if (currentBlock.length > 0) {
+                    blocks.push(currentBlock.join('\n'));
+                    currentBlock = [];
+                }
+            }
+            currentBlock.push(line);
+        }
+        
+        // Tambahkan blok terakhir
+        if (currentBlock.length > 0) {
+            blocks.push(currentBlock.join('\n'));
+        }
 
-        if(blocks.length === 0) {
-            alert("❌ Format tidak dikenali!\nPastikan ada tulisan 'Nama Lengkap :' (untuk PSB) atau 'Nama Pelanggan :' (untuk MT).");
+        // Jika tidak ada blok yang terdeteksi dengan pattern di atas, gunakan metode lama
+        if (blocks.length === 0) {
+            // Coba metode lama: berdasarkan "Nama Lengkap" atau "Nama Pelanggan"
+            blocks = raw.split(/(?=(?:Nama Lengkap|Nama Pelanggan)\s*[:=])/gi).filter(b => b.trim().length > 10);
+        }
+
+        if (blocks.length === 0) {
+            alert("❌ Format tidak dikenali!\nPastikan format sesuai dengan template PSB atau MT.");
             return;
         }
 
         let psbCount = 0;
         let mtCount = 0;
+        let isolirCount = 0;
 
         blocks.forEach((block, index) => {
             if (block.match(/Nama Lengkap\s*[:=]/i)) {
@@ -2065,11 +2096,45 @@
                 psbCount++;
             } else {
                 createMTCard(block, index, container);
-                mtCount++;
+                if (block.match(/Kendala:\s*ISOLIR/i)) {
+                    isolirCount++;
+                } else {
+                    mtCount++;
+                }
             }
         });
 
-        alert(`✅ SMART GENERATE SELESAI!\nDitemukan:\n- ${psbCount} Tiket PSB\n- ${mtCount} Tiket MT (Lain)`);
+        alert(`✅ SMART GENERATE SELESAI!\nDitemukan:\n- ${psbCount} Tiket PSB\n- ${mtCount} Tiket MT (Lain)\n- ${isolirCount} Tiket ISOLIR`);
+    }
+
+    function parseMTBlock(block) {
+        const lines = block.split('\n');
+        const data = {};
+        
+        lines.forEach(line => {
+            line = line.trim();
+            if (line === '') return;
+            
+            // Mencari pattern "Label: Nilai"
+            const match = line.match(/^([^:]+):\s*(.+)$/);
+            if (match) {
+                const key = match[1].trim();
+                let value = match[2].trim();
+                
+                // Special handling for fields with || separator
+                if (value.includes('||')) {
+                    // Ambil bagian setelah || jika ada
+                    const parts = value.split('||');
+                    if (parts.length > 1) {
+                        value = parts[1].trim();
+                    }
+                }
+                
+                data[key] = value;
+            }
+        });
+        
+        return data;
     }
 
     function createPSBCard(block, index, container) {
@@ -2123,72 +2188,74 @@
     }
 
     function createMTCard(block, index, container) {
-        const getValue = (label) => {
-            const regex = new RegExp(label + "[\\s\\n]*[:=][\\s\\n]*(.*)", "i");
-            const match = block.match(regex);
-            return match ? match[1].trim() : "";
-        };
-
-        const nama = getValue("Nama Pelanggan");
-        let kendala = getValue("Kendala") || getValue("kendala") || "MT (LAIN)";
+        const data = parseMTBlock(block);
         
-        // Cek apakah mengandung kata "ISOLIR" dalam kendala
-        if (kendala.toUpperCase().includes("ISOLIR")) {
+        // Ambil jam dari data atau default "FLEXIBEL"
+        let jam = data['Jam'] || "FLEXIBEL";
+        // Jika jam mengandung "FLEKSIBEL" (salah ketik), ubah ke "FLEXIBEL"
+        if (jam.toUpperCase().includes('FLEKSIBEL')) {
+            jam = "FLEXIBEL";
+        }
+        
+        // Ambil kendala
+        let kendala = data['Kendala'] || "MT (Lain)";
+        // Deteksi ISOLIR
+        const isIsolir = kendala.toUpperCase().includes('ISOLIR');
+        if (isIsolir) {
             kendala = "ISOLIR";
         }
         
-        const layanan = getValue("No Layanan") || getValue("ID Pelanggan") || "";
-        const masaAktif = getValue("Masa Aktif s/d") || "";
-        const telp = getValue("No Telp") || getValue("No WA") || "";
-        const tglDaftar = getValue("Tanggal Daftar") || "";
-        const coverage = getValue("Coverage") || "";
-        const alamat = getValue("Alamat") || "";
-        const pppoe = getValue("User PPPOE_RADIUS") || "";
-        const pemakaianBulanIni = getValue("Pemakaian Bulan Ini") || getValue("Pemakaian Bulan Ini \\(GB\\)") || "";
-        const odc = getValue("ODC") || "";
-        const odp = getValue("ODP") || "";
-        const portOdp = getValue("Port ODP") || "";
-        const oltSn = getValue("OLT SN/MAC") || "";
-        const lastDBM = getValue("Last DBM") || "";
-        const lastDBMTime = getValue("Last DBM Time") || "";
-        const ssid = getValue("Nama WiFi") || getValue("Nama WiFi \\(SSID\\)") || "";
-        const sandiWifi = getValue("Sandi WiFi") || "";
-        const keterangan = getValue("Keterangan") || "";
-        const router = getValue("Router") || "";
+        // Ambil nama pelanggan
+        const nama = data['Nama Pelanggan'] || '';
+        
+        // Field mapping untuk MT
+        const fields = [
+            { key: 'Nama Pelanggan', className: 'bulk-nama' },
+            { key: 'No Layanan', className: 'bulk-layanan' },
+            { key: 'Masa Aktif s/d', className: 'bulk-masa-aktif' },
+            { key: 'No Telp.', className: 'bulk-telp' },
+            { key: 'Tanggal Daftar', className: 'bulk-tgl-daftar' },
+            { key: 'Coverage', className: 'bulk-coverage' },
+            { key: 'Alamat', className: 'bulk-alamat' },
+            { key: 'User PPPOE_RADIUS', className: 'bulk-pppoe' },
+            { key: 'Pemakaian Bulan Ini (GB)', className: 'bulk-pemakaian' },
+            { key: 'ODC', className: 'bulk-odc' },
+            { key: 'ODP', className: 'bulk-odp' },
+            { key: 'Port ODP', className: 'bulk-port-odp' },
+            { key: 'OLT SN/MAC', className: 'bulk-olt-sn' },
+            { key: 'Last DBM', className: 'bulk-last-dbm' },
+            { key: 'Last DBM Time', className: 'bulk-last-dbm-time' },
+            { key: 'Nama WiFi (SSID)', className: 'bulk-ssid' },
+            { key: 'Sandi WiFi', className: 'bulk-sandi-wifi' },
+            { key: 'Keterangan', className: 'bulk-keterangan' },
+            { key: 'Router', className: 'bulk-router' }
+        ];
 
         const card = document.createElement('div');
-        card.className = 'preview-card preview-mt';
-        card.innerHTML = `
+        card.className = isIsolir ? 'preview-card preview-isolir' : 'preview-card preview-mt';
+        
+        let cardHTML = `
             <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
-            <h4 style="color:#856404;">Ticket MT (Lain) #${index + 1}: ${nama}</h4>
+            <h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Lain)'} #${index + 1}: ${nama}</h4>
             <div class="form-group">
-                <label>Jam Kunjungan (Wajib Diisi Manual)</label>
-                <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #ffc107; background: #fffdf5;">
+                <label>Jam Kunjungan</label>
+                <input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};">
             </div>
             <div class="preview-grid">
                 <input type="hidden" class="bulk-type" value="MT">
-                <div class="input-group"><label>kendala</label><input type="text" class="bulk-kendala" value="${kendala}" required></div>
-                <div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${nama}"></div>
-                <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${layanan}" placeholder="Boleh angka dan huruf"></div>
-                <div class="input-group"><label>Masa Aktif s/d</label><input type="text" class="bulk-masa-aktif" value="${masaAktif}"></div>
-                <div class="input-group"><label>No Telp.</label><input type="text" class="bulk-telp" value="${telp}"></div>
-                <div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${tglDaftar}"></div>
-                <div class="input-group"><label>Coverage</label><input type="text" class="bulk-coverage" value="${coverage}"></div>
-                <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
-                <div class="input-group"><label>User PPPOE_RADIUS</label><input type="text" class="bulk-pppoe" value="${pppoe}"></div>
-                <div class="input-group"><label>Pemakaian Bulan Ini (GB)</label><input type="text" class="bulk-pemakaian" value="${pemakaianBulanIni}"></div>
-                <div class="input-group"><label>ODC</label><input type="text" class="bulk-odc" value="${odc}"></div>
-                <div class="input-group"><label>ODP</label><input type="text" class="bulk-odp" value="${odp}"></div>
-                <div class="input-group"><label>Port ODP</label><input type="text" class="bulk-port-odp" value="${portOdp}"></div>
-                <div class="input-group"><label>OLT SN/MAC</label><input type="text" class="bulk-olt-sn" value="${oltSn}"></div>
-                <div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${lastDBM}"></div>
-                <div class="input-group"><label>Last DBM Time</label><input type="text" class="bulk-last-dbm-time" value="${lastDBMTime}"></div>
-                <div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${ssid}"></div>
-                <div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div>
-                <div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div>
-                <div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div>
-            </div>
+                <div class="input-group"><label>Kendala</label><input type="text" class="bulk-kendala" value="${kendala}" required></div>
         `;
+
+        // Tambahkan field-field lainnya
+        fields.forEach(field => {
+            const value = data[field.key] || '';
+            cardHTML += `
+                <div class="input-group"><label>${field.key}</label><input type="text" class="${field.className}" value="${value}"></div>
+            `;
+        });
+
+        cardHTML += `</div></div>`;
+        card.innerHTML = cardHTML;
         container.appendChild(card);
     }
 
