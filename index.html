@@ -2040,7 +2040,7 @@
         saveDataToFirebase();
     }
 
-    // --- SMART GENERATE PREVIEW (ISOLIR ADDED) ---
+    // --- SMART GENERATE PREVIEW (REVISI SESUAI PERMINTAAN) ---
     window.generatePreview = function() {
         const raw = document.getElementById('bulk-input-text').value;
         const container = document.getElementById('preview-container');
@@ -2048,31 +2048,28 @@
 
         if (!raw.trim()) { alert("Paste data dulu!"); return; }
 
+        // Pisahkan blok berdasarkan pola "Nama Lengkap" atau "Nama Pelanggan"
         const blocks = raw.split(/(?=(?:Nama Lengkap|Nama Pelanggan)\s*[:=])/gi).filter(b => b.trim().length > 10);
 
         if(blocks.length === 0) {
-            alert("❌ Format tidak dikenali!\nPastikan ada tulisan 'Nama Lengkap :' (untuk PSB) atau 'Nama Pelanggan :' (untuk MT/ISOLIR).");
+            alert("❌ Format tidak dikenali!\nPastikan ada tulisan 'Nama Lengkap :' (untuk PSB) atau 'Nama Pelanggan :' (untuk MT).");
             return;
         }
 
         let psbCount = 0;
         let mtCount = 0;
-        let isolirCount = 0;
 
         blocks.forEach((block, index) => {
             if (block.match(/Nama Lengkap\s*[:=]/i)) {
                 createPSBCard(block, index, container);
                 psbCount++;
-            } else if (block.match(/Last DBM/i) || block.match(/User PPPOE/i) || block.match(/OLT SN/i)) {
-                createISOLIRCard(block, index, container);
-                isolirCount++;
             } else {
                 createMTCard(block, index, container);
                 mtCount++;
             }
         });
 
-        alert(`✅ SMART GENERATE SELESAI!\nDitemukan:\n- ${psbCount} Tiket PSB\n- ${mtCount} Tiket MT\n- ${isolirCount} Tiket ISOLIR`);
+        alert(`✅ SMART GENERATE SELESAI!\nDitemukan:\n- ${psbCount} Tiket PSB\n- ${mtCount} Tiket MT (Lain)`);
     }
 
     function createPSBCard(block, index, container) {
@@ -2095,11 +2092,9 @@
         const paket = getValue("Paket Layanan");
         const ktp = getValue("No KTP");
         const tgl = getValue("Tanggal Pemasangan");
-        const statusRaw = getValue("Status kepemilikan rumah").toLowerCase();
-        
-        let statusVal = "Pribadi";
-        if (statusRaw.includes("sewa") || statusRaw.includes("kontrak")) statusVal = "Sewa/Kontrak";
-        else if (statusRaw.includes("kost")) statusVal = "Kost";
+        const statusRumah = getValue("Status kepemilikan rumah") || getValue("Status Rumah") || "";
+        const setujuBerlangganan = getValue("Setuju berlangganan minimal 1 tahun") || "";
+        const referensi = getValue("Referensi") || getValue("Refrensi SRB dari") || "";
 
         const card = document.createElement('div');
         card.className = 'preview-card preview-psb';
@@ -2112,14 +2107,16 @@
             </div>
             <div class="preview-grid">
                 <input type="hidden" class="bulk-type" value="PSB">
-                <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
-                <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
-                <div class="input-group"><label>Email</label><input type="text" class="bulk-email" value="${email}"></div>
-                <div class="input-group"><label>WA</label><input type="text" class="bulk-wa" value="${wa}"></div>
-                <div class="input-group"><label>Paket</label><input type="text" class="bulk-paket" value="${paket}"></div>
-                <div class="input-group"><label>KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div>
-                <div class="input-group"><label>Tgl Pasang</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
-                <div class="input-group"><label>Status</label><input type="text" class="bulk-status" value="${statusVal}"></div>
+                <div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${nama}"></div>
+                <div class="input-group"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
+                <div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${email}"></div>
+                <div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${wa}"></div>
+                <div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${paket}"></div>
+                <div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${referensi}"></div>
+                <div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div>
+                <div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
+                <div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div>
+                <div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setujuBerlangganan}"></div>
             </div>
         `;
         container.appendChild(card);
@@ -2133,105 +2130,63 @@
         };
 
         const nama = getValue("Nama Pelanggan");
-        let layanan = getValue("No Layanan") || getValue("ID Pelanggan");
-        if(layanan.includes("||")) layanan = layanan.split("||")[0].trim();
-
-        let telp = getValue("No Telp") || getValue("No WA");
-        const telpDigits = telp.replace(/\D/g, ''); 
-        if (telpDigits.length < 6) { 
-            telp = "-"; 
+        let kendala = getValue("Kendala") || getValue("kendala") || "MT (LAIN)";
+        
+        // Cek apakah mengandung kata "ISOLIR" dalam kendala
+        if (kendala.toUpperCase().includes("ISOLIR")) {
+            kendala = "ISOLIR";
         }
-
-        const tgl = getValue("Tanggal Daftar");
-        const coverage = getValue("Coverage");
-        const alamat = getValue("Alamat");
-        const kendala = getValue("Kendala") || "MT (LAIN)";
+        
+        const layanan = getValue("No Layanan") || getValue("ID Pelanggan") || "";
+        const masaAktif = getValue("Masa Aktif s/d") || "";
+        const telp = getValue("No Telp") || getValue("No WA") || "";
+        const tglDaftar = getValue("Tanggal Daftar") || "";
+        const coverage = getValue("Coverage") || "";
+        const alamat = getValue("Alamat") || "";
+        const pppoe = getValue("User PPPOE_RADIUS") || "";
+        const pemakaianBulanIni = getValue("Pemakaian Bulan Ini") || getValue("Pemakaian Bulan Ini \\(GB\\)") || "";
+        const odc = getValue("ODC") || "";
+        const odp = getValue("ODP") || "";
+        const portOdp = getValue("Port ODP") || "";
+        const oltSn = getValue("OLT SN/MAC") || "";
+        const lastDBM = getValue("Last DBM") || "";
+        const lastDBMTime = getValue("Last DBM Time") || "";
+        const ssid = getValue("Nama WiFi") || getValue("Nama WiFi \\(SSID\\)") || "";
+        const sandiWifi = getValue("Sandi WiFi") || "";
+        const keterangan = getValue("Keterangan") || "";
+        const router = getValue("Router") || "";
 
         const card = document.createElement('div');
         card.className = 'preview-card preview-mt';
         card.innerHTML = `
             <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
-            <h4 style="color:#856404;">Ticket MT #${index + 1}: ${nama}</h4>
+            <h4 style="color:#856404;">Ticket MT (Lain) #${index + 1}: ${nama}</h4>
             <div class="form-group">
                 <label>Jam Kunjungan (Wajib Diisi Manual)</label>
                 <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #ffc107; background: #fffdf5;">
             </div>
             <div class="preview-grid">
                 <input type="hidden" class="bulk-type" value="MT">
-                <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
+                <div class="input-group"><label>kendala</label><input type="text" class="bulk-kendala" value="${kendala}" required></div>
+                <div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${nama}"></div>
+                <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${layanan}" placeholder="Boleh angka dan huruf"></div>
+                <div class="input-group"><label>Masa Aktif s/d</label><input type="text" class="bulk-masa-aktif" value="${masaAktif}"></div>
+                <div class="input-group"><label>No Telp.</label><input type="text" class="bulk-telp" value="${telp}"></div>
+                <div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${tglDaftar}"></div>
+                <div class="input-group"><label>Coverage</label><input type="text" class="bulk-coverage" value="${coverage}"></div>
                 <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
-                <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${layanan}"></div>
-                <div class="input-group"><label>No Telp</label><input type="text" class="bulk-telp" value="${telp}"></div>
-                <div class="input-group"><label>Kendala</label><input type="text" class="bulk-tag" value="${kendala}"></div>
-                <div class="input-group"><label>Coverage</label><input type="text" class="bulk-cov" value="${coverage}"></div>
-                <div class="input-group"><label>Tgl Daftar</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
-                <div class="input-group" style="grid-column: 1/-1;"><label>Catatan (Opsional)</label><input type="text" class="bulk-catatan" placeholder="Tulis catatan tambahan disini..."></div>
-            </div>
-        `;
-        container.appendChild(card);
-    }
-
-    function createISOLIRCard(block, index, container) {
-        const getValue = (label) => {
-            const regex = new RegExp(label + "[\\s\\n]*[:=][\\s\\n]*(.*)", "i");
-            const match = block.match(regex);
-            return match ? match[1].trim() : "";
-        };
-
-        const nama = getValue("Nama Pelanggan");
-        let layananFull = getValue("No Layanan");
-        const masaAktif = getValue("Masa Aktif s/d");
-        const telp = getValue("No Telp\\.?");
-        const tglDaftar = getValue("Tanggal Daftar");
-        const coverage = getValue("Coverage");
-        const alamat = getValue("Alamat");
-        
-        const pppoe = getValue("User PPPOE_RADIUS");
-        const odc = getValue("ODC");
-        const odp = getValue("ODP");
-        const port = getValue("Port ODP");
-        const oltSn = getValue("OLT SN/MAC");
-        const dbm = getValue("Last DBM");
-        const dbmTime = getValue("Last DBM Time");
-        const ssid = getValue("Nama WiFi \\(SSID\\)");
-        const sandi = getValue("Sandi WiFi");
-        const router = getValue("Router");
-        const kordinat = getValue("Titik kordinat");
-
-        const card = document.createElement('div');
-        card.className = 'preview-card preview-isolir';
-        card.innerHTML = `
-            <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
-            <h4 style="color:#c0392b;">Ticket ISOLIR #${index + 1}: ${nama}</h4>
-            <div class="form-group">
-                <label>Jam Kunjungan (Wajib Diisi Manual)</label>
-                <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #c0392b; background: #fffdf5;">
-            </div>
-            <div class="preview-grid">
-                <input type="hidden" class="bulk-type" value="ISOLIR">
-                
-                <div class="input-group"><label>Nama</label><input type="text" class="bulk-nama" value="${nama}"></div>
-                <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
-                <div class="input-group"><label>No Layanan (Full)</label><input type="text" class="bulk-layanan" value="${layananFull}"></div>
-                <div class="input-group"><label>Masa Aktif</label><input type="text" class="bulk-masa" value="${masaAktif}"></div>
-                
-                <input type="hidden" class="iso-telp" value="${telp}">
-                <input type="hidden" class="iso-tgl" value="${tglDaftar}">
-                <input type="hidden" class="iso-cov" value="${coverage}">
-                
-                <div style="grid-column: 1/-1; border-top: 1px dashed #ccc; margin-top: 5px; padding-top: 5px; font-weight: bold; color: #c0392b;">Detail Teknis (Editable):</div>
-                
-                <div class="input-group"><label>ODP</label><input type="text" class="iso-odp" value="${odp}"></div>
-                <div class="input-group"><label>Port</label><input type="text" class="iso-port" value="${port}"></div>
-                <div class="input-group"><label>OLT SN</label><input type="text" class="iso-oltsn" value="${oltSn}"></div>
-                <div class="input-group"><label>Last DBM</label><input type="text" class="iso-dbm" value="${dbm}"></div>
-                <div class="input-group"><label>DBM Time</label><input type="text" class="iso-dbmtime" value="${dbmTime}"></div>
-                <div class="input-group"><label>User PPPOE</label><input type="text" class="iso-pppoe" value="${pppoe}"></div>
-                <div class="input-group"><label>ODC</label><input type="text" class="iso-odc" value="${odc}"></div>
-                <div class="input-group"><label>SSID</label><input type="text" class="iso-ssid" value="${ssid}"></div>
-                <div class="input-group"><label>Sandi</label><input type="text" class="iso-sandi" value="${sandi}"></div>
-                <div class="input-group"><label>Router</label><input type="text" class="iso-router" value="${router}"></div>
-                <div class="input-group"><label>Koordinat</label><input type="text" class="iso-kordinat" value="${kordinat}"></div>
+                <div class="input-group"><label>User PPPOE_RADIUS</label><input type="text" class="bulk-pppoe" value="${pppoe}"></div>
+                <div class="input-group"><label>Pemakaian Bulan Ini (GB)</label><input type="text" class="bulk-pemakaian" value="${pemakaianBulanIni}"></div>
+                <div class="input-group"><label>ODC</label><input type="text" class="bulk-odc" value="${odc}"></div>
+                <div class="input-group"><label>ODP</label><input type="text" class="bulk-odp" value="${odp}"></div>
+                <div class="input-group"><label>Port ODP</label><input type="text" class="bulk-port-odp" value="${portOdp}"></div>
+                <div class="input-group"><label>OLT SN/MAC</label><input type="text" class="bulk-olt-sn" value="${oltSn}"></div>
+                <div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${lastDBM}"></div>
+                <div class="input-group"><label>Last DBM Time</label><input type="text" class="bulk-last-dbm-time" value="${lastDBMTime}"></div>
+                <div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${ssid}"></div>
+                <div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div>
+                <div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div>
+                <div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div>
             </div>
         `;
         container.appendChild(card);
@@ -2295,9 +2250,11 @@
                 const email = card.querySelector('.bulk-email').value;
                 const wa = card.querySelector('.bulk-wa').value;
                 const paket = card.querySelector('.bulk-paket').value;
+                const referensi = card.querySelector('.bulk-referensi').value;
                 const ktp = card.querySelector('.bulk-ktp').value;
                 const tgl = card.querySelector('.bulk-tgl').value;
-                const status = card.querySelector('.bulk-status').value;
+                const statusRumah = card.querySelector('.bulk-status-rumah').value;
+                const setuju = card.querySelector('.bulk-setuju').value;
 
                 newJob = {
                     completed: false,
@@ -2309,64 +2266,57 @@
                     tagClass: "badge-psb",
                     time: jam,
                     address: alamat,
-                    details: { "Paket": paket, "Email": email, "No WA": wa, "No KTP": ktp, "Status": status, "Tgl Pasang": tgl }
-                };
-            } else if (type === 'ISOLIR') {
-                const layanan = card.querySelector('.bulk-layanan').value;
-                const masaAktif = card.querySelector('.bulk-masa').value;
-                
-                const telp = card.querySelector('.iso-telp').value;
-                const tgl = card.querySelector('.iso-tgl').value;
-                const cov = card.querySelector('.iso-cov').value;
-                
-                const pppoe = card.querySelector('.iso-pppoe').value;
-                const odc = card.querySelector('.iso-odc').value;
-                const odp = card.querySelector('.iso-odp').value;
-                const port = card.querySelector('.iso-port').value;
-                const oltsn = card.querySelector('.iso-oltsn').value;
-                const dbm = card.querySelector('.iso-dbm').value;
-                const dbmtime = card.querySelector('.iso-dbmtime').value;
-                const ssid = card.querySelector('.iso-ssid').value;
-                const sandi = card.querySelector('.iso-sandi').value;
-                const router = card.querySelector('.iso-router').value;
-                const kordinat = card.querySelector('.iso-kordinat').value;
-
-                newJob = {
-                    completed: false,
-                    status: 'pending',
-                    technical: {},
-                    name: nama,
-                    tag: 'ISOLIR',
-                    tagClass: "badge-isolir",
-                    time: jam,
-                    address: alamat,
-                    details: {
-                        "Layanan": layanan,
-                        "Masa Aktif": masaAktif,
-                        "No Telp": telp,
-                        "Tgl Daftar": tgl,
-                        "Coverage": cov,
-                        "User PPPOE": pppoe,
-                        "ODC": odc,
-                        "ODP": odp,
-                        "Port": port,
-                        "OLT SN": oltsn,
-                        "Last DBM": dbm,
-                        "DBM Time": dbmtime,
-                        "SSID": ssid,
-                        "Sandi": sandi,
-                        "Router": router,
-                        "Koordinat": kordinat
+                    details: { 
+                        "Paket": paket, 
+                        "Email": email, 
+                        "No WA": wa, 
+                        "Referensi": referensi,
+                        "No KTP": ktp, 
+                        "Status Rumah": statusRumah, 
+                        "Setuju Berlangganan": setuju,
+                        "Tgl Pasang": tgl 
                     }
                 };
-
             } else {
+                const kendala = card.querySelector('.bulk-kendala').value;
                 const layanan = card.querySelector('.bulk-layanan').value;
+                const masaAktif = card.querySelector('.bulk-masa-aktif').value;
                 const telp = card.querySelector('.bulk-telp').value;
-                const tag = card.querySelector('.bulk-tag').value;
-                const coverage = card.querySelector('.bulk-cov').value;
-                const tgl = card.querySelector('.bulk-tgl').value;
-                const catatan = card.querySelector('.bulk-catatan').value; 
+                const tglDaftar = card.querySelector('.bulk-tgl-daftar').value;
+                const coverage = card.querySelector('.bulk-coverage').value;
+                const pppoe = card.querySelector('.bulk-pppoe').value;
+                const pemakaian = card.querySelector('.bulk-pemakaian').value;
+                const odc = card.querySelector('.bulk-odc').value;
+                const odp = card.querySelector('.bulk-odp').value;
+                const portOdp = card.querySelector('.bulk-port-odp').value;
+                const oltSn = card.querySelector('.bulk-olt-sn').value;
+                const lastDBM = card.querySelector('.bulk-last-dbm').value;
+                const lastDBMTime = card.querySelector('.bulk-last-dbm-time').value;
+                const ssid = card.querySelector('.bulk-ssid').value;
+                const sandiWifi = card.querySelector('.bulk-sandi-wifi').value;
+                const keterangan = card.querySelector('.bulk-keterangan').value;
+                const router = card.querySelector('.bulk-router').value;
+
+                // Buat object details hanya dengan field yang terisi
+                let details = {};
+                details["Kendala"] = kendala; // Wajib ada
+                if (layanan) details["Layanan"] = layanan;
+                if (masaAktif) details["Masa Aktif s/d"] = masaAktif;
+                if (telp) details["No Telp"] = telp;
+                if (tglDaftar) details["Tgl Daftar"] = tglDaftar;
+                if (coverage) details["Coverage"] = coverage;
+                if (pppoe) details["User PPPOE_RADIUS"] = pppoe;
+                if (pemakaian) details["Pemakaian Bulan Ini (GB)"] = pemakaian;
+                if (odc) details["ODC"] = odc;
+                if (odp) details["ODP"] = odp;
+                if (portOdp) details["Port ODP"] = portOdp;
+                if (oltSn) details["OLT SN/MAC"] = oltSn;
+                if (lastDBM) details["Last DBM"] = lastDBM;
+                if (lastDBMTime) details["Last DBM Time"] = lastDBMTime;
+                if (ssid) details["Nama WiFi (SSID)"] = ssid;
+                if (sandiWifi) details["Sandi WiFi"] = sandiWifi;
+                if (keterangan) details["Keterangan"] = keterangan;
+                if (router) details["Router"] = router;
 
                 newJob = {
                     completed: false,
@@ -2374,11 +2324,11 @@
                     completedAt: null,
                     technical: {},
                     name: nama,
-                    tag: tag,
-                    tagClass: "badge-mt", 
+                    tag: kendala,
+                    tagClass: kendala.toUpperCase().includes("ISOLIR") ? "badge-isolir" : "badge-mt",
                     time: jam,
                     address: alamat,
-                    details: { "Layanan": layanan, "No Telp": telp, "Tgl Daftar": tgl, "Coverage": coverage, "Catatan": catatan }
+                    details: details
                 };
             }
 
@@ -2421,30 +2371,10 @@
         const d = job.details;
         const tech = job.technical || {};
         const isPSB = job.tag.toUpperCase().includes("PSB");
-        const isISOLIR = job.tag === 'ISOLIR';
+        const isISOLIR = job.tag.toUpperCase().includes("ISOLIR");
         let textToCopy = "";
 
-        if (isISOLIR) {
-            textToCopy = `(Nama Pelanggan: ${job.name}
-No Layanan: ${d['Layanan'] || '-'}
-Masa Aktif s/d: ${d['Masa Aktif'] || '-'}
-No Telp.: ${d['No Telp'] || '-'}
-Tanggal Daftar: ${d['Tgl Daftar'] || '-'}
-Coverage: ${d['Coverage'] || '-'}
-Alamat: ${job.address}
-User PPPOE_RADIUS: ${d['User PPPOE'] || '-'}
-ODC: ${d['ODC'] || '-'}
-ODP: ${d['ODP'] || '-'}
-Port ODP: ${d['Port'] || '-'}
-OLT SN/MAC: ${d['OLT SN'] || '-'}
-Last DBM: ${d['Last DBM'] || '-'}
-Last DBM Time: ${d['DBM Time'] || '-'}
-Nama WiFi (SSID): ${d['SSID'] || '-'}
-Sandi WiFi: ${d['Sandi'] || '-'}
-Router: ${d['Router'] || '-'}
-Titik kordinat: ${d['Koordinat'] || '-'})`;
-
-        } else if (isPSB) {
+        if (isPSB) {
             const snVal = tech.sn || '-';
             const macVal = formatMacForCopy(tech.mac);
             const vlanVal = formatMacForCopy(tech.vlan);
@@ -2456,16 +2386,18 @@ Titik kordinat: ${d['Koordinat'] || '-'})`;
             textToCopy = `TEKNISI : ${team.teamName}
 KATEGORI : ${job.tag}
 --------------------------------
-Nama Lengkap : ${job.name} ( JAM ${job.time} )
+Jam: ${job.time}
+Nama Lengkap : ${job.name}
 Alamat Lengkap : ${job.address}
 Email Aktif: ${d['Email'] || '-'}
 No. Wa: ${d['No WA'] || d['No Telp'] || '-'}
 Paket Layanan : ${d['Paket'] || '-'}
-Biaya regist : -
+Referensi: ${d['Referensi'] || '-'}
 No KTP : ${d['No KTP'] || '-'}
-Tanggal/Jam Pemasangan : ${job.time === 'FLEXIBEL' ? 'FLEXIBEL' : 'Sesuai Jadwal'}
-Refrensi SRB dari : ${d['Status'] || '-'}
-FOTO Depan Rumah :
+Tanggal pemasangan: ${d['Tgl Pasang'] || '-'}
+FOTO Depan Rumah : 
+Status Rumah : ${d['Status Rumah'] || '-'}
+Setuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || '-'}
 
 --- DATA TEKNIS ---
 kode SN : ${snVal}
@@ -2476,17 +2408,37 @@ Port : ${portVal}
 Id ODP : ${odpVal}
 Redaman : ${redamanVal}`;
         } else {
+            // Format MT (Lain) - hanya tampilkan field yang terisi
             textToCopy = `TEKNISI : ${team.teamName}
 KATEGORI : ${job.tag}
 --------------------------------
-Nama Pelanggan : ${job.name} ( JAM ${job.time} )
-No Layanan : ${d['Layanan']||'-'}
-No Telp. : ${d['No Telp']||'-'}
-Tanggal Daftar : ${d['Tgl Daftar']||'-'}
-Coverage : ${d['Coverage']||'-'}
-Catatan : ${d['Catatan']||'-'}
-Alamat : ${job.address}`;
+Jam: ${job.time}`;
+            
+            // Tambahkan field kendala (wajib)
+            textToCopy += `\nkendala: ${job.tag}`;
+            
+            // Tambahkan field lainnya hanya jika terisi
+            if (d['Nama Pelanggan'] || job.name) textToCopy += `\nNama Pelanggan: ${job.name}`;
+            if (d['Layanan']) textToCopy += `\nNo Layanan: ${d['Layanan']}`;
+            if (d['Masa Aktif s/d']) textToCopy += `\nMasa Aktif s/d: ${d['Masa Aktif s/d']}`;
+            if (d['No Telp']) textToCopy += `\nNo Telp.: ${d['No Telp']}`;
+            if (d['Tgl Daftar']) textToCopy += `\nTanggal Daftar: ${d['Tgl Daftar']}`;
+            if (d['Coverage']) textToCopy += `\nCoverage: ${d['Coverage']}`;
+            if (job.address) textToCopy += `\nAlamat: ${job.address}`;
+            if (d['User PPPOE_RADIUS']) textToCopy += `\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS']}`;
+            if (d['Pemakaian Bulan Ini (GB)']) textToCopy += `\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)']}`;
+            if (d['ODC']) textToCopy += `\nODC: ${d['ODC']}`;
+            if (d['ODP']) textToCopy += `\nODP: ${d['ODP']}`;
+            if (d['Port ODP']) textToCopy += `\nPort ODP: ${d['Port ODP']}`;
+            if (d['OLT SN/MAC']) textToCopy += `\nOLT SN/MAC: ${d['OLT SN/MAC']}`;
+            if (d['Last DBM']) textToCopy += `\nLast DBM: ${d['Last DBM']}`;
+            if (d['Last DBM Time']) textToCopy += `\nLast DBM Time: ${d['Last DBM Time']}`;
+            if (d['Nama WiFi (SSID)']) textToCopy += `\nNama WiFi (SSID): ${d['Nama WiFi (SSID)']}`;
+            if (d['Sandi WiFi']) textToCopy += `\nSandi WiFi: ${d['Sandi WiFi']}`;
+            if (d['Keterangan']) textToCopy += `\nKeterangan: ${d['Keterangan']}`;
+            if (d['Router']) textToCopy += `\nRouter: ${d['Router']}`;
 
+            // Tambahkan data teknis jika ada ganti modem
             if (job.replaceModem === 'yes' && tech.sn) {
                  const macVal = formatMacForCopy(tech.mac);
                  const vlanVal = formatMacForCopy(tech.vlan);
