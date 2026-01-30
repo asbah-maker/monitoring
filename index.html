@@ -594,7 +594,42 @@
                 ✨ SMART INPUT (PSB / MT / ISOLIR)
             </label>
             <p style="font-size:0.75rem; color:#666; margin:3px 0 5px 0;">Paste tiket disini. Sistem akan otomatis mendeteksi format (Termasuk format ISOLIR baru).</p>
-            <textarea id="bulk-input-text" rows="8" placeholder="Paste data tiket disini..."></textarea>
+            <textarea id="bulk-input-text" rows="8" placeholder="Contoh format PSB:
+Jam: 10:00
+Nama Lengkap : John Doe
+Alamat Lengkap : Jl. Contoh No. 123
+Email Aktif : john@example.com
+No. Wa: 08123456789
+Paket Layanan : Paket 150rb
+Referensi: Internet
+No KTP : 1234567890123456
+Tanggal pemasangan: 01/01/2024
+FOTO Depan Rumah :
+Status Rumah : Sewa
+Setuju berlangganan minimal 1 tahun: Ya
+
+Contoh format MT/ISOLIR:
+Jam: 14:00
+Kendala: ISOLIR
+Nama Pelanggan: Jane Smith
+No Layanan: 123456
+Masa Aktif s/d: 31/12/2024
+No Telp.: 08123456789
+Tanggal Daftar: 01/01/2023
+Coverage: Kel. Contoh
+Alamat: Jl. Contoh No. 456
+User PPPOE_RADIUS: user123
+Pemakaian Bulan Ini (GB): 120
+ODC: ODC-01
+ODP: ODP-02
+Port ODP: 3
+OLT SN/MAC: OLT-1234
+Last DBM: -20
+Last DBM Time: 10:00
+Nama WiFi (SSID): Wifi_Example
+Sandi WiFi: password123
+Keterangan: Masalah koneksi
+Router: ZTE"></textarea>
             <button class="btn-generate" onclick="generatePreview()">⚡ Generate Smart Preview</button>
         </div>
 
@@ -602,7 +637,7 @@
             <div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>
         </div>
 
-        <button class="btn-add-list" onclick="saveBulkTickets()">➕ Tambahkan Semua ke List</button>
+        <button class="btn-add-list" onclick="saveBulkTickets()">📥 Masukkan ke List</button>
     </div>
 </div>
 
@@ -2040,126 +2075,99 @@
         saveDataToFirebase();
     }
 
-    // --- PERBAIKAN FUNGSI GENERATE PREVIEW ---
+    // =================================================================
+    // FUNGSI UTAMA YANG DIPERBAIKI: generatePreview() untuk parsing format tiket
+    // =================================================================
+    
     window.generatePreview = function() {
         const raw = document.getElementById('bulk-input-text').value;
         const container = document.getElementById('preview-container');
-        container.innerHTML = ''; 
+        container.innerHTML = '';
 
         if (!raw.trim()) { 
             alert("Paste data dulu!"); 
             return; 
         }
 
-        // Pisahkan berdasarkan blok tiket (berdasarkan pattern "Jam:" di awal)
-        const lines = raw.trim().split('\n');
-        let blocks = [];
-        let currentBlock = [];
-        
-        for (let line of lines) {
-            line = line.trim();
-            if (line === '') continue;
-            
-            // Jika baris dimulai dengan "Jam:" atau "Kendala:" (untuk MT), mulai blok baru
-            if (line.startsWith('Jam:') || line.startsWith('Kendala:')) {
-                if (currentBlock.length > 0) {
-                    blocks.push(currentBlock.join('\n'));
-                    currentBlock = [];
-                }
-            }
-            currentBlock.push(line);
-        }
-        
-        // Tambahkan blok terakhir
-        if (currentBlock.length > 0) {
-            blocks.push(currentBlock.join('\n'));
-        }
-
-        // Jika tidak ada blok yang terdeteksi dengan pattern di atas, gunakan metode lama
-        if (blocks.length === 0) {
-            // Coba metode lama: berdasarkan "Nama Lengkap" atau "Nama Pelanggan"
-            blocks = raw.split(/(?=(?:Nama Lengkap|Nama Pelanggan)\s*[:=])/gi).filter(b => b.trim().length > 10);
-        }
-
-        if (blocks.length === 0) {
-            alert("❌ Format tidak dikenali!\nPastikan format sesuai dengan template PSB atau MT.");
-            return;
-        }
-
+        // Pisahkan tiket berdasarkan baris kosong ganda
+        const tickets = raw.split(/\n\s*\n/);
         let psbCount = 0;
         let mtCount = 0;
         let isolirCount = 0;
 
-        blocks.forEach((block, index) => {
-            if (block.match(/Nama Lengkap\s*[:=]/i)) {
-                createPSBCard(block, index, container);
+        tickets.forEach((ticketText, index) => {
+            ticketText = ticketText.trim();
+            if (!ticketText) return;
+
+            // Deteksi jenis tiket berdasarkan field yang ada
+            const lines = ticketText.split('\n');
+            const firstLine = lines[0].toLowerCase();
+            
+            // Cek jika ada field kendala atau field PSB
+            const hasKendala = ticketText.toLowerCase().includes('kendala:');
+            const hasNamaLengkap = ticketText.toLowerCase().includes('nama lengkap :');
+            
+            if (hasNamaLengkap) {
+                createPSBCard(ticketText, index, container);
                 psbCount++;
-            } else {
-                createMTCard(block, index, container);
-                if (block.match(/Kendala:\s*ISOLIR/i)) {
+            } else if (hasKendala) {
+                createMTCard(ticketText, index, container);
+                if (ticketText.toLowerCase().includes('kendala: isolir')) {
                     isolirCount++;
                 } else {
+                    mtCount++;
+                }
+            } else {
+                // Coba deteksi berdasarkan pola lain
+                if (ticketText.toLowerCase().includes('nama pelanggan:')) {
+                    createMTCard(ticketText, index, container);
+                    mtCount++;
+                } else {
+                    // Jika tidak ada yang cocok, anggap sebagai MT
+                    createMTCard(ticketText, index, container);
                     mtCount++;
                 }
             }
         });
 
-        alert(`✅ SMART GENERATE SELESAI!\nDitemukan:\n- ${psbCount} Tiket PSB\n- ${mtCount} Tiket MT (Lain)\n- ${isolirCount} Tiket ISOLIR`);
-    }
-
-    function parseMTBlock(block) {
-        const lines = block.split('\n');
-        const data = {};
-        
-        lines.forEach(line => {
-            line = line.trim();
-            if (line === '') return;
-            
-            // Mencari pattern "Label: Nilai"
-            const match = line.match(/^([^:]+):\s*(.+)$/);
-            if (match) {
-                const key = match[1].trim();
-                let value = match[2].trim();
-                
-                // Special handling for fields with || separator
-                if (value.includes('||')) {
-                    // Ambil bagian setelah || jika ada
-                    const parts = value.split('||');
-                    if (parts.length > 1) {
-                        value = parts[1].trim();
-                    }
-                }
-                
-                data[key] = value;
-            }
-        });
-        
-        return data;
-    }
-
-    function createPSBCard(block, index, container) {
-        const getValue = (label) => {
-            const regex = new RegExp(label + "\\s*[:=]\\s*(.*)", "i");
-            const match = block.match(regex);
-            return match ? match[1].trim() : "";
-        };
-
-        const nama = getValue("Nama Lengkap");
-        const alamat = getValue("Alamat Lengkap");
-        const email = getValue("Email Aktif");
-        
-        let wa = getValue("No. WA");
-        const waDigits = wa.replace(/\D/g, ''); 
-        if (waDigits.length < 6) { 
-            wa = "-"; 
+        if (psbCount === 0 && mtCount === 0 && isolirCount === 0) {
+            alert("❌ Tidak ada tiket yang terdeteksi. Periksa format data!");
+        } else {
+            alert(`✅ SMART GENERATE SELESAI!\nDitemukan:\n- ${psbCount} Tiket PSB\n- ${mtCount} Tiket MT (Lain)\n- ${isolirCount} Tiket ISOLIR`);
         }
-        
-        const paket = getValue("Paket Layanan");
-        const ktp = getValue("No KTP");
-        const tgl = getValue("Tanggal Pemasangan");
-        const statusRumah = getValue("Status kepemilikan rumah") || getValue("Status Rumah") || "";
-        const setujuBerlangganan = getValue("Setuju berlangganan minimal 1 tahun") || "";
-        const referensi = getValue("Referensi") || getValue("Refrensi SRB dari") || "";
+    }
+
+    // Fungsi helper untuk mengambil nilai dari field dengan format "Label: Nilai"
+    function getFieldValue(text, fieldName) {
+        const lines = text.split('\n');
+        for (let line of lines) {
+            line = line.trim();
+            if (line.toLowerCase().startsWith(fieldName.toLowerCase())) {
+                // Ambil bagian setelah ":"
+                const separatorIndex = line.indexOf(':');
+                if (separatorIndex !== -1) {
+                    let value = line.substring(separatorIndex + 1).trim();
+                    // Jika kosong, kembalikan "-"
+                    return value === "" ? "-" : value;
+                }
+            }
+        }
+        return "-";
+    }
+
+    // Fungsi untuk membuat card PSB
+    function createPSBCard(text, index, container) {
+        const jam = getFieldValue(text, 'Jam');
+        const nama = getFieldValue(text, 'Nama Lengkap');
+        const alamat = getFieldValue(text, 'Alamat Lengkap');
+        const email = getFieldValue(text, 'Email Aktif');
+        const wa = getFieldValue(text, 'No. Wa') || getFieldValue(text, 'No. WA');
+        const paket = getFieldValue(text, 'Paket Layanan');
+        const referensi = getFieldValue(text, 'Referensi');
+        const ktp = getFieldValue(text, 'No KTP');
+        const tgl = getFieldValue(text, 'Tanggal pemasangan');
+        const statusRumah = getFieldValue(text, 'Status Rumah');
+        const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun');
 
         const card = document.createElement('div');
         card.className = 'preview-card preview-psb';
@@ -2167,8 +2175,8 @@
             <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
             <h4 style="color:#007bff;">Ticket PSB #${index + 1}: ${nama}</h4>
             <div class="form-group">
-                <label>Jam Kunjungan (Wajib Diisi Manual)</label>
-                <input type="text" class="bulk-input-jam" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;">
+                <label>Jam Kunjungan</label>
+                <input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required>
             </div>
             <div class="preview-grid">
                 <input type="hidden" class="bulk-type" value="PSB">
@@ -2181,235 +2189,292 @@
                 <div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div>
                 <div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
                 <div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div>
-                <div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setujuBerlangganan}"></div>
+                <div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setuju}"></div>
             </div>
         `;
         container.appendChild(card);
     }
 
-    function createMTCard(block, index, container) {
-        const data = parseMTBlock(block);
-        
-        // Ambil jam dari data atau default "FLEXIBEL"
-        let jam = data['Jam'] || "FLEXIBEL";
-        // Jika jam mengandung "FLEKSIBEL" (salah ketik), ubah ke "FLEXIBEL"
-        if (jam.toUpperCase().includes('FLEKSIBEL')) {
-            jam = "FLEXIBEL";
-        }
-        
-        // Ambil kendala
-        let kendala = data['Kendala'] || "MT (Lain)";
-        // Deteksi ISOLIR
-        const isIsolir = kendala.toUpperCase().includes('ISOLIR');
-        if (isIsolir) {
-            kendala = "ISOLIR";
-        }
-        
-        // Ambil nama pelanggan
-        const nama = data['Nama Pelanggan'] || '';
-        
-        // Field mapping untuk MT
-        const fields = [
-            { key: 'Nama Pelanggan', className: 'bulk-nama' },
-            { key: 'No Layanan', className: 'bulk-layanan' },
-            { key: 'Masa Aktif s/d', className: 'bulk-masa-aktif' },
-            { key: 'No Telp.', className: 'bulk-telp' },
-            { key: 'Tanggal Daftar', className: 'bulk-tgl-daftar' },
-            { key: 'Coverage', className: 'bulk-coverage' },
-            { key: 'Alamat', className: 'bulk-alamat' },
-            { key: 'User PPPOE_RADIUS', className: 'bulk-pppoe' },
-            { key: 'Pemakaian Bulan Ini (GB)', className: 'bulk-pemakaian' },
-            { key: 'ODC', className: 'bulk-odc' },
-            { key: 'ODP', className: 'bulk-odp' },
-            { key: 'Port ODP', className: 'bulk-port-odp' },
-            { key: 'OLT SN/MAC', className: 'bulk-olt-sn' },
-            { key: 'Last DBM', className: 'bulk-last-dbm' },
-            { key: 'Last DBM Time', className: 'bulk-last-dbm-time' },
-            { key: 'Nama WiFi (SSID)', className: 'bulk-ssid' },
-            { key: 'Sandi WiFi', className: 'bulk-sandi-wifi' },
-            { key: 'Keterangan', className: 'bulk-keterangan' },
-            { key: 'Router', className: 'bulk-router' }
-        ];
+    // Fungsi untuk membuat card MT/ISOLIR
+    function createMTCard(text, index, container) {
+        const jam = getFieldValue(text, 'Jam');
+        const kendala = getFieldValue(text, 'Kendala');
+        const nama = getFieldValue(text, 'Nama Pelanggan');
+        const noLayanan = getFieldValue(text, 'No Layanan');
+        const masaAktif = getFieldValue(text, 'Masa Aktif s/d');
+        const noTelp = getFieldValue(text, 'No Telp.');
+        const tglDaftar = getFieldValue(text, 'Tanggal Daftar');
+        const coverage = getFieldValue(text, 'Coverage');
+        const alamat = getFieldValue(text, 'Alamat');
+        const pppoe = getFieldValue(text, 'User PPPOE_RADIUS');
+        const pemakaian = getFieldValue(text, 'Pemakaian Bulan Ini (GB)');
+        const odc = getFieldValue(text, 'ODC');
+        const odp = getFieldValue(text, 'ODP');
+        const portOdp = getFieldValue(text, 'Port ODP');
+        const oltSn = getFieldValue(text, 'OLT SN/MAC');
+        const lastDBM = getFieldValue(text, 'Last DBM');
+        const lastDBMTime = getFieldValue(text, 'Last DBM Time');
+        const ssid = getFieldValue(text, 'Nama WiFi (SSID)');
+        const sandiWifi = getFieldValue(text, 'Sandi WiFi');
+        const keterangan = getFieldValue(text, 'Keterangan');
+        const router = getFieldValue(text, 'Router');
+
+        const isIsolir = kendala.toLowerCase().includes('isolir');
 
         const card = document.createElement('div');
         card.className = isIsolir ? 'preview-card preview-isolir' : 'preview-card preview-mt';
-        
-        let cardHTML = `
+        card.innerHTML = `
             <button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
             <h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Lain)'} #${index + 1}: ${nama}</h4>
             <div class="form-group">
                 <label>Jam Kunjungan</label>
-                <input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};">
+                <input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required>
             </div>
             <div class="preview-grid">
                 <input type="hidden" class="bulk-type" value="MT">
                 <div class="input-group"><label>Kendala</label><input type="text" class="bulk-kendala" value="${kendala}" required></div>
+                <div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${nama}"></div>
+                <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${noLayanan}"></div>
+                <div class="input-group"><label>Masa Aktif s/d</label><input type="text" class="bulk-masa-aktif" value="${masaAktif}"></div>
+                <div class="input-group"><label>No Telp.</label><input type="text" class="bulk-telp" value="${noTelp}"></div>
+                <div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${tglDaftar}"></div>
+                <div class="input-group"><label>Coverage</label><input type="text" class="bulk-coverage" value="${coverage}"></div>
+                <div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div>
+                <div class="input-group"><label>User PPPOE_RADIUS</label><input type="text" class="bulk-pppoe" value="${pppoe}"></div>
+                <div class="input-group"><label>Pemakaian Bulan Ini (GB)</label><input type="text" class="bulk-pemakaian" value="${pemakaian}"></div>
+                <div class="input-group"><label>ODC</label><input type="text" class="bulk-odc" value="${odc}"></div>
+                <div class="input-group"><label>ODP</label><input type="text" class="bulk-odp" value="${odp}"></div>
+                <div class="input-group"><label>Port ODP</label><input type="text" class="bulk-port-odp" value="${portOdp}"></div>
+                <div class="input-group"><label>OLT SN/MAC</label><input type="text" class="bulk-olt-sn" value="${oltSn}"></div>
+                <div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${lastDBM}"></div>
+                <div class="input-group"><label>Last DBM Time</label><input type="text" class="bulk-last-dbm-time" value="${lastDBMTime}"></div>
+                <div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${ssid}"></div>
+                <div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div>
+                <div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div>
+                <div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div>
+            </div>
         `;
-
-        // Tambahkan field-field lainnya
-        fields.forEach(field => {
-            const value = data[field.key] || '';
-            cardHTML += `
-                <div class="input-group"><label>${field.key}</label><input type="text" class="${field.className}" value="${value}"></div>
-            `;
-        });
-
-        cardHTML += `</div></div>`;
-        card.innerHTML = cardHTML;
         container.appendChild(card);
     }
 
+ // =================================================================
+    // FUNGSI UTAMA: saveBulkTickets() (VERSI FIX ERROR FIREBASE KEY)
+    // =================================================================
+    
     window.saveBulkTickets = function() {
+        console.log("Memulai proses simpan tiket...");
+
+        // --- [FIX 1: PERBAIKAN STRUKTUR DATA OTOMATIS] ---
+        if (!teams || !Array.isArray(teams)) {
+            console.warn("Mendeteksi kerusakan struktur data teams (Object detected). Memperbaiki...");
+            if (teams && typeof teams === 'object') {
+                teams = Object.values(teams).filter(t => t !== null && t !== undefined);
+            } else {
+                teams = [];
+            }
+        }
+        // -----------------------------------------------------
+
         const previewCards = document.querySelectorAll('.preview-card');
-        if(previewCards.length === 0) { alert("Generate preview dulu!"); return; }
+        if(previewCards.length === 0) { 
+            alert("⚠️ Generate preview dulu sebelum menyimpan!"); 
+            return; 
+        }
 
         const t1 = document.getElementById('tech-1').value;
         const t2 = document.getElementById('tech-2').value;
 
-        if(!t1) { alert("Pilih minimal Teknisi 1!"); return; }
-
-        let selectedMembers = [t1.toLowerCase()];
-        if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
-        selectedMembers.sort(); 
-
-        let targetTeamIndex = teams.findIndex(team => {
-            return JSON.stringify(team.members.sort()) === JSON.stringify(selectedMembers);
-        });
-
-        if (targetTeamIndex === -1) {
-            const newId = Date.now(); 
-            const colorIndex = (teams.length) % extraColors.length; 
-            
-            const usedNumbers = teams.map(t => {
-                const match = t.teamName.match(/Tim\s+(\d+)/i);
-                return match ? parseInt(match[1]) : 0;
-            });
-            
-            let nextNum = 1;
-            while (usedNumbers.includes(nextNum)) {
-                nextNum++;
-            }
-            
-            const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`;
-
-            const newTeamObj = {
-                id: newId,
-                teamName: teamNameStr,
-                colorClass: extraColors[colorIndex] || "bg-dark",
-                members: selectedMembers,
-                jobs: [],
-                inventory: []
-            };
-            teams.push(newTeamObj);
-            targetTeamIndex = teams.length - 1;
+        if(!t1) { 
+            alert("⚠️ Pilih minimal Teknisi 1!"); 
+            return; 
         }
 
-        let count = 0;
-        previewCards.forEach(card => {
-            const type = card.querySelector('.bulk-type').value;
-            const jam = card.querySelector('.bulk-input-jam').value || "FLEXIBEL";
-            const nama = card.querySelector('.bulk-nama').value || "Tanpa Nama";
-            const alamat = card.querySelector('.bulk-alamat').value || "-";
+        try {
+            // Persiapan pencarian tim
+            let selectedMembers = [t1.toLowerCase()];
+            if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
+            selectedMembers.sort(); 
 
-            let newJob = {};
+            // Cari tim yang cocok
+            let targetTeamIndex = teams.findIndex(team => {
+                const members = team.members ? team.members : [];
+                return JSON.stringify(members.sort()) === JSON.stringify(selectedMembers);
+            });
 
-            if(type === 'PSB') {
-                const email = card.querySelector('.bulk-email').value;
-                const wa = card.querySelector('.bulk-wa').value;
-                const paket = card.querySelector('.bulk-paket').value;
-                const referensi = card.querySelector('.bulk-referensi').value;
-                const ktp = card.querySelector('.bulk-ktp').value;
-                const tgl = card.querySelector('.bulk-tgl').value;
-                const statusRumah = card.querySelector('.bulk-status-rumah').value;
-                const setuju = card.querySelector('.bulk-setuju').value;
+            // Jika tim tidak ditemukan, buat tim baru
+            if (targetTeamIndex === -1) {
+                const newId = Date.now(); 
+                const colorIndex = (teams.length) % extraColors.length; 
+                
+                const usedNumbers = teams.map(t => {
+                    const match = (t.teamName || "").match(/Tim\s+(\d+)/i);
+                    return match ? parseInt(match[1]) : 0;
+                });
+                
+                let nextNum = 1;
+                while (usedNumbers.includes(nextNum)) { nextNum++; }
+                
+                const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`;
 
-                newJob = {
-                    completed: false,
-                    status: 'pending',
-                    completedAt: null, 
-                    technical: {},
-                    name: nama,
-                    tag: `PSB (${paket})`,
-                    tagClass: "badge-psb",
-                    time: jam,
-                    address: alamat,
-                    details: { 
-                        "Paket": paket, 
-                        "Email": email, 
-                        "No WA": wa, 
-                        "Referensi": referensi,
-                        "No KTP": ktp, 
-                        "Status Rumah": statusRumah, 
-                        "Setuju Berlangganan": setuju,
-                        "Tgl Pasang": tgl 
-                    }
+                const newTeamObj = {
+                    id: newId,
+                    teamName: teamNameStr,
+                    colorClass: extraColors[colorIndex] || "bg-dark",
+                    members: selectedMembers,
+                    jobs: [],
+                    inventory: []
                 };
-            } else {
-                const kendala = card.querySelector('.bulk-kendala').value;
-                const layanan = card.querySelector('.bulk-layanan').value;
-                const masaAktif = card.querySelector('.bulk-masa-aktif').value;
-                const telp = card.querySelector('.bulk-telp').value;
-                const tglDaftar = card.querySelector('.bulk-tgl-daftar').value;
-                const coverage = card.querySelector('.bulk-coverage').value;
-                const pppoe = card.querySelector('.bulk-pppoe').value;
-                const pemakaian = card.querySelector('.bulk-pemakaian').value;
-                const odc = card.querySelector('.bulk-odc').value;
-                const odp = card.querySelector('.bulk-odp').value;
-                const portOdp = card.querySelector('.bulk-port-odp').value;
-                const oltSn = card.querySelector('.bulk-olt-sn').value;
-                const lastDBM = card.querySelector('.bulk-last-dbm').value;
-                const lastDBMTime = card.querySelector('.bulk-last-dbm-time').value;
-                const ssid = card.querySelector('.bulk-ssid').value;
-                const sandiWifi = card.querySelector('.bulk-sandi-wifi').value;
-                const keterangan = card.querySelector('.bulk-keterangan').value;
-                const router = card.querySelector('.bulk-router').value;
-
-                // Buat object details hanya dengan field yang terisi
-                let details = {};
-                details["Kendala"] = kendala; // Wajib ada
-                if (layanan) details["Layanan"] = layanan;
-                if (masaAktif) details["Masa Aktif s/d"] = masaAktif;
-                if (telp) details["No Telp"] = telp;
-                if (tglDaftar) details["Tgl Daftar"] = tglDaftar;
-                if (coverage) details["Coverage"] = coverage;
-                if (pppoe) details["User PPPOE_RADIUS"] = pppoe;
-                if (pemakaian) details["Pemakaian Bulan Ini (GB)"] = pemakaian;
-                if (odc) details["ODC"] = odc;
-                if (odp) details["ODP"] = odp;
-                if (portOdp) details["Port ODP"] = portOdp;
-                if (oltSn) details["OLT SN/MAC"] = oltSn;
-                if (lastDBM) details["Last DBM"] = lastDBM;
-                if (lastDBMTime) details["Last DBM Time"] = lastDBMTime;
-                if (ssid) details["Nama WiFi (SSID)"] = ssid;
-                if (sandiWifi) details["Sandi WiFi"] = sandiWifi;
-                if (keterangan) details["Keterangan"] = keterangan;
-                if (router) details["Router"] = router;
-
-                newJob = {
-                    completed: false,
-                    status: 'pending',
-                    completedAt: null,
-                    technical: {},
-                    name: nama,
-                    tag: kendala,
-                    tagClass: kendala.toUpperCase().includes("ISOLIR") ? "badge-isolir" : "badge-mt",
-                    time: jam,
-                    address: alamat,
-                    details: details
-                };
+                
+                teams.push(newTeamObj);
+                targetTeamIndex = teams.length - 1;
             }
 
-            teams[targetTeamIndex].jobs.push(newJob);
-            count++;
-        });
+            // --- [FIX 2: PASTIKAN ARRAY JOBS ADA] ---
+            if (!teams[targetTeamIndex]) {
+                throw new Error("Gagal mengakses index tim baru. Silakan refresh halaman.");
+            }
+            if (!teams[targetTeamIndex].jobs || !Array.isArray(teams[targetTeamIndex].jobs)) {
+                teams[targetTeamIndex].jobs = [];
+            }
+            // ----------------------------------------
 
-        saveDataToFirebase();
-        closeCreateTicketModal();
-        alert(`✅ Berhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}`);
-        
-        document.getElementById('bulk-input-text').value = '';
-        document.getElementById('preview-container').innerHTML = '';
-    }
+            let count = 0;
+            
+            previewCards.forEach((card, cardIndex) => {
+                const type = card.querySelector('.bulk-type').value;
+                const jamInput = card.querySelector('.bulk-input-jam');
+                const jam = jamInput ? jamInput.value.trim() : "FLEXIBEL";
+                
+                const getValue = (selector) => {
+                    const el = card.querySelector(selector);
+                    return el ? el.value.trim() : '';
+                };
+
+                const nama = getValue('.bulk-nama');
+                const alamat = getValue('.bulk-alamat');
+
+                let newJob = {};
+
+                if(type === 'PSB') {
+                    // PSB Data
+                    const email = getValue('.bulk-email');
+                    const wa = getValue('.bulk-wa');
+                    const paket = getValue('.bulk-paket');
+                    const referensi = getValue('.bulk-referensi');
+                    const ktp = getValue('.bulk-ktp');
+                    const tgl = getValue('.bulk-tgl');
+                    const statusRumah = getValue('.bulk-status-rumah');
+                    const setuju = getValue('.bulk-setuju');
+
+                    newJob = {
+                        completed: false,
+                        status: 'pending',
+                        completedAt: null, 
+                        technical: {},
+                        name: nama || '-',
+                        tag: `PSB (${paket || '150rb'})`,
+                        tagClass: "badge-psb",
+                        time: jam || "FLEXIBEL",
+                        address: alamat || '-',
+                        details: { 
+                            "Paket": paket || '-', 
+                            "Email": email || '-', 
+                            "No WA": wa || '-', 
+                            "Referensi": referensi || '-',
+                            "No KTP": ktp || '-', 
+                            "Status Rumah": statusRumah || '-', 
+                            "Setuju Berlangganan": setuju || '-',
+                            "Tgl Pasang": tgl || '-' 
+                        }
+                    };
+                } else {
+                    // MT/ISOLIR Data
+                    const kendala = getValue('.bulk-kendala');
+                    const layanan = getValue('.bulk-layanan');
+                    const masaAktif = getValue('.bulk-masa-aktif');
+                    const telp = getValue('.bulk-telp');
+                    const tglDaftar = getValue('.bulk-tgl-daftar');
+                    const coverage = getValue('.bulk-coverage');
+                    const pppoe = getValue('.bulk-pppoe');
+                    const pemakaian = getValue('.bulk-pemakaian');
+                    const odc = getValue('.bulk-odc');
+                    const odp = getValue('.bulk-odp');
+                    const portOdp = getValue('.bulk-port-odp');
+                    const oltSn = getValue('.bulk-olt-sn');
+                    const lastDBM = getValue('.bulk-last-dbm');
+                    const lastDBMTime = getValue('.bulk-last-dbm-time');
+                    const ssid = getValue('.bulk-ssid');
+                    const sandiWifi = getValue('.bulk-sandi-wifi');
+                    const keterangan = getValue('.bulk-keterangan');
+                    const router = getValue('.bulk-router');
+
+                    // --- [FIX 3: PENAMAAN KEY YANG AMAN UNTUK FIREBASE] ---
+                    // Mengganti nama key yang mengandung '/' atau '.'
+                    let details = {};
+                    details["Kendala"] = kendala || '-';
+                    if (layanan) details["Layanan"] = layanan;
+                    
+                    // PERBAIKAN: "Masa Aktif s/d" -> "Masa Aktif" (Hapus /)
+                    if (masaAktif) details["Masa Aktif"] = masaAktif; 
+                    
+                    // PERBAIKAN: "No Telp." -> "No Telp" (Hapus titik)
+                    if (telp) details["No Telp"] = telp; 
+                    
+                    if (tglDaftar) details["Tgl Daftar"] = tglDaftar;
+                    if (coverage) details["Coverage"] = coverage;
+                    if (pppoe) details["User PPPOE_RADIUS"] = pppoe;
+                    if (pemakaian) details["Pemakaian Bulan Ini (GB)"] = pemakaian;
+                    if (odc) details["ODC"] = odc;
+                    if (odp) details["ODP"] = odp;
+                    if (portOdp) details["Port ODP"] = portOdp;
+                    
+                    // PERBAIKAN: "OLT SN/MAC" -> "OLT SN-MAC" (Ganti / jadi -)
+                    if (oltSn) details["OLT SN-MAC"] = oltSn;
+                    
+                    if (lastDBM) details["Last DBM"] = lastDBM;
+                    if (lastDBMTime) details["Last DBM Time"] = lastDBMTime;
+                    if (ssid) details["Nama WiFi (SSID)"] = ssid;
+                    if (sandiWifi) details["Sandi WiFi"] = sandiWifi;
+                    if (keterangan) details["Keterangan"] = keterangan;
+                    if (router) details["Router"] = router;
+
+                    newJob = {
+                        completed: false,
+                        status: 'pending',
+                        completedAt: null,
+                        technical: {},
+                        name: nama || '-',
+                        tag: kendala || 'MT (Lain)',
+                        tagClass: (kendala && kendala.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt",
+                        time: jam || "FLEXIBEL",
+                        address: alamat || '-',
+                        details: details
+                    };
+                }
+
+                teams[targetTeamIndex].jobs.push(newJob);
+                count++;
+            });
+
+            if (count > 0) {
+                saveDataToFirebase();
+                
+                closeCreateTicketModal();
+                alert(`✅ SUKSES!\nBerhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}.`);
+                
+                document.getElementById('bulk-input-text').value = '';
+                document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
+                
+                renderJobs();
+            } else {
+                alert("⚠️ Gagal memproses tiket. Data input mungkin tidak valid.");
+            }
+
+        } catch (error) {
+            console.error("CRITICAL ERROR:", error);
+            alert("❌ TERJADI ERROR SYSTEM:\n" + error.message + "\n\nCoba refresh halaman dan coba lagi.");
+        }
+    };
 
     function parseAddress(addr) {
         const rtMatch = addr.match(/RT\s*[\.\:\-\/]?\s*0?(\d+)/i);
