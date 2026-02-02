@@ -14,6 +14,63 @@
             background-color: #f4f6f9; padding: 10px; color: #333; margin: 0; font-size: 14px;
         }
 
+        /* --- LANDING PAGE / LOGIN MODE STYLE --- */
+        #landing-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 20px;
+            overflow-y: auto;
+        }
+        .landing-box {
+            background: white; width: 100%; max-width: 450px;
+            padding: 25px; border-radius: 15px; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative; /* Untuk positioning tombol admin */
+        }
+        .landing-title { font-size: 1.4rem; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .landing-subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+        
+        /* TOMBOL ADMIN KECIL */
+        .btn-mini-admin {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 50px;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            color: #666;
+            font-weight: bold;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .btn-mini-admin:hover { background: #e2e6ea; color: #333; }
+
+        .tech-list-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-top: 10px; width: 100%;
+        }
+        .btn-select-team {
+            background: white; border: 1px solid #ddd; padding: 15px;
+            border-radius: 10px; font-weight: bold; color: #333;
+            cursor: pointer; text-align: center; font-size: 0.95rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+        .btn-select-team:hover { border-color: #007bff; transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+        .btn-select-team:active { background: #f0f7ff; border-color: #007bff; color: #007bff; transform: scale(0.98); }
+        .btn-select-team span { display: block; font-size: 0.8rem; color: #888; margin-top: 3px; font-weight: normal;}
+
+        /* --- TOMBOL KEMBALI DI HEADER (MODE TEKNISI) --- */
+        .btn-back-home {
+            background: #6c757d; color: white; border: none; padding: 8px 15px;
+            border-radius: 50px; font-weight: bold; cursor: pointer;
+            display: none; /* Default hidden via CSS, showed via JS */
+            margin-bottom: 15px; width: 100%;
+        }
+
         /* --- STRIKETHROUGH STYLE KHUSUS --- */
         .text-coret {
             text-decoration: line-through;
@@ -45,7 +102,7 @@
         .btn-unlock-all:hover { background: #e0a800; }
 
         /* --- LAYOUT CONTAINER --- */
-        .container { max-width: 1000px; margin: 0 auto; width: 100%; }
+        .container { max-width: 1000px; margin: 0 auto; width: 100%; display: none; /* Default hidden sampai pilih mode */ }
         
         .header-section { 
             display: flex; flex-direction: column; align-items: center; 
@@ -279,6 +336,7 @@
             
             /* Grid Input jadi 1 kolom di HP */
             .input-grid, .preview-grid, .tech-select-container { grid-template-columns: 1fr; }
+            .tech-list-grid { grid-template-columns: 1fr; }
             
             /* Tabel scrollable */
             .table-stock { font-size: 0.8rem; }
@@ -288,18 +346,188 @@
             .gudang-select { width: 100%; margin-bottom: 5px; }
             .btn-send-team { width: 100%; }
         }
+
+        /* --- STYLE TAMBAHAN UNTUK MAPS & FOTO --- */
+        .maps-section {
+            display: flex; gap: 8px; align-items: center; margin-top: 8px;
+            background: #eef2f5; padding: 8px; border-radius: 6px; border: 1px solid #dee2e6;
+            flex-wrap: wrap;
+        }
+        .btn-maps {
+            background: #fff; border: 1px solid #198754; color: #198754;
+            padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem;
+            text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-maps:hover { background: #198754; color: white; }
+        
+        .btn-view-photo {
+            background: #fff; border: 1px solid #6f42c1; color: #6f42c1;
+            padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem;
+            text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer;
+        }
+        .btn-view-photo:hover { background: #6f42c1; color: white; }
+        
+        /* Tombol Maps dengan Jarak */
+        .btn-maps-distance {
+            background: #fff; border: 1px solid #0d6efd; color: #0d6efd;
+            padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem;
+            text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-maps-distance:hover { background: #0d6efd; color: white; }
+        .btn-maps-distance.distance-near { border-color: #198754; color: #198754; }
+        .btn-maps-distance.distance-medium { border-color: #ffc107; color: #856404; }
+        .btn-maps-distance.distance-far { border-color: #dc3545; color: #dc3545; }
+
+        /* Modal Foto */
+        .photo-modal-content {
+            max-width: 90%;
+            max-height: 90vh;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .photo-display {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+        
+        /* Area Paste Foto */
+        .photo-paste-area {
+            width: 100%;
+            min-height: 150px;
+            border: 2px dashed #6f42c1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 0.9rem;
+            background: #f8f9fa;
+            cursor: pointer;
+            text-align: center;
+            padding: 20px;
+            margin-top: 10px;
+        }
+        
+        .photo-paste-area:hover {
+            background: #f0f7ff;
+        }
+        
+        .photo-paste-area.paste-ready {
+            border-color: #28a745;
+            background: #e8f5e9;
+        }
+        
+        /* Admin Maps Input Section */
+        .admin-maps-section {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #cce5ff;
+            margin-top: 10px;
+        }
+        
+        .admin-maps-section h4 {
+            margin: 0 0 10px 0;
+            color: #198754;
+            font-size: 0.9rem;
+        }
+        
+        .admin-maps-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .admin-maps-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Filter Section untuk Mode Teknisi */
+        .tech-filter-section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .filter-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        /* Sorting Indicator */
+        .sort-indicator {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="landing-overlay">
+    <div class="landing-box">
+        <button class="btn-mini-admin" onclick="enterAdminMode()">🔒 Admin</button>
+
+        <div class="landing-title">👋 Halo, Sinyalku Team!</div>
+        <div class="landing-subtitle">Silakan pilih tim Anda untuk melanjutkan:</div>
+        
+        <div id="loading-text" style="margin-top:20px; color:#888;">Menghubungkan ke database...</div>
+
+        <div class="tech-list-grid" id="landing-tech-grid" style="display:none;">
+            <!-- Daftar tim akan diisi oleh JavaScript -->
+        </div>
+
+        <div id="landing-empty-msg" style="display:none; color:#999; font-style:italic; margin-top:20px;">
+            Belum ada tiket aktif saat ini.
+        </div>
+    </div>
+</div>
+
+<div class="container" id="main-app-container">
     <div class="header-section">
+        <button class="btn-back-home" id="btn-back-tech" onclick="exitTechMode()">⬅️ Kembali / Ganti Tim</button>
         <h1>
             📋 Monitoring Teknisi<br>
             <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V6.0</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
-        <div class="btn-group-header">
+        
+        <div class="btn-group-header" id="admin-menu-group">
             <button class="btn-action-main btn-ticket" onclick="openTicketOption()">📝 Buat Tiket</button>
             <button class="btn-action-main btn-gudang" onclick="openGudangModal()">🏭 Gudang Modem</button>
             <button class="btn-action-main btn-copy-all" onclick="copyAllSummary()">📑 Copy Rekap</button>
@@ -311,8 +539,65 @@
         </div>
     </div>
 
+    <!-- FILTER SECTION UNTUK MODE TEKNISI -->
+    <div id="filter-container" style="text-align:center; margin-bottom:15px; display:none;">
+        <div class="tech-filter-section">
+            <button class="filter-btn" onclick="sortJobsByDistance('asc')" id="btn-sort-distance-asc">
+                📍 Jarak Terdekat
+            </button>
+            <button class="filter-btn" onclick="sortJobsByDistance('desc')" id="btn-sort-distance-desc">
+                📍 Jarak Terjauh
+            </button>
+            <button class="filter-btn" onclick="sortJobsByTime('asc')" id="btn-sort-time-asc">
+                🕒 Waktu (Pagi-Sore)
+            </button>
+            <button class="filter-btn" onclick="sortJobsByTime('desc')" id="btn-sort-time-desc">
+                🕒 Waktu (Sore-Pagi)
+            </button>
+            <button class="filter-btn" onclick="resetSorting()" id="btn-sort-reset">
+                🔄 Reset Urutan
+            </button>
+        </div>
+        <div id="sort-indicator" class="sort-indicator"></div>
+    </div>
+
     <div id="teams-container">
         <p style="text-align: center; color: #888;">Memuat data...</p>
+    </div>
+</div>
+
+<!-- Modal Foto (MODIFIED UNTUK PASTE FOTO) -->
+<div id="modalPhoto" class="modal">
+    <div class="modal-content photo-modal-content">
+        <span class="close-modal" onclick="closePhotoModal()">&times;</span>
+        <h3 style="margin-top:0; color:#6f42c1;">🖼️ Foto Depan Rumah</h3>
+        <img id="modal-photo-img" class="photo-display" src="" alt="Foto Rumah">
+        
+        <!-- AREA PASTE FOTO UNTUK ADMIN -->
+        <div id="photo-paste-section" style="display: none; width: 100%; margin-top: 15px;">
+            <h4 style="color:#6f42c1; margin-bottom: 10px;">📋 Paste Foto (Admin Only)</h4>
+            <div id="photo-paste-area" class="photo-paste-area" onclick="this.focus()" contenteditable="true">
+                Klik disini lalu paste (Ctrl+V) foto dari clipboard...
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn-action-main" style="background-color: #28a745; padding: 8px 15px;" onclick="savePastedPhoto()">
+                    💾 Simpan Foto
+                </button>
+                <button class="btn-action-main" style="background-color: #6c757d; padding: 8px 15px;" onclick="clearPasteArea()">
+                    ❌ Hapus
+                </button>
+            </div>
+            <p style="font-size:0.8rem; color:#666; margin-top:10px;">
+                <strong>Petunjuk:</strong> Copy foto dari WhatsApp/chat (Ctrl+C), lalu klik area diatas dan paste (Ctrl+V)
+            </p>
+        </div>
+        
+        <!-- INFO UNTUK NON-ADMIN -->
+        <div id="photo-info-section" style="display: none; margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+            <p style="color:#666; font-size: 0.9rem; margin: 0;">
+                <strong>Info:</strong> Hanya admin yang dapat mengupload foto. Silakan hubungi admin untuk upload foto baru.
+            </p>
+        </div>
     </div>
 </div>
 
@@ -594,42 +879,7 @@
                 ✨ SMART INPUT (PSB / MT / ISOLIR)
             </label>
             <p style="font-size:0.75rem; color:#666; margin:3px 0 5px 0;">Paste tiket disini. Sistem akan otomatis mendeteksi format (Termasuk format ISOLIR baru).</p>
-            <textarea id="bulk-input-text" rows="8" placeholder="Contoh format PSB:
-Jam: 10:00
-Nama Lengkap : John Doe
-Alamat Lengkap : Jl. Contoh No. 123
-Email Aktif : john@example.com
-No. Wa: 08123456789
-Paket Layanan : Paket 150rb
-Referensi: Internet
-No KTP : 1234567890123456
-Tanggal pemasangan: 01/01/2024
-FOTO Depan Rumah :
-Status Rumah : Sewa
-Setuju berlangganan minimal 1 tahun: Ya
-
-Contoh format MT/ISOLIR:
-Jam: 14:00
-Kendala: ISOLIR
-Nama Pelanggan: Jane Smith
-No Layanan: 123456
-Masa Aktif s/d: 31/12/2024
-No Telp.: 08123456789
-Tanggal Daftar: 01/01/2023
-Coverage: Kel. Contoh
-Alamat: Jl. Contoh No. 456
-User PPPOE_RADIUS: user123
-Pemakaian Bulan Ini (GB): 120
-ODC: ODC-01
-ODP: ODP-02
-Port ODP: 3
-OLT SN/MAC: OLT-1234
-Last DBM: -20
-Last DBM Time: 10:00
-Nama WiFi (SSID): Wifi_Example
-Sandi WiFi: password123
-Keterangan: Masalah koneksi
-Router: ZTE"></textarea>
+            <textarea id="bulk-input-text" rows="8" placeholder="Paste format tiket disini..."></textarea>
             <button class="btn-generate" onclick="generatePreview()">⚡ Generate Smart Preview</button>
         </div>
 
@@ -642,33 +892,6 @@ Router: ZTE"></textarea>
 </div>
 
 <script type="module">
-
-    // --- FITUR BARU: BULK LOCK / UNLOCK ---
-    window.bulkLockAction = function(lockState) {
-        let actionName = lockState ? "MENGUNCI (LOCK)" : "MEMBUKA KUNCI (UNLOCK)";
-        let pin = prompt(`🔐 KEAMANAN MASSAL\n\nAnda akan ${actionName} SEMUA modem di tab ${currentGudangTab.toUpperCase()}.\nModem terkunci TIDAK BISA dihapus/diubah statusnya oleh sistem.\n\nMasukkan PIN Konfirmasi:`);
-        
-        if (pin !== "240525") {
-            alert("❌ PIN SALAH!");
-            return;
-        }
-
-        let count = 0;
-        gudangStock[currentGudangTab].forEach(item => {
-            item.isLocked = lockState;
-            count++;
-        });
-
-        saveGudangToFirebase();
-        renderGudangTable(currentGudangTab);
-        
-        let msg = lockState 
-            ? `🔒 Berhasil MENGUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.\nModem ini sekarang aman dari Reset/Hapus.` 
-            : `🔓 Berhasil MEMBUKA KUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.`;
-            
-        alert(msg);
-    }
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, update, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -696,6 +919,21 @@ Router: ZTE"></textarea>
     const extraColors = ["bg-orange", "bg-purple", "bg-teal", "bg-dark"];
     let teams = [];
     let gudangStock = { srb: [], syn: [] };
+
+    // --- STATE VIEW MODE ---
+    let appMode = 'landing'; // landing, admin, tech
+    let selectedTechIndex = -1; // -1 means no tech selected
+
+    // --- CURRENT PHOTO MODAL STATE ---
+    let currentPhotoTeamIndex = -1;
+    let currentPhotoJobIndex = -1;
+
+    // --- VARIABLE UNTUK GPS ---
+    let userPosition = null;
+    let gpsInitialized = false;
+    
+    // --- VARIABLE UNTUK SORTING ---
+    let currentSortType = 'default'; // 'default', 'distance_asc', 'distance_desc', 'time_asc', 'time_desc'
 
     // --- MAIN LOGIC START ---
 
@@ -744,6 +982,7 @@ Router: ZTE"></textarea>
             const data = snapshot.val();
             document.getElementById('connection-status').innerText = "✅ Terhubung Online (Data Tersimpan)";
             document.getElementById('connection-status').style.color = "green";
+            document.getElementById('loading-text').style.display = 'none'; // Sembunyikan loading text
             
             if (data) {
                 teams = data;
@@ -752,20 +991,25 @@ Router: ZTE"></textarea>
                 teams = JSON.parse(JSON.stringify(defaultTeams));
             }
 
-            const active = document.activeElement;
-            const isEditingText = active && (
-                active.tagName === 'TEXTAREA' || 
-                (active.tagName === 'INPUT' && (active.type === 'text' || active.type === 'number'))
-            );
+            // --- REVISI: LANGSUNG TAMPILKAN DAFTAR TIM ---
+            renderLandingTeams(); 
 
-            if (isEditingText) {
-                console.log("User sedang mengetik, menunda refresh UI...");
-                return;
-            }
-
-            if(gudangStock.srb || gudangStock.syn) {
+            // Jika sedang fokus di tim tertentu, pastikan data terupdate
+            if (appMode === 'tech' && selectedTechIndex !== -1) {
                 renderJobs();
+            } else if (appMode === 'admin') {
+                renderJobs();
+            }
+            
+            // Sync modem
+            if(gudangStock.srb || gudangStock.syn) {
                 syncInstalledModems();
+            }
+            
+            // Inisialisasi GPS setelah data dimuat
+            if (!gpsInitialized) {
+                initializeGeolocation();
+                gpsInitialized = true;
             }
         });
 
@@ -793,21 +1037,95 @@ Router: ZTE"></textarea>
                 renderGudangTable(currentGudangTab);
             }
             
-            const active = document.activeElement;
-            const isEditingText = active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text'));
-            
-            if (!isEditingText) {
+            // Refresh jobs untuk update stok di card tim
+            if (appMode !== 'landing') {
                 renderJobs();
             }
         });
+    }
+    
+    // --- FUNGSI BARU: RENDER TIM DI LANDING PAGE ---
+    function renderLandingTeams() {
+        if (appMode !== 'landing') return;
+
+        const container = document.getElementById('landing-tech-grid');
+        const noMsg = document.getElementById('landing-empty-msg');
+        
+        container.innerHTML = '';
+        container.style.display = 'grid'; // Pastikan visible
+        
+        let hasActiveTeams = false;
+
+        teams.forEach((team, index) => {
+            if (team.jobs && team.jobs.length > 0) {
+                hasActiveTeams = true;
+                const btn = document.createElement('div');
+                btn.className = 'btn-select-team';
+                btn.onclick = () => enterTechMode(index);
+                btn.innerHTML = `
+                    ${team.teamName}
+                    <span>(${team.jobs.length} Tiket)</span>
+                `;
+                container.appendChild(btn);
+            }
+        });
+
+        if (!hasActiveTeams) {
+            noMsg.style.display = 'block';
+        } else {
+            noMsg.style.display = 'none';
+        }
+    }
+
+    // --- LANDING PAGE LOGIC ---
+    window.enterAdminMode = function() {
+        let pin = prompt("🔒 Masukkan PIN Admin:");
+        if (pin === "240525") {
+            appMode = 'admin';
+            selectedTechIndex = -1;
+            document.getElementById('landing-overlay').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+            document.getElementById('admin-menu-group').style.display = 'flex'; // Show menus
+            document.getElementById('btn-back-tech').style.display = 'none'; // Hide back button
+            document.getElementById('filter-container').style.display = 'none'; // Hide filter for admin
+            renderJobs();
+        } else if (pin) {
+            alert("❌ PIN Salah!");
+        }
+    }
+
+    window.enterTechMode = function(index) {
+        appMode = 'tech';
+        selectedTechIndex = index;
+        document.getElementById('landing-overlay').style.display = 'none';
+        document.getElementById('main-app-container').style.display = 'block';
+        
+        // Hide Admin Menus
+        document.getElementById('admin-menu-group').style.display = 'none';
+        // Show Back Button
+        document.getElementById('btn-back-tech').style.display = 'block';
+        // Show Filter Section
+        document.getElementById('filter-container').style.display = 'block';
+        
+        // Reset sorting indicator
+        currentSortType = 'default';
+        updateSortIndicator();
+        
+        renderJobs();
+    }
+
+    window.exitTechMode = function() {
+        appMode = 'landing';
+        selectedTechIndex = -1;
+        document.getElementById('main-app-container').style.display = 'none';
+        document.getElementById('landing-overlay').style.display = 'flex';
+        renderLandingTeams(); // Refresh list di depan
     }
 
     // --- NEW FEATURE FUNCTIONS START ---
 
     // 1. OPEN SELECTION MODAL
     window.openTicketOption = function() {
-        let pin = prompt("🔒 Masukkan PIN untuk akses menu tiket:");
-        if (pin !== "240525") { alert("❌ PIN SALAH! Akses ditolak."); return; }
         document.getElementById('modalTicketSelection').style.display = "block";
     }
     window.closeTicketOption = function() {
@@ -1116,7 +1434,6 @@ Router: ZTE"></textarea>
         renderJobs();
     }
 
-    // --- PERUBAHAN: Fungsi untuk mengubah status modem di gudang ---
     window.changeModemStatus = function(type, index, newStatus) {
         const item = gudangStock[type][index];
         const oldStatus = item.status || 'ready';
@@ -1136,7 +1453,7 @@ Router: ZTE"></textarea>
         } else if (newStatus === 'unknown') {
             item.unknownDate = item.unknownDate || currentTime;
         } else if (newStatus === 'ready') {
-            // PERUBAHAN PENTING: Hapus dari inventory tim ketika status menjadi ready
+            // Hapus dari inventory tim ketika status menjadi ready
             teams.forEach(t => {
                 if (t.inventory) {
                     const invIndex = t.inventory.findIndex(inv => inv.sn === item.sn);
@@ -1159,12 +1476,437 @@ Router: ZTE"></textarea>
         updateGudangCounts();
     };
 
-    function renderJobs() {
+    // --- FUNGSI GPS DAN JARAK ---
+    
+    // 1. Ekstrak Lat/Long dari Berbagai Format Link Gmaps
+    function extractCoords(url) {
+        if(!url) return null;
+        url = url.trim();
+
+        // Format 1: Decimal di URL (@-6.123,106.123)
+        let match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+
+        // Format 2: Query parameter (?q=-6.123,106.123)
+        match = url.match(/q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+
+        // Format 3: Raw Coordinate (-6.123, 106.123)
+        match = url.match(/^(-?\d+\.\d+),\s*(-?\d+\.\d+)$/);
+        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+
+        // Format 4: search/coordinates
+        match = url.match(/search\/(-?\d+\.\d+),\s*(-?\d+\.\d+)/);
+        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+
+        return null; 
+    }
+
+    // 2. Hitung Jarak Akurat (Haversine Formula) dalam KM
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius bumi (km)
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const d = R * c; 
+        
+        // Pembulatan 2 desimal agar lebih presisi (misal: 0.55 km)
+        return parseFloat(d.toFixed(2)); 
+    }
+
+    // 3. Inisialisasi GPS
+    function initializeGeolocation() {
+        if (!navigator.geolocation) {
+            console.warn("Browser tidak mendukung GPS");
+            return;
+        }
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        };
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userPosition = position;
+                console.log("GPS berhasil diambil:", position.coords);
+                // Update semua tombol maps setelah GPS didapat
+                updateAllMapsButtons();
+            },
+            (error) => {
+                console.warn("Gagal mendapatkan GPS:", error.message);
+                userPosition = null;
+            },
+            options
+        );
+    }
+
+    // 4. Update Tombol Maps dengan Jarak
+    window.updateMapsButton = function(teamIdx, jobIdx, mapsLink, mapsButtonId) {
+        const button = document.getElementById(mapsButtonId);
+        if (!button || !mapsLink) return;
+
+        const coords = extractCoords(mapsLink);
+        
+        if (!coords) {
+            // Jika tidak bisa ekstrak koordinat, tampilkan tombol biasa
+            button.className = 'btn-maps';
+            button.innerHTML = '🗺️ Buka Maps';
+            button.onclick = () => window.open(mapsLink, '_blank');
+            return;
+        }
+
+        // BUAT LINK GMAPS DENGAN KOORDINAT LANGSUNG
+        const mapsUrl = `https://www.google.com/maps?q=${coords.lat},${coords.lng}`;
+        
+        // Hitung jarak jika userPosition tersedia
+        if (userPosition) {
+            const myLat = userPosition.coords.latitude;
+            const myLng = userPosition.coords.longitude;
+            const distance = calculateDistance(myLat, myLng, coords.lat, coords.lng);
+            
+            // Simpan jarak ke data
+            if (teams[teamIdx] && teams[teamIdx].jobs[jobIdx]) {
+                teams[teamIdx].jobs[jobIdx].calculatedDistance = distance;
+                saveDataToFirebase();
+            }
+
+            // Tentukan kelas berdasarkan jarak
+            let distanceClass = '';
+            if (distance < 1.0) {
+                distanceClass = 'distance-near';
+            } else if (distance < 5.0) {
+                distanceClass = 'distance-medium';
+            } else {
+                distanceClass = 'distance-far';
+            }
+
+            // Update tombol
+            button.className = `btn-maps-distance ${distanceClass}`;
+            button.innerHTML = `📍 ${distance} km - Buka Maps`;
+        } else {
+            // Jika GPS belum tersedia, tampilkan tombol tanpa jarak
+            button.className = 'btn-maps';
+            button.innerHTML = '🗺️ Buka Maps';
+        }
+
+        // Set onclick untuk buka maps dengan koordinat langsung
+        button.onclick = () => window.open(mapsUrl, '_blank');
+    }
+
+    // 5. Update semua tombol maps
+    function updateAllMapsButtons() {
+        if (!userPosition) return;
+
+        teams.forEach((team, teamIdx) => {
+            if (team.jobs) {
+                team.jobs.forEach((job, jobIdx) => {
+                    if (job.mapsLink) {
+                        const mapsButtonId = `maps-btn-${team.id}-${jobIdx}`;
+                        setTimeout(() => {
+                            updateMapsButton(teamIdx, jobIdx, job.mapsLink, mapsButtonId);
+                        }, 100);
+                    }
+                });
+            }
+        });
+    }
+
+    // --- FITUR PASTE FOTO (BARU) ---
+    window.openPhotoModal = function(photoSrc, teamIndex, jobIndex) {
+        const modal = document.getElementById('modalPhoto');
+        const img = document.getElementById('modal-photo-img');
+        const pasteSection = document.getElementById('photo-paste-section');
+        const infoSection = document.getElementById('photo-info-section');
+        
+        img.src = photoSrc || '';
+        
+        // Simpan indeks untuk upload
+        currentPhotoTeamIndex = teamIndex;
+        currentPhotoJobIndex = jobIndex;
+        
+        // Tampilkan paste section hanya jika admin
+        if (appMode === 'admin') {
+            pasteSection.style.display = 'block';
+            infoSection.style.display = 'none';
+            
+            // Setup paste area
+            const pasteArea = document.getElementById('photo-paste-area');
+            pasteArea.innerHTML = photoSrc ? "Klik disini lalu paste (Ctrl+V) foto baru dari clipboard..." : "Klik disini lalu paste (Ctrl+V) foto dari clipboard...";
+            pasteArea.className = 'photo-paste-area';
+            
+            // Focus pada paste area
+            setTimeout(() => pasteArea.focus(), 100);
+            
+            // Event listener untuk paste
+            pasteArea.onpaste = function(e) {
+                e.preventDefault();
+                const items = e.clipboardData.items;
+                
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        const blob = items[i].getAsFile();
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const photoBase64 = event.target.result;
+                            pasteArea.innerHTML = '<div style="color: #28a745; font-weight: bold;">✅ Foto siap disimpan!</div>';
+                            pasteArea.className = 'photo-paste-area paste-ready';
+                            
+                            // Simpan Base64 ke variable sementara
+                            pasteArea.dataset.imageData = photoBase64;
+                        };
+                        reader.readAsDataURL(blob);
+                        break;
+                    }
+                }
+            };
+        } else {
+            pasteSection.style.display = 'none';
+            infoSection.style.display = 'block';
+        }
+        
+        modal.style.display = 'block';
+    }
+
+    window.savePastedPhoto = function() {
+        if (appMode !== 'admin') {
+            alert("❌ Hanya admin yang dapat upload foto!");
+            return;
+        }
+        
+        const pasteArea = document.getElementById('photo-paste-area');
+        const imageData = pasteArea.dataset.imageData;
+        
+        if (!imageData) {
+            alert("❌ Belum ada foto yang dipaste! Copy foto terlebih dahulu lalu paste di area diatas.");
+            return;
+        }
+        
+        // Simpan ke data
+        if (currentPhotoTeamIndex !== -1 && currentPhotoJobIndex !== -1) {
+            teams[currentPhotoTeamIndex].jobs[currentPhotoJobIndex].photoEvidence = imageData;
+            saveDataToFirebase();
+            
+            // Update gambar di modal
+            document.getElementById('modal-photo-img').src = imageData;
+            
+            // Update tombol lihat foto di job item
+            renderJobs();
+            
+            alert("✅ Foto berhasil disimpan!");
+            
+            // Reset paste area
+            pasteArea.innerHTML = "Klik disini lalu paste (Ctrl+V) foto baru dari clipboard...";
+            pasteArea.className = 'photo-paste-area';
+            delete pasteArea.dataset.imageData;
+        }
+    };
+
+    window.clearPasteArea = function() {
+        const pasteArea = document.getElementById('photo-paste-area');
+        pasteArea.innerHTML = "Klik disini lalu paste (Ctrl+V) foto dari clipboard...";
+        pasteArea.className = 'photo-paste-area';
+        delete pasteArea.dataset.imageData;
+    };
+
+    window.closePhotoModal = function() {
+        document.getElementById('modalPhoto').style.display = 'none';
+        currentPhotoTeamIndex = -1;
+        currentPhotoJobIndex = -1;
+    };
+
+    window.updateMapsLink = function(teamIndex, jobIndex, value) {
+        if (teams[teamIndex] && teams[teamIndex].jobs[jobIndex]) {
+            teams[teamIndex].jobs[jobIndex].mapsLink = value;
+            saveDataToFirebase();
+            renderJobs();
+        }
+    };
+
+    // --- FUNGSI SORTING UNTUK MODE TEKNISI ---
+    
+    // Update sort indicator
+    function updateSortIndicator() {
+        const indicator = document.getElementById('sort-indicator');
+        let text = '';
+        
+        switch(currentSortType) {
+            case 'distance_asc':
+                text = '🔸 Diurutkan: Jarak Terdekat ke Terjauh';
+                break;
+            case 'distance_desc':
+                text = '🔸 Diurutkan: Jarak Terjauh ke Terdekat';
+                break;
+            case 'time_asc':
+                text = '🔸 Diurutkan: Waktu Pagi ke Sore';
+                break;
+            case 'time_desc':
+                text = '🔸 Diurutkan: Waktu Sore ke Pagi';
+                break;
+            default:
+                text = '🔸 Urutan Default';
+        }
+        
+        indicator.innerHTML = text;
+        
+        // Update active button states
+        const buttons = document.querySelectorAll('.filter-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        let activeBtnId = '';
+        switch(currentSortType) {
+            case 'distance_asc':
+                activeBtnId = 'btn-sort-distance-asc';
+                break;
+            case 'distance_desc':
+                activeBtnId = 'btn-sort-distance-desc';
+                break;
+            case 'time_asc':
+                activeBtnId = 'btn-sort-time-asc';
+                break;
+            case 'time_desc':
+                activeBtnId = 'btn-sort-time-desc';
+                break;
+        }
+        
+        if (activeBtnId) {
+            document.getElementById(activeBtnId).classList.add('active');
+        }
+    }
+    
+    // Konversi waktu ke menit
+    function timeToMinutes(timeStr) {
+        if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999;
+        
+        const lower = timeStr.toLowerCase();
+        
+        // Handle waktu dengan kata-kata
+        if (lower.includes("pagi")) return 480;   // 08:00
+        if (lower.includes("siang")) return 780;  // 13:00
+        if (lower.includes("sore")) return 960;   // 16:00
+        if (lower.includes("malam")) return 1140; // 19:00
+        
+        // Handle format jam:menit
+        const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/);
+        if (match) {
+            let hour = parseInt(match[1]);
+            const minute = match[2] ? parseInt(match[2]) : 0;
+            
+            // Konversi ke 24 jam
+            if (hour === 12 && lower.includes('siang')) hour = 12;
+            else if (hour === 12 && lower.includes('malam')) hour = 0;
+            else if (hour < 12 && lower.includes('sore')) hour += 12;
+            else if (hour < 12 && lower.includes('malam')) hour += 12;
+            else if (hour < 5 && lower.includes('siang')) hour += 12;
+            
+            return hour * 60 + minute;
+        }
+        
+        return 99999; // Untuk waktu tidak diketahui
+    }
+    
+    // Sort by distance
+    window.sortJobsByDistance = function(order = 'asc') {
+        if (selectedTechIndex === -1 || appMode !== 'tech') return;
+        
+        const team = teams[selectedTechIndex];
+        if (!team.jobs || team.jobs.length === 0) return;
+        
+        // Cek apakah ada data jarak
+        const hasDistance = team.jobs.some(j => j.calculatedDistance !== undefined);
+        if (!hasDistance && order !== 'desc') {
+            alert("⚠️ Belum ada data jarak yang terhitung.\nPastikan GPS aktif dan tiket memiliki link maps yang valid.");
+            return;
+        }
+        
+        // Set sorting type
+        currentSortType = order === 'asc' ? 'distance_asc' : 'distance_desc';
+        
+        // Sort jobs
+        team.jobs.sort((a, b) => {
+            const distA = (a.calculatedDistance !== undefined) ? a.calculatedDistance : 99999;
+            const distB = (b.calculatedDistance !== undefined) ? b.calculatedDistance : 99999;
+            
+            return order === 'asc' ? distA - distB : distB - distA;
+        });
+        
+        saveDataToFirebase();
+        updateSortIndicator();
+        renderJobs();
+        
+        alert(`✅ Tiket diurutkan berdasarkan jarak ${order === 'asc' ? 'terdekat' : 'terjauh'}!`);
+    };
+    
+    // Sort by time
+    window.sortJobsByTime = function(order = 'asc') {
+        if (selectedTechIndex === -1 || appMode !== 'tech') return;
+        
+        const team = teams[selectedTechIndex];
+        if (!team.jobs || team.jobs.length === 0) return;
+        
+        // Set sorting type
+        currentSortType = order === 'asc' ? 'time_asc' : 'time_desc';
+        
+        // Sort jobs
+        team.jobs.sort((a, b) => {
+            const timeA = timeToMinutes(a.time);
+            const timeB = timeToMinutes(b.time);
+            
+            return order === 'asc' ? timeA - timeB : timeB - timeA;
+        });
+        
+        saveDataToFirebase();
+        updateSortIndicator();
+        renderJobs();
+        
+        alert(`✅ Tiket diurutkan berdasarkan waktu ${order === 'asc' ? 'pagi ke sore' : 'sore ke pagi'}!`);
+    };
+    
+    // Reset sorting
+    window.resetSorting = function() {
+        if (selectedTechIndex === -1 || appMode !== 'tech') return;
+        
+        const team = teams[selectedTechIndex];
+        if (!team.jobs || team.jobs.length === 0) return;
+        
+        currentSortType = 'default';
+        
+        // Reset ke urutan default (berdasarkan waktu, lalu berdasarkan ID)
+        team.jobs.sort((a, b) => {
+            // Pertama urut berdasarkan waktu
+            const timeA = timeToMinutes(a.time);
+            const timeB = timeToMinutes(b.time);
+            if (timeA !== timeB) return timeA - timeB;
+            
+            // Jika waktu sama, urut berdasarkan nama atau ID
+            return (a.name || '').localeCompare(b.name || '');
+        });
+        
+        saveDataToFirebase();
+        updateSortIndicator();
+        renderJobs();
+        
+        alert("✅ Urutan tiket direset ke default!");
+    };
+
+  function renderJobs() {
         const container = document.getElementById('teams-container');
         container.innerHTML = ''; 
 
         if (!Array.isArray(teams)) { teams = []; }
 
+        // Tampilkan tombol filter hanya jika masuk mode teknisi
+        if (appMode === 'tech') {
+            document.getElementById('filter-container').style.display = 'block';
+        } else {
+            document.getElementById('filter-container').style.display = 'none';
+        }
+
+        // Logic Sortir Tim (Sama seperti sebelumnya)
         teams.sort((a, b) => {
             const getNum = (str) => {
                 const match = str.match(/Tim\s+(\d+)/i);
@@ -1176,41 +1918,64 @@ Router: ZTE"></textarea>
         let visibleTeamsCount = 0;
 
         teams.forEach((team, tIndex) => {
+            if (appMode === 'tech' && tIndex !== selectedTechIndex) return;
+
             if(!team.jobs) team.jobs = [];
             if(!team.inventory) team.inventory = [];
 
-            if (team.jobs.length === 0) { return; }
+            if (team.jobs.length === 0) return;
             visibleTeamsCount++;
 
-            team.jobs.sort((a, b) => {
-                const getWeight = (t) => {
-                    t = (t || "").toString().toLowerCase().trim();
-                    if (t === "" || t === "-" || t.includes("flexibel")) return 99999;
-                    if (t.includes("pagi")) return 480;   
-                    if (t.includes("siang")) return 780;  
-                    if (t.includes("sore")) return 960;   
-                    if (t.includes("malam")) return 1140; 
-                    
-                    const match = t.match(/(\d{1,2})[:.]?(\d{2})?/);
-                    if (match) {
-                        const hour = parseInt(match[1]);
-                        const minute = match[2] ? parseInt(match[2]) : 0;
-                        return (hour * 60) + minute;
-                    }
-                    return 99999;
-                };
-                return getWeight(a.time) - getWeight(b.time);
-            });
+            // Aplikasikan sorting jika dalam mode teknisi dan ada sorting aktif
+            if (appMode === 'tech' && tIndex === selectedTechIndex && currentSortType !== 'default') {
+                switch(currentSortType) {
+                    case 'distance_asc':
+                        team.jobs.sort((a, b) => {
+                            const distA = (a.calculatedDistance !== undefined) ? a.calculatedDistance : 99999;
+                            const distB = (b.calculatedDistance !== undefined) ? b.calculatedDistance : 99999;
+                            return distA - distB;
+                        });
+                        break;
+                    case 'distance_desc':
+                        team.jobs.sort((a, b) => {
+                            const distA = (a.calculatedDistance !== undefined) ? a.calculatedDistance : 99999;
+                            const distB = (b.calculatedDistance !== undefined) ? b.calculatedDistance : 99999;
+                            return distB - distA;
+                        });
+                        break;
+                    case 'time_asc':
+                        team.jobs.sort((a, b) => {
+                            const timeA = timeToMinutes(a.time);
+                            const timeB = timeToMinutes(b.time);
+                            return timeA - timeB;
+                        });
+                        break;
+                    case 'time_desc':
+                        team.jobs.sort((a, b) => {
+                            const timeA = timeToMinutes(a.time);
+                            const timeB = timeToMinutes(b.time);
+                            return timeB - timeA;
+                        });
+                        break;
+                }
+            } else {
+                // Default sorting berdasarkan waktu
+                team.jobs.sort((a, b) => {
+                    const timeA = timeToMinutes(a.time);
+                    const timeB = timeToMinutes(b.time);
+                    return timeA - timeB;
+                });
+            }
 
-            // PERUBAHAN: Hanya hitung modem dengan status pending sebagai sisa stok
+            // Hitung Stok
             const stockCount = team.inventory.filter(inv => {
                  const st = getModemStatusGlobal(inv.sn);
                  return st === 'pending';
             }).length;
             
+            // Render Header Tim
             const teamDiv = document.createElement('div');
             teamDiv.className = 'team-card';
-            
             teamDiv.innerHTML = `
                 <div class="team-header ${team.colorClass}">
                     <div style="display:flex; flex-direction:column; align-items:flex-start;">
@@ -1218,7 +1983,7 @@ Router: ZTE"></textarea>
                         <span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok: ${stockCount} pcs</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:5px;">
-                        <button class="btn-copy-team" onclick="copyTeamSummary(${tIndex}, this)">📑 Rekap Tim</button>
+                        <button class="btn-copy-team" onclick="copyTeamSummary(${tIndex}, this)">📑 Rekap</button>
                         <button class="btn-view-stock" onclick="openStockListModal(${tIndex})">MODEM</button>
                         <span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">0/0</span>
                     </div>
@@ -1230,36 +1995,35 @@ Router: ZTE"></textarea>
 
             const listContainer = document.getElementById(`list-${team.id}`);
             
-            // PERUBAHAN PENTING: Filter dropdown hanya menampilkan modem yang statusnya PENDING
-            // dan tidak menampilkan yang statusnya READY
+            // Buat Opsi Modem
             let modemOptions = `<option value="">-- Pilih Modem dari Stok (${stockCount}) --</option>`;
             team.inventory.forEach(inv => {
                 const status = getModemStatusGlobal(inv.sn);
                 const type = getModemType(inv.sn);
                 const typeLabel = (type === 'SRB' || type === 'SYN') ? `[${type}] ` : '';
-
-                // Hanya tampilkan modem dengan status PENDING untuk bisa dipilih
-                // Modem dengan status READY tidak ditampilkan sama sekali karena sudah tidak dipegang teknisi
                 if (status === 'pending') {
                     modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${typeLabel}${inv.sn}</option>`;
                 } else if (status === 'installed' || status === 'bad' || status === 'unknown') {
-                    // Tampilkan sebagai disabled untuk informasi
                     modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="color:red; text-decoration:line-through;">❌ ${typeLabel}${inv.sn} (${status.toUpperCase()})</option>`;
                 }
-                // Modem dengan status READY tidak ditampilkan
             });
             
+            // --- LOOP JOBS (TIKET) ---
             team.jobs.forEach((job, index) => {
                 const li = document.createElement('li');
                 li.className = 'job-item';
                 
                 const currentStatus = job.status || (job.completed ? 'completed' : 'pending');
-                
                 if(currentStatus === 'completed') li.classList.add('completed');
                 else if(currentStatus === 'failed') li.classList.add('failed');
                 
+                // Logic Hide Detail
+                const hiddenFields = ["User PPPOE_RADIUS", "Pemakaian Bulan Ini (GB)", "ODC", "ODP", "Port ODP", "OLT SN/MAC", "Last DBM", "Last DBM Time", "Nama WiFi (SSID)", "Sandi WiFi", "Keterangan"];
                 let detailHTML = '';
                 for (const [key, value] of Object.entries(job.details)) {
+                    const valStr = (value || "").toString().trim();
+                    const isInvalid = valStr === "" || valStr === "-";
+                    if (hiddenFields.includes(key) && isInvalid) continue;
                     detailHTML += `<div class="detail-item"><span class="detail-label">${key}</span><span class="detail-value">${value}</span></div>`;
                 }
 
@@ -1268,12 +2032,66 @@ Router: ZTE"></textarea>
                 const tech = job.technical || {};
                 const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none";
 
+                // --- BAGIAN BARU: LOGIKA MAPS & FOTO UNTUK ADMIN vs TEKNISI ---
+                const mapsLinkValue = job.mapsLink || "";
+                
+                // Input Link Maps HANYA UNTUK ADMIN
+                let mapsInputHTML = '';
+                if (appMode === 'admin') {
+                    mapsInputHTML = `
+                    <div class="admin-maps-section">
+                        <h4>📍 Link Gmaps / Koordinat:</h4>
+                        <div class="admin-maps-grid">
+                            <div>
+                                <input type="text" class="realtime-input" 
+                                       style="width:100%; padding:10px; border:1px solid #198754; border-radius:4px;"
+                                       placeholder="Contoh: https://maps.app.goo.gl/... atau -6.123,106.123"
+                                       value="${mapsLinkValue}"
+                                       onchange="updateMapsLink(${tIndex}, ${index}, this.value)">
+                                <div style="font-size:0.7rem; color:#666; margin-top:2px;">*Link atau koordinat (lat,lng)</div>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+
+                let mapsButtonHTML = '';
+                let photoButtonHTML = '';
+
+                // Tombol Maps (Satu tombol dengan jarak otomatis) - UNTUK SEMUA MODE
+                if (mapsLinkValue) {
+                    const mapsButtonId = `maps-btn-${team.id}-${index}`;
+                    mapsButtonHTML = `
+                        <button id="${mapsButtonId}" 
+                                class="btn-maps">
+                            🗺️ Buka Maps
+                        </button>
+                    `;
+                }
+
+                // Tombol Lihat Foto (hanya jika ada foto) - UNTUK SEMUA MODE
+                if (job.photoEvidence) {
+                    photoButtonHTML = `
+                        <button class="btn-view-photo" onclick="openPhotoModal('${job.photoEvidence}', ${tIndex}, ${index})">
+                            🖼️ Lihat Foto
+                        </button>
+                    `;
+                } else if (appMode === 'admin') {
+                    // Jika admin dan tidak ada foto, tampilkan tombol untuk upload
+                    photoButtonHTML = `
+                        <button class="btn-view-photo" onclick="openPhotoModal('', ${tIndex}, ${index})" style="background: #fff; border: 1px dashed #6f42c1; color: #6f42c1;">
+                            📁 Upload Foto
+                        </button>
+                    `;
+                }
+
+                // Generate Form Input Teknis
                 let formHTML = '';
                 if (isPSB) {
                     formHTML = `
                     <div class="manual-input-section">
                         <h4 style="margin:0 0 10px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4>
-                        <div style="margin-bottom:10px;">
+                        ${mapsInputHTML}
+                        <div style="margin:10px 0;">
                             <label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label>
                             <select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})">
                                 ${modemOptions}
@@ -1283,7 +2101,6 @@ Router: ZTE"></textarea>
                             <div class="input-group"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div>
                             <div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div>
                             <div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div>
-                            
                             <div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${tIndex}-${index}" class="realtime-input" data-key="kabel" data-team="${tIndex}" data-job="${index}" value="${tech.kabel || ''}" placeholder="150m"></div>
                             <div class="input-group"><label>Port</label><input type="text" id="port-${tIndex}-${index}" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div>
                             <div class="input-group"><label>Id ODP</label><input type="text" id="odp-${tIndex}-${index}" class="realtime-input" data-key="odp" data-team="${tIndex}" data-job="${index}" value="${tech.odp || ''}" placeholder="ODP-.."></div>
@@ -1293,10 +2110,10 @@ Router: ZTE"></textarea>
                 } else {
                     const replaceStatus = job.replaceModem || 'no'; 
                     const displayMtTech = replaceStatus === 'yes' ? 'block' : 'none';
-
                     formHTML = `
                     <div class="manual-input-section">
-                        <div style="margin-bottom:10px;">
+                        ${mapsInputHTML}
+                        <div style="margin:10px 0;">
                             <label style="font-weight:bold; color:#d35400;">🔧 Opsi Perangkat:</label>
                             <select style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-weight:bold;"
                                 onchange="toggleMtModemInput(${tIndex}, ${index}, this.value)">
@@ -1304,7 +2121,6 @@ Router: ZTE"></textarea>
                                 <option value="yes" ${replaceStatus === 'yes' ? 'selected' : ''}>✅ Ganti Modem Baru</option>
                             </select>
                         </div>
-
                         <div id="mt-tech-${tIndex}-${index}" style="display: ${displayMtTech}; border-top:1px dashed #ccc; padding-top:10px;">
                              <label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label>
                              <select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})">
@@ -1324,6 +2140,15 @@ Router: ZTE"></textarea>
                 const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${job.failureNote}</div>` : '';
                 const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${job.completionNote}</div>` : '';
                 
+                // Tampilkan jarak jika ada
+                const distanceInfo = job.calculatedDistance !== undefined ? 
+                    `<span style="font-size:0.8rem; color:#6c757d; margin-left:8px;">📍 ${job.calculatedDistance} km</span>` : '';
+                
+                let delButton = '';
+                if (appMode === 'admin') {
+                    delButton = `<button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>`;
+                }
+
                 li.innerHTML = `
                     <div class="job-main-row">
                         <div class="job-left">
@@ -1336,6 +2161,12 @@ Router: ZTE"></textarea>
                                 <div style="font-weight:bold; color:#d35400; font-size:0.85rem; margin-top:3px;">
                                     🕒 ${job.time || 'FLEXIBEL'}
                                     ${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${layID}</span>` : ''}
+                                    ${distanceInfo}
+                                </div>
+                                <div class="maps-section">
+                                    ${mapsButtonHTML}
+                                    ${photoButtonHTML}
+                                    ${!mapsLinkValue ? '<span style="font-size:0.75rem; color:#999; font-style:italic;">(Belum ada link maps)</span>' : ''}
                                 </div>
                                 ${failureNote}
                                 ${successNote}
@@ -1345,7 +2176,7 @@ Router: ZTE"></textarea>
                         <div class="action-buttons">
                             <button class="btn-copy" onclick="copyData(${tIndex}, ${index}, this)">📋 Copy</button>
                             <button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>
-                            <button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>
+                            ${delButton}
                         </div>
                     </div>
                     <div id="${uniqueId}" class="job-details" style="display: ${displayStyle};">
@@ -1359,15 +2190,29 @@ Router: ZTE"></textarea>
 
                 listContainer.appendChild(li);
 
+                // Event Listener untuk Input Realtime (SN, Mac, dll)
                 const inputs = li.querySelectorAll('.realtime-input');
                 inputs.forEach(input => {
                     input.addEventListener('change', (e) => {
+                        // Skip jika input maps, karena sudah dihandle onchange inline
+                        if (e.target.placeholder.includes("Paste link maps")) return;
+                        
                         const key = e.target.getAttribute('data-key');
-                        if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
-                        teams[tIndex].jobs[index].technical[key] = e.target.value;
-                        saveDataToFirebase(); 
+                        if (key) {
+                            if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
+                            teams[tIndex].jobs[index].technical[key] = e.target.value;
+                            saveDataToFirebase();
+                        }
                     });
                 });
+
+                // Update tombol maps setelah dirender
+                if (mapsLinkValue) {
+                    const mapsButtonId = `maps-btn-${team.id}-${index}`;
+                    setTimeout(() => {
+                        updateMapsButton(tIndex, index, mapsLinkValue, mapsButtonId);
+                    }, 100);
+                }
             });
             updateProgressUI(team.id, team.jobs);
         });
@@ -1822,7 +2667,6 @@ Router: ZTE"></textarea>
 
     window.deleteFromWarehouse = function(type, index) {
         if(confirm("Hapus modem ini permanen dari database gudang?")) {
-            // PERUBAHAN: Hapus juga dari inventory tim jika ada
             const item = gudangStock[type][index];
             teams.forEach(t => {
                 if (t.inventory) {
@@ -1933,9 +2777,6 @@ Router: ZTE"></textarea>
         title.innerText = team.teamName;
         tbody.innerHTML = '';
 
-        // PERUBAHAN PENTING: Filter inventory tim untuk HANYA menampilkan modem yang:
-        // 1. Statusnya BUKAN 'ready' (karena yang ready sudah tidak dipegang teknisi)
-        // 2. Statusnya pending, installed, bad, atau unknown
         const filteredInventory = team.inventory.filter(item => {
             const status = getModemStatusGlobal(item.sn);
             return status !== 'ready';
@@ -2075,10 +2916,58 @@ Router: ZTE"></textarea>
         saveDataToFirebase();
     }
 
-    // =================================================================
-    // FUNGSI UTAMA YANG DIPERBAIKI: generatePreview() untuk parsing format tiket
-    // =================================================================
-    
+    // --- FUNGSI SORTING JARAK ---
+    window.sortJobsByDistance = function() {
+        if (selectedTechIndex === -1) return;
+        
+        const team = teams[selectedTechIndex];
+        if (!team.jobs || team.jobs.length === 0) return;
+
+        // Cek apakah tiket sudah punya data jarak
+        const hasDistance = team.jobs.some(j => j.calculatedDistance !== undefined);
+        if (!hasDistance) {
+            alert("⚠️ Belum ada data jarak yang terhitung.\nPastikan GPS aktif dan tiket memiliki link maps yang valid.");
+            return;
+        }
+
+        // Sorting: yang ada jarak ditaruh atas (ascending), yang belum ada di bawah
+        team.jobs.sort((a, b) => {
+            const distA = (a.calculatedDistance !== undefined) ? a.calculatedDistance : 99999;
+            const distB = (b.calculatedDistance !== undefined) ? b.calculatedDistance : 99999;
+            return distA - distB;
+        });
+
+        saveDataToFirebase(); // Simpan urutan baru
+        renderJobs(); // Render ulang
+        alert("✅ Tiket diurutkan dari lokasi terdekat!");
+    }
+
+    // --- FITUR BARU: BULK LOCK / UNLOCK ---
+    window.bulkLockAction = function(lockState) {
+        let actionName = lockState ? "MENGUNCI (LOCK)" : "MEMBUKA KUNCI (UNLOCK)";
+        let pin = prompt(`🔐 KEAMANAN MASSAL\n\nAnda akan ${actionName} SEMUA modem di tab ${currentGudangTab.toUpperCase()}.\nModem terkunci TIDAK BISA dihapus/diubah statusnya oleh sistem.\n\nMasukkan PIN Konfirmasi:`);
+        
+        if (pin !== "240525") {
+            alert("❌ PIN SALAH!");
+            return;
+        }
+
+        let count = 0;
+        gudangStock[currentGudangTab].forEach(item => {
+            item.isLocked = lockState;
+            count++;
+        });
+
+        saveGudangToFirebase();
+        renderGudangTable(currentGudangTab);
+        
+        let msg = lockState 
+            ? `🔒 Berhasil MENGUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.\nModem ini sekarang aman dari Reset/Hapus.` 
+            : `🔓 Berhasil MEMBUKA KUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.`;
+            
+        alert(msg);
+    }
+
     window.generatePreview = function() {
         const raw = document.getElementById('bulk-input-text').value;
         const container = document.getElementById('preview-container');
@@ -2089,7 +2978,6 @@ Router: ZTE"></textarea>
             return; 
         }
 
-        // Pisahkan tiket berdasarkan baris kosong ganda
         const tickets = raw.split(/\n\s*\n/);
         let psbCount = 0;
         let mtCount = 0;
@@ -2099,11 +2987,6 @@ Router: ZTE"></textarea>
             ticketText = ticketText.trim();
             if (!ticketText) return;
 
-            // Deteksi jenis tiket berdasarkan field yang ada
-            const lines = ticketText.split('\n');
-            const firstLine = lines[0].toLowerCase();
-            
-            // Cek jika ada field kendala atau field PSB
             const hasKendala = ticketText.toLowerCase().includes('kendala:');
             const hasNamaLengkap = ticketText.toLowerCase().includes('nama lengkap :');
             
@@ -2118,12 +3001,10 @@ Router: ZTE"></textarea>
                     mtCount++;
                 }
             } else {
-                // Coba deteksi berdasarkan pola lain
                 if (ticketText.toLowerCase().includes('nama pelanggan:')) {
                     createMTCard(ticketText, index, container);
                     mtCount++;
                 } else {
-                    // Jika tidak ada yang cocok, anggap sebagai MT
                     createMTCard(ticketText, index, container);
                     mtCount++;
                 }
@@ -2137,17 +3018,14 @@ Router: ZTE"></textarea>
         }
     }
 
-    // Fungsi helper untuk mengambil nilai dari field dengan format "Label: Nilai"
     function getFieldValue(text, fieldName) {
         const lines = text.split('\n');
         for (let line of lines) {
             line = line.trim();
             if (line.toLowerCase().startsWith(fieldName.toLowerCase())) {
-                // Ambil bagian setelah ":"
                 const separatorIndex = line.indexOf(':');
                 if (separatorIndex !== -1) {
                     let value = line.substring(separatorIndex + 1).trim();
-                    // Jika kosong, kembalikan "-"
                     return value === "" ? "-" : value;
                 }
             }
@@ -2155,7 +3033,6 @@ Router: ZTE"></textarea>
         return "-";
     }
 
-    // Fungsi untuk membuat card PSB
     function createPSBCard(text, index, container) {
         const jam = getFieldValue(text, 'Jam');
         const nama = getFieldValue(text, 'Nama Lengkap');
@@ -2195,7 +3072,6 @@ Router: ZTE"></textarea>
         container.appendChild(card);
     }
 
-    // Fungsi untuk membuat card MT/ISOLIR
     function createMTCard(text, index, container) {
         const jam = getFieldValue(text, 'Jam');
         const kendala = getFieldValue(text, 'Kendala');
@@ -2256,24 +3132,11 @@ Router: ZTE"></textarea>
         `;
         container.appendChild(card);
     }
-
- // =================================================================
-    // FUNGSI UTAMA: saveBulkTickets() (VERSI FIX ERROR FIREBASE KEY)
-    // =================================================================
     
     window.saveBulkTickets = function() {
-        console.log("Memulai proses simpan tiket...");
-
-        // --- [FIX 1: PERBAIKAN STRUKTUR DATA OTOMATIS] ---
         if (!teams || !Array.isArray(teams)) {
-            console.warn("Mendeteksi kerusakan struktur data teams (Object detected). Memperbaiki...");
-            if (teams && typeof teams === 'object') {
-                teams = Object.values(teams).filter(t => t !== null && t !== undefined);
-            } else {
-                teams = [];
-            }
+            teams = [];
         }
-        // -----------------------------------------------------
 
         const previewCards = document.querySelectorAll('.preview-card');
         if(previewCards.length === 0) { 
@@ -2290,18 +3153,15 @@ Router: ZTE"></textarea>
         }
 
         try {
-            // Persiapan pencarian tim
             let selectedMembers = [t1.toLowerCase()];
             if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
             selectedMembers.sort(); 
 
-            // Cari tim yang cocok
             let targetTeamIndex = teams.findIndex(team => {
                 const members = team.members ? team.members : [];
                 return JSON.stringify(members.sort()) === JSON.stringify(selectedMembers);
             });
 
-            // Jika tim tidak ditemukan, buat tim baru
             if (targetTeamIndex === -1) {
                 const newId = Date.now(); 
                 const colorIndex = (teams.length) % extraColors.length; 
@@ -2329,14 +3189,12 @@ Router: ZTE"></textarea>
                 targetTeamIndex = teams.length - 1;
             }
 
-            // --- [FIX 2: PASTIKAN ARRAY JOBS ADA] ---
             if (!teams[targetTeamIndex]) {
                 throw new Error("Gagal mengakses index tim baru. Silakan refresh halaman.");
             }
             if (!teams[targetTeamIndex].jobs || !Array.isArray(teams[targetTeamIndex].jobs)) {
                 teams[targetTeamIndex].jobs = [];
             }
-            // ----------------------------------------
 
             let count = 0;
             
@@ -2356,7 +3214,6 @@ Router: ZTE"></textarea>
                 let newJob = {};
 
                 if(type === 'PSB') {
-                    // PSB Data
                     const email = getValue('.bulk-email');
                     const wa = getValue('.bulk-wa');
                     const paket = getValue('.bulk-paket');
@@ -2388,7 +3245,6 @@ Router: ZTE"></textarea>
                         }
                     };
                 } else {
-                    // MT/ISOLIR Data
                     const kendala = getValue('.bulk-kendala');
                     const layanan = getValue('.bulk-layanan');
                     const masaAktif = getValue('.bulk-masa-aktif');
@@ -2408,18 +3264,11 @@ Router: ZTE"></textarea>
                     const keterangan = getValue('.bulk-keterangan');
                     const router = getValue('.bulk-router');
 
-                    // --- [FIX 3: PENAMAAN KEY YANG AMAN UNTUK FIREBASE] ---
-                    // Mengganti nama key yang mengandung '/' atau '.'
                     let details = {};
                     details["Kendala"] = kendala || '-';
                     if (layanan) details["Layanan"] = layanan;
-                    
-                    // PERBAIKAN: "Masa Aktif s/d" -> "Masa Aktif" (Hapus /)
                     if (masaAktif) details["Masa Aktif"] = masaAktif; 
-                    
-                    // PERBAIKAN: "No Telp." -> "No Telp" (Hapus titik)
                     if (telp) details["No Telp"] = telp; 
-                    
                     if (tglDaftar) details["Tgl Daftar"] = tglDaftar;
                     if (coverage) details["Coverage"] = coverage;
                     if (pppoe) details["User PPPOE_RADIUS"] = pppoe;
@@ -2427,10 +3276,7 @@ Router: ZTE"></textarea>
                     if (odc) details["ODC"] = odc;
                     if (odp) details["ODP"] = odp;
                     if (portOdp) details["Port ODP"] = portOdp;
-                    
-                    // PERBAIKAN: "OLT SN/MAC" -> "OLT SN-MAC" (Ganti / jadi -)
                     if (oltSn) details["OLT SN-MAC"] = oltSn;
-                    
                     if (lastDBM) details["Last DBM"] = lastDBM;
                     if (lastDBMTime) details["Last DBM Time"] = lastDBMTime;
                     if (ssid) details["Nama WiFi (SSID)"] = ssid;
@@ -2458,14 +3304,13 @@ Router: ZTE"></textarea>
 
             if (count > 0) {
                 saveDataToFirebase();
-                
                 closeCreateTicketModal();
                 alert(`✅ SUKSES!\nBerhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}.`);
-                
                 document.getElementById('bulk-input-text').value = '';
                 document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
-                
                 renderJobs();
+                // REFRESH LANDING JUGA JIKA KITA DALAM ADMIN MODE TAPI MASIH DI LANDING
+                renderLandingTeams(); 
             } else {
                 alert("⚠️ Gagal memproses tiket. Data input mungkin tidak valid.");
             }
@@ -2497,7 +3342,7 @@ Router: ZTE"></textarea>
         return clean;
     }
 
-    window.copyData = async function(teamIndex, jobIndex, btn) {
+   window.copyData = async function(teamIndex, jobIndex, btn) {
         const team = teams[teamIndex];
         const job = team.jobs[jobIndex];
         const d = job.details;
@@ -2505,6 +3350,9 @@ Router: ZTE"></textarea>
         const isPSB = job.tag.toUpperCase().includes("PSB");
         const isISOLIR = job.tag.toUpperCase().includes("ISOLIR");
         let textToCopy = "";
+
+        // Fungsi Helper: Cek apakah data valid (bukan kosong/undefined/null dan bukan "-")
+        const checkVal = (val) => val && val.toString().trim() !== "" && val.toString().trim() !== "-";
 
         if (isPSB) {
             const snVal = tech.sn || '-';
@@ -2540,16 +3388,14 @@ Port : ${portVal}
 Id ODP : ${odpVal}
 Redaman : ${redamanVal}`;
         } else {
-            // Format MT (Lain) - hanya tampilkan field yang terisi
+            // LOGIKA COPY UNTUK NON-PSB (MT/ISOLIR) DENGAN VALIDASI
             textToCopy = `TEKNISI : ${team.teamName}
 KATEGORI : ${job.tag}
 --------------------------------
 Jam: ${job.time}`;
             
-            // Tambahkan field kendala (wajib)
             textToCopy += `\nkendala: ${job.tag}`;
             
-            // Tambahkan field lainnya hanya jika terisi
             if (d['Nama Pelanggan'] || job.name) textToCopy += `\nNama Pelanggan: ${job.name}`;
             if (d['Layanan']) textToCopy += `\nNo Layanan: ${d['Layanan']}`;
             if (d['Masa Aktif s/d']) textToCopy += `\nMasa Aktif s/d: ${d['Masa Aktif s/d']}`;
@@ -2557,20 +3403,22 @@ Jam: ${job.time}`;
             if (d['Tgl Daftar']) textToCopy += `\nTanggal Daftar: ${d['Tgl Daftar']}`;
             if (d['Coverage']) textToCopy += `\nCoverage: ${d['Coverage']}`;
             if (job.address) textToCopy += `\nAlamat: ${job.address}`;
-            if (d['User PPPOE_RADIUS']) textToCopy += `\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS']}`;
-            if (d['Pemakaian Bulan Ini (GB)']) textToCopy += `\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)']}`;
-            if (d['ODC']) textToCopy += `\nODC: ${d['ODC']}`;
-            if (d['ODP']) textToCopy += `\nODP: ${d['ODP']}`;
-            if (d['Port ODP']) textToCopy += `\nPort ODP: ${d['Port ODP']}`;
-            if (d['OLT SN/MAC']) textToCopy += `\nOLT SN/MAC: ${d['OLT SN/MAC']}`;
-            if (d['Last DBM']) textToCopy += `\nLast DBM: ${d['Last DBM']}`;
-            if (d['Last DBM Time']) textToCopy += `\nLast DBM Time: ${d['Last DBM Time']}`;
-            if (d['Nama WiFi (SSID)']) textToCopy += `\nNama WiFi (SSID): ${d['Nama WiFi (SSID)']}`;
-            if (d['Sandi WiFi']) textToCopy += `\nSandi WiFi: ${d['Sandi WiFi']}`;
-            if (d['Keterangan']) textToCopy += `\nKeterangan: ${d['Keterangan']}`;
+            
+            // Kolom khusus dengan pengecekan ketat (tidak muncul jika "-" atau kosong)
+            if (checkVal(d['User PPPOE_RADIUS'])) textToCopy += `\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS']}`;
+            if (checkVal(d['Pemakaian Bulan Ini (GB)'])) textToCopy += `\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)']}`;
+            if (checkVal(d['ODC'])) textToCopy += `\nODC: ${d['ODC']}`;
+            if (checkVal(d['ODP'])) textToCopy += `\nODP: ${d['ODP']}`;
+            if (checkVal(d['Port ODP'])) textToCopy += `\nPort ODP: ${d['Port ODP']}`;
+            if (checkVal(d['OLT SN/MAC'])) textToCopy += `\nOLT SN/MAC: ${d['OLT SN/MAC']}`;
+            if (checkVal(d['Last DBM'])) textToCopy += `\nLast DBM: ${d['Last DBM']}`;
+            if (checkVal(d['Last DBM Time'])) textToCopy += `\nLast DBM Time: ${d['Last DBM Time']}`;
+            if (checkVal(d['Nama WiFi (SSID)'])) textToCopy += `\nNama WiFi (SSID): ${d['Nama WiFi (SSID)']}`;
+            if (checkVal(d['Sandi WiFi'])) textToCopy += `\nSandi WiFi: ${d['Sandi WiFi']}`;
+            if (checkVal(d['Keterangan'])) textToCopy += `\nKeterangan: ${d['Keterangan']}`;
+            
             if (d['Router']) textToCopy += `\nRouter: ${d['Router']}`;
 
-            // Tambahkan data teknis jika ada ganti modem
             if (job.replaceModem === 'yes' && tech.sn) {
                  const macVal = formatMacForCopy(tech.mac);
                  const vlanVal = formatMacForCopy(tech.vlan);
@@ -2756,8 +3604,6 @@ Jam: ${job.time}`;
         });
     }
 
-    // --- FITUR BARU: PILIHAN EXCEL ---
-
     window.openExcelOption = function() {
         document.getElementById('modalExcelOption').style.display = 'block';
     }
@@ -2935,6 +3781,7 @@ Jam: ${job.time}`;
         if (event.target == document.getElementById("modalBulk")) closeBulkModal();
         if (event.target == document.getElementById("modalRekapOption")) closeRekapModemOption();
         if (event.target == document.getElementById("modalExcelOption")) closeExcelOption();
+        if (event.target == document.getElementById("modalPhoto")) closePhotoModal();
     }
     
     loadFirebaseData();
