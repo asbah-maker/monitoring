@@ -381,7 +381,7 @@
         <div class="btn-group-header" id="admin-menu-group">
             <button class="btn-action-main btn-ticket" onclick="openTicketOption()">📝 Buat Tiket</button>
             <button class="btn-action-main btn-gudang" onclick="openGudangModal()">🏭 Gudang Modem</button>
-            <button class="btn-action-main btn-copy-all" onclick="copyAllSummary()">📑 Copy Rekap</button>
+            <button class="btn-action-main btn-copy-all" onclick="openCopyOption()">📑 Copy Rekap</button>
             <button class="btn-action-main btn-excel" onclick="openExcelOption()">📊 Download Excel</button>
             
             <button class="btn-action-main btn-rekap-modem" onclick="openRekapModemOption()">📠 Copy Rekap Modem</button>
@@ -392,6 +392,24 @@
 
     <div id="teams-container">
         <p style="text-align: center; color: #888;">Memuat data...</p>
+    </div>
+</div>
+
+<!-- Modal Pilihan Copy Rekap -->
+<div id="modalCopyOption" class="modal">
+    <div class="modal-content" style="max-width: 450px; text-align: center;">
+        <span class="close-modal" onclick="closeCopyOption()">&times;</span>
+        <h3 style="margin-top:0; color:#17a2b8;">📑 Pilih Jenis Rekap</h3>
+        <p style="font-size:0.9rem; color:#666;">Pilih jenis rekap yang ingin dicopy:</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+            <button class="btn-action-main" style="background-color: #17a2b8;" onclick="copyAllSummary(); closeCopyOption();">
+                📋 Rekap Semua Tiket
+            </button>
+            <button class="btn-action-main" style="background-color: #28a745;" onclick="copyPSBSummary(); closeCopyOption();">
+                📄 Rekap Kategori PSB (Berhasil)
+            </button>
+        </div>
     </div>
 </div>
 
@@ -2712,6 +2730,15 @@ Jam: ${job.time}`;
         copyToClipboard(text, btn, "✅ Disalin!");
     }
 
+    // --- FUNGSI BARU: COPY REKAP DENGAN PILIHAN ---
+    window.openCopyOption = function() {
+        document.getElementById('modalCopyOption').style.display = 'block';
+    }
+
+    window.closeCopyOption = function() {
+        document.getElementById('modalCopyOption').style.display = 'none';
+    }
+
     window.copyAllSummary = function() {
         let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
         
@@ -2747,8 +2774,40 @@ Jam: ${job.time}`;
             summaryText += `\n`; 
         });
         
-        const btn = document.querySelector('.btn-copy-all');
-        copyToClipboard(summaryText, btn, "✅ Rekap Tersalin!");
+        copyToClipboard(summaryText, null, "✅ Rekap Semua Tiket Tersalin!");
+    };
+
+    // --- FUNGSI BARU: COPY REKAP PSB SAJA ---
+    window.copyPSBSummary = function() {
+        let text = `📋 *REKAP PSB BERHASIL*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
+
+        let count = 0;
+        teams.forEach(team => {
+            team.jobs.forEach(job => {
+                // Cek apakah tiket PSB dan completed
+                const isPSB = job.tag.toUpperCase().includes("PSB");
+                const isCompleted = job.status === 'completed' || (job.completed && !job.status);
+
+                if (isPSB && isCompleted) {
+                    // Ambil No Layanan dan Referensi
+                    const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '-';
+                    const referensi = job.details['Referensi'] || '-';
+
+                    // Hanya tambahkan jika No Layanan ada (tidak '-')
+                    if (noLayanan !== '-') {
+                        text += `${noLayanan} referensi: ${referensi}\n`;
+                        count++;
+                    }
+                }
+            });
+        });
+
+        if (count === 0) {
+            text += "Tidak ada data PSB berhasil.\n";
+        }
+
+        // Copy ke clipboard
+        copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!");
     };
 
     window.openRekapModemOption = function() {
@@ -3011,6 +3070,8 @@ Jam: ${job.time}`;
                 btnElement.innerHTML = originalText;
                 btnElement.style.backgroundColor = originalBg;
             }, 2000);
+        } else if (success) {
+            alert(successMsg);
         }
     }
 
@@ -3026,6 +3087,7 @@ Jam: ${job.time}`;
         if (event.target == document.getElementById("modalBulk")) closeBulkModal();
         if (event.target == document.getElementById("modalRekapOption")) closeRekapModemOption();
         if (event.target == document.getElementById("modalExcelOption")) closeExcelOption();
+        if (event.target == document.getElementById("modalCopyOption")) closeCopyOption();
     }
     
     loadFirebaseData();
