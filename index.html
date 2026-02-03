@@ -346,155 +346,6 @@
             .gudang-select { width: 100%; margin-bottom: 5px; }
             .btn-send-team { width: 100%; }
         }
-
-        /* --- STYLE TAMBAHAN UNTUK MAPS & FOTO --- */
-        .maps-section {
-            display: flex; gap: 8px; align-items: center; margin-top: 8px;
-            background: #eef2f5; padding: 8px; border-radius: 6px; border: 1px solid #dee2e6;
-            flex-wrap: wrap;
-        }
-        .btn-maps {
-            background: #fff; border: 1px solid #198754; color: #198754;
-            padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem;
-            text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer;
-            white-space: nowrap;
-        }
-        .btn-maps:hover { background: #198754; color: white; }
-        
-        .btn-view-photo {
-            background: #fff; border: 1px solid #6f42c1; color: #6f42c1;
-            padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem;
-            text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer;
-        }
-        .btn-view-photo:hover { background: #6f42c1; color: white; }
-        
-        /* Tombol Maps dengan Jarak */
-        .btn-maps-distance {
-            background: #fff; border: 1px solid #0d6efd; color: #0d6efd;
-            padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem;
-            text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer;
-            white-space: nowrap;
-        }
-        .btn-maps-distance:hover { background: #0d6efd; color: white; }
-        .btn-maps-distance.distance-near { border-color: #198754; color: #198754; }
-        .btn-maps-distance.distance-medium { border-color: #ffc107; color: #856404; }
-        .btn-maps-distance.distance-far { border-color: #dc3545; color: #dc3545; }
-
-        /* Modal Foto */
-        .photo-modal-content {
-            max-width: 90%;
-            max-height: 90vh;
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .photo-display {
-            max-width: 100%;
-            max-height: 70vh;
-            object-fit: contain;
-            margin-bottom: 15px;
-        }
-        
-        /* Area Paste Foto */
-        .photo-paste-area {
-            width: 100%;
-            min-height: 150px;
-            border: 2px dashed #6f42c1;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #888;
-            font-size: 0.9rem;
-            background: #f8f9fa;
-            cursor: pointer;
-            text-align: center;
-            padding: 20px;
-            margin-top: 10px;
-        }
-        
-        .photo-paste-area:hover {
-            background: #f0f7ff;
-        }
-        
-        .photo-paste-area.paste-ready {
-            border-color: #28a745;
-            background: #e8f5e9;
-        }
-        
-        /* Admin Maps Input Section */
-        .admin-maps-section {
-            background: #f0f7ff;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #cce5ff;
-            margin-top: 10px;
-        }
-        
-        .admin-maps-section h4 {
-            margin: 0 0 10px 0;
-            color: #198754;
-            font-size: 0.9rem;
-        }
-        
-        .admin-maps-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        @media (max-width: 600px) {
-            .admin-maps-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Filter Section untuk Mode Teknisi */
-        .tech-filter-section {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .filter-btn {
-            padding: 8px 15px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s;
-        }
-        
-        .filter-btn:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
-        }
-        
-        .filter-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        
-        /* Sorting Indicator */
-        .sort-indicator {
-            font-size: 0.7rem;
-            color: #666;
-            margin-top: 5px;
-            font-style: italic;
-        }
     </style>
 </head>
 <body>
@@ -539,65 +390,8 @@
         </div>
     </div>
 
-    <!-- FILTER SECTION UNTUK MODE TEKNISI -->
-    <div id="filter-container" style="text-align:center; margin-bottom:15px; display:none;">
-        <div class="tech-filter-section">
-            <button class="filter-btn" onclick="sortJobsByDistance('asc')" id="btn-sort-distance-asc">
-                📍 Jarak Terdekat
-            </button>
-            <button class="filter-btn" onclick="sortJobsByDistance('desc')" id="btn-sort-distance-desc">
-                📍 Jarak Terjauh
-            </button>
-            <button class="filter-btn" onclick="sortJobsByTime('asc')" id="btn-sort-time-asc">
-                🕒 Waktu (Pagi-Sore)
-            </button>
-            <button class="filter-btn" onclick="sortJobsByTime('desc')" id="btn-sort-time-desc">
-                🕒 Waktu (Sore-Pagi)
-            </button>
-            <button class="filter-btn" onclick="resetSorting()" id="btn-sort-reset">
-                🔄 Reset Urutan
-            </button>
-        </div>
-        <div id="sort-indicator" class="sort-indicator"></div>
-    </div>
-
     <div id="teams-container">
         <p style="text-align: center; color: #888;">Memuat data...</p>
-    </div>
-</div>
-
-<!-- Modal Foto (MODIFIED UNTUK PASTE FOTO) -->
-<div id="modalPhoto" class="modal">
-    <div class="modal-content photo-modal-content">
-        <span class="close-modal" onclick="closePhotoModal()">&times;</span>
-        <h3 style="margin-top:0; color:#6f42c1;">🖼️ Foto Depan Rumah</h3>
-        <img id="modal-photo-img" class="photo-display" src="" alt="Foto Rumah">
-        
-        <!-- AREA PASTE FOTO UNTUK ADMIN -->
-        <div id="photo-paste-section" style="display: none; width: 100%; margin-top: 15px;">
-            <h4 style="color:#6f42c1; margin-bottom: 10px;">📋 Paste Foto (Admin Only)</h4>
-            <div id="photo-paste-area" class="photo-paste-area" onclick="this.focus()" contenteditable="true">
-                Klik disini lalu paste (Ctrl+V) foto dari clipboard...
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="btn-action-main" style="background-color: #28a745; padding: 8px 15px;" onclick="savePastedPhoto()">
-                    💾 Simpan Foto
-                </button>
-                <button class="btn-action-main" style="background-color: #6c757d; padding: 8px 15px;" onclick="clearPasteArea()">
-                    ❌ Hapus
-                </button>
-            </div>
-            <p style="font-size:0.8rem; color:#666; margin-top:10px;">
-                <strong>Petunjuk:</strong> Copy foto dari WhatsApp/chat (Ctrl+C), lalu klik area diatas dan paste (Ctrl+V)
-            </p>
-        </div>
-        
-        <!-- INFO UNTUK NON-ADMIN -->
-        <div id="photo-info-section" style="display: none; margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-            <p style="color:#666; font-size: 0.9rem; margin: 0;">
-                <strong>Info:</strong> Hanya admin yang dapat mengupload foto. Silakan hubungi admin untuk upload foto baru.
-            </p>
-        </div>
     </div>
 </div>
 
@@ -928,13 +722,6 @@
     let currentPhotoTeamIndex = -1;
     let currentPhotoJobIndex = -1;
 
-    // --- VARIABLE UNTUK GPS ---
-    let userPosition = null;
-    let gpsInitialized = false;
-    
-    // --- VARIABLE UNTUK SORTING ---
-    let currentSortType = 'default'; // 'default', 'distance_asc', 'distance_desc', 'time_asc', 'time_desc'
-
     // --- MAIN LOGIC START ---
 
     window.resetDatabase = function() {
@@ -1004,12 +791,6 @@
             // Sync modem
             if(gudangStock.srb || gudangStock.syn) {
                 syncInstalledModems();
-            }
-            
-            // Inisialisasi GPS setelah data dimuat
-            if (!gpsInitialized) {
-                initializeGeolocation();
-                gpsInitialized = true;
             }
         });
 
@@ -1087,7 +868,6 @@
             document.getElementById('main-app-container').style.display = 'block';
             document.getElementById('admin-menu-group').style.display = 'flex'; // Show menus
             document.getElementById('btn-back-tech').style.display = 'none'; // Hide back button
-            document.getElementById('filter-container').style.display = 'none'; // Hide filter for admin
             renderJobs();
         } else if (pin) {
             alert("❌ PIN Salah!");
@@ -1104,12 +884,6 @@
         document.getElementById('admin-menu-group').style.display = 'none';
         // Show Back Button
         document.getElementById('btn-back-tech').style.display = 'block';
-        // Show Filter Section
-        document.getElementById('filter-container').style.display = 'block';
-        
-        // Reset sorting indicator
-        currentSortType = 'default';
-        updateSortIndicator();
         
         renderJobs();
     }
@@ -1476,435 +1250,11 @@
         updateGudangCounts();
     };
 
-    // --- FUNGSI GPS DAN JARAK ---
-    
-    // 1. Ekstrak Lat/Long dari Berbagai Format Link Gmaps
-    function extractCoords(url) {
-        if(!url) return null;
-        url = url.trim();
-
-        // Format 1: Decimal di URL (@-6.123,106.123)
-        let match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-        // Format 2: Query parameter (?q=-6.123,106.123)
-        match = url.match(/q=(-?\d+\.\d+),(-?\d+\.\d+)/);
-        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-        // Format 3: Raw Coordinate (-6.123, 106.123)
-        match = url.match(/^(-?\d+\.\d+),\s*(-?\d+\.\d+)$/);
-        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-        // Format 4: search/coordinates
-        match = url.match(/search\/(-?\d+\.\d+),\s*(-?\d+\.\d+)/);
-        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-        return null; 
-    }
-
-    // 2. Hitung Jarak Akurat (Haversine Formula) dalam KM
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // Radius bumi (km)
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = 
-            Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        const d = R * c; 
-        
-        // Pembulatan 2 desimal agar lebih presisi (misal: 0.55 km)
-        return parseFloat(d.toFixed(2)); 
-    }
-
-    // 3. Inisialisasi GPS
-    function initializeGeolocation() {
-        if (!navigator.geolocation) {
-            console.warn("Browser tidak mendukung GPS");
-            return;
-        }
-
-        const options = {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
-        };
-
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                userPosition = position;
-                console.log("GPS berhasil diambil:", position.coords);
-                // Update semua tombol maps setelah GPS didapat
-                updateAllMapsButtons();
-            },
-            (error) => {
-                console.warn("Gagal mendapatkan GPS:", error.message);
-                userPosition = null;
-            },
-            options
-        );
-    }
-
-    // 4. Update Tombol Maps dengan Jarak
-    window.updateMapsButton = function(teamIdx, jobIdx, mapsLink, mapsButtonId) {
-        const button = document.getElementById(mapsButtonId);
-        if (!button || !mapsLink) return;
-
-        const coords = extractCoords(mapsLink);
-        
-        if (!coords) {
-            // Jika tidak bisa ekstrak koordinat, tampilkan tombol biasa
-            button.className = 'btn-maps';
-            button.innerHTML = '🗺️ Buka Maps';
-            button.onclick = () => window.open(mapsLink, '_blank');
-            return;
-        }
-
-        // BUAT LINK GMAPS DENGAN KOORDINAT LANGSUNG
-        const mapsUrl = `https://www.google.com/maps?q=${coords.lat},${coords.lng}`;
-        
-        // Hitung jarak jika userPosition tersedia
-        if (userPosition) {
-            const myLat = userPosition.coords.latitude;
-            const myLng = userPosition.coords.longitude;
-            const distance = calculateDistance(myLat, myLng, coords.lat, coords.lng);
-            
-            // Simpan jarak ke data
-            if (teams[teamIdx] && teams[teamIdx].jobs[jobIdx]) {
-                teams[teamIdx].jobs[jobIdx].calculatedDistance = distance;
-                saveDataToFirebase();
-            }
-
-            // Tentukan kelas berdasarkan jarak
-            let distanceClass = '';
-            if (distance < 1.0) {
-                distanceClass = 'distance-near';
-            } else if (distance < 5.0) {
-                distanceClass = 'distance-medium';
-            } else {
-                distanceClass = 'distance-far';
-            }
-
-            // Update tombol
-            button.className = `btn-maps-distance ${distanceClass}`;
-            button.innerHTML = `📍 ${distance} km - Buka Maps`;
-        } else {
-            // Jika GPS belum tersedia, tampilkan tombol tanpa jarak
-            button.className = 'btn-maps';
-            button.innerHTML = '🗺️ Buka Maps';
-        }
-
-        // Set onclick untuk buka maps dengan koordinat langsung
-        button.onclick = () => window.open(mapsUrl, '_blank');
-    }
-
-    // 5. Update semua tombol maps
-    function updateAllMapsButtons() {
-        if (!userPosition) return;
-
-        teams.forEach((team, teamIdx) => {
-            if (team.jobs) {
-                team.jobs.forEach((job, jobIdx) => {
-                    if (job.mapsLink) {
-                        const mapsButtonId = `maps-btn-${team.id}-${jobIdx}`;
-                        setTimeout(() => {
-                            updateMapsButton(teamIdx, jobIdx, job.mapsLink, mapsButtonId);
-                        }, 100);
-                    }
-                });
-            }
-        });
-    }
-
-    // --- FITUR PASTE FOTO (BARU) ---
-    window.openPhotoModal = function(photoSrc, teamIndex, jobIndex) {
-        const modal = document.getElementById('modalPhoto');
-        const img = document.getElementById('modal-photo-img');
-        const pasteSection = document.getElementById('photo-paste-section');
-        const infoSection = document.getElementById('photo-info-section');
-        
-        img.src = photoSrc || '';
-        
-        // Simpan indeks untuk upload
-        currentPhotoTeamIndex = teamIndex;
-        currentPhotoJobIndex = jobIndex;
-        
-        // Tampilkan paste section hanya jika admin
-        if (appMode === 'admin') {
-            pasteSection.style.display = 'block';
-            infoSection.style.display = 'none';
-            
-            // Setup paste area
-            const pasteArea = document.getElementById('photo-paste-area');
-            pasteArea.innerHTML = photoSrc ? "Klik disini lalu paste (Ctrl+V) foto baru dari clipboard..." : "Klik disini lalu paste (Ctrl+V) foto dari clipboard...";
-            pasteArea.className = 'photo-paste-area';
-            
-            // Focus pada paste area
-            setTimeout(() => pasteArea.focus(), 100);
-            
-            // Event listener untuk paste
-            pasteArea.onpaste = function(e) {
-                e.preventDefault();
-                const items = e.clipboardData.items;
-                
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].type.indexOf('image') !== -1) {
-                        const blob = items[i].getAsFile();
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            const photoBase64 = event.target.result;
-                            pasteArea.innerHTML = '<div style="color: #28a745; font-weight: bold;">✅ Foto siap disimpan!</div>';
-                            pasteArea.className = 'photo-paste-area paste-ready';
-                            
-                            // Simpan Base64 ke variable sementara
-                            pasteArea.dataset.imageData = photoBase64;
-                        };
-                        reader.readAsDataURL(blob);
-                        break;
-                    }
-                }
-            };
-        } else {
-            pasteSection.style.display = 'none';
-            infoSection.style.display = 'block';
-        }
-        
-        modal.style.display = 'block';
-    }
-
-    window.savePastedPhoto = function() {
-        if (appMode !== 'admin') {
-            alert("❌ Hanya admin yang dapat upload foto!");
-            return;
-        }
-        
-        const pasteArea = document.getElementById('photo-paste-area');
-        const imageData = pasteArea.dataset.imageData;
-        
-        if (!imageData) {
-            alert("❌ Belum ada foto yang dipaste! Copy foto terlebih dahulu lalu paste di area diatas.");
-            return;
-        }
-        
-        // Simpan ke data
-        if (currentPhotoTeamIndex !== -1 && currentPhotoJobIndex !== -1) {
-            teams[currentPhotoTeamIndex].jobs[currentPhotoJobIndex].photoEvidence = imageData;
-            saveDataToFirebase();
-            
-            // Update gambar di modal
-            document.getElementById('modal-photo-img').src = imageData;
-            
-            // Update tombol lihat foto di job item
-            renderJobs();
-            
-            alert("✅ Foto berhasil disimpan!");
-            
-            // Reset paste area
-            pasteArea.innerHTML = "Klik disini lalu paste (Ctrl+V) foto baru dari clipboard...";
-            pasteArea.className = 'photo-paste-area';
-            delete pasteArea.dataset.imageData;
-        }
-    };
-
-    window.clearPasteArea = function() {
-        const pasteArea = document.getElementById('photo-paste-area');
-        pasteArea.innerHTML = "Klik disini lalu paste (Ctrl+V) foto dari clipboard...";
-        pasteArea.className = 'photo-paste-area';
-        delete pasteArea.dataset.imageData;
-    };
-
-    window.closePhotoModal = function() {
-        document.getElementById('modalPhoto').style.display = 'none';
-        currentPhotoTeamIndex = -1;
-        currentPhotoJobIndex = -1;
-    };
-
-    window.updateMapsLink = function(teamIndex, jobIndex, value) {
-        if (teams[teamIndex] && teams[teamIndex].jobs[jobIndex]) {
-            teams[teamIndex].jobs[jobIndex].mapsLink = value;
-            saveDataToFirebase();
-            renderJobs();
-        }
-    };
-
-    // --- FUNGSI SORTING UNTUK MODE TEKNISI ---
-    
-    // Update sort indicator
-    function updateSortIndicator() {
-        const indicator = document.getElementById('sort-indicator');
-        let text = '';
-        
-        switch(currentSortType) {
-            case 'distance_asc':
-                text = '🔸 Diurutkan: Jarak Terdekat ke Terjauh';
-                break;
-            case 'distance_desc':
-                text = '🔸 Diurutkan: Jarak Terjauh ke Terdekat';
-                break;
-            case 'time_asc':
-                text = '🔸 Diurutkan: Waktu Pagi ke Sore';
-                break;
-            case 'time_desc':
-                text = '🔸 Diurutkan: Waktu Sore ke Pagi';
-                break;
-            default:
-                text = '🔸 Urutan Default';
-        }
-        
-        indicator.innerHTML = text;
-        
-        // Update active button states
-        const buttons = document.querySelectorAll('.filter-btn');
-        buttons.forEach(btn => btn.classList.remove('active'));
-        
-        let activeBtnId = '';
-        switch(currentSortType) {
-            case 'distance_asc':
-                activeBtnId = 'btn-sort-distance-asc';
-                break;
-            case 'distance_desc':
-                activeBtnId = 'btn-sort-distance-desc';
-                break;
-            case 'time_asc':
-                activeBtnId = 'btn-sort-time-asc';
-                break;
-            case 'time_desc':
-                activeBtnId = 'btn-sort-time-desc';
-                break;
-        }
-        
-        if (activeBtnId) {
-            document.getElementById(activeBtnId).classList.add('active');
-        }
-    }
-    
-    // Konversi waktu ke menit
-    function timeToMinutes(timeStr) {
-        if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999;
-        
-        const lower = timeStr.toLowerCase();
-        
-        // Handle waktu dengan kata-kata
-        if (lower.includes("pagi")) return 480;   // 08:00
-        if (lower.includes("siang")) return 780;  // 13:00
-        if (lower.includes("sore")) return 960;   // 16:00
-        if (lower.includes("malam")) return 1140; // 19:00
-        
-        // Handle format jam:menit
-        const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/);
-        if (match) {
-            let hour = parseInt(match[1]);
-            const minute = match[2] ? parseInt(match[2]) : 0;
-            
-            // Konversi ke 24 jam
-            if (hour === 12 && lower.includes('siang')) hour = 12;
-            else if (hour === 12 && lower.includes('malam')) hour = 0;
-            else if (hour < 12 && lower.includes('sore')) hour += 12;
-            else if (hour < 12 && lower.includes('malam')) hour += 12;
-            else if (hour < 5 && lower.includes('siang')) hour += 12;
-            
-            return hour * 60 + minute;
-        }
-        
-        return 99999; // Untuk waktu tidak diketahui
-    }
-    
-    // Sort by distance
-    window.sortJobsByDistance = function(order = 'asc') {
-        if (selectedTechIndex === -1 || appMode !== 'tech') return;
-        
-        const team = teams[selectedTechIndex];
-        if (!team.jobs || team.jobs.length === 0) return;
-        
-        // Cek apakah ada data jarak
-        const hasDistance = team.jobs.some(j => j.calculatedDistance !== undefined);
-        if (!hasDistance && order !== 'desc') {
-            alert("⚠️ Belum ada data jarak yang terhitung.\nPastikan GPS aktif dan tiket memiliki link maps yang valid.");
-            return;
-        }
-        
-        // Set sorting type
-        currentSortType = order === 'asc' ? 'distance_asc' : 'distance_desc';
-        
-        // Sort jobs
-        team.jobs.sort((a, b) => {
-            const distA = (a.calculatedDistance !== undefined) ? a.calculatedDistance : 99999;
-            const distB = (b.calculatedDistance !== undefined) ? b.calculatedDistance : 99999;
-            
-            return order === 'asc' ? distA - distB : distB - distA;
-        });
-        
-        saveDataToFirebase();
-        updateSortIndicator();
-        renderJobs();
-        
-        alert(`✅ Tiket diurutkan berdasarkan jarak ${order === 'asc' ? 'terdekat' : 'terjauh'}!`);
-    };
-    
-    // Sort by time
-    window.sortJobsByTime = function(order = 'asc') {
-        if (selectedTechIndex === -1 || appMode !== 'tech') return;
-        
-        const team = teams[selectedTechIndex];
-        if (!team.jobs || team.jobs.length === 0) return;
-        
-        // Set sorting type
-        currentSortType = order === 'asc' ? 'time_asc' : 'time_desc';
-        
-        // Sort jobs
-        team.jobs.sort((a, b) => {
-            const timeA = timeToMinutes(a.time);
-            const timeB = timeToMinutes(b.time);
-            
-            return order === 'asc' ? timeA - timeB : timeB - timeA;
-        });
-        
-        saveDataToFirebase();
-        updateSortIndicator();
-        renderJobs();
-        
-        alert(`✅ Tiket diurutkan berdasarkan waktu ${order === 'asc' ? 'pagi ke sore' : 'sore ke pagi'}!`);
-    };
-    
-    // Reset sorting
-    window.resetSorting = function() {
-        if (selectedTechIndex === -1 || appMode !== 'tech') return;
-        
-        const team = teams[selectedTechIndex];
-        if (!team.jobs || team.jobs.length === 0) return;
-        
-        currentSortType = 'default';
-        
-        // Reset ke urutan default (berdasarkan waktu, lalu berdasarkan ID)
-        team.jobs.sort((a, b) => {
-            // Pertama urut berdasarkan waktu
-            const timeA = timeToMinutes(a.time);
-            const timeB = timeToMinutes(b.time);
-            if (timeA !== timeB) return timeA - timeB;
-            
-            // Jika waktu sama, urut berdasarkan nama atau ID
-            return (a.name || '').localeCompare(b.name || '');
-        });
-        
-        saveDataToFirebase();
-        updateSortIndicator();
-        renderJobs();
-        
-        alert("✅ Urutan tiket direset ke default!");
-    };
-
   function renderJobs() {
         const container = document.getElementById('teams-container');
         container.innerHTML = ''; 
 
         if (!Array.isArray(teams)) { teams = []; }
-
-        // Tampilkan tombol filter hanya jika masuk mode teknisi
-        if (appMode === 'tech') {
-            document.getElementById('filter-container').style.display = 'block';
-        } else {
-            document.getElementById('filter-container').style.display = 'none';
-        }
 
         // Logic Sortir Tim (Sama seperti sebelumnya)
         teams.sort((a, b) => {
@@ -1926,46 +1276,12 @@
             if (team.jobs.length === 0) return;
             visibleTeamsCount++;
 
-            // Aplikasikan sorting jika dalam mode teknisi dan ada sorting aktif
-            if (appMode === 'tech' && tIndex === selectedTechIndex && currentSortType !== 'default') {
-                switch(currentSortType) {
-                    case 'distance_asc':
-                        team.jobs.sort((a, b) => {
-                            const distA = (a.calculatedDistance !== undefined) ? a.calculatedDistance : 99999;
-                            const distB = (b.calculatedDistance !== undefined) ? b.calculatedDistance : 99999;
-                            return distA - distB;
-                        });
-                        break;
-                    case 'distance_desc':
-                        team.jobs.sort((a, b) => {
-                            const distA = (a.calculatedDistance !== undefined) ? a.calculatedDistance : 99999;
-                            const distB = (b.calculatedDistance !== undefined) ? b.calculatedDistance : 99999;
-                            return distB - distA;
-                        });
-                        break;
-                    case 'time_asc':
-                        team.jobs.sort((a, b) => {
-                            const timeA = timeToMinutes(a.time);
-                            const timeB = timeToMinutes(b.time);
-                            return timeA - timeB;
-                        });
-                        break;
-                    case 'time_desc':
-                        team.jobs.sort((a, b) => {
-                            const timeA = timeToMinutes(a.time);
-                            const timeB = timeToMinutes(b.time);
-                            return timeB - timeA;
-                        });
-                        break;
-                }
-            } else {
-                // Default sorting berdasarkan waktu
-                team.jobs.sort((a, b) => {
-                    const timeA = timeToMinutes(a.time);
-                    const timeB = timeToMinutes(b.time);
-                    return timeA - timeB;
-                });
-            }
+            // Default sorting berdasarkan waktu
+            team.jobs.sort((a, b) => {
+                const timeA = timeToMinutes(a.time);
+                const timeB = timeToMinutes(b.time);
+                return timeA - timeB;
+            });
 
             // Hitung Stok
             const stockCount = team.inventory.filter(inv => {
@@ -2032,65 +1348,12 @@
                 const tech = job.technical || {};
                 const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none";
 
-                // --- BAGIAN BARU: LOGIKA MAPS & FOTO UNTUK ADMIN vs TEKNISI ---
-                const mapsLinkValue = job.mapsLink || "";
-                
-                // Input Link Maps HANYA UNTUK ADMIN
-                let mapsInputHTML = '';
-                if (appMode === 'admin') {
-                    mapsInputHTML = `
-                    <div class="admin-maps-section">
-                        <h4>📍 Link Gmaps / Koordinat:</h4>
-                        <div class="admin-maps-grid">
-                            <div>
-                                <input type="text" class="realtime-input" 
-                                       style="width:100%; padding:10px; border:1px solid #198754; border-radius:4px;"
-                                       placeholder="Contoh: https://maps.app.goo.gl/... atau -6.123,106.123"
-                                       value="${mapsLinkValue}"
-                                       onchange="updateMapsLink(${tIndex}, ${index}, this.value)">
-                                <div style="font-size:0.7rem; color:#666; margin-top:2px;">*Link atau koordinat (lat,lng)</div>
-                            </div>
-                        </div>
-                    </div>`;
-                }
-
-                let mapsButtonHTML = '';
-                let photoButtonHTML = '';
-
-                // Tombol Maps (Satu tombol dengan jarak otomatis) - UNTUK SEMUA MODE
-                if (mapsLinkValue) {
-                    const mapsButtonId = `maps-btn-${team.id}-${index}`;
-                    mapsButtonHTML = `
-                        <button id="${mapsButtonId}" 
-                                class="btn-maps">
-                            🗺️ Buka Maps
-                        </button>
-                    `;
-                }
-
-                // Tombol Lihat Foto (hanya jika ada foto) - UNTUK SEMUA MODE
-                if (job.photoEvidence) {
-                    photoButtonHTML = `
-                        <button class="btn-view-photo" onclick="openPhotoModal('${job.photoEvidence}', ${tIndex}, ${index})">
-                            🖼️ Lihat Foto
-                        </button>
-                    `;
-                } else if (appMode === 'admin') {
-                    // Jika admin dan tidak ada foto, tampilkan tombol untuk upload
-                    photoButtonHTML = `
-                        <button class="btn-view-photo" onclick="openPhotoModal('', ${tIndex}, ${index})" style="background: #fff; border: 1px dashed #6f42c1; color: #6f42c1;">
-                            📁 Upload Foto
-                        </button>
-                    `;
-                }
-
                 // Generate Form Input Teknis
                 let formHTML = '';
                 if (isPSB) {
                     formHTML = `
                     <div class="manual-input-section">
                         <h4 style="margin:0 0 10px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4>
-                        ${mapsInputHTML}
                         <div style="margin:10px 0;">
                             <label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label>
                             <select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})">
@@ -2112,7 +1375,6 @@
                     const displayMtTech = replaceStatus === 'yes' ? 'block' : 'none';
                     formHTML = `
                     <div class="manual-input-section">
-                        ${mapsInputHTML}
                         <div style="margin:10px 0;">
                             <label style="font-weight:bold; color:#d35400;">🔧 Opsi Perangkat:</label>
                             <select style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-weight:bold;"
@@ -2140,10 +1402,6 @@
                 const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${job.failureNote}</div>` : '';
                 const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${job.completionNote}</div>` : '';
                 
-                // Tampilkan jarak jika ada
-                const distanceInfo = job.calculatedDistance !== undefined ? 
-                    `<span style="font-size:0.8rem; color:#6c757d; margin-left:8px;">📍 ${job.calculatedDistance} km</span>` : '';
-                
                 let delButton = '';
                 if (appMode === 'admin') {
                     delButton = `<button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>`;
@@ -2161,12 +1419,6 @@
                                 <div style="font-weight:bold; color:#d35400; font-size:0.85rem; margin-top:3px;">
                                     🕒 ${job.time || 'FLEXIBEL'}
                                     ${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${layID}</span>` : ''}
-                                    ${distanceInfo}
-                                </div>
-                                <div class="maps-section">
-                                    ${mapsButtonHTML}
-                                    ${photoButtonHTML}
-                                    ${!mapsLinkValue ? '<span style="font-size:0.75rem; color:#999; font-style:italic;">(Belum ada link maps)</span>' : ''}
                                 </div>
                                 ${failureNote}
                                 ${successNote}
@@ -2194,9 +1446,6 @@
                 const inputs = li.querySelectorAll('.realtime-input');
                 inputs.forEach(input => {
                     input.addEventListener('change', (e) => {
-                        // Skip jika input maps, karena sudah dihandle onchange inline
-                        if (e.target.placeholder.includes("Paste link maps")) return;
-                        
                         const key = e.target.getAttribute('data-key');
                         if (key) {
                             if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
@@ -2205,14 +1454,6 @@
                         }
                     });
                 });
-
-                // Update tombol maps setelah dirender
-                if (mapsLinkValue) {
-                    const mapsButtonId = `maps-btn-${team.id}-${index}`;
-                    setTimeout(() => {
-                        updateMapsButton(tIndex, index, mapsLinkValue, mapsButtonId);
-                    }, 100);
-                }
             });
             updateProgressUI(team.id, team.jobs);
         });
@@ -2220,6 +1461,36 @@
         if (visibleTeamsCount === 0) {
             container.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif.<br>Silakan buat tiket baru untuk memunculkan Tim.</div>';
         }
+    }
+
+    function timeToMinutes(timeStr) {
+        if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999;
+        
+        const lower = timeStr.toLowerCase();
+        
+        // Handle waktu dengan kata-kata
+        if (lower.includes("pagi")) return 480;   // 08:00
+        if (lower.includes("siang")) return 780;  // 13:00
+        if (lower.includes("sore")) return 960;   // 16:00
+        if (lower.includes("malam")) return 1140; // 19:00
+        
+        // Handle format jam:menit
+        const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/);
+        if (match) {
+            let hour = parseInt(match[1]);
+            const minute = match[2] ? parseInt(match[2]) : 0;
+            
+            // Konversi ke 24 jam
+            if (hour === 12 && lower.includes('siang')) hour = 12;
+            else if (hour === 12 && lower.includes('malam')) hour = 0;
+            else if (hour < 12 && lower.includes('sore')) hour += 12;
+            else if (hour < 12 && lower.includes('malam')) hour += 12;
+            else if (hour < 5 && lower.includes('siang')) hour += 12;
+            
+            return hour * 60 + minute;
+        }
+        
+        return 99999; // Untuk waktu tidak diketahui
     }
 
     window.toggleJobStatus = function(tIndex, jobIndex, newStatus) {
@@ -2914,32 +2185,6 @@
         }
         teams[teamIndex].jobs.splice(jobIndex, 1);
         saveDataToFirebase();
-    }
-
-    // --- FUNGSI SORTING JARAK ---
-    window.sortJobsByDistance = function() {
-        if (selectedTechIndex === -1) return;
-        
-        const team = teams[selectedTechIndex];
-        if (!team.jobs || team.jobs.length === 0) return;
-
-        // Cek apakah tiket sudah punya data jarak
-        const hasDistance = team.jobs.some(j => j.calculatedDistance !== undefined);
-        if (!hasDistance) {
-            alert("⚠️ Belum ada data jarak yang terhitung.\nPastikan GPS aktif dan tiket memiliki link maps yang valid.");
-            return;
-        }
-
-        // Sorting: yang ada jarak ditaruh atas (ascending), yang belum ada di bawah
-        team.jobs.sort((a, b) => {
-            const distA = (a.calculatedDistance !== undefined) ? a.calculatedDistance : 99999;
-            const distB = (b.calculatedDistance !== undefined) ? b.calculatedDistance : 99999;
-            return distA - distB;
-        });
-
-        saveDataToFirebase(); // Simpan urutan baru
-        renderJobs(); // Render ulang
-        alert("✅ Tiket diurutkan dari lokasi terdekat!");
     }
 
     // --- FITUR BARU: BULK LOCK / UNLOCK ---
@@ -3781,7 +3026,6 @@ Jam: ${job.time}`;
         if (event.target == document.getElementById("modalBulk")) closeBulkModal();
         if (event.target == document.getElementById("modalRekapOption")) closeRekapModemOption();
         if (event.target == document.getElementById("modalExcelOption")) closeExcelOption();
-        if (event.target == document.getElementById("modalPhoto")) closePhotoModal();
     }
     
     loadFirebaseData();
