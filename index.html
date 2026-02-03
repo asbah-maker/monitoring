@@ -14,6 +14,137 @@
             background-color: #f4f6f9; padding: 10px; color: #333; margin: 0; font-size: 14px;
         }
 
+        /* --- SYNC NOTIFICATION STYLES --- */
+        .sync-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 300px;
+            animation: slideIn 0.3s ease;
+            opacity: 0.95;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 0.95; }
+        }
+        
+        .sync-notification.saving {
+            background-color: #007bff;
+            color: white;
+            border-left: 5px solid #0056b3;
+        }
+        
+        .sync-notification.success {
+            background-color: #28a745;
+            color: white;
+            border-left: 5px solid #1e7e34;
+        }
+        
+        .sync-notification.error {
+            background-color: #dc3545;
+            color: white;
+            border-left: 5px solid #bd2130;
+        }
+        
+        .sync-notification.warning {
+            background-color: #ffc107;
+            color: #212529;
+            border-left: 5px solid #d39e00;
+        }
+        
+        .sync-notification .sync-icon {
+            font-size: 1.2rem;
+        }
+        
+        .sync-notification .sync-close {
+            background: transparent;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: auto;
+        }
+        
+        .sync-notification.fade-out {
+            animation: fadeOut 0.5s ease forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 0.95; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100%); }
+        }
+        
+        /* Connection status indicator */
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .connection-status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .connection-status.connecting {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .connection-status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .connection-status .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .connection-status.connected .status-dot {
+            background-color: #28a745;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .connection-status.connecting .status-dot {
+            background-color: #ffc107;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .connection-status.disconnected .status-dot {
+            background-color: #dc3545;
+        }
+
         /* --- LANDING PAGE / LOGIN MODE STYLE --- */
         #landing-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -345,10 +476,21 @@
             .gudang-control { flex-direction: column; align-items: stretch; }
             .gudang-select { width: 100%; margin-bottom: 5px; }
             .btn-send-team { width: 100%; }
+            
+            /* Sync notification mobile */
+            .sync-notification {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
         }
     </style>
 </head>
 <body>
+
+<!-- Sync Notification Container -->
+<div id="sync-notification-container"></div>
 
 <div id="landing-overlay">
     <div class="landing-box">
@@ -655,6 +797,7 @@
                         <th>Serial Number (SN)</th>
                         <th>MAC Address</th>
                         <th style="width: 60px; text-align: center;">Tipe</th>
+                        <th style="width: 100px; text-align: center;">Status</th>
                         <th style="width: 60px; text-align: center;">Aksi</th>
                     </tr>
                 </thead>
@@ -664,6 +807,12 @@
             <div id="stock-empty-msg" style="text-align: center; padding: 20px; color: #999; font-style: italic; display: none;">
                 Belum ada data stok modem.
             </div>
+            <div id="duplicate-warning" style="display: none; background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.8rem;">
+                ⚠️ <strong>Peringatan:</strong> Terdeteksi duplikasi data modem. Gunakan tombol "Bersihkan Duplikat" untuk menghapus data ganda.
+            </div>
+            <button id="btn-clean-duplicates" style="display: none; width: 100%; margin-top: 10px; background-color: #dc3545; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;" onclick="cleanDuplicateModems()">
+                🗑️ Bersihkan Duplikat
+            </button>
         </div>
     </div>
 </div>
@@ -705,7 +854,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, update, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, update, onValue, get, onDisconnect, connectDatabaseEmulator } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA-qFL7CutiOoAEHXDXcGVsZA65yeG6G1A",
@@ -723,6 +872,12 @@
     const dbRef = ref(db, 'monitoring_teams_master'); 
     const gudangRef = ref(db, 'gudang_master_stock_v2');
 
+    // Variabel status koneksi
+    let isOnline = navigator.onLine;
+    let isFirebaseConnected = false;
+    let pendingSyncOperations = [];
+    let syncNotificationTimeout = null;
+
     let openDetailIds = new Set();
     const techList = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Reno", "Kholis", "Yudha", "Rival"];
     techList.sort(); 
@@ -736,21 +891,351 @@
     let appMode = 'landing'; // landing, admin, tech
     let selectedTechIndex = -1; // -1 means no tech selected
 
-    // --- CURRENT PHOTO MODAL STATE ---
-    let currentPhotoTeamIndex = -1;
-    let currentPhotoJobIndex = -1;
+    // --- SYNC NOTIFICATION SYSTEM ---
+    
+    function showSyncNotification(message, type = 'saving', autoClose = true, duration = 3000) {
+        // Hapus notifikasi sebelumnya jika ada
+        const container = document.getElementById('sync-notification-container');
+        
+        // Hapus timeout sebelumnya
+        if (syncNotificationTimeout) {
+            clearTimeout(syncNotificationTimeout);
+            syncNotificationTimeout = null;
+        }
+        
+        // Buat elemen notifikasi
+        const notification = document.createElement('div');
+        notification.className = `sync-notification ${type}`;
+        notification.id = `sync-notification-${Date.now()}`;
+        
+        // Tentukan ikon berdasarkan tipe
+        let icon = '⏳';
+        if (type === 'success') icon = '✅';
+        else if (type === 'error') icon = '❌';
+        else if (type === 'warning') icon = '⚠️';
+        else if (type === 'saving') icon = '🔄';
+        
+        notification.innerHTML = `
+            <span class="sync-icon">${icon}</span>
+            <span class="sync-message">${message}</span>
+            <button class="sync-close" onclick="closeSyncNotification('${notification.id}')">×</button>
+        `;
+        
+        // Tambahkan ke container
+        container.appendChild(notification);
+        
+        // Auto close jika diperlukan
+        if (autoClose && type !== 'saving') {
+            syncNotificationTimeout = setTimeout(() => {
+                closeSyncNotification(notification.id);
+            }, duration);
+        }
+        
+        return notification.id;
+    }
+    
+    window.closeSyncNotification = function(id) {
+        const notification = document.getElementById(id);
+        if (notification) {
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 500);
+        }
+    };
+    
+    function updateConnectionStatus(status, message) {
+        const statusElement = document.getElementById('connection-status');
+        let statusClass = 'connecting';
+        let statusText = message;
+        
+        if (status === 'connected') {
+            statusClass = 'connected';
+            if (!message) statusText = '✅ Terhubung Online (Data Tersimpan)';
+        } else if (status === 'disconnected') {
+            statusClass = 'disconnected';
+            if (!message) statusText = '❌ Terputus dari Server';
+        } else if (status === 'connecting') {
+            statusClass = 'connecting';
+            if (!message) statusText = '🔄 Menghubungkan...';
+        }
+        
+        statusElement.innerHTML = `
+            <span class="connection-status ${statusClass}">
+                <span class="status-dot"></span>
+                ${statusText}
+            </span>
+        `;
+        
+        // Update global status
+        isFirebaseConnected = (status === 'connected');
+        isOnline = navigator.onLine;
+        
+        // Jika terputus, tampilkan notifikasi
+        if (status === 'disconnected' && appMode !== 'landing') {
+            showSyncNotification('Koneksi terputus. Perubahan disimpan lokal.', 'warning', true, 5000);
+        }
+        
+        // Jika kembali terhubung, coba sinkronkan data yang tertunda
+        if (status === 'connected' && pendingSyncOperations.length > 0) {
+            showSyncNotification('Koneksi pulih. Menyinkronkan data...', 'saving');
+            setTimeout(() => {
+                retryPendingSyncOperations();
+            }, 1000);
+        }
+    }
+    
+    function retryPendingSyncOperations() {
+        if (pendingSyncOperations.length === 0 || !isFirebaseConnected) return;
+        
+        showSyncNotification(`Menyinkronkan ${pendingSyncOperations.length} operasi tertunda...`, 'saving');
+        
+        // Coba eksekusi operasi yang tertunda
+        const retryCount = pendingSyncOperations.length;
+        const successfulOps = [];
+        
+        pendingSyncOperations.forEach((op, index) => {
+            try {
+                if (op.type === 'teams') {
+                    saveDataToFirebaseDirect();
+                } else if (op.type === 'gudang') {
+                    saveGudangToFirebaseDirect();
+                }
+                successfulOps.push(index);
+            } catch (error) {
+                console.error(`Gagal sinkron operasi ${index}:`, error);
+            }
+        });
+        
+        // Hapus operasi yang berhasil
+        pendingSyncOperations = pendingSyncOperations.filter((_, index) => !successfulOps.includes(index));
+        
+        if (successfulOps.length > 0) {
+            showSyncNotification(`Berhasil sinkron ${successfulOps.length} operasi`, 'success');
+        }
+        
+        if (pendingSyncOperations.length > 0) {
+            showSyncNotification(`Masih ada ${pendingSyncOperations.length} operasi tertunda`, 'warning');
+        }
+    }
+    
+    function addPendingSyncOperation(type) {
+        // Tambah ke daftar operasi tertunda (maks 10 operasi)
+        pendingSyncOperations.push({
+            type: type,
+            timestamp: Date.now()
+        });
+        
+        if (pendingSyncOperations.length > 10) {
+            pendingSyncOperations.shift(); // Hapus yang terlama
+        }
+        
+        // Simpan ke localStorage untuk recovery
+        try {
+            localStorage.setItem('pending_sync_ops', JSON.stringify(pendingSyncOperations));
+        } catch (e) {
+            console.error('Gagal menyimpan operasi tertunda:', e);
+        }
+    }
+    
+    function loadPendingSyncOperations() {
+        try {
+            const saved = localStorage.getItem('pending_sync_ops');
+            if (saved) {
+                pendingSyncOperations = JSON.parse(saved);
+                // Hapus operasi yang terlalu lama (lebih dari 1 jam)
+                const oneHourAgo = Date.now() - (60 * 60 * 1000);
+                pendingSyncOperations = pendingSyncOperations.filter(op => op.timestamp > oneHourAgo);
+                
+                if (pendingSyncOperations.length > 0 && isFirebaseConnected) {
+                    setTimeout(() => retryPendingSyncOperations(), 2000);
+                }
+            }
+        } catch (e) {
+            console.error('Gagal memuat operasi tertunda:', e);
+        }
+    }
+
+    // --- FIREBASE SAVE FUNCTIONS WITH SYNC NOTIFICATION ---
+    
+    function saveDataToFirebaseDirect() {
+        return set(dbRef, teams)
+            .then(() => {
+                console.log('Data tim berhasil disimpan ke Firebase');
+                return true;
+            })
+            .catch((err) => {
+                console.error("Gagal menyimpan data tim ke Firebase:", err);
+                throw err;
+            });
+    }
+    
+    function saveGudangToFirebaseDirect() {
+        return set(gudangRef, gudangStock)
+            .then(() => {
+                console.log('Data gudang berhasil disimpan ke Firebase');
+                return true;
+            })
+            .catch((err) => {
+                console.error("Gagal menyimpan data gudang ke Firebase:", err);
+                throw err;
+            });
+    }
+    
+    function saveDataToFirebase() {
+        const notificationId = showSyncNotification('Menyimpan data tim...', 'saving', false);
+        
+        // Coba simpan langsung ke Firebase
+        saveDataToFirebaseDirect()
+            .then(() => {
+                showSyncNotification('Data tim berhasil disinkronkan!', 'success');
+                closeSyncNotification(notificationId);
+                
+                // Hapus dari pending operations jika ada
+                pendingSyncOperations = pendingSyncOperations.filter(op => op.type !== 'teams');
+            })
+            .catch((err) => {
+                showSyncNotification('Gagal sinkron data tim! Disimpan lokal.', 'error');
+                closeSyncNotification(notificationId);
+                
+                // Tambah ke pending operations untuk dicoba lagi nanti
+                addPendingSyncOperation('teams');
+                
+                // Simpan ke localStorage sebagai backup
+                try {
+                    localStorage.setItem('teams_backup', JSON.stringify({
+                        data: teams,
+                        timestamp: Date.now()
+                    }));
+                    console.log('Data tim disimpan ke localStorage sebagai backup');
+                } catch (e) {
+                    console.error('Gagal menyimpan backup ke localStorage:', e);
+                }
+            });
+    }
+    
+    function saveGudangToFirebase() {
+        const notificationId = showSyncNotification('Menyimpan data gudang...', 'saving', false);
+        
+        // Coba simpan langsung ke Firebase
+        saveGudangToFirebaseDirect()
+            .then(() => {
+                showSyncNotification('Data gudang berhasil disinkronkan!', 'success');
+                closeSyncNotification(notificationId);
+                
+                // Hapus dari pending operations jika ada
+                pendingSyncOperations = pendingSyncOperations.filter(op => op.type !== 'gudang');
+            })
+            .catch((err) => {
+                showSyncNotification('Gagal sinkron data gudang! Disimpan lokal.', 'error');
+                closeSyncNotification(notificationId);
+                
+                // Tambah ke pending operations untuk dicoba lagi nanti
+                addPendingSyncOperation('gudang');
+                
+                // Simpan ke localStorage sebagai backup
+                try {
+                    localStorage.setItem('gudang_backup', JSON.stringify({
+                        data: gudangStock,
+                        timestamp: Date.now()
+                    }));
+                    console.log('Data gudang disimpan ke localStorage sebagai backup');
+                } catch (e) {
+                    console.error('Gagal menyimpan backup ke localStorage:', e);
+                }
+            });
+    }
+    
+    // --- LOAD BACKUP DATA FROM LOCALSTORAGE ---
+    function loadBackupData() {
+        try {
+            // Coba load backup teams
+            const teamsBackup = localStorage.getItem('teams_backup');
+            if (teamsBackup) {
+                const backup = JSON.parse(teamsBackup);
+                const backupAge = Date.now() - backup.timestamp;
+                
+                // Gunakan backup jika kurang dari 24 jam
+                if (backupAge < 24 * 60 * 60 * 1000) {
+                    console.log('Memuat backup teams dari localStorage');
+                    teams = backup.data;
+                    
+                    // Tampilkan notifikasi
+                    if (appMode !== 'landing') {
+                        showSyncNotification('Data lokal dimuat dari backup', 'warning');
+                    }
+                }
+            }
+            
+            // Coba load backup gudang
+            const gudangBackup = localStorage.getItem('gudang_backup');
+            if (gudangBackup) {
+                const backup = JSON.parse(gudangBackup);
+                const backupAge = Date.now() - backup.timestamp;
+                
+                // Gunakan backup jika kurang dari 24 jam
+                if (backupAge < 24 * 60 * 60 * 1000) {
+                    console.log('Memuat backup gudang dari localStorage');
+                    gudangStock = backup.data;
+                }
+            }
+        } catch (e) {
+            console.error('Gagal memuat backup data:', e);
+        }
+    }
+
+    // --- FUNGSI UNTUK MENGATASI DUPLIKAT DATA MODEM ---
+    function getUniqueInventory(teamIndex) {
+        const team = teams[teamIndex];
+        if (!team || !team.inventory) return [];
+        
+        const seen = new Set();
+        const uniqueInventory = [];
+        
+        for (const item of team.inventory) {
+            if (!seen.has(item.sn)) {
+                seen.add(item.sn);
+                uniqueInventory.push(item);
+            }
+        }
+        
+        return uniqueInventory;
+    }
+    
+    function checkForDuplicateModems(teamIndex) {
+        const team = teams[teamIndex];
+        if (!team || !team.inventory) return false;
+        
+        const seen = new Set();
+        for (const item of team.inventory) {
+            if (seen.has(item.sn)) {
+                return true;
+            }
+            seen.add(item.sn);
+        }
+        return false;
+    }
 
     // --- MAIN LOGIC START ---
 
     window.resetDatabase = function() {
         let pin = prompt("⚠️ PERINGATAN: INI AKAN MENGHAPUS SEMUA TIKET!\n\nData Gudang (Pending/Terpasang) TIDAK AKAN DIHAPUS.\nMasukkan PIN untuk konfirmasi:");
         if (pin === "240525") {
-            set(dbRef, []).then(() => {
-                alert("✅ Tiket & Tim berhasil di-reset bersih!\nData Gudang Modem tetap tersimpan.");
-                location.reload();
-            }).catch((err) => {
-                alert("Gagal mereset database: " + err);
-            });
+            const notificationId = showSyncNotification('Meriset database...', 'saving', false);
+            
+            set(dbRef, [])
+                .then(() => {
+                    showSyncNotification('✅ Tiket & Tim berhasil di-reset bersih!', 'success');
+                    closeSyncNotification(notificationId);
+                    location.reload();
+                })
+                .catch((err) => {
+                    showSyncNotification('❌ Gagal mereset database!', 'error');
+                    closeSyncNotification(notificationId);
+                    alert("Gagal mereset database: " + err);
+                });
         } else if (pin) {
             alert("❌ PIN SALAH!");
         }
@@ -773,73 +1258,133 @@
         let deletedCount = totalItems - lockedItems.length;
 
         if (confirm(`⚠️ PERINGATAN TERAKHIR!\n\nTotal Modem: ${totalItems}\nModem Terkunci (Aman): ${lockedItems.length}\nModem Akan Dihapus: ${deletedCount}\n\nLanjut menghapus?`)) {
+            const notificationId = showSyncNotification('Memformat database...', 'saving', false);
+            
             gudangStock[type] = lockedItems; 
             
             saveGudangToFirebase();
             renderGudangTable(currentGudangTab);
             updateGudangCounts();
-            alert(`✅ Database diformat.\n${deletedCount} Data dihapus.\n${lockedItems.length} Data TERKUNCI berhasil diselamatkan.`);
+            
+            showSyncNotification(`✅ Database diformat. ${deletedCount} data dihapus.`, 'success');
+            closeSyncNotification(notificationId);
         }
     }
 
     function loadFirebaseData() {
-        onValue(dbRef, (snapshot) => {
-            const data = snapshot.val();
-            document.getElementById('connection-status').innerText = "✅ Terhubung Online (Data Tersimpan)";
-            document.getElementById('connection-status').style.color = "green";
-            document.getElementById('loading-text').style.display = 'none'; // Sembunyikan loading text
-            
-            if (data) {
-                teams = data;
-                teams.forEach(t => { if(!t.inventory) t.inventory = []; });
-            } else {
-                teams = JSON.parse(JSON.stringify(defaultTeams));
-            }
-
-            // --- REVISI: LANGSUNG TAMPILKAN DAFTAR TIM ---
-            renderLandingTeams(); 
-
-            // Jika sedang fokus di tim tertentu, pastikan data terupdate
-            if (appMode === 'tech' && selectedTechIndex !== -1) {
-                renderJobs();
-            } else if (appMode === 'admin') {
-                renderJobs();
-            }
-            
-            // Sync modem
-            if(gudangStock.srb || gudangStock.syn) {
-                syncInstalledModems();
-            }
+        // Update status koneksi menjadi connecting
+        updateConnectionStatus('connecting', 'Menghubungkan ke Firebase...');
+        
+        // Load backup data terlebih dahulu
+        loadBackupData();
+        loadPendingSyncOperations();
+        
+        // Setup online/offline event listeners
+        window.addEventListener('online', function() {
+            updateConnectionStatus('connecting', 'Koneksi pulih, menyinkronkan...');
+            setTimeout(() => {
+                if (isFirebaseConnected) {
+                    updateConnectionStatus('connected');
+                }
+            }, 1000);
         });
-
-        onValue(gudangRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                gudangStock = data;
-                if(!gudangStock.srb) gudangStock.srb = [];
-                if(!gudangStock.syn) gudangStock.syn = [];
+        
+        window.addEventListener('offline', function() {
+            updateConnectionStatus('disconnected', 'Koneksi internet terputus');
+            showSyncNotification('Anda sedang offline. Perubahan akan disimpan lokal.', 'warning', true, 5000);
+        });
+        
+        // Listen for Firebase connection state
+        const connectedRef = ref(db, ".info/connected");
+        onValue(connectedRef, (snap) => {
+            if (snap.val() === true) {
+                isFirebaseConnected = true;
+                updateConnectionStatus('connected');
                 
-                gudangStock.srb.forEach(item => {
-                    if (!item.status || item.status === '') item.status = 'ready';
+                // Load data dari Firebase
+                onValue(dbRef, (snapshot) => {
+                    const data = snapshot.val();
+                    document.getElementById('loading-text').style.display = 'none'; // Sembunyikan loading text
+                    
+                    if (data) {
+                        teams = data;
+                        teams.forEach(t => { 
+                            if(!t.inventory) t.inventory = []; 
+                            // Bersihkan duplikat saat memuat data
+                            if (t.inventory && t.inventory.length > 0) {
+                                const seen = new Set();
+                                const uniqueInventory = [];
+                                for (const item of t.inventory) {
+                                    if (!seen.has(item.sn)) {
+                                        seen.add(item.sn);
+                                        uniqueInventory.push(item);
+                                    }
+                                }
+                                t.inventory = uniqueInventory;
+                            }
+                        });
+                    } else {
+                        teams = JSON.parse(JSON.stringify(defaultTeams));
+                    }
+
+                    // --- REVISI: LANGSUNG TAMPILKAN DAFTAR TIM ---
+                    renderLandingTeams(); 
+
+                    // Jika sedang fokus di tim tertentu, pastikan data terupdate
+                    if (appMode === 'tech' && selectedTechIndex !== -1) {
+                        renderJobs();
+                    } else if (appMode === 'admin') {
+                        renderJobs();
+                    }
+                    
+                    // Sync modem
+                    if(gudangStock.srb || gudangStock.syn) {
+                        syncInstalledModems();
+                    }
                 });
-                gudangStock.syn.forEach(item => {
-                    if (!item.status || item.status === '') item.status = 'ready';
+
+                onValue(gudangRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        gudangStock = data;
+                        if(!gudangStock.srb) gudangStock.srb = [];
+                        if(!gudangStock.syn) gudangStock.syn = [];
+                        
+                        gudangStock.srb.forEach(item => {
+                            if (!item.status || item.status === '') item.status = 'ready';
+                        });
+                        gudangStock.syn.forEach(item => {
+                            if (!item.status || item.status === '') item.status = 'ready';
+                        });
+                    } else {
+                        const newStock = { srb: [], syn: [] };
+                        set(gudangRef, newStock);
+                        gudangStock = newStock;
+                    }
+                    
+                    updateGudangCounts();
+                    if(document.getElementById("modalGudang").style.display === "block") {
+                        renderGudangTable(currentGudangTab);
+                    }
+                    
+                    // Refresh jobs untuk update stok di card tim
+                    if (appMode !== 'landing') {
+                        renderJobs();
+                    }
                 });
+                
             } else {
-                const newStock = { srb: [], syn: [] };
-                set(gudangRef, newStock);
-                gudangStock = newStock;
+                isFirebaseConnected = false;
+                updateConnectionStatus('disconnected', 'Terputus dari Firebase');
             }
+        }, (error) => {
+            console.error("Error monitoring connection:", error);
+            isFirebaseConnected = false;
+            updateConnectionStatus('disconnected', 'Gagal terhubung ke Firebase');
             
-            updateGudangCounts();
-            if(document.getElementById("modalGudang").style.display === "block") {
-                renderGudangTable(currentGudangTab);
-            }
-            
-            // Refresh jobs untuk update stok di card tim
-            if (appMode !== 'landing') {
-                renderJobs();
-            }
+            // Tampilkan data dari backup
+            document.getElementById('loading-text').style.display = 'none';
+            renderLandingTeams();
         });
     }
     
@@ -1207,14 +1752,6 @@
         return item ? item.status : 'unknown';
     }
 
-    function saveDataToFirebase() {
-        set(dbRef, teams).catch((err) => alert("Gagal menyimpan data ke server!"));
-    }
-    
-    function saveGudangToFirebase() {
-        set(gudangRef, gudangStock).catch((err) => alert("Gagal update gudang!"));
-    }
-
     window.toggleMtModemInput = function(tIndex, jIndex, val) {
         teams[tIndex].jobs[jIndex].replaceModem = val;
         if(val === 'no') {
@@ -1301,8 +1838,9 @@
                 return timeA - timeB;
             });
 
-            // Hitung Stok
-            const stockCount = team.inventory.filter(inv => {
+            // Hitung Stok dengan menghilangkan duplikat
+            const uniqueInventory = getUniqueInventory(tIndex);
+            const stockCount = uniqueInventory.filter(inv => {
                  const st = getModemStatusGlobal(inv.sn);
                  return st === 'pending';
             }).length;
@@ -1329,9 +1867,9 @@
 
             const listContainer = document.getElementById(`list-${team.id}`);
             
-            // Buat Opsi Modem
+            // Buat Opsi Modem dari data yang sudah di-unique
             let modemOptions = `<option value="">-- Pilih Modem dari Stok (${stockCount}) --</option>`;
-            team.inventory.forEach(inv => {
+            uniqueInventory.forEach(inv => {
                 const status = getModemStatusGlobal(inv.sn);
                 const type = getModemType(inv.sn);
                 const typeLabel = (type === 'SRB' || type === 'SYN') ? `[${type}] ` : '';
@@ -1665,7 +2203,11 @@
             }
 
             if (!teams[targetTeamIdx].inventory) teams[targetTeamIdx].inventory = [];
-            teams[targetTeamIdx].inventory.push({ sn: item.sn, mac: item.mac });
+            // Cek apakah sudah ada SN yang sama di inventory tim tujuan
+            const existingIndex = teams[targetTeamIdx].inventory.findIndex(inv => inv.sn === item.sn);
+            if (existingIndex === -1) {
+                teams[targetTeamIdx].inventory.push({ sn: item.sn, mac: item.mac });
+            }
 
             gudangStock[type][index].teamName = targetTeamName;
             gudangStock[type][index].teamId = targetTeamIdx;
@@ -1852,6 +2394,7 @@
             const mac = tokens[i + 1];
 
             if (sn && mac) {
+                // Cek apakah sudah ada SN yang sama
                 let exists = gudangStock[type].find(item => item.sn === sn);
                 if(!exists) {
                     gudangStock[type].push({
@@ -1881,6 +2424,8 @@
         let pin = prompt("⚠️ PERINGATAN: INI AKAN MENGHAPUS DATA MODEM YANG BERSTATUS 'TERPASANG'!\n\nData Ready, Pending, dan BAD tidak akan terhapus.\nMasukkan PIN untuk konfirmasi:");
         
         if(pin === "240525") {
+            const notificationId = showSyncNotification('Membersihkan data terpasang...', 'saving', false);
+            
             const srbCountBefore = gudangStock.srb.length;
             gudangStock.srb = gudangStock.srb.filter(item => !(item.status === 'installed' && !item.isLocked));
             const srbDeleted = srbCountBefore - gudangStock.srb.length;
@@ -1890,13 +2435,16 @@
             const synDeleted = synCountBefore - gudangStock.syn.length;
 
             saveGudangToFirebase();
+            renderGudangTable(currentGudangTab);
+            updateGudangCounts();
+            
             let msg = `✅ PEMBERSIHAN SELESAI!\nDeleted SRB: ${srbDeleted}\nDeleted SYN: ${synDeleted}`;
             if (srbDeleted === 0 && synDeleted === 0) {
                 msg += "\n\n(Tidak ada data yang dihapus. Mungkin data Terpasang dalam status TERKUNCI 🔒)";
             }
-            alert(msg);
-            renderGudangTable(currentGudangTab);
-            updateGudangCounts();
+            
+            showSyncNotification(`Pembersihan selesai: ${srbDeleted + synDeleted} data dihapus`, 'success');
+            closeSyncNotification(notificationId);
 
         } else if (pin) {
             alert("❌ PIN SALAH!");
@@ -1905,6 +2453,7 @@
 
     window.processModemAction = function(type, index, action) {
         const item = gudangStock[type][index];
+        const notificationId = showSyncNotification('Memproses aksi modem...', 'saving', false);
         
         if (action === 'retur') {
             if(confirm(`⚠️ RETUR MODEM?\n\nApakah anda yakin menarik modem SN: ${item.sn} kembali ke Stok Ready?`)) {
@@ -1915,6 +2464,8 @@
                 gudangStock[type][index].installedDate = null;
                 gudangStock[type][index].isLocked = false; 
                 finalizeAction();
+            } else {
+                closeSyncNotification(notificationId);
             }
         } else if (action === 'bad') {
             if(confirm(`⚠️ SET MODEM BAD?\n\nSN: ${item.sn} akan ditandai sebagai RUSAK/BAD.`)) {
@@ -1937,12 +2488,16 @@
                 gudangStock[type][index].badDate = new Date().toLocaleString('id-ID');
                 
                 finalizeAction();
+            } else {
+                closeSyncNotification(notificationId);
             }
         } else if (action === 'reset') {
              if(confirm(`Kembalikan modem BAD/UNKNOWN (SN: ${item.sn}) menjadi READY?`)) {
                 gudangStock[type][index].status = 'ready';
                 gudangStock[type][index].isLocked = false;
                 finalizeAction();
+             } else {
+                closeSyncNotification(notificationId);
              }
         }
 
@@ -1951,11 +2506,15 @@
             renderGudangTable(type);
             updateGudangCounts();
             renderJobs(); 
+            showSyncNotification('Aksi modem berhasil diproses', 'success');
+            closeSyncNotification(notificationId);
         }
     }
 
     window.deleteFromWarehouse = function(type, index) {
         if(confirm("Hapus modem ini permanen dari database gudang?")) {
+            const notificationId = showSyncNotification('Menghapus modem...', 'saving', false);
+            
             const item = gudangStock[type][index];
             teams.forEach(t => {
                 if (t.inventory) {
@@ -1970,6 +2529,9 @@
             saveGudangToFirebase();
             renderGudangTable(type);
             updateGudangCounts();
+            
+            showSyncNotification('Modem berhasil dihapus', 'success');
+            closeSyncNotification(notificationId);
         }
     }
 
@@ -1983,19 +2545,28 @@
         const teamName = teams[teamIdx].teamName;
 
         if(confirm(`Kirim modem SN: ${item.sn} ke ${teamName}?`)) {
+            const notificationId = showSyncNotification('Mengirim modem ke tim...', 'saving', false);
+            
             gudangStock[type][index].status = 'pending';
             gudangStock[type][index].teamName = teamName;
             gudangStock[type][index].teamId = teamIdx;
             gudangStock[type][index].pendingDate = new Date().toLocaleString('id-ID');
 
             if(!teams[teamIdx].inventory) teams[teamIdx].inventory = [];
-            teams[teamIdx].inventory.push({ sn: item.sn, mac: item.mac });
+            // Cek apakah sudah ada SN yang sama di inventory tim
+            const existingIndex = teams[teamIdx].inventory.findIndex(inv => inv.sn === item.sn);
+            if (existingIndex === -1) {
+                teams[teamIdx].inventory.push({ sn: item.sn, mac: item.mac });
+            }
             
             saveDataToFirebase();
             saveGudangToFirebase();
             
             renderGudangTable(type);
             updateGudangCounts();
+            
+            showSyncNotification('Modem berhasil dikirim ke tim', 'success');
+            closeSyncNotification(notificationId);
         }
     }
 
@@ -2004,6 +2575,8 @@
         const teamName = item.teamName;
         
         if(confirm(`Tarik kembali modem ${item.sn} dari ${teamName} ke Gudang?`)) {
+            const notificationId = showSyncNotification('Menarik modem kembali...', 'saving', false);
+            
             teams.forEach(t => {
                 if(t.inventory) {
                     const invIndex = t.inventory.findIndex(inv => inv.sn === item.sn);
@@ -2023,6 +2596,9 @@
             
             renderGudangTable(type);
             updateGudangCounts();
+            
+            showSyncNotification('Modem berhasil ditarik ke gudang', 'success');
+            closeSyncNotification(notificationId);
         }
     }
 
@@ -2051,10 +2627,16 @@
 
         if(!teams[idx].inventory) teams[idx].inventory = [];
         
-        teams[idx].inventory.push({ sn: sn, mac: mac });
-        saveDataToFirebase();
-        closeStockModal();
-        alert("✅ Stok Modem berhasil ditambahkan!");
+        // Cek apakah sudah ada SN yang sama
+        const existingIndex = teams[idx].inventory.findIndex(inv => inv.sn === sn);
+        if (existingIndex === -1) {
+            teams[idx].inventory.push({ sn: sn, mac: mac });
+            saveDataToFirebase();
+            closeStockModal();
+            alert("✅ Stok Modem berhasil ditambahkan!");
+        } else {
+            alert("⚠️ Modem dengan SN ini sudah ada di stok tim!");
+        }
     }
 
     window.openStockListModal = function(teamIndex) {
@@ -2062,20 +2644,35 @@
         const tbody = document.getElementById('stock-table-body');
         const title = document.getElementById('stock-list-title');
         const emptyMsg = document.getElementById('stock-empty-msg');
+        const duplicateWarning = document.getElementById('duplicate-warning');
+        const cleanDuplicatesBtn = document.getElementById('btn-clean-duplicates');
         
         title.innerText = team.teamName;
         tbody.innerHTML = '';
 
-        const filteredInventory = team.inventory.filter(item => {
-            const status = getModemStatusGlobal(item.sn);
-            return status !== 'ready';
-        });
+        // Gunakan data yang sudah di-unique untuk ditampilkan
+        const uniqueInventory = getUniqueInventory(teamIndex);
+        const hasDuplicates = checkForDuplicateModems(teamIndex);
 
-        if (!filteredInventory || filteredInventory.length === 0) {
+        // Tampilkan peringatan jika ada duplikat
+        if (hasDuplicates) {
+            duplicateWarning.style.display = 'block';
+            cleanDuplicatesBtn.style.display = 'block';
+            cleanDuplicatesBtn.setAttribute('data-team-index', teamIndex);
+        } else {
+            duplicateWarning.style.display = 'none';
+            cleanDuplicatesBtn.style.display = 'none';
+        }
+
+        if (!uniqueInventory || uniqueInventory.length === 0) {
             emptyMsg.style.display = 'block';
+            duplicateWarning.style.display = 'none';
+            cleanDuplicatesBtn.style.display = 'none';
         } else {
             emptyMsg.style.display = 'none';
-            filteredInventory.forEach((item, index) => {
+            
+            // Tampilkan data yang sudah di-unique
+            uniqueInventory.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 
                 const status = getModemStatusGlobal(item.sn);
@@ -2111,6 +2708,7 @@
                     <td>${displaySN} ${statusBadge}</td>
                     <td>${item.mac}</td>
                     <td style="text-align:center;">${typeBadge}</td>
+                    <td style="text-align:center;">${status.toUpperCase()}</td>
                     <td style="text-align:center;">
                         ${displayAction}
                     </td>
@@ -2126,6 +2724,44 @@
         document.getElementById('modalStockList').style.display = "none";
     }
 
+    window.cleanDuplicateModems = function() {
+        const teamIndex = document.getElementById('btn-clean-duplicates').getAttribute('data-team-index');
+        if (teamIndex === null) return;
+        
+        let pin = prompt("🔒 Masukkan PIN untuk membersihkan duplikat modem:");
+        if (pin !== "240525") {
+            alert("❌ PIN SALAH! Akses ditolak.");
+            return;
+        }
+        
+        const team = teams[teamIndex];
+        if (!team || !team.inventory) return;
+        
+        const seen = new Set();
+        const uniqueInventory = [];
+        
+        // Simpan data unik
+        for (const item of team.inventory) {
+            if (!seen.has(item.sn)) {
+                seen.add(item.sn);
+                uniqueInventory.push(item);
+            }
+        }
+        
+        const duplicateCount = team.inventory.length - uniqueInventory.length;
+        
+        if (duplicateCount > 0) {
+            team.inventory = uniqueInventory;
+            saveDataToFirebase();
+            alert(`✅ Berhasil membersihkan ${duplicateCount} data duplikat!`);
+            
+            // Refresh tampilan
+            openStockListModal(parseInt(teamIndex));
+        } else {
+            alert("Tidak ada data duplikat ditemukan.");
+        }
+    }
+
     window.deleteStock = function(teamIndex, sn) {
         let pin = prompt("🔒 Masukkan PIN untuk Hapus Stok Modem:");
         if (pin !== "240525") {
@@ -2133,11 +2769,16 @@
             return;
         }
         const team = teams[teamIndex];
-        const index = team.inventory.findIndex(inv => inv.sn === sn);
-        if (index !== -1) {
-            team.inventory.splice(index, 1);
+        
+        // Hapus semua entri dengan SN yang sama (jika ada duplikat)
+        const initialLength = team.inventory.length;
+        team.inventory = team.inventory.filter(inv => inv.sn !== sn);
+        const removedCount = initialLength - team.inventory.length;
+        
+        if (removedCount > 0) {
             saveDataToFirebase();
             openStockListModal(teamIndex);
+            alert(`✅ Berhasil menghapus ${removedCount} data modem dengan SN: ${sn}`);
         }
     }
 
@@ -2215,6 +2856,8 @@
             return;
         }
 
+        const notificationId = showSyncNotification(`${lockState ? 'Mengunci' : 'Membuka'} semua modem...`, 'saving', false);
+        
         let count = 0;
         gudangStock[currentGudangTab].forEach(item => {
             item.isLocked = lockState;
@@ -2227,8 +2870,9 @@
         let msg = lockState 
             ? `🔒 Berhasil MENGUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.\nModem ini sekarang aman dari Reset/Hapus.` 
             : `🔓 Berhasil MEMBUKA KUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.`;
-            
-        alert(msg);
+        
+        showSyncNotification(msg, 'success');
+        closeSyncNotification(notificationId);
     }
 
     window.generatePreview = function() {
@@ -2415,6 +3059,8 @@
             return; 
         }
 
+        const notificationId = showSyncNotification('Menyimpan tiket baru...', 'saving', false);
+
         try {
             let selectedMembers = [t1.toLowerCase()];
             if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
@@ -2568,17 +3214,21 @@
             if (count > 0) {
                 saveDataToFirebase();
                 closeCreateTicketModal();
-                alert(`✅ SUKSES!\nBerhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}.`);
+                showSyncNotification(`✅ Berhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}!`, 'success');
+                closeSyncNotification(notificationId);
+                
                 document.getElementById('bulk-input-text').value = '';
                 document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
                 renderJobs();
                 // REFRESH LANDING JUGA JIKA KITA DALAM ADMIN MODE TAPI MASIH DI LANDING
                 renderLandingTeams(); 
             } else {
+                closeSyncNotification(notificationId);
                 alert("⚠️ Gagal memproses tiket. Data input mungkin tidak valid.");
             }
 
         } catch (error) {
+            closeSyncNotification(notificationId);
             console.error("CRITICAL ERROR:", error);
             alert("❌ TERJADI ERROR SYSTEM:\n" + error.message + "\n\nCoba refresh halaman dan coba lagi.");
         }
@@ -2860,14 +3510,17 @@ Jam: ${job.time}`;
         teams.forEach(team => {
             if(!team.inventory || team.inventory.length === 0) return;
 
+            // Gunakan data unik untuk menghindari duplikasi
+            const uniqueInventory = getUniqueInventory(teams.indexOf(team));
+            
             let items = [];
             if(mode === 'sisa') {
-                items = team.inventory.filter(i => {
+                items = uniqueInventory.filter(i => {
                     const status = getModemStatusGlobal(i.sn);
                     return status === 'pending';
                 });
             } else {
-                items = team.inventory;
+                items = uniqueInventory;
             }
 
             if(items.length > 0) {
@@ -3090,6 +3743,7 @@ Jam: ${job.time}`;
         if (event.target == document.getElementById("modalCopyOption")) closeCopyOption();
     }
     
+    // Initialize the app
     loadFirebaseData();
 </script>
 
