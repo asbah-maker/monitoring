@@ -3079,7 +3079,7 @@
         const tgl = getFieldValue(text, 'Tanggal pemasangan');
         const statusRumah = getFieldValue(text, 'Status Rumah');
         const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun');
-        const linkSC = getFieldValue(text, 'Link SC'); // Tambahan untuk link SC
+        const linkSC = getFieldValue(text, 'Link SC'); // Tetap ada input untuk link SC
 
         const card = document.createElement('div');
         card.className = 'preview-card preview-psb';
@@ -3102,7 +3102,8 @@
                 <div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
                 <div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div>
                 <div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setuju}"></div>
-                <div class="input-group"><label>Link SC (Speedtest)</label><input type="text" class="bulk-link-sc" value="${linkSC}" placeholder="https://..."></div>
+                <!-- Link SC masih ada di input tapi tidak akan disimpan ke database -->
+                <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
             </div>
         `;
         container.appendChild(card);
@@ -3130,7 +3131,7 @@
         const sandiWifi = getFieldValue(text, 'Sandi WiFi');
         const keterangan = getFieldValue(text, 'Keterangan');
         const router = getFieldValue(text, 'Router');
-        const linkSC = getFieldValue(text, 'Link SC'); // Tambahan untuk link SC
+        const linkSC = getFieldValue(text, 'Link SC'); // Tetap ada input untuk link SC
 
         const isIsolir = kendala.toLowerCase().includes('isolir');
 
@@ -3165,7 +3166,8 @@
                 <div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div>
                 <div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div>
                 <div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div>
-                <div class="input-group"><label>Link SC (Speedtest)</label><input type="text" class="bulk-link-sc" value="${linkSC}" placeholder="https://..."></div>
+                <!-- Link SC masih ada di input tapi tidak akan disimpan ke database -->
+                <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
             </div>
         `;
         container.appendChild(card);
@@ -3256,7 +3258,6 @@
 
                 const nama = getValue('.bulk-nama');
                 const alamat = getValue('.bulk-alamat');
-                const linkSC = getValue('.bulk-link-sc'); // Ambil link SC
 
                 let newJob = {};
 
@@ -3275,7 +3276,7 @@
                         status: 'pending',
                         completedAt: null, 
                         technical: {},
-                        linkSC: linkSC, // Simpan link SC
+                        linkSC: '', // Link SC tidak disimpan
                         name: nama || '-',
                         tag: `PSB (${paket || '150rb'})`,
                         tagClass: "badge-psb",
@@ -3337,7 +3338,7 @@
                         status: 'pending',
                         completedAt: null,
                         technical: {},
-                        linkSC: linkSC, // Simpan link SC
+                        linkSC: '', // Link SC tidak disimpan
                         name: nama || '-',
                         tag: kendala || 'MT (Lain)',
                         tagClass: (kendala && kendala.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt",
@@ -3479,10 +3480,7 @@ Jam: ${job.time}`;
             }
         }
         
-        // Tambahkan link SC jika ada
-        if (job.linkSC) {
-            textToCopy += `\n\nLink Speedtest (SC): ${job.linkSC}`;
-        }
+        // DIHAPUS: Bagian link SC tidak ditambahkan ke teks copy
         
         copyToClipboard(textToCopy, btn);
     };
@@ -3521,10 +3519,7 @@ Jam: ${job.time}`;
              text += `🆔 ${layID} | 🕒 ${time}\n`;
              text += `📍 ${job.address}\n`;
              
-             // Tambahkan link SC jika ada
-             if (job.linkSC) {
-                 text += `📊 SC: ${job.linkSC}\n`;
-             }
+             // DIHAPUS: Bagian link SC tidak ditambahkan ke rekap
              
              text += `----------------------------------------------\n`;
         });
@@ -3572,10 +3567,7 @@ Jam: ${job.time}`;
                 summaryText += `🆔 ${layID} | 🕒 ${time}\n`;
                 summaryText += `📍 ${job.address}\n`;
                 
-                // Tambahkan link SC jika ada
-                if (job.linkSC) {
-                    summaryText += `📊 SC: ${job.linkSC}\n`;
-                }
+                // DIHAPUS: Bagian link SC tidak ditambahkan ke rekap semua
                 
                 summaryText += `----------------------------------------------\n`;
             });
@@ -3783,7 +3775,7 @@ Jam: ${job.time}`;
                         "No Handphone": d['No WA'] || d['No Telp'] || "-",
                         "Tanggal pemasangan": finalDate,
                         "Paket Layanan": d['Paket'] || "-",
-                        "Link SC": job.linkSC || "-" // Tambahkan link SC
+                        // Kolom "Link SC" dihapus dari export Excel
                     });
                 } 
                 else {
@@ -3821,7 +3813,7 @@ Jam: ${job.time}`;
                         "Area Kelurahan": kelurahan,
                         "SN": tech.sn || "-",
                         "Catatan": catatanFull,
-                        "Link SC": job.linkSC || "-" // Tambahkan link SC
+                        // Kolom "Link SC" dihapus dari export Excel
                     });
                 }
             });
@@ -3836,10 +3828,10 @@ Jam: ${job.time}`;
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         
         if (mode === 'psb') {
-            const wscols = [{wch: 5}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 10}, {wch: 15}, {wch: 25}, {wch: 20}, {wch: 30}];
+            const wscols = [{wch: 5}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 10}, {wch: 15}, {wch: 25}, {wch: 20}]; // Dihapus 1 kolom untuk Link SC
             ws['!cols'] = wscols;
         } else {
-            const wscols = [{wch: 5}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 30}, {wch: 30}];
+            const wscols = [{wch: 5}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 30}]; // Dihapus 1 kolom untuk Link SC
             ws['!cols'] = wscols;
         }
 
