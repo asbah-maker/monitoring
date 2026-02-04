@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Data Tools Gemini</title>
+    <title>Master Data Tools Gemini V2</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -138,6 +138,16 @@
         }
         .form-grid { display: grid; gap: 20px; margin-top: 20px; }
         .form-item { background: #fff; border: 1px solid var(--border); padding: 20px; border-radius: 12px; }
+        .ref-tag {
+            display: inline-block;
+            background-color: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            font-weight: 500;
+        }
 
         /* Toast */
         #toast {
@@ -164,7 +174,7 @@
         <div class="menu-grid">
             <div class="menu-card" onclick="switchView('psb')">
                 <h3>PSB Data Tools</h3>
-                <p>Generator form input untuk data PSB massal.</p>
+                <p>Generator form input untuk data PSB massal dengan Referensi.</p>
             </div>
             <div class="menu-card" onclick="switchView('ticket')">
                 <h3>Format Data Tiket</h3>
@@ -180,10 +190,13 @@
             <div class="card-header">
                 <div style="display:flex; align-items:center;">
                     <div class="step-badge">1</div>
-                    <h2>Input Nomor Layanan</h2>
+                    <h2>Paste Rekap PSB</h2>
                 </div>
             </div>
-            <textarea id="psbInputList" style="height: 150px;" placeholder="1347005972&#10;1347005975&#10;..."></textarea>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
+                Paste langsung format rekap (No Layanan & Referensi) di sini:
+            </p>
+            <textarea id="psbInputList" style="height: 150px;" placeholder="1393006071 referensi: Tidak ada referensi&#10;1347006068 referensi: bima&#10;..."></textarea>
             <button class="btn-primary" onclick="generatePsbForms()" style="margin-top:20px;">Generate Form Input</button>
         </div>
 
@@ -191,9 +204,10 @@
             <div class="card-header">
                 <div style="display:flex; align-items:center;">
                     <div class="step-badge">2</div>
-                    <h2>Lengkapi Data PSB</h2>
+                    <h2>Lengkapi Detail Data</h2>
                 </div>
             </div>
+            <p style="font-size: 0.9rem; color: #666;">Paste detail lengkap (Nama, Alamat, dll) pada kolom di bawah ini untuk setiap nomor.</p>
             <div id="psbFormsContainer" class="form-grid"></div>
         </div>
 
@@ -267,13 +281,13 @@
     }
 
     // ==========================================
-    // LOGIC 1: PSB DATA TOOLS (Existing)
+    // LOGIC 1: PSB DATA TOOLS (Updated)
     // ==========================================
     const PSB_PROMPT_TEMPLATE = `berikan saya table excel dengan urutan nomor layanan yang angka awal, nama, kolom alamat harus sesuai dengan apa yang ada di kolom alamat dan jangan ada yang dihapus atau ubah, rt nanti didepannya tidak ada angka 0, rw nanti didepannya tidak ada angka 0, kodepos ambil 5 angka dari depan nomor layanan, nomor handphone, tanggal terdaftar, paket layanan, referensi.`;
 
     function generatePsbForms() {
         const rawInput = document.getElementById('psbInputList').value;
-        let lines = rawInput.replace(/[()]/g, '').split('\n').filter(line => line.trim() !== '');
+        const lines = rawInput.split('\n');
         
         const container = document.getElementById('psbFormsContainer');
         container.innerHTML = '';
@@ -281,13 +295,46 @@
 
         lines.forEach(line => {
             const cleanLine = line.trim();
-            if (cleanLine.length > 5 && !isNaN(cleanLine)) { 
+            // Regex untuk menangkap Nomor Layanan (angka diawal) dan Referensi (setelah text 'referensi:')
+            // Contoh: "1393006071 referensi: Tidak ada referensi"
+            const match = cleanLine.match(/^(\d{7,})\s*referensi:\s*(.*)$/i);
+            
+            let noLayanan = null;
+            let referensi = "";
+
+            if (match) {
+                noLayanan = match[1];
+                referensi = match[2].trim();
+            } else {
+                // Fallback jika tidak ada kata 'referensi:', cek apakah cuma angka
+                const simpleMatch = cleanLine.match(/^(\d{7,})/);
+                if (simpleMatch) {
+                    noLayanan = simpleMatch[1];
+                    referensi = "-"; // Default jika tidak ada ref
+                }
+            }
+
+            if (noLayanan) { 
                 validCount++;
                 const div = document.createElement('div');
                 div.className = 'form-item';
+                
+                // Tampilan UI dengan Badge Referensi
+                let refDisplay = referensi !== '-' ? `<span class="ref-tag">Ref: ${referensi}</span>` : '';
+
                 div.innerHTML = `
-                    <label style="display:block; font-weight:600; margin-bottom:10px; color:var(--primary)">No. Layanan: <span style="color:#333">${cleanLine}</span></label>
-                    <textarea id="data_${cleanLine}" data-nolayanan="${cleanLine}" placeholder="Paste detail data PSB untuk ${cleanLine} disini..." style="height:100px;"></textarea>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="font-weight:600; color:var(--primary)">
+                            No. Layanan: <span style="color:#333; font-size:1.1em">${noLayanan}</span>
+                            ${refDisplay}
+                        </label>
+                    </div>
+                    <textarea 
+                        id="data_${noLayanan}" 
+                        data-nolayanan="${noLayanan}" 
+                        data-referensi="${referensi}"
+                        placeholder="Paste detail data PSB untuk ${noLayanan} disini..." 
+                        style="height:100px;"></textarea>
                 `;
                 container.appendChild(div);
             }
@@ -299,7 +346,7 @@
             setTimeout(() => { document.getElementById('psbStep2').scrollIntoView({behavior: "smooth"}); }, 100);
             showToast(`Berhasil: ${validCount} Nomor Layanan`);
         } else {
-            showToast("Tidak ada nomor layanan valid.");
+            showToast("Tidak ada format valid ditemukan.");
         }
     }
 
@@ -309,10 +356,14 @@
         let filledCount = 0;
 
         textareas.forEach(ta => {
-            let val = ta.value.trim();
+            let detailData = ta.value.trim();
             let noLay = ta.getAttribute('data-nolayanan');
-            if (val) {
-                combinedData += `${noLay} ${val}\n\n`;
+            let ref = ta.getAttribute('data-referensi');
+            
+            if (detailData) {
+                // Menggabungkan No Layanan, Referensi, dan Data Detail agar dibaca Gemini
+                // Format: No Layanan: XXX | Referensi: YYY | Data: ...
+                combinedData += `No Layanan: ${noLay}\nReferensi: ${ref}\nData Detail: ${detailData}\n\n----------------\n\n`;
                 filledCount++;
             }
         });
@@ -324,18 +375,17 @@
     }
 
     // ==========================================
-    // LOGIC 2: FORMAT DATA TIKET (New)
+    // LOGIC 2: FORMAT DATA TIKET
     // ==========================================
     function processTicketAndOpen() {
         const rawTickets = document.getElementById('ticketInput').value.trim();
-        const currentDate = getIndonesianDate(); // Ambil tanggal hari ini (misal: 03 FEBRUARI 2026)
+        const currentDate = getIndonesianDate(); 
 
         if (!rawTickets) {
             showToast("Kolom tiket masih kosong!");
             return;
         }
 
-        // Template Prompt Super Lengkap
         const finalPrompt = `(( ${rawTickets} )) berikan saya datanya jika di tiketnya nama pelanggan maka tulis dengan format: (Jam:
 kendala:
 Nama Pelanggan:
@@ -443,4 +493,3 @@ Setuju berlangganan minimal 1 tahun: YA) , jika pada format nama lengkap  di seb
 
 </body>
 </html>
-
