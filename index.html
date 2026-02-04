@@ -212,23 +212,17 @@
         /* --- BUTTONS BARU (LOCK & UNLOCK) --- */
         .btn-lock-all { 
             background: #343a40; 
-            color: white; 
-            border: 2px solid #1d2124; 
-            padding: 8px 15px; 
-            border-radius: 4px; 
-            font-weight: bold; 
-            cursor: pointer; 
+            color: white; border: 2px solid #1d2124; 
+            padding: 8px 15px; border-radius: 4px; 
+            font-weight: bold; cursor: pointer; 
         }
         .btn-lock-all:hover { background: #23272b; }
 
         .btn-unlock-all { 
             background: #ffc107; 
-            color: #212529; 
-            border: 2px solid #d39e00; 
-            padding: 8px 15px; 
-            border-radius: 4px; 
-            font-weight: bold; 
-            cursor: pointer; 
+            color: #212529; border: 2px solid #d39e00; 
+            padding: 8px 15px; border-radius: 4px; 
+            font-weight: bold; cursor: pointer; 
         }
         .btn-unlock-all:hover { background: #e0a800; }
 
@@ -319,6 +313,80 @@
 
         .btn-view-stock { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-left: 5px; }
         .btn-view-stock:hover { background: rgba(0,0,0,0.4); }
+
+        /* --- DROPDOWN LINK SC (ADMIN MODE) --- */
+        .sc-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .sc-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 140px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            right: 0;
+            top: 100%;
+        }
+
+        .sc-dropdown:hover .sc-dropdown-content {
+            display: block;
+        }
+
+        .sc-dropdown-item {
+            color: #333;
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .sc-dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .sc-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .sc-dropdown-item.open {
+            color: #007bff;
+        }
+
+        .sc-dropdown-item.edit {
+            color: #fd7e14;
+        }
+
+        /* Tombol Link SC (Tech Mode) */
+        .btn-sc {
+            background: #e8f0fe;
+            border: 1px solid #1a73e8;
+            color: #1a73e8;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 60px;
+            justify-content: center;
+        }
+        
+        .btn-sc:hover {
+            background: #d2e3fc;
+            border-color: #0d62d9;
+        }
 
         /* --- DETAIL & INPUTS --- */
         .job-details { display: none; margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
@@ -483,6 +551,12 @@
                 right: 10px;
                 left: 10px;
                 max-width: none;
+            }
+            
+            /* Dropdown Link SC di HP */
+            .sc-dropdown-content {
+                right: -50px;
+                min-width: 120px;
             }
         }
     </style>
@@ -857,14 +931,13 @@
     import { getDatabase, ref, set, update, onValue, get, onDisconnect, connectDatabaseEmulator } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyA-qFL7CutiOoAEHXDXcGVsZA65yeG6G1A",
-      authDomain: "monitoring-3aeb6.firebaseapp.com",
-      databaseURL: "https://monitoring-3aeb6-default-rtdb.firebaseio.com",
-      projectId: "monitoring-3aeb6",
-      storageBucket: "monitoring-3aeb6.firebasestorage.app",
-      messagingSenderId: "888117973644",
-      appId: "1:888117973644:web:d69bd316cd7178679ee1a9",
-      measurementId: "G-PTL0F1FPK0"
+        apiKey: "AIzaSyBy26KTGUxD0ehcjOFPZaw9s7tC6ghBq5w",
+        authDomain: "monitoringteknisi-6e192.firebaseapp.com",
+        projectId: "monitoringteknisi-6e192",
+        storageBucket: "monitoringteknisi-6e192.firebasestorage.app",
+        messagingSenderId: "907116293593",
+        appId: "1:907116293593:web:438e2471a0562ec7d4bdc8",
+        measurementId: "G-522Q2X2MNG"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -1459,6 +1532,18 @@
         renderLandingTeams(); // Refresh list di depan
     }
 
+    // --- FUNGSI EDIT LINK SC ---
+    window.editLinkSC = function(teamIndex, jobIndex) {
+        const job = teams[teamIndex].jobs[jobIndex];
+        const currentLink = job.linkSC || '';
+        const newLink = prompt('Edit Link SC (Speedtest):', currentLink);
+        if (newLink !== null) {
+            job.linkSC = newLink.trim();
+            saveDataToFirebase();
+            renderJobs(); // Refresh tampilan
+        }
+    };
+
     // --- NEW FEATURE FUNCTIONS START ---
 
     // 1. OPEN SELECTION MODAL
@@ -1924,6 +2009,10 @@
                             <div class="input-group"><label>Port</label><input type="text" id="port-${tIndex}-${index}" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div>
                             <div class="input-group"><label>Id ODP</label><input type="text" id="odp-${tIndex}-${index}" class="realtime-input" data-key="odp" data-team="${tIndex}" data-job="${index}" value="${tech.odp || ''}" placeholder="ODP-.."></div>
                             <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${tIndex}-${index}" class="realtime-input" data-key="redaman" data-team="${tIndex}" data-job="${index}" value="${tech.redaman || ''}" placeholder="-18 dBm"></div>
+                            <div class="input-group" style="grid-column: 1/-1;">
+                                <label>Link Speedtest (SC)</label>
+                                <input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..." ${appMode === 'tech' ? 'readonly' : ''}>
+                            </div>
                         </div>
                     </div>`;
                 } else {
@@ -1948,6 +2037,10 @@
                                 <div class="input-group" style="grid-column: 1/-1;"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div>
                                 <div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div>
                                 <div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div>
+                                <div class="input-group" style="grid-column: 1/-1;">
+                                    <label>Link Speedtest (SC)</label>
+                                    <input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..." ${appMode === 'tech' ? 'readonly' : ''}>
+                                </div>
                              </div>
                         </div>
                     </div>
@@ -1961,6 +2054,26 @@
                 let delButton = '';
                 if (appMode === 'admin') {
                     delButton = `<button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>`;
+                }
+
+                // TOMBOL LINK SC DENGAN DROPDOWN UNTUK ADMIN
+                let scButton = '';
+                if (job.linkSC) {
+                    if (appMode === 'admin') {
+                        // Admin Mode: Dropdown dengan 2 opsi (Buka Link dan Edit Link)
+                        scButton = `
+                            <div class="sc-dropdown">
+                                <button class="btn-sc">📊 SC</button>
+                                <div class="sc-dropdown-content">
+                                    <div class="sc-dropdown-item open" onclick="window.open('${job.linkSC}', '_blank')">🔗 Buka Link</div>
+                                    <div class="sc-dropdown-item edit" onclick="editLinkSC(${tIndex}, ${index})">✏️ Edit Link</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Tech Mode: Hanya tombol buka link biasa
+                        scButton = `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')" title="Buka Link Speedtest">📊 SC</button>`;
+                    }
                 }
 
                 li.innerHTML = `
@@ -1984,6 +2097,7 @@
                         <div class="action-buttons">
                             <button class="btn-copy" onclick="copyData(${tIndex}, ${index}, this)">📋 Copy</button>
                             <button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>
+                            ${scButton}
                             ${delButton}
                         </div>
                     </div>
@@ -2004,8 +2118,13 @@
                     input.addEventListener('change', (e) => {
                         const key = e.target.getAttribute('data-key');
                         if (key) {
-                            if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
-                            teams[tIndex].jobs[index].technical[key] = e.target.value;
+                            if (key === 'linkSC') {
+                                // Simpan langsung ke job
+                                teams[tIndex].jobs[index][key] = e.target.value;
+                            } else {
+                                if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
+                                teams[tIndex].jobs[index].technical[key] = e.target.value;
+                            }
                             saveDataToFirebase();
                         }
                     });
@@ -2797,13 +2916,20 @@
             
             if(macParts.length === 6) {
                 let lastByte = parseInt(macParts[5], 16);
-                lastByte = lastByte + 1;
+                
+                // MODIFIKASI: Untuk modem ALCL, tambah 5 bukan 1
+                if (sn.startsWith("ALCL")) {
+                    lastByte = lastByte + 5;
+                } else {
+                    lastByte = lastByte + 1;
+                }
+                
                 lastByte = lastByte % 256;
                 let newLastPart = lastByte.toString(16).toUpperCase().padStart(2, '0');
                 macParts[5] = newLastPart;
                 vlanMac = macParts.join(sep);
             } else {
-                vlanMac = mac; 
+                vlanMac = mac;
             }
         } catch(e) {
             vlanMac = mac;
@@ -2875,6 +3001,22 @@
         closeSyncNotification(notificationId);
     }
 
+    // --- FUNGSI UNTUK GET FIELD VALUE (DIGUNAKAN DI PREVIEW) ---
+    function getFieldValue(text, fieldName) {
+        const lines = text.split('\n');
+        for (let line of lines) {
+            line = line.trim();
+            if (line.toLowerCase().startsWith(fieldName.toLowerCase())) {
+                const separatorIndex = line.indexOf(':');
+                if (separatorIndex !== -1) {
+                    let value = line.substring(separatorIndex + 1).trim();
+                    return value === "" ? "-" : value;
+                }
+            }
+        }
+        return "-";
+    }
+
     window.generatePreview = function() {
         const raw = document.getElementById('bulk-input-text').value;
         const container = document.getElementById('preview-container');
@@ -2925,21 +3067,6 @@
         }
     }
 
-    function getFieldValue(text, fieldName) {
-        const lines = text.split('\n');
-        for (let line of lines) {
-            line = line.trim();
-            if (line.toLowerCase().startsWith(fieldName.toLowerCase())) {
-                const separatorIndex = line.indexOf(':');
-                if (separatorIndex !== -1) {
-                    let value = line.substring(separatorIndex + 1).trim();
-                    return value === "" ? "-" : value;
-                }
-            }
-        }
-        return "-";
-    }
-
     function createPSBCard(text, index, container) {
         const jam = getFieldValue(text, 'Jam');
         const nama = getFieldValue(text, 'Nama Lengkap');
@@ -2952,6 +3079,7 @@
         const tgl = getFieldValue(text, 'Tanggal pemasangan');
         const statusRumah = getFieldValue(text, 'Status Rumah');
         const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun');
+        const linkSC = getFieldValue(text, 'Link SC'); // Tambahan untuk link SC
 
         const card = document.createElement('div');
         card.className = 'preview-card preview-psb';
@@ -2974,6 +3102,7 @@
                 <div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
                 <div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div>
                 <div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setuju}"></div>
+                <div class="input-group"><label>Link SC (Speedtest)</label><input type="text" class="bulk-link-sc" value="${linkSC}" placeholder="https://..."></div>
             </div>
         `;
         container.appendChild(card);
@@ -3001,6 +3130,7 @@
         const sandiWifi = getFieldValue(text, 'Sandi WiFi');
         const keterangan = getFieldValue(text, 'Keterangan');
         const router = getFieldValue(text, 'Router');
+        const linkSC = getFieldValue(text, 'Link SC'); // Tambahan untuk link SC
 
         const isIsolir = kendala.toLowerCase().includes('isolir');
 
@@ -3035,9 +3165,16 @@
                 <div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div>
                 <div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div>
                 <div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div>
+                <div class="input-group"><label>Link SC (Speedtest)</label><input type="text" class="bulk-link-sc" value="${linkSC}" placeholder="https://..."></div>
             </div>
         `;
         container.appendChild(card);
+    }
+
+    // Helper function untuk mengambil nilai dari input di preview card
+    function getValueFromPreview(card, selector) {
+        const el = card.querySelector(selector);
+        return el ? el.value.trim() : '';
     }
     
     window.saveBulkTickets = function() {
@@ -3119,6 +3256,7 @@
 
                 const nama = getValue('.bulk-nama');
                 const alamat = getValue('.bulk-alamat');
+                const linkSC = getValue('.bulk-link-sc'); // Ambil link SC
 
                 let newJob = {};
 
@@ -3137,6 +3275,7 @@
                         status: 'pending',
                         completedAt: null, 
                         technical: {},
+                        linkSC: linkSC, // Simpan link SC
                         name: nama || '-',
                         tag: `PSB (${paket || '150rb'})`,
                         tagClass: "badge-psb",
@@ -3198,6 +3337,7 @@
                         status: 'pending',
                         completedAt: null,
                         technical: {},
+                        linkSC: linkSC, // Simpan link SC
                         name: nama || '-',
                         tag: kendala || 'MT (Lain)',
                         tagClass: (kendala && kendala.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt",
@@ -3338,6 +3478,12 @@ Jam: ${job.time}`;
                  textToCopy += `\n\n--- GANTI MODEM BARU ---\nSN : ${tech.sn}\nMAC : ${macVal}\nVLAN : ${vlanVal}`;
             }
         }
+        
+        // Tambahkan link SC jika ada
+        if (job.linkSC) {
+            textToCopy += `\n\nLink Speedtest (SC): ${job.linkSC}`;
+        }
+        
         copyToClipboard(textToCopy, btn);
     };
 
@@ -3374,6 +3520,12 @@ Jam: ${job.time}`;
              text += `${statusLine}${failureLine}\n`;
              text += `🆔 ${layID} | 🕒 ${time}\n`;
              text += `📍 ${job.address}\n`;
+             
+             // Tambahkan link SC jika ada
+             if (job.linkSC) {
+                 text += `📊 SC: ${job.linkSC}\n`;
+             }
+             
              text += `----------------------------------------------\n`;
         });
 
@@ -3419,6 +3571,12 @@ Jam: ${job.time}`;
                 summaryText += `${statusLine}${failureLine}\n`;
                 summaryText += `🆔 ${layID} | 🕒 ${time}\n`;
                 summaryText += `📍 ${job.address}\n`;
+                
+                // Tambahkan link SC jika ada
+                if (job.linkSC) {
+                    summaryText += `📊 SC: ${job.linkSC}\n`;
+                }
+                
                 summaryText += `----------------------------------------------\n`;
             });
             summaryText += `\n`; 
@@ -3624,7 +3782,8 @@ Jam: ${job.time}`;
                         "Kode Pos": "-",
                         "No Handphone": d['No WA'] || d['No Telp'] || "-",
                         "Tanggal pemasangan": finalDate,
-                        "Paket Layanan": d['Paket'] || "-"
+                        "Paket Layanan": d['Paket'] || "-",
+                        "Link SC": job.linkSC || "-" // Tambahkan link SC
                     });
                 } 
                 else {
@@ -3661,7 +3820,8 @@ Jam: ${job.time}`;
                         "RW": addressParts.rw,
                         "Area Kelurahan": kelurahan,
                         "SN": tech.sn || "-",
-                        "Catatan": catatanFull 
+                        "Catatan": catatanFull,
+                        "Link SC": job.linkSC || "-" // Tambahkan link SC
                     });
                 }
             });
@@ -3676,10 +3836,10 @@ Jam: ${job.time}`;
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         
         if (mode === 'psb') {
-            const wscols = [{wch: 5}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 10}, {wch: 15}, {wch: 25}, {wch: 20}];
+            const wscols = [{wch: 5}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 10}, {wch: 15}, {wch: 25}, {wch: 20}, {wch: 30}];
             ws['!cols'] = wscols;
         } else {
-            const wscols = [{wch: 5}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 30}];
+            const wscols = [{wch: 5}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 30}, {wch: 30}];
             ws['!cols'] = wscols;
         }
 
