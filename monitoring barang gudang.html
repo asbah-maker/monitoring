@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistem Gudang V8.3 - Full Management</title>
+    <title>Sistem Gudang V8.3 (ONLINE - FIREBASE)</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -172,6 +172,13 @@
         .action-group { display: flex; gap: 5px; }
         .btn-retur-good { background: #dcfce7; color: #166534; border: 1px solid #86efac; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
         .btn-retur-bad { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
+        
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(255,255,255,0.9); z-index: 9999; 
+            display: flex; justify-content: center; align-items: center; 
+            flex-direction: column; font-size: 1.2rem; color: var(--primary);
+        }
 
         @media (max-width: 768px) {
             .main-grid { grid-template-columns: 1fr; gap: 20px; } 
@@ -186,10 +193,15 @@
 </head>
 <body>
 
+<div id="loadingOverlay">
+    <div style="margin-bottom:10px;">☁️ Menghubungkan ke Database...</div>
+    <small style="color:#64748b">Mohon tunggu sebentar</small>
+</div>
+
 <div class="container">
 
     <div class="header-section">
-        <h1>📦 Gudang V8.3 (Date & Filter)</h1>
+        <h1>📦 Gudang V8.3 (ONLINE)</h1>
         <button class="btn-config" onclick="openChoiceModal()">⚙️ Pengaturan & Data</button>
         <div class="stock-dashboard" id="stockDisplay"></div>
     </div>
@@ -296,10 +308,10 @@
         <span class="close-btn" onclick="document.getElementById('editLogModal').style.display='none'">&times;</span>
         <h3 style="margin-top:0">✏️ Edit / Retur Barang</h3>
         <p style="font-size:0.85rem; color:#64748b; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-            <b>INFO:</b> Jika Modem diretur (dikembalikan), data teknisi peminjam akan otomatis di-reset (dihapus).<br><br>
+            <b>INFO:</b> Perubahan akan langsung disinkronkan ke Database.<br><br>
             Pilih jenis retur: <br>
             <b>✅ Ready</b>: Barang kembali ke stok aktif.<br>
-            <b>❌ Rusak</b>: Barang masuk ke Gudang Bad Stock (Auto Tanggal Hari Ini).
+            <b>❌ Rusak</b>: Barang masuk ke Gudang Bad Stock.
         </p>
         <div id="editLogContainer"></div>
     </div>
@@ -466,7 +478,24 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAu8yqoxwV7sX5Nl7zHv9DBWpMbnhRKDdg",
+      authDomain: "monitoring-barang-gudang.firebaseapp.com",
+      databaseURL: "https://monitoring-barang-gudang-default-rtdb.firebaseio.com",
+      projectId: "monitoring-barang-gudang",
+      storageBucket: "monitoring-barang-gudang.firebasestorage.app",
+      messagingSenderId: "596110906796",
+      appId: "1:596110906796:web:a08d3f10d5016831045609",
+      measurementId: "G-404YZ6B66J"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
     // --- KONFIGURASI DATA AWAL ---
     const TEKNISI_LIST = [
         "Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", 
@@ -479,49 +508,92 @@
         "Protec", "Tutup Tiang", "Closure", "Roset", "Splitter", "Konektor RJ45"
     ];
 
-    // --- STATE VARIABLES (Versi 8.2) ---
-    let logs = JSON.parse(localStorage.getItem('gudang_logs_v8')) || [];
-    let inventory = JSON.parse(localStorage.getItem('gudang_inv_v8')) || {};
-    let badInventory = JSON.parse(localStorage.getItem('gudang_bad_v8')) || {}; 
-    let badLogs = JSON.parse(localStorage.getItem('gudang_bad_logs_v8')) || []; 
-    let itemMaster = JSON.parse(localStorage.getItem('gudang_items_master_v8')) || DEFAULT_BARANG;
-    let modemDB = JSON.parse(localStorage.getItem('gudang_modem_db_v8')) || [];
+    // --- STATE VARIABLES ---
+    let logs = [];
+    let inventory = {};
+    let badInventory = {}; 
+    let badLogs = []; 
+    let itemMaster = DEFAULT_BARANG;
+    let modemDB = [];
 
     let cart = [];
-    let currentModemFilter = 'all'; // State untuk filter modem
+    let currentModemFilter = 'all';
 
-    // --- INITIALIZATION ---
-    window.onload = function() {
-        itemMaster.forEach(item => {
-            if (inventory[item] === undefined) inventory[item] = 50; 
-            if (badInventory[item] === undefined) badInventory[item] = 0; 
+    // --- INITIALIZATION (FIREBASE LISTENERS) ---
+    // Menggantikan window.onload localstorage
+    
+    function initApp() {
+        const loading = document.getElementById('loadingOverlay');
+        
+        // Listeners for Realtime Updates
+        onValue(ref(db, 'master_items'), (snap) => {
+            itemMaster = snap.val() || DEFAULT_BARANG;
+            populateDropdowns();
+            renderUI();
         });
 
-        // Migrasi Data Lama
-        modemDB.forEach(m => {
-            if(!m.type) m.type = 'SRB'; 
-            if(!m.status) m.status = 'avail';
-            if(!m.date) m.date = '-';
+        onValue(ref(db, 'inventory'), (snap) => {
+            inventory = snap.val() || {};
+            renderUI();
         });
 
-        populateDropdowns();
+        onValue(ref(db, 'bad_stock'), (snap) => {
+            badInventory = snap.val() || {};
+        });
+
+        onValue(ref(db, 'logs'), (snap) => {
+            logs = snap.val() || [];
+            renderUI();
+        });
+
+        onValue(ref(db, 'bad_logs'), (snap) => {
+            badLogs = snap.val() || [];
+        });
+
+        onValue(ref(db, 'modems'), (snap) => {
+            let val = snap.val();
+            // Firebase kadang mengubah array menjadi object jika index tidak urut
+            // Kita paksa jadi array
+            modemDB = val ? (Array.isArray(val) ? val : Object.values(val)) : [];
+            updateModemStats();
+            // Jika sedang buka list, refresh list
+            if(document.getElementById('modemModal').style.display !== 'none') {
+                searchModem();
+                if(document.getElementById('tabList').style.display === 'block') renderFullModemList();
+            }
+            
+            // Hilangkan loading setelah data pertama masuk (simulasi)
+            if(loading) loading.style.display = 'none';
+        });
+
         document.getElementById('dateInput').valueAsDate = new Date();
-        renderUI();
-        updateModemStats();
-        toggleSNField();
-    };
+        populateDropdowns();
+    }
+
+    // Panggil init
+    initApp();
 
     function populateDropdowns() {
         const techSel = document.getElementById('techName');
         const itemSel = document.getElementById('itemName');
         
+        // Simpan seleksi saat ini agar tidak reset saat realtime update
+        const curItem = itemSel.value;
+        const curTech = techSel.value;
+
         itemSel.innerHTML = '<option value="" disabled selected>-- Pilih Barang --</option>';
 
         if(techSel.options.length <= 1) {
             TEKNISI_LIST.forEach(t => techSel.add(new Option(t, t)));
         }
 
-        itemMaster.sort().forEach(b => itemSel.add(new Option(b, b)));
+        if(itemMaster && Array.isArray(itemMaster)){
+             itemMaster.sort().forEach(b => itemSel.add(new Option(b, b)));
+        }
+        
+        // Restore value
+        if(curItem) itemSel.value = curItem;
+        if(curTech) techSel.value = curTech;
     }
 
     function renderUI() {
@@ -530,28 +602,23 @@
         renderCart();
     }
 
-    function persistData() {
-        localStorage.setItem('gudang_logs_v8', JSON.stringify(logs));
-        localStorage.setItem('gudang_inv_v8', JSON.stringify(inventory));
-        localStorage.setItem('gudang_bad_v8', JSON.stringify(badInventory));
-        localStorage.setItem('gudang_items_master_v8', JSON.stringify(itemMaster));
-        localStorage.setItem('gudang_modem_db_v8', JSON.stringify(modemDB));
-        localStorage.setItem('gudang_bad_logs_v8', JSON.stringify(badLogs)); 
-        renderUI();
-        updateModemStats();
+    // --- FUNGSI SIMPAN KE FIREBASE (Gantikan persistData) ---
+    function saveDataToFirebase() {
+        // Kita update node-node utama setiap ada perubahan logika bisnis
+        // Catatan: Ini metode brute-force 'set' agar logika kode lama tetap jalan.
+        // Untuk aplikasi skala besar, sebaiknya update per item.
+        set(ref(db, 'inventory'), inventory);
+        set(ref(db, 'logs'), logs);
+        set(ref(db, 'bad_stock'), badInventory);
+        set(ref(db, 'bad_logs'), badLogs);
+        set(ref(db, 'master_items'), itemMaster);
+        set(ref(db, 'modems'), modemDB);
     }
 
-    function isSnInCart(sn) {
-        for(let c of cart) {
-            if(c.details && Array.isArray(c.details)) {
-                if(c.details.find(d => d.sn === sn)) return true;
-            }
-            if(c.sn === sn) return true;
-        }
-        return false;
-    }
+    // --- FUNGSI GLOBAL (DI-ATTACH KE WINDOW) ---
+    // Karena HTML onclick="namaFungsi()" butuh akses global
 
-    function toggleSNField() {
+    window.toggleSNField = function() {
         const itemVal = document.getElementById('itemName').value;
         const qtyInput = document.getElementById('qty');
         const isModem = itemVal.toLowerCase().includes('modem');
@@ -565,25 +632,123 @@
         qtyInput.readOnly = false;
         qtyInput.style.backgroundColor = "#fff";
         qtyInput.value = "1";
+    };
+
+    window.addToCart = function() {
+        const item = document.getElementById('itemName').value;
+        const qty = parseInt(document.getElementById('qty').value);
+
+        if(!item) { alert("⚠️ Pilih Barang!"); return; }
+        if(qty <= 0) { alert("⚠️ Qty minimal 1"); return; }
+        if(item.toLowerCase().includes('modem')) {
+            alert("⚠️ Untuk menambahkan Modem, gunakan tombol 'Buka Pencarian Modem' berwarna ungu.");
+            return;
+        }
+
+        const currentStock = inventory[item] || 0;
+        const inCartQty = cart.filter(c => c.item === item).reduce((sum, c) => sum + c.qty, 0);
+
+        if (currentStock - inCartQty < qty) {
+            alert(`⛔ Stok Kurang!\nSisa: ${currentStock}`);
+            return;
+        }
+
+        cart.push({ item: item, qty: qty, sn: "-", details: null });
+        
+        document.getElementById('qty').value = "1";
+        document.getElementById('itemName').value = ""; 
+        renderCart();
     }
 
-    // --- LOGIC MODAL MODEM & FILTER ---
-    function openModemModal() {
+    window.removeFromCart = function(idx) {
+        cart.splice(idx, 1);
+        renderCart();
+    }
+
+    function renderCart() {
+        const tbody = document.getElementById('cartBody');
+        tbody.innerHTML = "";
+        document.getElementById('cartCount').innerText = cart.length;
+        
+        if (cart.length === 0) {
+            document.getElementById('cartEmptyMsg').style.display = 'block';
+        } else {
+            document.getElementById('cartEmptyMsg').style.display = 'none';
+            cart.forEach((c, i) => {
+                let detailHtml = "";
+                
+                if(c.details && c.details.length > 0) {
+                    detailHtml = `<ul class="sn-detail-list">`;
+                    c.details.forEach(m => {
+                        const typeClass = m.type === 'SRB' ? 'type-srb' : 'type-syn';
+                        detailHtml += `<li><span class="type-badge ${typeClass}">[${m.type}]</span> ${m.sn}</li>`;
+                    });
+                    detailHtml += `</ul>`;
+                } else if (c.sn !== '-' && c.sn !== '') {
+                    detailHtml = `<div style="font-size:0.8rem; color:#64748b;">${c.sn}</div>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><b>${c.item}</b></td>
+                    <td>
+                        <div style="font-size:0.85rem">Qty: <b>${c.qty}</b></div>
+                        ${detailHtml}
+                    </td>
+                    <td><button class="btn-del-mini" onclick="removeFromCart(${i})">&times;</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    window.saveTransaction = function() {
+        if (cart.length === 0) { alert("⚠️ Keranjang kosong!"); return; }
+        const tech = document.getElementById('techName').value;
+        const date = document.getElementById('dateInput').value;
+
+        if(!tech || !date) { return alert("⚠️ Mohon isi Tanggal dan Nama Teknisi!"); }
+
+        cart.forEach(c => {
+            inventory[c.item] = (inventory[c.item] || 0) - c.qty;
+            if(c.details && c.details.length > 0) {
+                c.details.forEach(modem => {
+                    const dbIndex = modemDB.findIndex(m => m.sn === modem.sn);
+                    if(dbIndex !== -1) {
+                        modemDB[dbIndex].status = 'sold';
+                        modemDB[dbIndex].tech = tech;
+                        modemDB[dbIndex].date = date;
+                    }
+                });
+            }
+        });
+
+        logs.push({
+            id: Date.now().toString(),
+            date: date,
+            tech: tech,
+            items: [...cart]
+        });
+
+        cart = [];
+        saveDataToFirebase(); // SYNC TO CLOUD
+        alert("✅ Transaksi Berhasil & Tersimpan Online!");
+    }
+
+    // --- MODEM FUNCTIONS ---
+    window.openModemModal = function() {
         document.getElementById('modemModal').style.display = 'flex';
         document.getElementById('choiceModal').style.display = 'none';
-        setModemFilter('all'); // Reset filter saat buka
+        setModemFilter('all');
         switchModemTab('search');
         updateModemStats();
         document.getElementById('modemSearchInput').value = "";
         document.getElementById('modemResultList').innerHTML = "";
-        setTimeout(() => document.getElementById('modemSearchInput').focus(), 100);
     }
+    
+    window.closeModemModal = function() { document.getElementById('modemModal').style.display = 'none'; }
 
-    function closeModemModal() {
-        document.getElementById('modemModal').style.display = 'none';
-    }
-
-    function switchModemTab(tab) {
+    window.switchModemTab = function(tab) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('tabSearch').style.display = 'none';
         document.getElementById('tabAdd').style.display = 'none';
@@ -604,17 +769,14 @@
         }
     }
 
-    function setModemFilter(filter) {
+    window.setModemFilter = function(filter) {
         currentModemFilter = filter;
-        
-        // Update Visual Kotak
         document.querySelectorAll('.stat-box').forEach(b => b.classList.remove('active-filter'));
         if(filter === 'all') document.getElementById('box-total').classList.add('active-filter');
         if(filter === 'avail') document.getElementById('box-avail').classList.add('active-filter');
         if(filter === 'sold') document.getElementById('box-sold').classList.add('active-filter');
         if(filter === 'bad') document.getElementById('box-bad').classList.add('active-filter');
 
-        // Jika tab list sedang aktif, render ulang. Jika tidak, pindah ke tab list
         if(document.getElementById('tabList').style.display === 'block') {
             renderFullModemList();
         } else if (filter !== 'all') {
@@ -626,7 +788,7 @@
         const total = modemDB.length;
         const avail = modemDB.filter(m => m.status === 'avail').length;
         const bad = modemDB.filter(m => m.status === 'bad').length;
-        const sold = total - avail - bad; // Logic 'sold' adalah status lain selain avail & bad
+        const sold = total - avail - bad;
 
         document.getElementById('statTotal').innerText = total;
         document.getElementById('statAvail').innerText = avail;
@@ -639,7 +801,7 @@
         }
     }
 
-    function addModemBulk(type) {
+    window.addModemBulk = function(type) {
         const raw = document.getElementById('modemBulkInput').value;
         if(!raw.trim()) return alert("Data kosong!");
 
@@ -662,27 +824,22 @@
         if(addedCount > 0) {
             alert(`✅ Berhasil menambahkan ${addedCount} modem tipe ${type}.`);
             document.getElementById('modemBulkInput').value = "";
-            persistData();
+            saveDataToFirebase();
             switchModemTab('list');
         } else {
             alert("⚠️ Tidak ada data baru atau format salah.");
         }
     }
 
-    function toggleModemType(sn) {
+    window.toggleModemType = function(sn) {
         const m = modemDB.find(x => x.sn === sn);
         if(m) {
             m.type = (m.type === 'SRB') ? 'SYN' : 'SRB';
-            persistData();
-            if(document.getElementById('tabList').style.display === 'block') {
-                renderFullModemList();
-            } else {
-                searchModem();
-            }
+            saveDataToFirebase(); // Sync
         }
     }
 
-    function renderFullModemList() {
+    window.renderFullModemList = function() {
         const container = document.getElementById('modemFullList');
         const title = document.getElementById('listTitle');
         container.innerHTML = "";
@@ -690,7 +847,6 @@
         let filteredDB = modemDB;
         let titleText = "Daftar Semua Modem";
 
-        // Filter Logic
         if(currentModemFilter === 'avail') {
             filteredDB = modemDB.filter(m => m.status === 'avail');
             titleText = "Daftar Modem READY (Siap Pakai)";
@@ -723,7 +879,6 @@
             let extraClass = "";
 
             if(m.status === 'sold' || m.status === 'taken') {
-                // Tampilkan TANGGAL untuk barang OUT
                 let dateInfo = m.date && m.date !== '-' ? ` <br><span style="font-size:0.75rem">📅 ${formatDateIndo(m.date)}</span>` : '';
                 statusHtml = `<span class="tag-status-sold">OUT: ${m.tech} ${dateInfo}</span>`;
                 extraClass = 'taken';
@@ -755,7 +910,7 @@
         });
     }
 
-    function searchModem() {
+    window.searchModem = function() {
         const rawQuery = document.getElementById('modemSearchInput').value;
         const listContainer = document.getElementById('modemResultList');
         listContainer.innerHTML = "";
@@ -781,7 +936,6 @@
         }
 
         foundItems.forEach(m => {
-            // Re-use logic for search row
             let checkboxHTML = "";
             let statusHtml = "";
             let extraClass = "";
@@ -812,69 +966,66 @@
             const badgeClass = m.type === 'SRB' ? 'type-srb' : 'type-syn';
             const typeBadge = `<span class="type-badge ${badgeClass}" onclick="toggleModemType('${m.sn}')" title="Klik untuk ubah tipe">[${m.type}]</span>`;
 
-            listContainer.innerHTML += `
-                <div class="res-item ${extraClass}" onclick="triggerCheck(this)">
-                    <div style="display:flex; align-items:center; ${styleText}">
-                        ${checkboxHTML}
-                        <div>
-                            <div style="font-weight:bold; font-family:monospace; font-size:0.95rem;">${typeBadge} ${m.sn}</div>
-                            <div style="font-size:0.75rem; color:#64748b; margin-left:35px;">MAC: ${m.mac}</div>
-                        </div>
+            const div = document.createElement('div');
+            div.className = `res-item ${extraClass}`;
+            div.onclick = function(e) { triggerCheck(this, e) };
+            div.innerHTML = `
+                <div style="display:flex; align-items:center; ${styleText}">
+                    ${checkboxHTML}
+                    <div>
+                        <div style="font-weight:bold; font-family:monospace; font-size:0.95rem;">${typeBadge} ${m.sn}</div>
+                        <div style="font-size:0.75rem; color:#64748b; margin-left:35px;">MAC: ${m.mac}</div>
                     </div>
-                    <div>${statusHtml}</div>
                 </div>
+                <div>${statusHtml}</div>
             `;
+            listContainer.appendChild(div);
         });
     }
 
-    function triggerCheck(el) {
+    window.triggerCheck = function(el, event) {
         const cb = el.querySelector('input[type="checkbox"]');
         if(cb && event.target !== cb && !event.target.classList.contains('type-badge')) {
             cb.checked = !cb.checked;
         }
     }
 
-    function deleteModemFromDB(sn) {
+    window.deleteModemFromDB = function(sn) {
         if(!confirm(`⚠️ Hapus modem SN: ${sn} dari database?`)) return;
         const idx = modemDB.findIndex(m => m.sn === sn);
         if(idx !== -1) {
             modemDB.splice(idx, 1);
-            persistData();
-            renderFullModemList();
-            updateModemStats();
+            saveDataToFirebase();
         }
     }
-
-    // --- FITUR BARU: DELETE ALL & COPY ALL ---
-    function deleteAllModems() {
-        if(!confirm("⚠️ BAHAYA! Apakah Anda yakin ingin MENGHAPUS SEMUA data modem?")) return;
+    
+    window.deleteAllModems = function() {
+        if(!confirm("⚠️ BAHAYA! HAPUS SEMUA data modem?")) return;
         if(!confirm("⚠️ Yakin? Data tidak bisa dikembalikan!")) return;
-        
         modemDB = [];
-        persistData();
-        renderFullModemList();
-        updateModemStats();
-        alert("✅ Semua data modem telah dihapus.");
+        saveDataToFirebase();
     }
 
-    function copyAllModemRaw() {
+    window.copyAllModemRaw = function() {
         if(modemDB.length === 0) return alert("⚠️ Data modem kosong");
-        
         let txt = "";
-        modemDB.forEach(m => {
-            // Format: SN[SPASI]MAC
-            txt += `${m.sn} ${m.mac}\n`;
-        });
-        
+        modemDB.forEach(m => { txt += `${m.sn} ${m.mac}\n`; });
         navigator.clipboard.writeText(txt).then(() => {
-            alert(`✅ ${modemDB.length} Data SN & MAC berhasil disalin ke Clipboard!`);
-        }).catch(err => {
-            alert("Gagal copy: " + err);
+            alert(`✅ ${modemDB.length} Data SN & MAC berhasil disalin!`);
         });
     }
-    // --- END FITUR BARU ---
 
-    function selectModemsToCart() {
+    function isSnInCart(sn) {
+        for(let c of cart) {
+            if(c.details && Array.isArray(c.details)) {
+                if(c.details.find(d => d.sn === sn)) return true;
+            }
+            if(c.sn === sn) return true;
+        }
+        return false;
+    }
+
+    window.selectModemsToCart = function() {
         const checkboxes = document.querySelectorAll('.res-check:checked');
         if(checkboxes.length === 0) return alert("Pilih minimal 1 modem.");
 
@@ -919,112 +1070,11 @@
         document.getElementById('modemSearchInput').value = "";
         document.getElementById('modemResultList').innerHTML = "";
         closeModemModal();
-        
         renderCart();
         alert(`✅ ${cleanModems.length} Modem berhasil dimasukkan ke Keranjang!`);
     }
 
-    function addToCart() {
-        const item = document.getElementById('itemName').value;
-        const qty = parseInt(document.getElementById('qty').value);
-
-        if(!item) { alert("⚠️ Pilih Barang!"); return; }
-        if(qty <= 0) { alert("⚠️ Qty minimal 1"); return; }
-        if(item.toLowerCase().includes('modem')) {
-            alert("⚠️ Untuk menambahkan Modem, gunakan tombol 'Buka Pencarian Modem' berwarna ungu.");
-            return;
-        }
-
-        const currentStock = inventory[item] || 0;
-        const inCartQty = cart.filter(c => c.item === item).reduce((sum, c) => sum + c.qty, 0);
-
-        if (currentStock - inCartQty < qty) {
-            alert(`⛔ Stok Kurang!\nSisa: ${currentStock}`);
-            return;
-        }
-
-        cart.push({ item: item, qty: qty, sn: "-", details: null });
-        
-        document.getElementById('qty').value = "1";
-        document.getElementById('itemName').value = ""; 
-        renderCart();
-    }
-
-    function removeFromCart(idx) {
-        cart.splice(idx, 1);
-        renderCart();
-    }
-
-    function renderCart() {
-        const tbody = document.getElementById('cartBody');
-        tbody.innerHTML = "";
-        document.getElementById('cartCount').innerText = cart.length;
-        
-        if (cart.length === 0) {
-            document.getElementById('cartEmptyMsg').style.display = 'block';
-        } else {
-            document.getElementById('cartEmptyMsg').style.display = 'none';
-            cart.forEach((c, i) => {
-                let detailHtml = "";
-                
-                if(c.details && c.details.length > 0) {
-                    detailHtml = `<ul class="sn-detail-list">`;
-                    c.details.forEach(m => {
-                        const typeClass = m.type === 'SRB' ? 'type-srb' : 'type-syn';
-                        detailHtml += `<li><span class="type-badge ${typeClass}">[${m.type}]</span> ${m.sn}</li>`;
-                    });
-                    detailHtml += `</ul>`;
-                } else if (c.sn !== '-' && c.sn !== '') {
-                    detailHtml = `<div style="font-size:0.8rem; color:#64748b;">${c.sn}</div>`;
-                }
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><b>${c.item}</b></td>
-                    <td>
-                        <div style="font-size:0.85rem">Qty: <b>${c.qty}</b></div>
-                        ${detailHtml}
-                    </td>
-                    <td><button class="btn-del-mini" onclick="removeFromCart(${i})">&times;</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-    }
-
-    function saveTransaction() {
-        if (cart.length === 0) { alert("⚠️ Keranjang kosong!"); return; }
-        const tech = document.getElementById('techName').value;
-        const date = document.getElementById('dateInput').value;
-
-        if(!tech || !date) { return alert("⚠️ Mohon isi Tanggal dan Nama Teknisi!"); }
-
-        cart.forEach(c => {
-            inventory[c.item] -= c.qty;
-            if(c.details && c.details.length > 0) {
-                c.details.forEach(modem => {
-                    const dbIndex = modemDB.findIndex(m => m.sn === modem.sn);
-                    if(dbIndex !== -1) {
-                        modemDB[dbIndex].status = 'sold';
-                        modemDB[dbIndex].tech = tech;
-                        modemDB[dbIndex].date = date; // Simpan Tanggal Ambil
-                    }
-                });
-            }
-        });
-
-        logs.push({
-            id: Date.now().toString(),
-            date: date,
-            tech: tech,
-            items: [...cart]
-        });
-
-        cart = [];
-        persistData();
-        alert("✅ Transaksi Berhasil!");
-    }
-
+    // --- RENDER TABLE ---
     function renderTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = "";
@@ -1069,10 +1119,10 @@
         document.getElementById('totalLog').innerText = `Total Transaksi: ${logs.length}`;
     }
 
-    // --- FITUR EDIT / RETUR BARANG ---
+    // --- EDIT & RETUR ---
     let currentEditLogId = null;
 
-    function openEditLogModal(logId) {
+    window.openEditLogModal = function(logId) {
         currentEditLogId = logId;
         renderEditLogModal();
         document.getElementById('editLogModal').style.display = 'flex';
@@ -1101,7 +1151,6 @@
             let content = `<div style="font-weight:bold; margin-bottom:5px;">${item.item} (Qty: ${item.qty})</div>`;
 
             if(item.details && item.details.length > 0) {
-                // MODEM
                 content += `<ul style="padding-left:0; list-style:none;">`;
                 item.details.forEach(m => {
                     content += `
@@ -1115,7 +1164,6 @@
                 });
                 content += `</ul>`;
             } else {
-                // BARANG BIASA
                 content += `
                 <div class="edit-item-row">
                     <span style="font-size:0.85rem; color:#64748b;">Retur 1 Unit ke:</span>
@@ -1131,14 +1179,13 @@
         });
     }
 
-    function returnUnitItem(logId, itemIdx, condition) {
+    window.returnUnitItem = function(logId, itemIdx, condition) {
         const typeStr = condition === 'good' ? "Kembali ke Stok Ready?" : "Masuk ke Gudang Rusak?";
         if(!confirm(typeStr)) return;
         
         const log = logs.find(l => l.id === logId);
         const item = log.items[itemIdx];
 
-        // 1. Update Inventory
         if(condition === 'good') {
             if(inventory[item.item] !== undefined) inventory[item.item] += 1;
         } else {
@@ -1155,32 +1202,30 @@
             });
         }
 
-        // 2. Kurangi di Log Transaksi
         item.qty -= 1;
         if(item.qty <= 0) {
             log.items.splice(itemIdx, 1);
         }
 
-        persistData();
+        saveDataToFirebase();
         renderEditLogModal();
     }
 
-    function returnModemItem(logId, itemIdx, sn, condition) {
+    window.returnModemItem = function(logId, itemIdx, sn, condition) {
         const typeStr = condition === 'avail' ? "Kembali ke Stok Ready?" : "Masuk ke Gudang Rusak?";
         if(!confirm(typeStr)) return;
 
         const log = logs.find(l => l.id === logId);
         const item = log.items[itemIdx];
 
-        // 1. Update Database Modem
         const dbIdx = modemDB.findIndex(m => m.sn === sn);
         if(dbIdx !== -1) {
             modemDB[dbIdx].status = condition; 
-            modemDB[dbIdx].tech = '-'; // AUTO RESET: Hapus nama teknisi
+            modemDB[dbIdx].tech = '-'; 
             
             if(condition === 'bad') {
                 const today = new Date().toISOString().split('T')[0];
-                modemDB[dbIdx].date = today; // Set tanggal rusak
+                modemDB[dbIdx].date = today; 
                 
                 badLogs.push({
                     date: today,
@@ -1190,11 +1235,10 @@
                     info: 'Retur Modem'
                 });
             } else {
-                modemDB[dbIdx].date = '-'; // Reset tanggal jika ready
+                modemDB[dbIdx].date = '-';
             }
         }
 
-        // 2. Hapus dari detail Log
         item.details = item.details.filter(d => d.sn !== sn);
         item.qty = item.details.length;
 
@@ -1202,13 +1246,12 @@
             log.items.splice(itemIdx, 1);
         }
 
-        updateModemStats();
-        persistData();
+        saveDataToFirebase();
         renderEditLogModal();
     }
 
-    // --- BAD STOCK MANAGER (DENGAN TANGGAL) ---
-    function openBadStockModal() {
+    // --- BAD STOCK ---
+    window.openBadStockModal = function() {
         document.getElementById('choiceModal').style.display = 'none';
         renderBadStockList();
         document.getElementById('badStockModal').style.display = 'flex';
@@ -1220,15 +1263,12 @@
         matList.innerHTML = "";
         modemList.innerHTML = "";
 
-        // Render Material Bad (Ambil dari History agar ada tanggal)
         const materialBadLogs = badLogs.filter(l => l.sn === '-');
         
         if (materialBadLogs.length === 0) {
             matList.innerHTML = "<li style='color:#ccc'>Tidak ada data</li>";
         } else {
-            // Urutkan tanggal terbaru
             materialBadLogs.sort((a,b) => new Date(b.date) - new Date(a.date));
-            
             materialBadLogs.forEach(log => {
                 const li = document.createElement('li');
                 li.style.cssText = "border-bottom:1px solid #eee; padding:5px 0;";
@@ -1238,16 +1278,13 @@
                         <div style="font-size:0.75rem; color:#64748b;">📅 ${formatDateIndo(log.date)}</div>
                     </div>
                 `;
-                // Tombol fix hanya global per item, tidak per log history karena kompleksitas
                 matList.appendChild(li);
             });
-            // Info stok agregat
             const info = document.createElement('li');
             info.innerHTML = `<small style="color:red">*Total Stok Fisik Rusak: Lihat di tombol pengaturan stok</small>`;
             matList.appendChild(info);
         }
 
-        // Render Modem Bad (Dari Modem DB agar status real-time)
         const badModems = modemDB.filter(m => m.status === 'bad');
         if(badModems.length === 0) {
             modemList.innerHTML = "<div style='color:#ccc'>Tidak ada data</div>";
@@ -1271,20 +1308,20 @@
         }
     }
 
-    function fixBadModem(sn) {
+    window.fixBadModem = function(sn) {
         if(confirm(`Modem SN ${sn} sudah diperbaiki?`)) {
             const idx = modemDB.findIndex(m => m.sn === sn);
             if(idx !== -1) {
                 modemDB[idx].status = 'avail';
                 modemDB[idx].date = '-';
-                persistData();
+                saveDataToFirebase();
                 renderBadStockList();
-                updateModemStats();
             }
         }
     }
 
-    function deleteFullLog(logId) {
+    // --- OTHER TOOLS ---
+    window.deleteFullLog = function(logId) {
         if(!confirm("Hapus seluruh transaksi? Semua barang akan kembali ke stok READY.")) return;
         const logIdx = logs.findIndex(l => l.id === logId);
         if (logIdx !== -1) {
@@ -1303,11 +1340,11 @@
                 }
             });
             logs.splice(logIdx, 1);
-            persistData();
+            saveDataToFirebase();
         }
     }
 
-    function copyModems(logId) {
+    window.copyModems = function(logId) {
         const log = logs.find(l => l.id === logId);
         if(!log) return;
         let txt = "";
@@ -1324,9 +1361,9 @@
         navigator.clipboard.writeText(txt).then(() => alert(`✅ ${count} Data disalin!`));
     }
 
-    function openCopyModal() { document.getElementById('copyModal').style.display = 'flex'; }
+    window.openCopyModal = function() { document.getElementById('copyModal').style.display = 'flex'; }
     
-    function processCopy(mode) {
+    window.processCopy = function(mode) {
         let targetLogs = logs;
         let targetBadLogs = badLogs;
         let title = `*REKAP SEMUA TRANSAKSI*`;
@@ -1343,7 +1380,6 @@
 
         let txt = `${title}\n\n`;
 
-        // 1. Transaksi
         if (targetLogs.length > 0) {
             txt += `*--- PENGELUARAN BARANG ---*\n`;
             targetLogs.forEach(log => {
@@ -1364,7 +1400,6 @@
             });
         }
 
-        // 2. Bad Stock Report
         if (targetBadLogs.length > 0) {
             txt += `*--- BARANG RUSAK / BAD STOCK ---*\n`;
             const groupedBad = targetBadLogs.reduce((acc, curr) => {
@@ -1388,7 +1423,7 @@
         });
     }
 
-    function exportToExcel() {
+    window.exportToExcel = function() {
         if(logs.length === 0 && badLogs.length === 0) return alert("Data kosong");
         
         let excelRows = "";
@@ -1432,8 +1467,9 @@
         a.click();
     }
 
-    function openChoiceModal() { document.getElementById('choiceModal').style.display = 'flex'; }
-    function openStockModal() {
+    // --- CONFIG MODALS ---
+    window.openChoiceModal = function() { document.getElementById('choiceModal').style.display = 'flex'; }
+    window.openStockModal = function() {
         document.getElementById('choiceModal').style.display = 'none';
         const list = document.getElementById('modalStockList');
         list.innerHTML = "";
@@ -1445,20 +1481,23 @@
         });
         document.getElementById('stockModal').style.display = "flex";
     }
-    function saveStockConfig() {
+    
+    window.saveStockConfig = function() {
         itemMaster.forEach(item => {
             const el = document.getElementById(`stk_${item}`);
             if (el) inventory[item] = parseInt(el.value);
         });
-        persistData();
+        saveDataToFirebase();
         document.getElementById('stockModal').style.display = 'none';
     }
-    function openManageItemsModal() {
+    
+    window.openManageItemsModal = function() {
         document.getElementById('choiceModal').style.display = 'none';
         renderManageItemList();
         document.getElementById('manageItemModal').style.display = 'flex';
     }
-    function renderManageItemList() {
+    
+    window.renderManageItemList = function() {
         const container = document.getElementById('manageItemList');
         container.innerHTML = "";
         itemMaster.sort().forEach(item => {
@@ -1468,40 +1507,51 @@
             container.appendChild(div);
         });
     }
-    function addNewItem() {
+    
+    window.addNewItem = function() {
         const val = document.getElementById('newItemName').value.trim();
         if(val && !itemMaster.includes(val)) {
             itemMaster.push(val);
             inventory[val] = 0;
             badInventory[val] = 0;
             document.getElementById('newItemName').value = "";
-            persistData(); populateDropdowns(); renderManageItemList();
+            saveDataToFirebase();
+            populateDropdowns(); 
+            renderManageItemList();
         }
     }
-    function removeMasterItem(val) {
+    
+    window.removeMasterItem = function(val) {
         if(confirm(`Hapus ${val}?`)) {
             itemMaster = itemMaster.filter(i => i !== val);
-            persistData(); populateDropdowns(); renderManageItemList();
+            saveDataToFirebase();
+            populateDropdowns(); 
+            renderManageItemList();
         }
     }
-    function renderStockDashboard() {
+    
+    window.renderStockDashboard = function() {
         const container = document.getElementById('stockDisplay');
         container.innerHTML = "";
-        itemMaster.sort().forEach(item => {
-            const qty = inventory[item] || 0;
-            const div = document.createElement('div');
-            div.className = `stock-card ${qty < 5 ? 'low-stock' : ''}`;
-            div.innerHTML = `<div>${item}</div><span class="stock-val">${qty}</span>`;
-            div.onclick = () => { document.getElementById('itemName').value = item; toggleSNField(); };
-            container.appendChild(div);
-        });
+        if(itemMaster && Array.isArray(itemMaster)){
+             itemMaster.sort().forEach(item => {
+                const qty = inventory[item] || 0;
+                const div = document.createElement('div');
+                div.className = `stock-card ${qty < 5 ? 'low-stock' : ''}`;
+                div.innerHTML = `<div>${item}</div><span class="stock-val">${qty}</span>`;
+                div.onclick = () => { document.getElementById('itemName').value = item; toggleSNField(); };
+                container.appendChild(div);
+            });
+        }
     }
+
     function formatDateIndo(d) { 
         if(!d || d === '-') return '-';
         const date = new Date(d);
         if(isNaN(date.getTime())) return d;
         return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
     }
+
 </script>
 </body>
 </html>
