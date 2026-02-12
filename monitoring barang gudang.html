@@ -479,22 +479,27 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    // --- IMPORT FIREBASE V12.9.0 ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+    import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
+    // --- USER CONFIGURATION (DARI ANDA) ---
     const firebaseConfig = {
-      apiKey: "AIzaSyAu8yqoxwV7sX5Nl7zHv9DBWpMbnhRKDdg",
-      authDomain: "monitoring-barang-gudang.firebaseapp.com",
-      databaseURL: "https://monitoring-barang-gudang-default-rtdb.firebaseio.com",
-      projectId: "monitoring-barang-gudang",
-      storageBucket: "monitoring-barang-gudang.firebasestorage.app",
-      messagingSenderId: "596110906796",
-      appId: "1:596110906796:web:a08d3f10d5016831045609",
-      measurementId: "G-404YZ6B66J"
+      apiKey: "AIzaSyBOBPZnzDQrYdQsGEWmbUaLK0Fq9LZUFHQ",
+      authDomain: "monitoring-barang-gudang-b27cc.firebaseapp.com",
+      databaseURL: "https://monitoring-barang-gudang-b27cc-default-rtdb.firebaseio.com",
+      projectId: "monitoring-barang-gudang-b27cc",
+      storageBucket: "monitoring-barang-gudang-b27cc.firebasestorage.app",
+      messagingSenderId: "252613932470",
+      appId: "1:252613932470:web:cadc486ba2520ef11a3d17",
+      measurementId: "G-4E32SGRS48"
     };
 
+    // --- INITIALIZE FIREBASE ---
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    const analytics = getAnalytics(app); // Analytics diaktifkan sesuai config anda
+    const db = getDatabase(app);         // Realtime Database
 
     // --- KONFIGURASI DATA AWAL ---
     const TEKNISI_LIST = [
@@ -520,7 +525,6 @@
     let currentModemFilter = 'all';
 
     // --- INITIALIZATION (FIREBASE LISTENERS) ---
-    // Menggantikan window.onload localstorage
     
     function initApp() {
         const loading = document.getElementById('loadingOverlay');
