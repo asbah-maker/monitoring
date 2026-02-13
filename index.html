@@ -1295,7 +1295,7 @@
 
     window.resetDatabase = function() {
         let pin = prompt("⚠️ PERINGATAN: INI AKAN MENGHAPUS SEMUA TIKET!\n\nData Gudang (Pending/Terpasang) TIDAK AKAN DIHAPUS.\nMasukkan PIN untuk konfirmasi:");
-        if (pin === "24123") {
+        if (pin === "0789") {
             const notificationId = showSyncNotification('Meriset database...', 'saving', false);
             
             set(dbRef, [])
@@ -1316,7 +1316,7 @@
     
    window.formatDatabase = function() {
         let pin = prompt("⚠️ DANGER ZONE: FORMAT DATABASE GUDANG ⚠️\n\nFitur ini akan menghapus database modem.\nTAPI: Modem yang statusnya TERKUNCI (🔒) akan TETAP DISIMPAN.\n\nMasukkan PIN Administrator:");
-        if (pin !== "24123") {
+        if (pin !== "0789") {
             alert("❌ PIN SALAH!");
             return;
         }
@@ -1497,7 +1497,7 @@
     // --- LANDING PAGE LOGIC ---
     window.enterAdminMode = function() {
         let pin = prompt("🔒 Masukkan PIN Admin:");
-        if (pin === "24123") {
+        if (pin === "0789") {
             appMode = 'admin';
             selectedTechIndex = -1;
             document.getElementById('landing-overlay').style.display = 'none';
@@ -2243,7 +2243,7 @@
     
     window.openGudangModal = function() {
         let pin = prompt("🔒 MASUKKAN PIN GUDANG:");
-        if (pin !== "24123") {
+        if (pin !== "0789") {
             alert("❌ PIN SALAH! Akses ditolak.");
             return;
         }
@@ -2287,7 +2287,7 @@
     window.toggleLock = function(type, index, lockState) {
         if (!lockState) {
             let pin = prompt("🔐 Masukkan PIN untuk membuka data:");
-            if(pin !== "24123") {
+            if(pin !== "0789") {
                 alert("❌ PIN SALAH!");
                 return;
             }
@@ -2542,7 +2542,7 @@
     window.clearInstalledModems = function() {
         let pin = prompt("⚠️ PERINGATAN: INI AKAN MENGHAPUS DATA MODEM YANG BERSTATUS 'TERPASANG'!\n\nData Ready, Pending, dan BAD tidak akan terhapus.\nMasukkan PIN untuk konfirmasi:");
         
-        if(pin === "24123") {
+        if(pin === "0789") {
             const notificationId = showSyncNotification('Membersihkan data terpasang...', 'saving', false);
             
             const srbCountBefore = gudangStock.srb.length;
@@ -2723,7 +2723,7 @@
 
     window.openStockModal = function(teamIndex) {
         let pin = prompt("🔒 Masukkan PIN untuk Input Stok Manual:");
-        if (pin !== "24123") {
+        if (pin !== "0789") {
             alert("❌ PIN SALAH! Akses ditolak.");
             return;
         }
@@ -2848,7 +2848,7 @@
         if (teamIndex === null) return;
         
         let pin = prompt("🔒 Masukkan PIN untuk membersihkan duplikat modem:");
-        if (pin !== "24123") {
+        if (pin !== "0789") {
             alert("❌ PIN SALAH! Akses ditolak.");
             return;
         }
@@ -2883,7 +2883,7 @@
 
     window.deleteStock = function(teamIndex, sn) {
         let pin = prompt("🔒 Masukkan PIN untuk Hapus Stok Modem:");
-        if (pin !== "24123") {
+        if (pin !== "0789") {
             alert("❌ PIN SALAH! Akses ditolak.");
             return;
         }
@@ -2964,7 +2964,7 @@
 
     window.deleteTicket = function(teamIndex, jobIndex) {
         let pin = prompt("🔐 Masukkan PIN untuk menghapus tiket:");
-        if (pin !== "24123") {
+        if (pin !== "0789") {
             alert("❌ PIN SALAH! Akses ditolak.");
             return;
         }
@@ -2977,7 +2977,7 @@
         let actionName = lockState ? "MENGUNCI (LOCK)" : "MEMBUKA KUNCI (UNLOCK)";
         let pin = prompt(`🔐 KEAMANAN MASSAL\n\nAnda akan ${actionName} SEMUA modem di tab ${currentGudangTab.toUpperCase()}.\nModem terkunci TIDAK BISA dihapus/diubah statusnya oleh sistem.\n\nMasukkan PIN Konfirmasi:`);
         
-        if (pin !== "24123") {
+        if (pin !== "0789") {
             alert("❌ PIN SALAH!");
             return;
         }
@@ -3901,5 +3901,6 @@ Jam: ${job.time}`;
 
 </body>
 </html>
+
 
 
