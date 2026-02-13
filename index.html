@@ -1430,9 +1430,12 @@
                             if (!item.status || item.status === '') item.status = 'ready';
                         });
                     } else {
-                        const newStock = { srb: [], syn: [] };
-                        set(gudangRef, newStock);
-                        gudangStock = newStock;
+                        // PERBAIKAN: Jangan timpa data lokal dengan kosong, dan jangan menulis ke Firebase.
+                        // Hanya inisialisasi jika data lokal belum ada
+                        if (!gudangStock.srb || gudangStock.srb.length === 0) {
+                            gudangStock = { srb: [], syn: [] };
+                        }
+                        // Tidak perlu melakukan set ke Firebase agar data tidak terhapus
                     }
                     
                     updateGudangCounts();
@@ -3901,6 +3904,3 @@ Jam: ${job.time}`;
 
 </body>
 </html>
-
-
-
