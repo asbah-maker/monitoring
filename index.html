@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V6.0 (Smart Stock)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V6.1 (Backup & Restore)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     
     <style>
-        /* --- CSS UTAMA & RESET --- */
+        /* --- CSS UTAMA & RESET (sama seperti sebelumnya, ditambah beberapa style) --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f4f6f9; padding: 10px; color: #333; margin: 0; font-size: 14px;
         }
 
-        /* --- SYNC NOTIFICATION STYLES --- */
+        /* Sync notification styles (sama) */
         .sync-notification {
             position: fixed;
             bottom: 20px;
@@ -83,7 +83,6 @@
             to { opacity: 0; transform: translateX(100%); }
         }
         
-        /* Connection status indicator */
         .connection-status {
             display: inline-flex;
             align-items: center;
@@ -157,12 +156,11 @@
             background: white; width: 100%; max-width: 450px;
             padding: 25px; border-radius: 15px; text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            position: relative; /* Untuk positioning tombol admin */
+            position: relative;
         }
         .landing-title { font-size: 1.4rem; font-weight: bold; color: #333; margin-bottom: 5px; }
         .landing-subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
         
-        /* TOMBOL ADMIN KECIL */
         .btn-mini-admin {
             position: absolute;
             top: 15px;
@@ -194,40 +192,33 @@
         .btn-select-team:active { background: #f0f7ff; border-color: #007bff; color: #007bff; transform: scale(0.98); }
         .btn-select-team span { display: block; font-size: 0.8rem; color: #888; margin-top: 3px; font-weight: normal;}
 
-        /* --- TOMBOL KEMBALI DI HEADER (MODE TEKNISI) --- */
         .btn-back-home {
             background: #6c757d; color: white; border: none; padding: 8px 15px;
             border-radius: 50px; font-weight: bold; cursor: pointer;
-            display: none; /* Default hidden via CSS, showed via JS */
+            display: none;
             margin-bottom: 15px; width: 100%;
         }
 
-        /* --- STRIKETHROUGH STYLE KHUSUS --- */
         .text-coret {
             text-decoration: line-through;
             color: #dc3545 !important;
             font-weight: bold;
         }
 
-        /* --- BUTTONS BARU (LOCK & UNLOCK) --- */
         .btn-lock-all { 
             background: #343a40; 
             color: white; border: 2px solid #1d2124; 
             padding: 8px 15px; border-radius: 4px; 
             font-weight: bold; cursor: pointer; 
         }
-        .btn-lock-all:hover { background: #23272b; }
-
         .btn-unlock-all { 
             background: #ffc107; 
             color: #212529; border: 2px solid #d39e00; 
             padding: 8px 15px; border-radius: 4px; 
             font-weight: bold; cursor: pointer; 
         }
-        .btn-unlock-all:hover { background: #e0a800; }
 
-        /* --- LAYOUT CONTAINER --- */
-        .container { max-width: 1000px; margin: 0 auto; width: 100%; display: none; /* Default hidden sampai pilih mode */ }
+        .container { max-width: 1000px; margin: 0 auto; width: 100%; display: none; }
         
         .header-section { 
             display: flex; flex-direction: column; align-items: center; 
@@ -235,7 +226,6 @@
         }
         h1 { color: #2c3e50; margin: 0 0 15px 0; font-size: 1.5rem; line-height: 1.3; }
         
-        /* --- BUTTONS --- */
         .btn-group-header { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
         
         .btn-action-main {
@@ -249,9 +239,10 @@
         .btn-gudang { background-color: #d35400; } 
         .btn-rekap-modem { background-color: #343a40; border: 2px solid #23272b; }
         .btn-reset { background-color: #dc3545; border: 2px solid #b02a37; }
+        .btn-download { background-color: #28a745; }  /* Tombol Download Backup */
+        .btn-upload { background-color: #ffc107; color: #212529; } /* Tombol Upload Backup */
         .btn-action-main:active { transform: scale(0.95); }
 
-        /* --- TEAM CARD --- */
         .team-card { 
             background: white; border-radius: 12px; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
@@ -262,7 +253,6 @@
             display: flex; justify-content: space-between; align-items: center; font-size: 1rem; 
         }
         
-        /* WARNA BACKGROUND HEADER */
         .bg-blue { background: linear-gradient(135deg, #007bff, #0056b3); } 
         .bg-green { background: linear-gradient(135deg, #28a745, #1e7e34); } 
         .bg-red { background: linear-gradient(135deg, #dc3545, #bd2130); }
@@ -271,13 +261,11 @@
         .bg-teal { background: linear-gradient(135deg, #20c997, #198766); }
         .bg-dark { background: linear-gradient(135deg, #343a40, #23272b); }
 
-        /* --- JOB LIST ITEMS --- */
         .job-list { list-style: none; padding: 0; margin: 0; }
         .job-item { border-bottom: 1px solid #eee; padding: 15px; transition: background 0.3s; }
         .job-main-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
         .job-left { display: flex; align-items: flex-start; gap: 12px; flex: 1 1 50%; min-width: 250px; }
         
-        /* --- STATUS BUTTONS --- */
         .status-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; margin-top: 2px; }
         .btn-check-status {
             width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ddd;
@@ -286,7 +274,6 @@
         }
         .btn-check-status:hover { background-color: #f8f9fa; }
         
-        /* State Active Styles */
         .btn-check-status.active-success { background-color: #28a745; border-color: #28a745; color: white; }
         .btn-check-status.active-fail { background-color: #dc3545; border-color: #dc3545; color: white; }
         .btn-check-status.inactive { opacity: 0.4; transform: scale(0.9); }
@@ -365,7 +352,6 @@
             color: #fd7e14;
         }
 
-        /* Tombol Link SC (Tech Mode) */
         .btn-sc {
             background: #e8f0fe;
             border: 1px solid #1a73e8;
@@ -388,7 +374,6 @@
             border-color: #0d62d9;
         }
 
-        /* --- DETAIL & INPUTS --- */
         .job-details { display: none; margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
         .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .detail-item { background: white; padding: 8px; border-radius: 4px; border: 1px solid #eee; }
@@ -403,13 +388,11 @@
         .locked-input { background-color: #e9ecef; color: #495057; cursor: not-allowed; border: 1px solid #ced4da; font-weight: bold; }
         .modem-selector { background-color: #e8f0fe; border: 1px solid #1a73e8; color: #1a73e8; font-weight: bold; margin-bottom: 10px; width: 100%; padding: 10px; border-radius: 5px;}
         
-        /* STYLE KHUSUS OPTION DISABLED (CORETAAN) */
         option:disabled { color: red; background-color: #f2f2f2; text-decoration: line-through; }
 
         .progress-container { height: 6px; background: #e9ecef; width: 100%; }
         .progress-bar { height: 100%; background: #28a745; width: 0%; transition: width 0.4s ease; }
         
-        /* Row States */
         .job-item.completed { background-color: #f6fff9; opacity: 0.9; }
         .job-item.completed .customer-info h3 { text-decoration: line-through; color: #28a745; }
         
@@ -428,7 +411,6 @@
             border: 1px dashed #a5d6a7;
         }
         
-        /* --- MODAL STYLES --- */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); padding-top: 50px; }
         .modal-content { 
             background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; 
@@ -450,7 +432,6 @@
         .generator-box textarea { width: 100%; border: 1px solid #b1ccf0; border-radius: 4px; padding: 8px; margin-top: 5px; font-size: 0.85rem; resize: vertical; }
         .btn-generate { width: 100%; background-color: #1a73e8; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; margin-top: 8px; cursor: pointer; }
 
-        /* --- MENU SELECTION CARD --- */
         .menu-selection-container { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
         .menu-btn { 
             padding: 20px; text-align: left; border: 2px solid #eee; border-radius: 8px; 
@@ -461,7 +442,6 @@
         .menu-text h3 { margin: 0 0 5px 0; color: #333; }
         .menu-text p { margin: 0; color: #666; font-size: 0.85rem; }
 
-        /* --- PREVIEW CARD --- */
         .preview-card { background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px; position: relative; }
         .preview-psb { border-left: 5px solid #007bff; }
         .preview-mt { border-left: 5px solid #ffc107; }
@@ -469,14 +449,13 @@
         .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-remove-preview { position: absolute; top: 10px; right: 10px; background: #ffebee; color: #dc3545; border: 1px solid #dc3545; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; }
 
-        /* --- TABLE STYLES --- */
         .table-stock { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
         .table-stock th, .table-stock td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         .table-stock th { background-color: #f8f9fa; color: #333; font-weight: bold; }
         .table-stock tr:nth-child(even) { background-color: #f9f9f9; }
         .btn-icon-del { background: #ffebee; color: #dc3545; border: 1px solid #dc3545; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; }
+        .btn-icon-return { background: #e8f5e9; color: #28a745; border: 1px solid #28a745; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; } /* Tombol Kembalikan */
         
-        /* --- GUDANG COMPONENTS --- */
         .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-bottom: 2px;}
         .st-ready { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .st-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
@@ -501,59 +480,37 @@
 
         .gudang-actions-header { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
         .btn-bulk { background: #20c997; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .btn-clean { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .btn-format { background: #dc3545; color: white; border: 2px solid #b21f2d; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
         .search-gudang-box { width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 6px; font-size: 0.95rem; margin-bottom: 5px; background-color: #f0f7ff; height: 60px; resize: vertical; }
 
-        /* Transfer Ticket Styles */
         .transfer-list { max-height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; margin-bottom: 15px; background: #f9f9f9; }
         .transfer-item { display: flex; gap: 10px; padding: 8px; border-bottom: 1px solid #ddd; align-items: center; background: white; }
         .transfer-item:last-child { border-bottom: none; }
         .transfer-item label { cursor: pointer; font-size: 0.9rem; flex: 1; margin: 0; }
 
-        /* --- MEDIA QUERIES (RESPONSIVE KHUSUS HP) --- */
         @media (max-width: 600px) {
             body { padding: 5px; background-color: #fff; }
             .container { padding: 0; }
-            
-            /* Header di HP */
             .header-section { margin: 15px 5px; }
             .btn-action-main { width: 100%; margin-bottom: 5px; }
-            
-            /* Kartu Tim di HP */
             .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #ddd; margin-bottom: 15px; }
-            
-            /* List Pekerjaan */
             .job-main-row { flex-direction: column; align-items: stretch; }
             .job-left { width: 100%; margin-bottom: 10px; }
             .action-buttons { width: 100%; justify-content: space-between; }
             .status-actions { flex-direction: row; justify-content: flex-start; margin-bottom: 10px;}
-            
-            /* Modal di HP */
             .modal-content { width: 95%; padding: 15px; margin-top: 10px; }
-            
-            /* Grid Input jadi 1 kolom di HP */
             .input-grid, .preview-grid, .tech-select-container { grid-template-columns: 1fr; }
             .tech-list-grid { grid-template-columns: 1fr; }
-            
-            /* Tabel scrollable */
             .table-stock { font-size: 0.8rem; }
-            
-            /* Tombol Gudang */
             .gudang-control { flex-direction: column; align-items: stretch; }
             .gudang-select { width: 100%; margin-bottom: 5px; }
             .btn-send-team { width: 100%; }
-            
-            /* Sync notification mobile */
             .sync-notification {
                 bottom: 10px;
                 right: 10px;
                 left: 10px;
                 max-width: none;
             }
-            
-            /* Dropdown Link SC di HP */
             .sc-dropdown-content {
                 right: -50px;
                 min-width: 120px;
@@ -590,7 +547,7 @@
         <button class="btn-back-home" id="btn-back-tech" onclick="exitTechMode()">⬅️ Kembali / Ganti Tim</button>
         <h1>
             📋 Monitoring Teknisi<br>
-            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V6.0</span>
+            <span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • Inventory System V6.1</span>
             <div id="connection-status">Connecting to server...</div>
         </h1>
         
@@ -599,9 +556,10 @@
             <button class="btn-action-main btn-gudang" onclick="openGudangModal()">🏭 Gudang Modem</button>
             <button class="btn-action-main btn-copy-all" onclick="openCopyOption()">📑 Copy Rekap</button>
             <button class="btn-action-main btn-excel" onclick="openExcelOption()">📊 Download Excel</button>
-            
             <button class="btn-action-main btn-rekap-modem" onclick="openRekapModemOption()">📠 Copy Rekap Modem</button>
-
+            <button class="btn-action-main btn-download" onclick="downloadBackup()">⬇️ Backup JSON</button>
+            <button class="btn-action-main btn-upload" onclick="document.getElementById('uploadFile').click()">⬆️ Restore JSON</button>
+            <input type="file" id="uploadFile" accept=".json" style="display:none;" onchange="uploadBackup(event)">
             <button class="btn-action-main btn-reset" onclick="resetDatabase()">🔴 Reset Tiket</button>
         </div>
     </div>
@@ -782,10 +740,6 @@
 
        <div class="gudang-actions-header">
             <button class="btn-bulk" onclick="openBulkModal()">➕ Input Stok Massal</button>
-            <button class="btn-lock-all" onclick="bulkLockAction(true)">🔒 Kunci Semua</button>
-            <button class="btn-unlock-all" onclick="bulkLockAction(false)">🔓 Buka Semua</button>
-            <button class="btn-clean" onclick="clearInstalledModems()">🗑️ Hapus Data Terpasang</button>
-            <button class="btn-format" onclick="formatDatabase()">🔥 Format Database</button>
         </div>
 
         <div class="tab-header">
@@ -928,7 +882,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, update, onValue, get, onDisconnect, connectDatabaseEmulator } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, update, onValue, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBy26KTGUxD0ehcjOFPZaw9s7tC6ghBq5w",
@@ -967,21 +921,15 @@
     // --- SYNC NOTIFICATION SYSTEM ---
     
     function showSyncNotification(message, type = 'saving', autoClose = true, duration = 3000) {
-        // Hapus notifikasi sebelumnya jika ada
         const container = document.getElementById('sync-notification-container');
-        
-        // Hapus timeout sebelumnya
         if (syncNotificationTimeout) {
             clearTimeout(syncNotificationTimeout);
             syncNotificationTimeout = null;
         }
-        
-        // Buat elemen notifikasi
         const notification = document.createElement('div');
         notification.className = `sync-notification ${type}`;
         notification.id = `sync-notification-${Date.now()}`;
         
-        // Tentukan ikon berdasarkan tipe
         let icon = '⏳';
         if (type === 'success') icon = '✅';
         else if (type === 'error') icon = '❌';
@@ -993,17 +941,13 @@
             <span class="sync-message">${message}</span>
             <button class="sync-close" onclick="closeSyncNotification('${notification.id}')">×</button>
         `;
-        
-        // Tambahkan ke container
         container.appendChild(notification);
         
-        // Auto close jika diperlukan
         if (autoClose && type !== 'saving') {
             syncNotificationTimeout = setTimeout(() => {
                 closeSyncNotification(notification.id);
             }, duration);
         }
-        
         return notification.id;
     }
     
@@ -1041,17 +985,13 @@
                 ${statusText}
             </span>
         `;
-        
-        // Update global status
         isFirebaseConnected = (status === 'connected');
         isOnline = navigator.onLine;
         
-        // Jika terputus, tampilkan notifikasi
         if (status === 'disconnected' && appMode !== 'landing') {
             showSyncNotification('Koneksi terputus. Perubahan disimpan lokal.', 'warning', true, 5000);
         }
         
-        // Jika kembali terhubung, coba sinkronkan data yang tertunda
         if (status === 'connected' && pendingSyncOperations.length > 0) {
             showSyncNotification('Koneksi pulih. Menyinkronkan data...', 'saving');
             setTimeout(() => {
@@ -1062,13 +1002,9 @@
     
     function retryPendingSyncOperations() {
         if (pendingSyncOperations.length === 0 || !isFirebaseConnected) return;
-        
         showSyncNotification(`Menyinkronkan ${pendingSyncOperations.length} operasi tertunda...`, 'saving');
-        
-        // Coba eksekusi operasi yang tertunda
         const retryCount = pendingSyncOperations.length;
         const successfulOps = [];
-        
         pendingSyncOperations.forEach((op, index) => {
             try {
                 if (op.type === 'teams') {
@@ -1081,31 +1017,23 @@
                 console.error(`Gagal sinkron operasi ${index}:`, error);
             }
         });
-        
-        // Hapus operasi yang berhasil
         pendingSyncOperations = pendingSyncOperations.filter((_, index) => !successfulOps.includes(index));
-        
         if (successfulOps.length > 0) {
             showSyncNotification(`Berhasil sinkron ${successfulOps.length} operasi`, 'success');
         }
-        
         if (pendingSyncOperations.length > 0) {
             showSyncNotification(`Masih ada ${pendingSyncOperations.length} operasi tertunda`, 'warning');
         }
     }
     
     function addPendingSyncOperation(type) {
-        // Tambah ke daftar operasi tertunda (maks 10 operasi)
         pendingSyncOperations.push({
             type: type,
             timestamp: Date.now()
         });
-        
         if (pendingSyncOperations.length > 10) {
-            pendingSyncOperations.shift(); // Hapus yang terlama
+            pendingSyncOperations.shift();
         }
-        
-        // Simpan ke localStorage untuk recovery
         try {
             localStorage.setItem('pending_sync_ops', JSON.stringify(pendingSyncOperations));
         } catch (e) {
@@ -1118,10 +1046,8 @@
             const saved = localStorage.getItem('pending_sync_ops');
             if (saved) {
                 pendingSyncOperations = JSON.parse(saved);
-                // Hapus operasi yang terlalu lama (lebih dari 1 jam)
                 const oneHourAgo = Date.now() - (60 * 60 * 1000);
                 pendingSyncOperations = pendingSyncOperations.filter(op => op.timestamp > oneHourAgo);
-                
                 if (pendingSyncOperations.length > 0 && isFirebaseConnected) {
                     setTimeout(() => retryPendingSyncOperations(), 2000);
                 }
@@ -1159,24 +1085,16 @@
     
     function saveDataToFirebase() {
         const notificationId = showSyncNotification('Menyimpan data tim...', 'saving', false);
-        
-        // Coba simpan langsung ke Firebase
         saveDataToFirebaseDirect()
             .then(() => {
                 showSyncNotification('Data tim berhasil disinkronkan!', 'success');
                 closeSyncNotification(notificationId);
-                
-                // Hapus dari pending operations jika ada
                 pendingSyncOperations = pendingSyncOperations.filter(op => op.type !== 'teams');
             })
             .catch((err) => {
                 showSyncNotification('Gagal sinkron data tim! Disimpan lokal.', 'error');
                 closeSyncNotification(notificationId);
-                
-                // Tambah ke pending operations untuk dicoba lagi nanti
                 addPendingSyncOperation('teams');
-                
-                // Simpan ke localStorage sebagai backup
                 try {
                     localStorage.setItem('teams_backup', JSON.stringify({
                         data: teams,
@@ -1191,24 +1109,16 @@
     
     function saveGudangToFirebase() {
         const notificationId = showSyncNotification('Menyimpan data gudang...', 'saving', false);
-        
-        // Coba simpan langsung ke Firebase
         saveGudangToFirebaseDirect()
             .then(() => {
                 showSyncNotification('Data gudang berhasil disinkronkan!', 'success');
                 closeSyncNotification(notificationId);
-                
-                // Hapus dari pending operations jika ada
                 pendingSyncOperations = pendingSyncOperations.filter(op => op.type !== 'gudang');
             })
             .catch((err) => {
                 showSyncNotification('Gagal sinkron data gudang! Disimpan lokal.', 'error');
                 closeSyncNotification(notificationId);
-                
-                // Tambah ke pending operations untuk dicoba lagi nanti
                 addPendingSyncOperation('gudang');
-                
-                // Simpan ke localStorage sebagai backup
                 try {
                     localStorage.setItem('gudang_backup', JSON.stringify({
                         data: gudangStock,
@@ -1224,31 +1134,22 @@
     // --- LOAD BACKUP DATA FROM LOCALSTORAGE ---
     function loadBackupData() {
         try {
-            // Coba load backup teams
             const teamsBackup = localStorage.getItem('teams_backup');
             if (teamsBackup) {
                 const backup = JSON.parse(teamsBackup);
                 const backupAge = Date.now() - backup.timestamp;
-                
-                // Gunakan backup jika kurang dari 24 jam
                 if (backupAge < 24 * 60 * 60 * 1000) {
                     console.log('Memuat backup teams dari localStorage');
                     teams = backup.data;
-                    
-                    // Tampilkan notifikasi
                     if (appMode !== 'landing') {
                         showSyncNotification('Data lokal dimuat dari backup', 'warning');
                     }
                 }
             }
-            
-            // Coba load backup gudang
             const gudangBackup = localStorage.getItem('gudang_backup');
             if (gudangBackup) {
                 const backup = JSON.parse(gudangBackup);
                 const backupAge = Date.now() - backup.timestamp;
-                
-                // Gunakan backup jika kurang dari 24 jam
                 if (backupAge < 24 * 60 * 60 * 1000) {
                     console.log('Memuat backup gudang dari localStorage');
                     gudangStock = backup.data;
@@ -1263,24 +1164,20 @@
     function getUniqueInventory(teamIndex) {
         const team = teams[teamIndex];
         if (!team || !team.inventory) return [];
-        
         const seen = new Set();
         const uniqueInventory = [];
-        
         for (const item of team.inventory) {
             if (!seen.has(item.sn)) {
                 seen.add(item.sn);
                 uniqueInventory.push(item);
             }
         }
-        
         return uniqueInventory;
     }
     
     function checkForDuplicateModems(teamIndex) {
         const team = teams[teamIndex];
         if (!team || !team.inventory) return false;
-        
         const seen = new Set();
         for (const item of team.inventory) {
             if (seen.has(item.sn)) {
@@ -1294,65 +1191,55 @@
     // --- MAIN LOGIC START ---
 
     window.resetDatabase = function() {
-        let pin = prompt("⚠️ PERINGATAN: INI AKAN MENGHAPUS SEMUA TIKET!\n\nData Gudang (Pending/Terpasang) TIDAK AKAN DIHAPUS.\nMasukkan PIN untuk konfirmasi:");
-        if (pin === "0789") {
-            const notificationId = showSyncNotification('Meriset database...', 'saving', false);
-            
+        let pin = prompt("🔐 Masukkan PIN untuk reset:");
+        if (pin !== "0789") {
+            if (pin) alert("❌ PIN SALAH!");
+            return;
+        }
+        
+        let choice = prompt("Pilih jenis reset:\n1 = Reset Tiket (hapus semua tiket, tim, dan stok tim)\n2 = Reset Gudang Modem (hapus semua modem di gudang)\n\nMasukkan angka 1 atau 2:");
+        
+        if (choice === "1") {
+            const notificationId = showSyncNotification('Meriset tiket...', 'saving', false);
             set(dbRef, [])
                 .then(() => {
-                    showSyncNotification('✅ Tiket & Tim berhasil di-reset bersih!', 'success');
+                    showSyncNotification('✅ Tiket & Tim berhasil di-reset!', 'success');
                     closeSyncNotification(notificationId);
                     location.reload();
                 })
                 .catch((err) => {
-                    showSyncNotification('❌ Gagal mereset database!', 'error');
+                    showSyncNotification('❌ Gagal mereset tiket!', 'error');
                     closeSyncNotification(notificationId);
-                    alert("Gagal mereset database: " + err);
+                    alert("Gagal mereset tiket: " + err);
                 });
-        } else if (pin) {
-            alert("❌ PIN SALAH!");
-        }
-    }
-    
-   window.formatDatabase = function() {
-        let pin = prompt("⚠️ DANGER ZONE: FORMAT DATABASE GUDANG ⚠️\n\nFitur ini akan menghapus database modem.\nTAPI: Modem yang statusnya TERKUNCI (🔒) akan TETAP DISIMPAN.\n\nMasukkan PIN Administrator:");
-        if (pin !== "0789") {
-            alert("❌ PIN SALAH!");
-            return;
-        }
-        let type = prompt("Ketik jenis modem yang ingin DIHAPUS (SRB / SYN):").toLowerCase();
-        if (type !== 'srb' && type !== 'syn') {
-            alert("❌ Jenis tidak dikenali. Ketik SRB atau SYN.");
-            return;
-        }
-        
-        let lockedItems = gudangStock[type].filter(i => i.isLocked === true);
-        let totalItems = gudangStock[type].length;
-        let deletedCount = totalItems - lockedItems.length;
-
-        if (confirm(`⚠️ PERINGATAN TERAKHIR!\n\nTotal Modem: ${totalItems}\nModem Terkunci (Aman): ${lockedItems.length}\nModem Akan Dihapus: ${deletedCount}\n\nLanjut menghapus?`)) {
-            const notificationId = showSyncNotification('Memformat database...', 'saving', false);
-            
-            gudangStock[type] = lockedItems; 
-            
-            saveGudangToFirebase();
-            renderGudangTable(currentGudangTab);
-            updateGudangCounts();
-            
-            showSyncNotification(`✅ Database diformat. ${deletedCount} data dihapus.`, 'success');
-            closeSyncNotification(notificationId);
+        } else if (choice === "2") {
+            const notificationId = showSyncNotification('Meriset gudang modem...', 'saving', false);
+            gudangStock = { srb: [], syn: [] };
+            saveGudangToFirebaseDirect()
+                .then(() => {
+                    showSyncNotification('✅ Gudang modem berhasil di-reset!', 'success');
+                    closeSyncNotification(notificationId);
+                    updateGudangCounts();
+                    if (document.getElementById("modalGudang").style.display === "block") {
+                        renderGudangTable(currentGudangTab);
+                    }
+                    renderJobs();
+                })
+                .catch((err) => {
+                    showSyncNotification('❌ Gagal mereset gudang!', 'error');
+                    closeSyncNotification(notificationId);
+                    alert("Gagal mereset gudang: " + err);
+                });
+        } else {
+            alert("Pilihan tidak valid.");
         }
     }
 
     function loadFirebaseData() {
-        // Update status koneksi menjadi connecting
         updateConnectionStatus('connecting', 'Menghubungkan ke Firebase...');
-        
-        // Load backup data terlebih dahulu
         loadBackupData();
         loadPendingSyncOperations();
         
-        // Setup online/offline event listeners
         window.addEventListener('online', function() {
             updateConnectionStatus('connecting', 'Koneksi pulih, menyinkronkan...');
             setTimeout(() => {
@@ -1367,23 +1254,20 @@
             showSyncNotification('Anda sedang offline. Perubahan akan disimpan lokal.', 'warning', true, 5000);
         });
         
-        // Listen for Firebase connection state
         const connectedRef = ref(db, ".info/connected");
         onValue(connectedRef, (snap) => {
             if (snap.val() === true) {
                 isFirebaseConnected = true;
                 updateConnectionStatus('connected');
                 
-                // Load data dari Firebase
                 onValue(dbRef, (snapshot) => {
                     const data = snapshot.val();
-                    document.getElementById('loading-text').style.display = 'none'; // Sembunyikan loading text
+                    document.getElementById('loading-text').style.display = 'none';
                     
                     if (data) {
                         teams = data;
                         teams.forEach(t => { 
                             if(!t.inventory) t.inventory = []; 
-                            // Bersihkan duplikat saat memuat data
                             if (t.inventory && t.inventory.length > 0) {
                                 const seen = new Set();
                                 const uniqueInventory = [];
@@ -1400,17 +1284,14 @@
                         teams = JSON.parse(JSON.stringify(defaultTeams));
                     }
 
-                    // --- REVISI: LANGSUNG TAMPILKAN DAFTAR TIM ---
                     renderLandingTeams(); 
 
-                    // Jika sedang fokus di tim tertentu, pastikan data terupdate
                     if (appMode === 'tech' && selectedTechIndex !== -1) {
                         renderJobs();
                     } else if (appMode === 'admin') {
                         renderJobs();
                     }
                     
-                    // Sync modem
                     if(gudangStock.srb || gudangStock.syn) {
                         syncInstalledModems();
                     }
@@ -1443,7 +1324,6 @@
                         renderGudangTable(currentGudangTab);
                     }
                     
-                    // Refresh jobs untuk update stok di card tim
                     if (appMode !== 'landing') {
                         renderJobs();
                     }
@@ -1457,8 +1337,6 @@
             console.error("Error monitoring connection:", error);
             isFirebaseConnected = false;
             updateConnectionStatus('disconnected', 'Gagal terhubung ke Firebase');
-            
-            // Tampilkan data dari backup
             document.getElementById('loading-text').style.display = 'none';
             renderLandingTeams();
         });
@@ -1472,7 +1350,7 @@
         const noMsg = document.getElementById('landing-empty-msg');
         
         container.innerHTML = '';
-        container.style.display = 'grid'; // Pastikan visible
+        container.style.display = 'grid';
         
         let hasActiveTeams = false;
 
@@ -1505,8 +1383,8 @@
             selectedTechIndex = -1;
             document.getElementById('landing-overlay').style.display = 'none';
             document.getElementById('main-app-container').style.display = 'block';
-            document.getElementById('admin-menu-group').style.display = 'flex'; // Show menus
-            document.getElementById('btn-back-tech').style.display = 'none'; // Hide back button
+            document.getElementById('admin-menu-group').style.display = 'flex';
+            document.getElementById('btn-back-tech').style.display = 'none';
             renderJobs();
         } else if (pin) {
             alert("❌ PIN Salah!");
@@ -1518,12 +1396,8 @@
         selectedTechIndex = index;
         document.getElementById('landing-overlay').style.display = 'none';
         document.getElementById('main-app-container').style.display = 'block';
-        
-        // Hide Admin Menus
         document.getElementById('admin-menu-group').style.display = 'none';
-        // Show Back Button
         document.getElementById('btn-back-tech').style.display = 'block';
-        
         renderJobs();
     }
 
@@ -1532,7 +1406,7 @@
         selectedTechIndex = -1;
         document.getElementById('main-app-container').style.display = 'none';
         document.getElementById('landing-overlay').style.display = 'flex';
-        renderLandingTeams(); // Refresh list di depan
+        renderLandingTeams();
     }
 
     // --- FUNGSI EDIT LINK SC ---
@@ -1543,13 +1417,12 @@
         if (newLink !== null) {
             job.linkSC = newLink.trim();
             saveDataToFirebase();
-            renderJobs(); // Refresh tampilan
+            renderJobs();
         }
     };
 
     // --- NEW FEATURE FUNCTIONS START ---
 
-    // 1. OPEN SELECTION MODAL
     window.openTicketOption = function() {
         document.getElementById('modalTicketSelection').style.display = "block";
     }
@@ -1557,7 +1430,6 @@
         document.getElementById('modalTicketSelection').style.display = "none";
     }
 
-    // 2. OPEN CREATE TICKET (Original Logic)
     window.openCreateTicketModal = function() {
         closeTicketOption();
         populateTechSelect('tech-1', 'tech-2'); 
@@ -1569,7 +1441,6 @@
         document.getElementById('bulk-input-text').value = '';
     }
 
-    // 3. EDIT TECH LOGIC
     window.openEditTechModal = function() {
         closeTicketOption();
         const select = document.getElementById('edit-tech-team-select');
@@ -1635,7 +1506,6 @@
         closeEditTechModal();
     }
 
-    // 4. TRANSFER TICKET LOGIC
     window.openTransferModal = function() {
         closeTicketOption();
         const sourceSel = document.getElementById('transfer-source-team');
@@ -1899,7 +1769,6 @@
 
         if (!Array.isArray(teams)) { teams = []; }
 
-        // Logic Sortir Tim (Sama seperti sebelumnya)
         teams.sort((a, b) => {
             const getNum = (str) => {
                 const match = str.match(/Tim\s+(\d+)/i);
@@ -1919,21 +1788,18 @@
             if (team.jobs.length === 0) return;
             visibleTeamsCount++;
 
-            // Default sorting berdasarkan waktu
             team.jobs.sort((a, b) => {
                 const timeA = timeToMinutes(a.time);
                 const timeB = timeToMinutes(b.time);
                 return timeA - timeB;
             });
 
-            // Hitung Stok dengan menghilangkan duplikat
             const uniqueInventory = getUniqueInventory(tIndex);
             const stockCount = uniqueInventory.filter(inv => {
                  const st = getModemStatusGlobal(inv.sn);
                  return st === 'pending';
             }).length;
             
-            // Render Header Tim
             const teamDiv = document.createElement('div');
             teamDiv.className = 'team-card';
             teamDiv.innerHTML = `
@@ -1955,7 +1821,6 @@
 
             const listContainer = document.getElementById(`list-${team.id}`);
             
-            // Buat Opsi Modem dari data yang sudah di-unique
             let modemOptions = `<option value="">-- Pilih Modem dari Stok (${stockCount}) --</option>`;
             uniqueInventory.forEach(inv => {
                 const status = getModemStatusGlobal(inv.sn);
@@ -1968,7 +1833,6 @@
                 }
             });
             
-            // --- LOOP JOBS (TIKET) ---
             team.jobs.forEach((job, index) => {
                 const li = document.createElement('li');
                 li.className = 'job-item';
@@ -1977,7 +1841,6 @@
                 if(currentStatus === 'completed') li.classList.add('completed');
                 else if(currentStatus === 'failed') li.classList.add('failed');
                 
-                // Logic Hide Detail
                 const hiddenFields = ["User PPPOE_RADIUS", "Pemakaian Bulan Ini (GB)", "ODC", "ODP", "Port ODP", "OLT SN/MAC", "Last DBM", "Last DBM Time", "Nama WiFi (SSID)", "Sandi WiFi", "Keterangan"];
                 let detailHTML = '';
                 for (const [key, value] of Object.entries(job.details)) {
@@ -1992,7 +1855,6 @@
                 const tech = job.technical || {};
                 const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none";
 
-                // Generate Form Input Teknis
                 let formHTML = '';
                 if (isPSB) {
                     formHTML = `
@@ -2059,11 +1921,9 @@
                     delButton = `<button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>`;
                 }
 
-                // TOMBOL LINK SC DENGAN DROPDOWN UNTUK ADMIN
                 let scButton = '';
                 if (job.linkSC) {
                     if (appMode === 'admin') {
-                        // Admin Mode: Dropdown dengan 2 opsi (Buka Link dan Edit Link)
                         scButton = `
                             <div class="sc-dropdown">
                                 <button class="btn-sc">📊 SC</button>
@@ -2074,7 +1934,6 @@
                             </div>
                         `;
                     } else {
-                        // Tech Mode: Hanya tombol buka link biasa
                         scButton = `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')" title="Buka Link Speedtest">📊 SC</button>`;
                     }
                 }
@@ -2115,14 +1974,12 @@
 
                 listContainer.appendChild(li);
 
-                // Event Listener untuk Input Realtime (SN, Mac, dll)
                 const inputs = li.querySelectorAll('.realtime-input');
                 inputs.forEach(input => {
                     input.addEventListener('change', (e) => {
                         const key = e.target.getAttribute('data-key');
                         if (key) {
                             if (key === 'linkSC') {
-                                // Simpan langsung ke job
                                 teams[tIndex].jobs[index][key] = e.target.value;
                             } else {
                                 if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
@@ -2146,19 +2003,16 @@
         
         const lower = timeStr.toLowerCase();
         
-        // Handle waktu dengan kata-kata
-        if (lower.includes("pagi")) return 480;   // 08:00
-        if (lower.includes("siang")) return 780;  // 13:00
-        if (lower.includes("sore")) return 960;   // 16:00
-        if (lower.includes("malam")) return 1140; // 19:00
+        if (lower.includes("pagi")) return 480;
+        if (lower.includes("siang")) return 780;
+        if (lower.includes("sore")) return 960;
+        if (lower.includes("malam")) return 1140;
         
-        // Handle format jam:menit
         const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/);
         if (match) {
             let hour = parseInt(match[1]);
             const minute = match[2] ? parseInt(match[2]) : 0;
             
-            // Konversi ke 24 jam
             if (hour === 12 && lower.includes('siang')) hour = 12;
             else if (hour === 12 && lower.includes('malam')) hour = 0;
             else if (hour < 12 && lower.includes('sore')) hour += 12;
@@ -2168,7 +2022,7 @@
             return hour * 60 + minute;
         }
         
-        return 99999; // Untuk waktu tidak diketahui
+        return 99999;
     }
 
     window.toggleJobStatus = function(tIndex, jobIndex, newStatus) {
@@ -2325,7 +2179,6 @@
             }
 
             if (!teams[targetTeamIdx].inventory) teams[targetTeamIdx].inventory = [];
-            // Cek apakah sudah ada SN yang sama di inventory tim tujuan
             const existingIndex = teams[targetTeamIdx].inventory.findIndex(inv => inv.sn === item.sn);
             if (existingIndex === -1) {
                 teams[targetTeamIdx].inventory.push({ sn: item.sn, mac: item.mac });
@@ -2516,7 +2369,6 @@
             const mac = tokens[i + 1];
 
             if (sn && mac) {
-                // Cek apakah sudah ada SN yang sama
                 let exists = gudangStock[type].find(item => item.sn === sn);
                 if(!exists) {
                     gudangStock[type].push({
@@ -2539,37 +2391,6 @@
             updateGudangCounts();
         } else {
             alert("⚠️ Tidak ada data baru yang ditambahkan atau format salah.\nPastikan urutannya: SN [spasi] MAC.");
-        }
-    }
-
-    window.clearInstalledModems = function() {
-        let pin = prompt("⚠️ PERINGATAN: INI AKAN MENGHAPUS DATA MODEM YANG BERSTATUS 'TERPASANG'!\n\nData Ready, Pending, dan BAD tidak akan terhapus.\nMasukkan PIN untuk konfirmasi:");
-        
-        if(pin === "0789") {
-            const notificationId = showSyncNotification('Membersihkan data terpasang...', 'saving', false);
-            
-            const srbCountBefore = gudangStock.srb.length;
-            gudangStock.srb = gudangStock.srb.filter(item => !(item.status === 'installed' && !item.isLocked));
-            const srbDeleted = srbCountBefore - gudangStock.srb.length;
-
-            const synCountBefore = gudangStock.syn.length;
-            gudangStock.syn = gudangStock.syn.filter(item => !(item.status === 'installed' && !item.isLocked));
-            const synDeleted = synCountBefore - gudangStock.syn.length;
-
-            saveGudangToFirebase();
-            renderGudangTable(currentGudangTab);
-            updateGudangCounts();
-            
-            let msg = `✅ PEMBERSIHAN SELESAI!\nDeleted SRB: ${srbDeleted}\nDeleted SYN: ${synDeleted}`;
-            if (srbDeleted === 0 && synDeleted === 0) {
-                msg += "\n\n(Tidak ada data yang dihapus. Mungkin data Terpasang dalam status TERKUNCI 🔒)";
-            }
-            
-            showSyncNotification(`Pembersihan selesai: ${srbDeleted + synDeleted} data dihapus`, 'success');
-            closeSyncNotification(notificationId);
-
-        } else if (pin) {
-            alert("❌ PIN SALAH!");
         }
     }
 
@@ -2675,7 +2496,6 @@
             gudangStock[type][index].pendingDate = new Date().toLocaleString('id-ID');
 
             if(!teams[teamIdx].inventory) teams[teamIdx].inventory = [];
-            // Cek apakah sudah ada SN yang sama di inventory tim
             const existingIndex = teams[teamIdx].inventory.findIndex(inv => inv.sn === item.sn);
             if (existingIndex === -1) {
                 teams[teamIdx].inventory.push({ sn: item.sn, mac: item.mac });
@@ -2749,7 +2569,6 @@
 
         if(!teams[idx].inventory) teams[idx].inventory = [];
         
-        // Cek apakah sudah ada SN yang sama
         const existingIndex = teams[idx].inventory.findIndex(inv => inv.sn === sn);
         if (existingIndex === -1) {
             teams[idx].inventory.push({ sn: sn, mac: mac });
@@ -2760,6 +2579,68 @@
             alert("⚠️ Modem dengan SN ini sudah ada di stok tim!");
         }
     }
+
+    // Fungsi untuk mengembalikan modem unknown menjadi ready
+    window.returnUnknownModem = function(teamIndex, sn) {
+        let pin = prompt("🔒 Masukkan PIN untuk mengembalikan modem unknown ke gudang:");
+        if (pin !== "0789") {
+            alert("❌ PIN SALAH! Akses ditolak.");
+            return;
+        }
+
+        // Cari modem di gudang berdasarkan SN
+        let found = false;
+        let type = null;
+        let index = -1;
+
+        ['srb', 'syn'].forEach(t => {
+            const idx = gudangStock[t].findIndex(item => item.sn === sn);
+            if (idx !== -1) {
+                found = true;
+                type = t;
+                index = idx;
+            }
+        });
+
+        if (!found) {
+            alert("❌ Modem dengan SN tersebut tidak ditemukan di gudang!");
+            return;
+        }
+
+        const item = gudangStock[type][index];
+
+        // Pastikan statusnya unknown
+        if (item.status !== 'unknown') {
+            alert("❌ Modem ini tidak berstatus 'unknown'. Tidak perlu dikembalikan.");
+            return;
+        }
+
+        if (confirm(`Kembalikan modem ${sn} (${item.mac}) ke stok gudang sebagai READY?`)) {
+            // Hapus dari inventory tim
+            const team = teams[teamIndex];
+            if (team && team.inventory) {
+                team.inventory = team.inventory.filter(inv => inv.sn !== sn);
+            }
+
+            // Ubah status di gudang menjadi ready
+            item.status = 'ready';
+            item.teamName = '';
+            item.teamId = null;
+            item.pendingDate = null;
+            item.installedDate = null;
+            item.badDate = null;
+            item.unknownDate = null;
+
+            // Simpan ke Firebase
+            saveDataToFirebase();
+            saveGudangToFirebase();
+
+            // Refresh tampilan
+            openStockListModal(teamIndex);
+            renderJobs();
+            alert("✅ Modem berhasil dikembalikan ke gudang (ready).");
+        }
+    };
 
     window.openStockListModal = function(teamIndex) {
         const team = teams[teamIndex];
@@ -2772,11 +2653,9 @@
         title.innerText = team.teamName;
         tbody.innerHTML = '';
 
-        // Gunakan data yang sudah di-unique untuk ditampilkan
         const uniqueInventory = getUniqueInventory(teamIndex);
         const hasDuplicates = checkForDuplicateModems(teamIndex);
 
-        // Tampilkan peringatan jika ada duplikat
         if (hasDuplicates) {
             duplicateWarning.style.display = 'block';
             cleanDuplicatesBtn.style.display = 'block';
@@ -2793,7 +2672,6 @@
         } else {
             emptyMsg.style.display = 'none';
             
-            // Tampilkan data yang sudah di-unique
             uniqueInventory.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 
@@ -2802,10 +2680,11 @@
                 
                 let displaySN = item.sn;
                 let statusBadge = '';
-                let displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, '${item.sn}')">🗑️</button>`;
+                let displayAction = '';
 
                 if(status === 'pending') {
                     statusBadge = `<span class="badge" style="background:#ffc107; color:#000;">PENDING</span>`;
+                    displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, '${item.sn}')">🗑️</button>`;
                 } else if(status === 'installed') {
                     displaySN = `<span style="text-decoration:line-through; color:red; font-weight:bold;">${item.sn}</span>`;
                     statusBadge = `<span class="badge" style="background:#007bff; color:white;">TERPASANG</span>`;
@@ -2817,7 +2696,11 @@
                 } else if(status === 'unknown') {
                     displaySN = `<span style="text-decoration:line-through; color:#6c757d; font-weight:bold;">${item.sn}</span>`;
                     statusBadge = `<span class="badge" style="background:#6c757d; color:white;">TIDAK DIKETAHUI</span>`;
-                    displayAction = `<span style="font-size:0.8em; color:#ccc;">Locked</span>`;
+                    // Tombol Kembalikan untuk unknown
+                    displayAction = `<button class="btn-icon-return" onclick="returnUnknownModem(${teamIndex}, '${item.sn}')">↩️ Kembalikan</button>`;
+                } else if(status === 'ready') {
+                    statusBadge = `<span class="badge" style="background:#28a745; color:white;">READY</span>`;
+                    displayAction = `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, '${item.sn}')">🗑️</button>`;
                 }
 
                 let typeBadge = '';
@@ -2862,7 +2745,6 @@
         const seen = new Set();
         const uniqueInventory = [];
         
-        // Simpan data unik
         for (const item of team.inventory) {
             if (!seen.has(item.sn)) {
                 seen.add(item.sn);
@@ -2876,8 +2758,6 @@
             team.inventory = uniqueInventory;
             saveDataToFirebase();
             alert(`✅ Berhasil membersihkan ${duplicateCount} data duplikat!`);
-            
-            // Refresh tampilan
             openStockListModal(parseInt(teamIndex));
         } else {
             alert("Tidak ada data duplikat ditemukan.");
@@ -2892,7 +2772,6 @@
         }
         const team = teams[teamIndex];
         
-        // Hapus semua entri dengan SN yang sama (jika ada duplikat)
         const initialLength = team.inventory.length;
         team.inventory = team.inventory.filter(inv => inv.sn !== sn);
         const removedCount = initialLength - team.inventory.length;
@@ -2920,7 +2799,6 @@
             if(macParts.length === 6) {
                 let lastByte = parseInt(macParts[5], 16);
                 
-                // MODIFIKASI: Untuk modem ALCL, tambah 5 bukan 1
                 if (sn.startsWith("ALCL")) {
                     lastByte = lastByte + 5;
                 } else {
@@ -2973,35 +2851,6 @@
         }
         teams[teamIndex].jobs.splice(jobIndex, 1);
         saveDataToFirebase();
-    }
-
-    // --- FITUR BARU: BULK LOCK / UNLOCK ---
-    window.bulkLockAction = function(lockState) {
-        let actionName = lockState ? "MENGUNCI (LOCK)" : "MEMBUKA KUNCI (UNLOCK)";
-        let pin = prompt(`🔐 KEAMANAN MASSAL\n\nAnda akan ${actionName} SEMUA modem di tab ${currentGudangTab.toUpperCase()}.\nModem terkunci TIDAK BISA dihapus/diubah statusnya oleh sistem.\n\nMasukkan PIN Konfirmasi:`);
-        
-        if (pin !== "0789") {
-            alert("❌ PIN SALAH!");
-            return;
-        }
-
-        const notificationId = showSyncNotification(`${lockState ? 'Mengunci' : 'Membuka'} semua modem...`, 'saving', false);
-        
-        let count = 0;
-        gudangStock[currentGudangTab].forEach(item => {
-            item.isLocked = lockState;
-            count++;
-        });
-
-        saveGudangToFirebase();
-        renderGudangTable(currentGudangTab);
-        
-        let msg = lockState 
-            ? `🔒 Berhasil MENGUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.\nModem ini sekarang aman dari Reset/Hapus.` 
-            : `🔓 Berhasil MEMBUKA KUNCI ${count} Modem ${currentGudangTab.toUpperCase()}.`;
-        
-        showSyncNotification(msg, 'success');
-        closeSyncNotification(notificationId);
     }
 
     // --- FUNGSI UNTUK GET FIELD VALUE (DIGUNAKAN DI PREVIEW) ---
@@ -3082,7 +2931,7 @@
         const tgl = getFieldValue(text, 'Tanggal pemasangan');
         const statusRumah = getFieldValue(text, 'Status Rumah');
         const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun');
-        const linkSC = getFieldValue(text, 'Link SC'); // Tetap ada input untuk link SC
+        const linkSC = getFieldValue(text, 'Link SC');
 
         const card = document.createElement('div');
         card.className = 'preview-card preview-psb';
@@ -3105,7 +2954,6 @@
                 <div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div>
                 <div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div>
                 <div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setuju}"></div>
-                <!-- Link SC masih ada di input tapi tidak akan disimpan ke database -->
                 <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
             </div>
         `;
@@ -3134,7 +2982,7 @@
         const sandiWifi = getFieldValue(text, 'Sandi WiFi');
         const keterangan = getFieldValue(text, 'Keterangan');
         const router = getFieldValue(text, 'Router');
-        const linkSC = getFieldValue(text, 'Link SC'); // Tetap ada input untuk link SC
+        const linkSC = getFieldValue(text, 'Link SC');
 
         const isIsolir = kendala.toLowerCase().includes('isolir');
 
@@ -3169,14 +3017,12 @@
                 <div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div>
                 <div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div>
                 <div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div>
-                <!-- Link SC masih ada di input tapi tidak akan disimpan ke database -->
                 <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
             </div>
         `;
         container.appendChild(card);
     }
 
-    // Helper function untuk mengambil nilai dari input di preview card
     function getValueFromPreview(card, selector) {
         const el = card.querySelector(selector);
         return el ? el.value.trim() : '';
@@ -3279,7 +3125,7 @@
                         status: 'pending',
                         completedAt: null, 
                         technical: {},
-                        linkSC: '', // Link SC tidak disimpan
+                        linkSC: '',
                         name: nama || '-',
                         tag: `PSB (${paket || '150rb'})`,
                         tagClass: "badge-psb",
@@ -3341,7 +3187,7 @@
                         status: 'pending',
                         completedAt: null,
                         technical: {},
-                        linkSC: '', // Link SC tidak disimpan
+                        linkSC: '',
                         name: nama || '-',
                         tag: kendala || 'MT (Lain)',
                         tagClass: (kendala && kendala.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt",
@@ -3364,7 +3210,6 @@
                 document.getElementById('bulk-input-text').value = '';
                 document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
                 renderJobs();
-                // REFRESH LANDING JUGA JIKA KITA DALAM ADMIN MODE TAPI MASIH DI LANDING
                 renderLandingTeams(); 
             } else {
                 closeSyncNotification(notificationId);
@@ -3408,7 +3253,6 @@
         const isISOLIR = job.tag.toUpperCase().includes("ISOLIR");
         let textToCopy = "";
 
-        // Fungsi Helper: Cek apakah data valid (bukan kosong/undefined/null dan bukan "-")
         const checkVal = (val) => val && val.toString().trim() !== "" && val.toString().trim() !== "-";
 
         if (isPSB) {
@@ -3445,7 +3289,6 @@ Port : ${portVal}
 Id ODP : ${odpVal}
 Redaman : ${redamanVal}`;
         } else {
-            // LOGIKA COPY UNTUK NON-PSB (MT/ISOLIR) DENGAN VALIDASI
             textToCopy = `TEKNISI : ${team.teamName}
 KATEGORI : ${job.tag}
 --------------------------------
@@ -3461,7 +3304,6 @@ Jam: ${job.time}`;
             if (d['Coverage']) textToCopy += `\nCoverage: ${d['Coverage']}`;
             if (job.address) textToCopy += `\nAlamat: ${job.address}`;
             
-            // Kolom khusus dengan pengecekan ketat (tidak muncul jika "-" atau kosong)
             if (checkVal(d['User PPPOE_RADIUS'])) textToCopy += `\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS']}`;
             if (checkVal(d['Pemakaian Bulan Ini (GB)'])) textToCopy += `\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)']}`;
             if (checkVal(d['ODC'])) textToCopy += `\nODC: ${d['ODC']}`;
@@ -3482,8 +3324,6 @@ Jam: ${job.time}`;
                  textToCopy += `\n\n--- GANTI MODEM BARU ---\nSN : ${tech.sn}\nMAC : ${macVal}\nVLAN : ${vlanVal}`;
             }
         }
-        
-        // DIHAPUS: Bagian link SC tidak ditambahkan ke teks copy
         
         copyToClipboard(textToCopy, btn);
     };
@@ -3521,8 +3361,6 @@ Jam: ${job.time}`;
              text += `${statusLine}${failureLine}\n`;
              text += `🆔 ${layID} | 🕒 ${time}\n`;
              text += `📍 ${job.address}\n`;
-             
-             // DIHAPUS: Bagian link SC tidak ditambahkan ke rekap
              
              text += `----------------------------------------------\n`;
         });
@@ -3570,8 +3408,6 @@ Jam: ${job.time}`;
                 summaryText += `🆔 ${layID} | 🕒 ${time}\n`;
                 summaryText += `📍 ${job.address}\n`;
                 
-                // DIHAPUS: Bagian link SC tidak ditambahkan ke rekap semua
-                
                 summaryText += `----------------------------------------------\n`;
             });
             summaryText += `\n`; 
@@ -3587,16 +3423,13 @@ Jam: ${job.time}`;
         let count = 0;
         teams.forEach(team => {
             team.jobs.forEach(job => {
-                // Cek apakah tiket PSB dan completed
                 const isPSB = job.tag.toUpperCase().includes("PSB");
                 const isCompleted = job.status === 'completed' || (job.completed && !job.status);
 
                 if (isPSB && isCompleted) {
-                    // Ambil No Layanan dan Referensi
                     const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '-';
                     const referensi = job.details['Referensi'] || '-';
 
-                    // Hanya tambahkan jika No Layanan ada (tidak '-')
                     if (noLayanan !== '-') {
                         text += `${noLayanan} referensi: ${referensi}\n`;
                         count++;
@@ -3609,7 +3442,6 @@ Jam: ${job.time}`;
             text += "Tidak ada data PSB berhasil.\n";
         }
 
-        // Copy ke clipboard
         copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!");
     };
 
@@ -3663,7 +3495,6 @@ Jam: ${job.time}`;
         teams.forEach(team => {
             if(!team.inventory || team.inventory.length === 0) return;
 
-            // Gunakan data unik untuk menghindari duplikasi
             const uniqueInventory = getUniqueInventory(teams.indexOf(team));
             
             let items = [];
@@ -3778,7 +3609,6 @@ Jam: ${job.time}`;
                         "No Handphone": d['No WA'] || d['No Telp'] || "-",
                         "Tanggal pemasangan": finalDate,
                         "Paket Layanan": d['Paket'] || "-",
-                        // Kolom "Link SC" dihapus dari export Excel
                     });
                 } 
                 else {
@@ -3816,7 +3646,6 @@ Jam: ${job.time}`;
                         "Area Kelurahan": kelurahan,
                         "SN": tech.sn || "-",
                         "Catatan": catatanFull,
-                        // Kolom "Link SC" dihapus dari export Excel
                     });
                 }
             });
@@ -3831,10 +3660,10 @@ Jam: ${job.time}`;
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         
         if (mode === 'psb') {
-            const wscols = [{wch: 5}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 10}, {wch: 15}, {wch: 25}, {wch: 20}]; // Dihapus 1 kolom untuk Link SC
+            const wscols = [{wch: 5}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 10}, {wch: 15}, {wch: 25}, {wch: 20}];
             ws['!cols'] = wscols;
         } else {
-            const wscols = [{wch: 5}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 30}]; // Dihapus 1 kolom untuk Link SC
+            const wscols = [{wch: 5}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 20}, {wch: 40}, {wch: 5}, {wch: 5}, {wch: 15}, {wch: 20}, {wch: 30}];
             ws['!cols'] = wscols;
         }
 
@@ -3882,6 +3711,81 @@ Jam: ${job.time}`;
             alert(successMsg);
         }
     }
+
+    // --- FITUR DOWNLOAD BACKUP (JSON) ---
+    window.downloadBackup = function() {
+        // Gabungkan semua data (teams dan gudangStock) ke dalam satu objek
+        const backupData = {
+            teams: teams,
+            gudangStock: gudangStock,
+            timestamp: new Date().toISOString()
+        };
+
+        const jsonStr = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_sinyalku_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showSyncNotification('✅ Backup JSON berhasil diunduh!', 'success');
+    };
+
+    // --- FITUR UPLOAD RESTORE (JSON) ---
+    window.uploadBackup = function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const backupData = JSON.parse(e.target.result);
+                
+                // Validasi struktur data
+                if (!backupData.teams || !Array.isArray(backupData.teams)) {
+                    throw new Error("Format file tidak valid: 'teams' tidak ditemukan atau bukan array.");
+                }
+                if (!backupData.gudangStock || typeof backupData.gudangStock !== 'object') {
+                    throw new Error("Format file tidak valid: 'gudangStock' tidak ditemukan.");
+                }
+
+                // Konfirmasi restore
+                if (confirm("⚠️ Yakin ingin merestore data dari file ini? Data yang ada sekarang akan ditimpa!")) {
+                    // Timpa data lokal
+                    teams = backupData.teams;
+                    gudangStock = backupData.gudangStock;
+
+                    // Pastikan struktur gudangStock lengkap
+                    if (!gudangStock.srb) gudangStock.srb = [];
+                    if (!gudangStock.syn) gudangStock.syn = [];
+
+                    // Simpan ke Firebase
+                    Promise.all([saveDataToFirebaseDirect(), saveGudangToFirebaseDirect()])
+                        .then(() => {
+                            showSyncNotification('✅ Restore data berhasil!', 'success');
+                            // Refresh tampilan
+                            renderJobs();
+                            renderLandingTeams();
+                            updateGudangCounts();
+                        })
+                        .catch((err) => {
+                            showSyncNotification('❌ Gagal menyimpan ke Firebase!', 'error');
+                            console.error(err);
+                        });
+                }
+            } catch (error) {
+                alert("❌ Gagal membaca file JSON: " + error.message);
+            } finally {
+                // Reset input file
+                event.target.value = '';
+            }
+        };
+        reader.readAsText(file);
+    };
 
     // Modal Closing Logic Fixes
     window.onclick = function(event) { 
