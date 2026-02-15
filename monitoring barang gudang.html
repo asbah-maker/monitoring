@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistem Gudang V8.8 - Auto Count</title>
+    <title>Sistem Gudang Lite - General Stock</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -12,7 +12,6 @@
             --success: #16a34a;
             --warning: #f59e0b;
             --danger: #dc2626;
-            --bad-stock: #7f1d1d;
             --bg: #f8fafc;
             --card: #ffffff;
             --border: #e2e8f0;
@@ -85,24 +84,6 @@
         .mini-table th { background: #fff; position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .btn-del-mini { background: none; border: none; color: var(--danger); font-size: 1.2rem; padding: 0 10px; cursor: pointer; }
         
-        .sn-detail-list {
-            margin: 5px 0 0 0;
-            padding-left: 0;
-            list-style: none;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.85rem; 
-            color: #1e293b;
-            font-weight: bold;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            padding: 5px;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-        .sn-detail-list li { border-bottom: 1px dashed #cbd5e1; padding: 4px 0; display: flex; align-items: center; gap: 8px; }
-        .sn-detail-list li:last-child { border-bottom: none; }
-
         /* --- HISTORY TABLE --- */
         .history-section { background: var(--card); padding: 15px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .toolbar { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; justify-content: flex-end; }
@@ -121,7 +102,6 @@
 
         .item-list-group { margin: 0; padding-left: 15px; font-size: 0.9rem; }
         .item-list-group li { margin-bottom: 4px; }
-        .sn-tag { background: #fffbeb; color: #d97706; padding: 2px 5px; border-radius: 4px; font-family: monospace; border: 1px solid #fcd34d; font-size: 0.8rem; margin-left: 5px; font-weight: bold;}
         .btn-sm { padding: 4px 8px; border-radius: 4px; border: none; color: white; font-size: 0.75rem; cursor: pointer; margin-right: 2px; display: inline-block; margin-top: 5px; text-decoration: none;}
 
         /* --- MODAL --- */
@@ -136,39 +116,6 @@
         .choice-btn:hover { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
         .choice-icon { font-size: 1.5rem; }
 
-        /* MODEM MODAL SPECIFIC */
-        .tab-header { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 10px; border: none; background: #e2e8f0; cursor: pointer; font-weight: 600; border-radius: 6px; font-size: 0.85rem; }
-        .tab-btn.active { background: var(--primary); color: white; }
-        
-        .modem-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; text-align: center; font-size: 0.75rem; }
-        .stat-box { padding: 5px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; }
-        .stat-box:hover { transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .stat-box.active-filter { border-width: 2px; box-shadow: inset 0 0 5px rgba(0,0,0,0.1); }
-        .stat-num { display: block; font-size: 1.1rem; font-weight: bold; }
-
-        .search-results { max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 10px; }
-        .res-item { padding: 8px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
-        .res-item:last-child { border-bottom: none; }
-        
-        .res-item.taken { background: #f1f5f9; color: #94a3b8; }
-        .res-item.in-cart { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; cursor: not-allowed; }
-        .res-item.bad { background: #fee2e2; color: #991b1b; } 
-        
-        .res-check { margin-right: 10px; transform: scale(1.3); cursor: pointer; }
-        .input-with-btn { display: flex; gap: 5px; }
-        .input-with-btn input { flex-grow: 1; }
-
-        /* TAGS & LABELS */
-        .tag-status-ready { background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
-        .tag-status-sold { background: #f3f4f6; color: #4b5563; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; border:1px solid #d1d5db; }
-        .tag-status-cart { background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
-        .tag-status-bad { background: #b91c1c; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; } 
-        
-        .type-badge { font-size: 0.7rem; padding: 2px 5px; border-radius: 4px; font-weight: 800; cursor: pointer; border:1px solid transparent; margin-right: 5px; }
-        .type-srb { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
-        .type-syn { background: #fef3c7; color: #92400e; border-color: #fde68a; }
-
         /* EDIT MODAL STYLES */
         .edit-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
         .action-group { display: flex; gap: 5px; }
@@ -182,7 +129,6 @@
             h1 { font-size: 1.3rem; }
             body { padding: 8px; }
             .header-section { padding: 12px; }
-            .modem-stats { font-size: 0.65rem; }
         }
     </style>
 </head>
@@ -191,7 +137,7 @@
 <div class="container">
 
     <div class="header-section">
-        <h1>📦 Gudang V8.8 (Auto Count)</h1>
+        <h1>📦 Gudang Umum (No SN)</h1>
         <div id="networkStatus" class="network-status">⏳ Menghubungkan ke Server...</div>
         
         <button class="btn-config" onclick="openChoiceModal()">⚙️ Pengaturan & Data</button>
@@ -200,7 +146,7 @@
 
     <div class="main-grid">
         <div class="card-panel">
-            <div class="panel-title">📝 Input Data Non-Modem</div>
+            <div class="panel-title">📝 Input Transaksi</div>
             
             <div class="form-group">
                 <label>Tanggal</label>
@@ -217,26 +163,19 @@
             <hr style="border:0; border-top:1px dashed #cbd5e1; margin: 15px 0;">
 
             <div class="form-group">
-                <label>Barang (Material/Aksesoris)</label>
-                <select id="itemName" onchange="toggleSNField()">
+                <label>Nama Barang</label>
+                <select id="itemName" onchange="resetQty()">
                     <option value="" disabled selected>-- Pilih Barang --</option>
                 </select>
             </div>
 
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label>Modem (Khusus Input SN)</label>
-                <button id="btnSearchModem" class="btn-action btn-purple" onclick="openModemModal()">
-                    📡 Buka Pencarian Modem
-                </button>
-            </div>
-
             <div class="form-group">
-                <label>Qty (Barang Biasa)</label>
+                <label>Jumlah (Qty)</label>
                 <input type="number" id="qty" value="1" min="1">
             </div>
 
             <button class="btn-action btn-blue" onclick="addToCart()">
-                <span>⬇️ Masuk Keranjang (Non-Modem)</span>
+                <span>⬇️ Masuk Keranjang</span>
             </button>
         </div>
 
@@ -251,7 +190,7 @@
                     <thead>
                         <tr>
                             <th>Item</th>
-                            <th>Detail (SN)</th>
+                            <th>Qty</th>
                             <th style="width:30px"></th>
                         </tr>
                     </thead>
@@ -281,7 +220,7 @@
                         <th style="width:5%">No</th>
                         <th style="width:15%">Tanggal</th>
                         <th style="width:20%">Teknisi</th>
-                        <th style="width:40%">Daftar Barang Diambil</th>
+                        <th style="width:40%">Daftar Barang</th>
                         <th style="width:20%">Aksi</th>
                     </tr>
                 </thead>
@@ -300,8 +239,8 @@
         <span class="close-btn" onclick="document.getElementById('editLogModal').style.display='none'">&times;</span>
         <h3 style="margin-top:0">✏️ Edit / Retur Barang</h3>
         <p style="font-size:0.85rem; color:#64748b; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-            <b>INFO:</b> Jika Modem diretur, stok akan kembali ke READY otomatis.<br>
-            <b>❌ Rusak</b>: Barang masuk ke Bad Stock.
+            <b>INFO:</b> Retur akan mengembalikan stok ke gudang.
+            <br><b>❌ Rusak</b>: Barang masuk ke laporan Bad Stock.
         </p>
         <div id="editLogContainer"></div>
     </div>
@@ -315,8 +254,8 @@
         <button class="choice-btn" onclick="openStockModal()">
             <span class="choice-icon">🔢</span>
             <div>
-                <div>Atur Stok Manual (Kabel/Acc)</div>
-                <div style="font-size:0.8rem; color:#64748b;">(Stok Modem Otomatis dari Database SN)</div>
+                <div>Atur Stok Manual</div>
+                <div style="font-size:0.8rem; color:#64748b;">Update jumlah stok barang</div>
             </div>
         </button>
 
@@ -328,14 +267,6 @@
             </div>
         </button>
         
-        <button class="choice-btn" onclick="openModemModal()">
-            <span class="choice-icon">📡</span>
-            <div>
-                <div>Database Modem (SN/MAC)</div>
-                <div style="font-size:0.8rem; color:#64748b;">Input Stok SN & MAC Modem</div>
-            </div>
-        </button>
-
         <button class="choice-btn" style="border-color:#fecaca; background:#fef2f2;" onclick="openBadStockModal()">
             <span class="choice-icon">🗑️</span>
             <div>
@@ -348,7 +279,7 @@
             <span class="choice-icon">💾</span>
             <div>
                 <div style="color:#1e293b">Backup & Restore Data</div>
-                <div style="font-size:0.8rem; color:#475569;">Download Data / Upload ke Firebase Baru</div>
+                <div style="font-size:0.8rem; color:#475569;">Download Data / Upload JSON</div>
             </div>
         </button>
     </div>
@@ -380,13 +311,8 @@
         <h3 style="margin-top:0; color:#dc2626;">🗑️ Gudang Barang Rusak</h3>
         
         <div style="margin-bottom:15px;">
-            <h4 style="margin:5px 0; border-bottom:1px solid #eee;">Stok Fisik Material/Acc</h4>
-            <ul id="badMaterialList" class="item-list-group" style="max-height:150px; overflow-y:auto; padding-right:5px;"></ul>
-        </div>
-
-        <div style="margin-bottom:20px;">
-            <h4 style="margin:5px 0; border-bottom:1px solid #eee;">Modem / SN (Bad Status)</h4>
-            <div id="badModemList" style="max-height:200px; overflow-y:auto; padding-right:5px;"></div>
+            <h4 style="margin:5px 0; border-bottom:1px solid #eee;">List Barang Rusak</h4>
+            <ul id="badMaterialList" class="item-list-group" style="max-height:300px; overflow-y:auto; padding-right:5px;"></ul>
         </div>
 
         <button class="btn-action btn-danger" onclick="emptyTrash()">
@@ -395,78 +321,12 @@
     </div>
 </div>
 
-<div id="modemModal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
-        <span class="close-btn" onclick="closeModemModal()">&times;</span>
-        <h3 style="margin-top:0">📡 Manajemen Modem</h3>
-        
-        <div class="modem-stats">
-            <div class="stat-box" id="box-total" style="border-color: #3b82f6; background:#eff6ff;" onclick="setModemFilter('all')">
-                <span class="stat-num" style="color:#2563eb" id="statTotal">0</span> Total
-            </div>
-            <div class="stat-box" id="box-avail" style="border-color: #22c55e; background:#f0fdf4;" onclick="setModemFilter('avail')">
-                <span class="stat-num" style="color:#16a34a" id="statAvail">0</span> Ready
-            </div>
-            <div class="stat-box" id="box-sold" style="border-color: #ef4444; background:#fef2f2;" onclick="setModemFilter('sold')">
-                <span class="stat-num" style="color:#dc2626; text-decoration:line-through" id="statSold">0</span> Out
-            </div>
-            <div class="stat-box" id="box-bad" style="border-color: #7f1d1d; background:#fee2e2;" onclick="setModemFilter('bad')">
-                <span class="stat-num" style="color:#991b1b;" id="statBad">0</span> Bad
-            </div>
-        </div>
-
-        <div class="tab-header">
-            <button class="tab-btn active" onclick="switchModemTab('search')" id="tabSearchBtn">🔍 Cari & Ambil</button>
-            <button class="tab-btn" onclick="switchModemTab('add')" id="tabAddBtn">➕ Tambah Stok</button>
-            <button class="tab-btn" onclick="switchModemTab('list')" id="tabListBtn">📋 Semua Data</button>
-        </div>
-
-        <div id="tabSearch" style="display:block;">
-            <p style="font-size:0.85rem; color:#64748b; margin-bottom:5px;">
-                <b>Tips:</b> Ketik 4 digit akhir SN. Centang modem, lalu tekan tombol bawah.
-            </p>
-            <div class="input-with-btn">
-                <input type="text" id="modemSearchInput" placeholder="Masukan kode SN..." oninput="searchModem()" style="font-family:monospace; text-transform:uppercase;">
-                <button class="btn-blue" style="border-radius:8px; width:auto; padding:0 20px;" onclick="searchModem()">Cari</button>
-            </div>
-            <div class="search-results" id="modemResultList"></div>
-            <button class="btn-action btn-green" style="margin-top:10px;" onclick="selectModemsToCart()">
-                🛒 Masukkan ke Keranjang
-            </button>
-        </div>
-
-        <div id="tabAdd" style="display:none;">
-            <p style="font-size:0.85rem; color:#64748b; margin-bottom:5px;">
-                Paste daftar SN dan MAC. Format per baris: <code>SN [SPASI] MAC</code>
-            </p>
-            <textarea id="modemBulkInput" rows="8" placeholder="FHTTC11BBF7E BC:46:32:20:B8:30&#10;FHTTC0EE4630 1C:60:D2:BE:ED:48" style="font-family:monospace;"></textarea>
-            
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="btn-action btn-blue" onclick="addModemBulk('SRB')">💾 Simpan SRB</button>
-                <button class="btn-action btn-warning" onclick="addModemBulk('SYN')">💾 Simpan SYN</button>
-            </div>
-        </div>
-
-        <div id="tabList" style="display:none;">
-            <p style="font-size:0.85rem; color:#64748b; margin-bottom:5px;" id="listTitle">
-                Daftar semua modem. Klik Label [SRB]/[SYN] untuk mengganti tipe.
-            </p>
-            <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <button class="btn-action btn-danger" style="margin:0; padding:10px; font-size:0.8rem; flex:1;" onclick="deleteAllModems()">🗑️ Hapus Semua Data</button>
-                <button class="btn-action btn-green" style="margin:0; padding:10px; font-size:0.8rem; flex:1;" onclick="copyAllModemRaw()">📋 Copy Format (SN MAC)</button>
-            </div>
-            <div class="search-results" id="modemFullList" style="max-height: 350px;"></div>
-        </div>
-
-    </div>
-</div>
-
 <div id="stockModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="document.getElementById('stockModal').style.display='none'">&times;</span>
         <h3 style="margin-top:0">🔢 Atur Stok Gudang</h3>
         <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">
-            Note: Stok "Modem/ONT" dikunci karena dihitung otomatis dari database SN.
+            Sesuaikan jumlah stok fisik yang ada di gudang.
         </p>
         <div id="modalStockList" style="flex-grow:1; overflow-y:auto; margin-bottom:10px; border:1px solid #f1f5f9;"></div>
         <button class="btn-action btn-blue" onclick="saveStockConfig()">Simpan Stok</button>
@@ -514,11 +374,26 @@
     
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.database();
-    const dataRef = db.ref('gudang_v8_data');
+    // Kita gunakan ref yang sama agar data lama tetap ada, tapi fitur modemnya kita abaikan
+    const dataRef = db.ref('gudang_v8_data'); 
     const connectedRef = db.ref('.info/connected');
 
     // --- DATA AWAL ---
     const TEKNISI_LIST = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Kholis", "Yudha", "Rival", "Ifsal", "Reno"];
+    
+    // Modem tetap ada sebagai item biasa (hanya jumlah)
+    const DEFAULT_BARANG = [
+        "Modem/ONT", 
+        "Kabel Dropcore", 
+        "Kabel Patchcord", 
+        "Splitter 1:2",
+        "Splitter 1:4", 
+        "Splitter 1:8", 
+        "Roset Optik", 
+        "Breket Tiang",
+        "Adaptor Modem",
+        "S-Clamp"
+    ];
 
     // --- STATE VARIABLES ---
     let logs = [];
@@ -526,11 +401,9 @@
     let badInventory = {}; 
     let badLogs = []; 
     let itemMaster = [];
-    let modemDB = [];
-
+    
     // GLOBAL CART
     let cart = [];
-    let currentModemFilter = 'all';
     let isInitialLoad = true;
 
     const normalizeArray = (arr) => {
@@ -556,7 +429,6 @@
 
             logs = normalizeArray(data.logs);
             badLogs = normalizeArray(data.badLogs);
-            modemDB = normalizeArray(data.modemDB);
             
             if (!data.itemMaster && isInitialLoad) {
                 itemMaster = [...DEFAULT_BARANG];
@@ -568,17 +440,6 @@
             inventory = data.inventory || {};
             badInventory = data.badInventory || {};
 
-            // Validasi data modem
-            modemDB.forEach(m => {
-                if(!m.type) m.type = 'SRB'; 
-                if(!m.status) m.status = 'avail';
-                if(!m.date) m.date = '-';
-            });
-
-            // LOGIC UTAMA: AUTO SYNC STOCK MODEM
-            // Memastikan stok 'Modem/ONT' selalu mengikuti jumlah real avail di DB
-            syncModemStock();
-
             if (isInitialLoad) {
                 itemMaster.forEach(item => {
                     if (inventory[item] === undefined) inventory[item] = 0; 
@@ -587,7 +448,6 @@
                 
                 populateDropdowns();
                 document.getElementById('dateInput').valueAsDate = new Date();
-                toggleSNField();
                 isInitialLoad = false;
             } else {
                 const currentVal = document.getElementById('itemName').value;
@@ -597,15 +457,10 @@
                 }
             }
 
-            // RENDER UI
             renderStockDashboard();
             renderTable();
             renderCart();
-            updateModemStats();
-
-            if(document.getElementById('tabList') && document.getElementById('tabList').style.display === 'block') {
-                renderFullModemList();
-            }
+            
             if(document.getElementById('manageItemModal').style.display === 'flex') {
                 renderManageItemList();
             }
@@ -614,23 +469,6 @@
             }
         });
     };
-
-    // --- FITUR BARU: AUTO SYNC MODEM STOCK ---
-    function isModemItem(name) {
-        return name.toLowerCase().includes('modem') || name.toLowerCase().includes('ont');
-    }
-
-    function syncModemStock() {
-        // Cari nama item yang mengandung kata "Modem" atau "ONT"
-        const modemItemName = itemMaster.find(i => isModemItem(i));
-        
-        if (modemItemName) {
-            // Hitung jumlah modem yang statusnya 'avail'
-            const realCount = modemDB.filter(m => m.status === 'avail').length;
-            // Override inventory value
-            inventory[modemItemName] = realCount;
-        }
-    }
 
     function populateDropdowns() {
         const techSel = document.getElementById('techName');
@@ -651,16 +489,13 @@
     }
 
     function persistData() {
-        // Sebelum simpan, pastikan modem synced
-        syncModemStock(); 
-
         const safeData = {
             logs: logs,
             inventory: inventory,
             badInventory: badInventory,
             badLogs: badLogs,
-            itemMaster: itemMaster, 
-            modemDB: modemDB
+            itemMaster: itemMaster
+            // modemDB dihapus
         };
 
         dataRef.set(safeData).catch((error) => {
@@ -669,356 +504,8 @@
         });
     }
 
-    function isSnInCart(sn) {
-        for(let c of cart) {
-            if(c.details && Array.isArray(c.details)) {
-                if(c.details.find(d => d.sn === sn)) return true;
-            }
-            if(c.sn === sn) return true;
-        }
-        return false;
-    }
-
-    function toggleSNField() {
-        const itemVal = document.getElementById('itemName').value;
-        if (!itemVal) return;
-        
-        const qtyInput = document.getElementById('qty');
-        const isModem = isModemItem(itemVal);
-
-        if (isModem) {
-           alert("Untuk Modem, silakan gunakan tombol 'Buka Pencarian Modem' berwarna ungu.");
-           document.getElementById('itemName').selectedIndex = 0; 
-           return;
-        }
-        
-        qtyInput.readOnly = false;
-        qtyInput.style.backgroundColor = "#fff";
-        qtyInput.value = "1";
-    }
-
-    // --- MODEM MODAL & LOGIC ---
-    function openModemModal() {
-        document.getElementById('modemModal').style.display = 'flex';
-        document.getElementById('choiceModal').style.display = 'none';
-        setModemFilter('all'); 
-        switchModemTab('search');
-        updateModemStats();
-        document.getElementById('modemSearchInput').value = "";
-        document.getElementById('modemResultList').innerHTML = "";
-        setTimeout(() => document.getElementById('modemSearchInput').focus(), 100);
-    }
-
-    function closeModemModal() { document.getElementById('modemModal').style.display = 'none'; }
-
-    function switchModemTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('tabSearch').style.display = 'none';
-        document.getElementById('tabAdd').style.display = 'none';
-        document.getElementById('tabList').style.display = 'none';
-
-        if(tab === 'search') {
-            document.getElementById('tabSearchBtn').classList.add('active');
-            document.getElementById('tabSearch').style.display = 'block';
-            document.getElementById('modemSearchInput').focus();
-        } else if (tab === 'add') {
-            document.getElementById('tabAddBtn').classList.add('active');
-            document.getElementById('tabAdd').style.display = 'block';
-            document.getElementById('modemBulkInput').focus();
-        } else if (tab === 'list') {
-            document.getElementById('tabListBtn').classList.add('active');
-            document.getElementById('tabList').style.display = 'block';
-            renderFullModemList();
-        }
-    }
-
-    function setModemFilter(filter) {
-        currentModemFilter = filter;
-        document.querySelectorAll('.stat-box').forEach(b => b.classList.remove('active-filter'));
-        if(filter === 'all') document.getElementById('box-total').classList.add('active-filter');
-        if(filter === 'avail') document.getElementById('box-avail').classList.add('active-filter');
-        if(filter === 'sold') document.getElementById('box-sold').classList.add('active-filter');
-        if(filter === 'bad') document.getElementById('box-bad').classList.add('active-filter');
-
-        if(document.getElementById('tabList').style.display === 'block') { renderFullModemList(); } 
-        else if (filter !== 'all') { switchModemTab('list'); }
-    }
-
-    function updateModemStats() {
-        const total = modemDB.length;
-        const avail = modemDB.filter(m => m.status === 'avail').length;
-        const bad = modemDB.filter(m => m.status === 'bad').length;
-        const sold = total - avail - bad; 
-
-        document.getElementById('statTotal').innerText = total;
-        document.getElementById('statAvail').innerText = avail;
-        document.getElementById('statSold').innerText = sold;
-        document.getElementById('statBad').innerText = bad;
-    }
-
-    function addModemBulk(type) {
-        const raw = document.getElementById('modemBulkInput').value;
-        if(!raw.trim()) return alert("Data kosong!");
-
-        const lines = raw.split('\n');
-        let addedCount = 0;
-
-        lines.forEach(line => {
-            const parts = line.trim().split(/\s+/);
-            if(parts.length >= 2) {
-                const sn = parts[0];
-                const mac = parts[1];
-                const exists = modemDB.find(m => m.sn === sn);
-                if(!exists) {
-                    modemDB.push({ sn: sn, mac: mac, type: type, status: 'avail', tech: '-', date: '-' });
-                    addedCount++;
-                }
-            }
-        });
-
-        if(addedCount > 0) {
-            alert(`✅ Berhasil menambahkan ${addedCount} modem tipe ${type}.`);
-            document.getElementById('modemBulkInput').value = "";
-            // Simpan akan otomatis trigger syncModemStock()
-            persistData(); 
-            switchModemTab('list');
-        } else { alert("⚠️ Tidak ada data baru atau format salah (SN MAC)."); }
-    }
-
-    function toggleModemType(sn) {
-        const m = modemDB.find(x => x.sn === sn);
-        if(m) {
-            m.type = (m.type === 'SRB') ? 'SYN' : 'SRB';
-            persistData();
-            if(document.getElementById('tabList').style.display === 'block') { renderFullModemList(); } 
-            else { searchModem(); }
-        }
-    }
-
-    function renderFullModemList() {
-        const container = document.getElementById('modemFullList');
-        const title = document.getElementById('listTitle');
-        container.innerHTML = "";
-        
-        let filteredDB = modemDB;
-        let titleText = "Daftar Semua Modem";
-
-        if(currentModemFilter === 'avail') {
-            filteredDB = modemDB.filter(m => m.status === 'avail');
-            titleText = "Daftar Modem READY (Siap Pakai)";
-        } else if (currentModemFilter === 'sold') {
-            filteredDB = modemDB.filter(m => m.status === 'sold' || m.status === 'taken');
-            titleText = "Daftar Modem OUT (Dibawa Teknisi)";
-        } else if (currentModemFilter === 'bad') {
-            filteredDB = modemDB.filter(m => m.status === 'bad');
-            titleText = "Daftar Modem BAD (Rusak)";
-        }
-
-        title.innerText = titleText;
-
-        if(filteredDB.length === 0) {
-            container.innerHTML = "<div style='text-align:center; padding:10px; color:#ccc'>Data tidak ditemukan.</div>";
-            return;
-        }
-
-        filteredDB.sort((a, b) => {
-            if (a.status === 'avail' && b.status !== 'avail') return -1;
-            if (a.status !== 'avail' && b.status === 'avail') return 1;
-            return 0;
-        });
-
-        filteredDB.forEach((m) => {
-            const inCart = isSnInCart(m.sn);
-            let statusHtml = "";
-            let extraClass = "";
-
-            if(m.status === 'sold' || m.status === 'taken') {
-                let dateInfo = m.date && m.date !== '-' ? ` <br><span style="font-size:0.75rem">📅 ${formatDateIndo(m.date)}</span>` : '';
-                statusHtml = `<span class="tag-status-sold">OUT: ${m.tech} ${dateInfo}</span>`;
-                extraClass = 'taken';
-            } else if (m.status === 'bad') {
-                let dateInfo = m.date && m.date !== '-' ? ` (${formatDateIndo(m.date)})` : '';
-                statusHtml = `<span class="tag-status-bad">RUSAK ${dateInfo}</span>`;
-                extraClass = 'bad';
-            } else if(inCart) {
-                statusHtml = `<span class="tag-status-cart">DI KERANJANG</span>`;
-                extraClass = 'in-cart';
-            } else {
-                statusHtml = `<span class="tag-status-ready">READY</span>`;
-            }
-
-            const badgeClass = m.type === 'SRB' ? 'type-srb' : 'type-syn';
-            const typeBadge = `<span class="type-badge ${badgeClass}" onclick="toggleModemType('${m.sn}')" title="Klik untuk ubah tipe">[${m.type}]</span>`;
-
-            const div = document.createElement('div');
-            div.className = `res-item ${extraClass}`;
-            div.innerHTML = `
-                <div style="flex-grow:1; ${inCart ? 'color:#1e40af;' : ''}">
-                    <div style="font-weight:bold; font-family:monospace; font-size:0.9rem;">${typeBadge} ${m.sn}</div>
-                    <div style="font-size:0.75rem; color:#64748b;">MAC: ${m.mac}</div>
-                    <div style="margin-top:2px;">${statusHtml}</div>
-                </div>
-                <button class="btn-del-mini" onclick="deleteModemFromDB('${m.sn}')" title="Hapus dari Database">🗑️</button>
-            `;
-            container.appendChild(div);
-        });
-    }
-
-    function searchModem() {
-        const rawQuery = document.getElementById('modemSearchInput').value;
-        const listContainer = document.getElementById('modemResultList');
-        listContainer.innerHTML = "";
-
-        const query = rawQuery.trim();
-        if(!query) return;
-
-        const terms = query.split(/\s+/);
-        let foundItems = [];
-
-        terms.forEach(term => {
-            if(term.length < 3) return;
-            const upperTerm = term.toUpperCase();
-            const matches = modemDB.filter(m => m.sn.toUpperCase().includes(upperTerm)); 
-            foundItems = [...foundItems, ...matches];
-        });
-
-        foundItems = [...new Set(foundItems)];
-
-        if(foundItems.length === 0) {
-            listContainer.innerHTML = "<div style='padding:10px; text-align:center; color:#ccc'>Tidak ditemukan.</div>";
-            return;
-        }
-
-        foundItems.forEach(m => {
-            let checkboxHTML = "";
-            let statusHtml = "";
-            let extraClass = "";
-            let styleText = "";
-            
-            if(m.status === 'avail') {
-                if (isSnInCart(m.sn)) {
-                    checkboxHTML = `<span style="margin-right:10px; font-size:1.2rem;">🛒</span>`;
-                    statusHtml = `<span class="tag-status-cart">DI KERANJANG</span>`;
-                    extraClass = "in-cart";
-                    styleText = "color:#1e40af;"; 
-                } else {
-                    checkboxHTML = `<input type="checkbox" class="res-check" value="${m.sn}">`;
-                    statusHtml = `<span class="tag-status-ready">READY</span>`;
-                }
-            } else if (m.status === 'bad') {
-                 checkboxHTML = `<span style="margin-right:10px">❌</span>`;
-                 statusHtml = `<span class="tag-status-bad">RUSAK</span>`;
-                 extraClass = "bad";
-                 styleText = "color:#991b1b;";
-            } else {
-                checkboxHTML = `<span style="margin-right:10px">❌</span>`;
-                statusHtml = `<span class="tag-status-sold">OUT: ${m.tech}</span>`;
-                extraClass = "taken";
-                styleText = "color:#94a3b8;";
-            }
-
-            const badgeClass = m.type === 'SRB' ? 'type-srb' : 'type-syn';
-            const typeBadge = `<span class="type-badge ${badgeClass}" onclick="toggleModemType('${m.sn}')" title="Klik untuk ubah tipe">[${m.type}]</span>`;
-
-            listContainer.innerHTML += `
-                <div class="res-item ${extraClass}" onclick="triggerCheck(this)">
-                    <div style="display:flex; align-items:center; ${styleText}">
-                        ${checkboxHTML}
-                        <div>
-                            <div style="font-weight:bold; font-family:monospace; font-size:0.95rem;">${typeBadge} ${m.sn}</div>
-                            <div style="font-size:0.75rem; color:#64748b; margin-left:35px;">MAC: ${m.mac}</div>
-                        </div>
-                    </div>
-                    <div>${statusHtml}</div>
-                </div>
-            `;
-        });
-    }
-
-    function triggerCheck(el) {
-        const cb = el.querySelector('input[type="checkbox"]');
-        if(cb && event.target !== cb && !event.target.classList.contains('type-badge')) {
-            cb.checked = !cb.checked;
-        }
-    }
-
-    function deleteModemFromDB(sn) {
-        if(!confirm(`⚠️ Hapus modem SN: ${sn} dari database?`)) return;
-        const idx = modemDB.findIndex(m => m.sn === sn);
-        if(idx !== -1) {
-            modemDB.splice(idx, 1);
-            persistData();
-            renderFullModemList();
-        }
-    }
-
-    function deleteAllModems() {
-        if(!confirm("⚠️ BAHAYA! Apakah Anda yakin ingin MENGHAPUS SEMUA data modem?")) return;
-        if(!confirm("⚠️ Yakin? Data tidak bisa dikembalikan!")) return;
-        
-        modemDB = [];
-        persistData();
-        renderFullModemList();
-        alert("✅ Semua data modem telah dihapus.");
-    }
-
-    function copyAllModemRaw() {
-        if(modemDB.length === 0) return alert("⚠️ Data modem kosong");
-        
-        let txt = "";
-        modemDB.forEach(m => { txt += `${m.sn} ${m.mac}\n`; });
-        
-        navigator.clipboard.writeText(txt).then(() => {
-            alert(`✅ ${modemDB.length} Data SN & MAC berhasil disalin ke Clipboard!`);
-        }).catch(err => {
-            alert("Gagal copy: (mungkin browser tidak mensupport tanpa https) " + err);
-        });
-    }
-
-    function selectModemsToCart() {
-        const checkboxes = document.querySelectorAll('.res-check:checked');
-        if(checkboxes.length === 0) return alert("Pilih minimal 1 modem.");
-
-        let tempSelected = [];
-        checkboxes.forEach(cb => {
-            const sn = cb.value;
-            const m = modemDB.find(x => x.sn === sn);
-            if(m) tempSelected.push(m);
-        });
-
-        // Cari nama item modem di master (Otomatis deteksi)
-        let modemName = itemMaster.find(i => isModemItem(i)) || "Modem/ONT";
-
-        const cleanModems = [];
-        let dupeCount = 0;
-        
-        tempSelected.forEach(m => {
-            if(!isSnInCart(m.sn)) cleanModems.push(m);
-            else dupeCount++;
-        });
-
-        if(dupeCount > 0) alert(`⚠️ ${dupeCount} modem sudah ada di keranjang.`);
-        if(cleanModems.length === 0) return alert("Semua modem yang dipilih sudah ada di keranjang!");
-
-        const existingModemIdx = cart.findIndex(c => c.item === modemName && c.details);
-
-        if(existingModemIdx !== -1) {
-            cart[existingModemIdx].details = [...cart[existingModemIdx].details, ...cleanModems];
-            cart[existingModemIdx].qty = cart[existingModemIdx].details.length;
-        } else {
-            cart.push({
-                item: modemName,
-                qty: cleanModems.length, 
-                sn: "Lihat Detail",
-                details: [...cleanModems] 
-            });
-        }
-
-        document.getElementById('modemSearchInput').value = "";
-        document.getElementById('modemResultList').innerHTML = "";
-        closeModemModal();
-        renderCart();
-        alert(`✅ ${cleanModems.length} Modem berhasil dimasukkan ke Keranjang!`);
+    function resetQty() {
+        document.getElementById('qty').value = "1";
     }
 
     function addToCart() {
@@ -1027,10 +514,6 @@
 
         if(!item) { alert("⚠️ Pilih Barang!"); return; }
         if(qty <= 0) { alert("⚠️ Qty minimal 1"); return; }
-        if(isModemItem(item)) {
-            alert("⚠️ Untuk menambahkan Modem, gunakan tombol 'Buka Pencarian Modem' berwarna ungu.");
-            return;
-        }
 
         const currentStock = inventory[item] || 0;
         const inCartQty = cart.filter(c => c.item === item).reduce((sum, c) => sum + c.qty, 0);
@@ -1040,12 +523,12 @@
             return;
         }
 
-        const existingItemIndex = cart.findIndex(c => c.item === item && (!c.details || c.details.length === 0));
+        const existingItemIndex = cart.findIndex(c => c.item === item);
 
         if (existingItemIndex !== -1) {
             cart[existingItemIndex].qty += qty;
         } else {
-            cart.push({ item: item, qty: qty, sn: "-", details: null });
+            cart.push({ item: item, qty: qty });
         }
         
         document.getElementById('qty').value = "1";
@@ -1068,26 +551,10 @@
         } else {
             document.getElementById('cartEmptyMsg').style.display = 'none';
             cart.forEach((c, i) => {
-                let detailHtml = "";
-                
-                if(c.details && c.details.length > 0) {
-                    detailHtml = `<ul class="sn-detail-list">`;
-                    c.details.forEach(m => {
-                        const typeClass = m.type === 'SRB' ? 'type-srb' : 'type-syn';
-                        detailHtml += `<li><span class="type-badge ${typeClass}">[${m.type}]</span> ${m.sn}</li>`;
-                    });
-                    detailHtml += `</ul>`;
-                } else if (c.sn !== '-' && c.sn !== '') {
-                    detailHtml = `<div style="font-size:0.8rem; color:#64748b;">${c.sn}</div>`;
-                }
-
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><b>${c.item}</b></td>
-                    <td>
-                        <div style="font-size:0.85rem">Qty: <b>${c.qty}</b></div>
-                        ${detailHtml}
-                    </td>
+                    <td><b>${c.qty}</b></td>
                     <td><button class="btn-del-mini" onclick="removeFromCart(${i})">&times;</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -1097,7 +564,7 @@
 
     function saveTransaction() {
         if (cart.length === 0) { 
-            alert("⚠️ Keranjang kosong! Silakan masukkan barang atau modem terlebih dahulu."); 
+            alert("⚠️ Keranjang kosong!"); 
             return; 
         }
         const tech = document.getElementById('techName').value;
@@ -1105,20 +572,9 @@
 
         if(!tech || !date) { return alert("⚠️ Mohon isi Tanggal dan Nama Teknisi!"); }
 
-        // 1. Update Inventory Master & Modem Status
+        // 1. Update Inventory Master
         cart.forEach(c => {
             inventory[c.item] = (inventory[c.item] || 0) - c.qty; 
-            
-            if(c.details && c.details.length > 0) {
-                c.details.forEach(modem => {
-                    const dbIndex = modemDB.findIndex(m => m.sn === modem.sn);
-                    if(dbIndex !== -1) {
-                        modemDB[dbIndex].status = 'sold';
-                        modemDB[dbIndex].tech = tech;
-                        modemDB[dbIndex].date = date; 
-                    }
-                });
-            }
         });
 
         // 2. Logic Merging History
@@ -1128,13 +584,8 @@
             // MERGE MODE
             cart.forEach(newItem => {
                 const existingItem = existingLog.items.find(i => i.item === newItem.item);
-
                 if (existingItem) {
                     existingItem.qty += newItem.qty;
-                    if (newItem.details && newItem.details.length > 0) {
-                        if (!existingItem.details) existingItem.details = [];
-                        existingItem.details = [...existingItem.details, ...newItem.details];
-                    }
                 } else {
                     existingLog.items.push(newItem);
                 }
@@ -1151,9 +602,9 @@
 
         // 3. Cleanup & Persist
         cart = [];
-        persistData(); // Ini otomatis akan mengupdate angka di dashboard
+        persistData(); 
         renderCart(); 
-        alert("✅ Transaksi Berhasil Disimpan & Digabungkan!");
+        alert("✅ Transaksi Berhasil Disimpan!");
     }
 
     function renderTable() {
@@ -1163,27 +614,13 @@
 
         sortedLogs.forEach((log, index) => {
             let itemListHtml = `<ul class="item-list-group">`;
-            let hasModemDetails = false;
-
+            
             if(log.items && log.items.length > 0) {
                 log.items.forEach((item) => {
-                    let snDisplay = "";
-                    if(item.details && item.details.length > 0) {
-                        snDisplay += `<br><span style="font-family:monospace; font-size:0.8rem; display:block; margin-top:3px; color:#475569;">`;
-                        item.details.forEach(d => {
-                            snDisplay += `• [${d.type || 'SRB'}] ${d.sn}<br>`;
-                        });
-                        snDisplay += `</span>`;
-                        hasModemDetails = true;
-                    } else if (item.sn !== '-') {
-                        snDisplay = `<span class="sn-tag">${item.sn}</span>`;
-                    }
-                    itemListHtml += `<li><b>${item.item}</b> (${item.qty}) ${snDisplay}</li>`;
+                    itemListHtml += `<li><b>${item.item}</b> (${item.qty})</li>`;
                 });
             }
             itemListHtml += `</ul>`;
-
-            let copyBtn = hasModemDetails ? `<button class="btn-sm bg-teal" onclick="copyModems('${log.id}')">📋 Copy SN</button>` : "";
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -1193,7 +630,6 @@
                 <td>${itemListHtml}</td>
                 <td>
                     <button class="btn-sm bg-orange" onclick="openEditLogModal('${log.id}')">✏️ Edit</button>
-                    ${copyBtn} 
                     <button class="btn-sm bg-red" onclick="deleteFullLog('${log.id}')">Hapus</button>
                 </td>
             `;
@@ -1230,32 +666,18 @@
             wrapper.style.borderRadius = "8px";
             wrapper.style.border = "1px solid #e2e8f0";
 
-            let content = `<div style="font-weight:bold; margin-bottom:5px;">${item.item} (Qty: ${item.qty})</div>`;
-
-            if(item.details && item.details.length > 0) {
-                content += `<ul style="padding-left:0; list-style:none;">`;
-                item.details.forEach(m => {
-                    content += `
-                    <li class="edit-item-row">
-                        <span style="font-family:monospace; font-size:0.85rem;">[${m.type}] ${m.sn}</span>
-                        <div class="action-group">
-                            <button class="btn-retur-good" onclick="returnModemItem('${log.id}', ${idx}, '${m.sn}', 'avail')">✅ Ready</button>
-                            <button class="btn-retur-bad" onclick="returnModemItem('${log.id}', ${idx}, '${m.sn}', 'bad')">❌ Rusak</button>
-                        </div>
-                    </li>`;
-                });
-                content += `</ul>`;
-            } else {
-                content += `
+            let content = `
                 <div class="edit-item-row">
-                    <span style="font-size:0.85rem; color:#64748b; margin-top:5px;">Retur 1 Unit ke:</span>
-                    <div class="action-group">
-                        <button class="btn-retur-good" onclick="returnUnitItem('${log.id}', ${idx}, 'good')">✅ Ready</button>
-                        <button class="btn-retur-bad" onclick="returnUnitItem('${log.id}', ${idx}, 'bad')">❌ Rusak</button>
+                    <span style="font-weight:bold">${item.item} (Qty: ${item.qty})</span>
+                    <div class="action-group" style="flex-direction:column; align-items:flex-end;">
+                        <span style="font-size:0.75rem; color:#64748b; margin-bottom:2px;">Retur 1 Unit ke:</span>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-retur-good" onclick="returnUnitItem('${log.id}', ${idx}, 'good')">✅ Ready</button>
+                            <button class="btn-retur-bad" onclick="returnUnitItem('${log.id}', ${idx}, 'bad')">❌ Rusak</button>
+                        </div>
                     </div>
                 </div>`;
-            }
-
+            
             wrapper.innerHTML = content;
             container.appendChild(wrapper);
         });
@@ -1278,8 +700,7 @@
                 date: today,
                 item: item.item,
                 qty: 1,
-                sn: '-',
-                info: 'Retur Material/Acc'
+                info: 'Retur Material'
             });
         }
 
@@ -1287,43 +708,6 @@
         if(item.qty <= 0) { log.items.splice(itemIdx, 1); }
 
         persistData();
-        renderEditLogModal();
-    }
-
-    function returnModemItem(logId, itemIdx, sn, condition) {
-        const typeStr = condition === 'avail' ? "Kembali ke Stok Ready?" : "Masuk ke Gudang Rusak?";
-        if(!confirm(typeStr)) return;
-
-        const log = logs.find(l => l.id === logId);
-        const item = log.items[itemIdx];
-
-        const dbIdx = modemDB.findIndex(m => m.sn === sn);
-        if(dbIdx !== -1) {
-            modemDB[dbIdx].status = condition; 
-            modemDB[dbIdx].tech = '-'; 
-            
-            if(condition === 'bad') {
-                const today = new Date().toISOString().split('T')[0];
-                modemDB[dbIdx].date = today; 
-                
-                badLogs.push({
-                    date: today,
-                    item: item.item,
-                    qty: 1,
-                    sn: sn,
-                    info: 'Retur Modem'
-                });
-            } else {
-                modemDB[dbIdx].date = '-'; 
-            }
-        }
-
-        item.details = item.details.filter(d => d.sn !== sn);
-        item.qty = item.details.length;
-
-        if(item.qty <= 0) { log.items.splice(itemIdx, 1); }
-
-        persistData(); // Otomatis update dashboard karena ada syncModemStock()
         renderEditLogModal();
     }
 
@@ -1336,11 +720,9 @@
 
     function renderBadStockList() {
         const matList = document.getElementById('badMaterialList');
-        const modemList = document.getElementById('badModemList');
         matList.innerHTML = "";
-        modemList.innerHTML = "";
 
-        // Render Material Rusak
+        // Render Barang Rusak
         let hasMaterial = false;
         Object.keys(badInventory).forEach(item => {
             if(badInventory[item] > 0) {
@@ -1348,51 +730,15 @@
                 const li = document.createElement('li');
                 li.style.cssText = "border-bottom:1px solid #eee; padding:5px 0; display:flex; justify-content:space-between;";
                 li.innerHTML = `
-                    <div><span style="font-weight:bold">${item}</span> (Qty: ${badInventory[item]})</div>
+                    <div><span style="font-weight:bold">${item}</span></div>
+                    <div>Qty: <b>${badInventory[item]}</b></div>
                 `;
                 matList.appendChild(li);
             }
         });
         
         if (!hasMaterial) {
-            matList.innerHTML = "<li style='color:#ccc'>Tidak ada data</li>";
-        }
-
-        // Render Modem Rusak
-        const badModems = modemDB.filter(m => m.status === 'bad');
-        if(badModems.length === 0) {
-            modemList.innerHTML = "<div style='color:#ccc'>Tidak ada data</div>";
-        } else {
-            badModems.forEach(m => {
-                const div = document.createElement('div');
-                div.className = "res-item bad";
-                div.innerHTML = `
-                    <div>
-                        <div>
-                            <b>${m.sn}</b> <br> 
-                            <span style="font-size:0.75rem">${m.mac}</span>
-                            <div style="font-size:0.75rem; font-weight:bold; margin-top:3px;">📅 ${formatDateIndo(m.date)}</div>
-                        </div>
-                    </div>
-                    <div class="action-group">
-                        <button class="btn-sm bg-green" onclick="fixBadModem('${m.sn}')" title="Kembalikan ke Ready">♻️</button>
-                        <button class="btn-sm bg-red" onclick="deleteModemFromDB('${m.sn}')" title="Musnahkan">🗑️</button>
-                    </div>
-                `;
-                modemList.appendChild(div);
-            });
-        }
-    }
-
-    function fixBadModem(sn) {
-        if(confirm(`Modem SN ${sn} sudah diperbaiki?`)) {
-            const idx = modemDB.findIndex(m => m.sn === sn);
-            if(idx !== -1) {
-                modemDB[idx].status = 'avail';
-                modemDB[idx].date = '-';
-                persistData();
-                renderBadStockList();
-            }
+            matList.innerHTML = "<li style='color:#ccc; text-align:center;'>Tidak ada data</li>";
         }
     }
 
@@ -1402,8 +748,7 @@
 
         badInventory = {};
         badLogs = [];
-        modemDB = modemDB.filter(m => m.status !== 'bad');
-
+        
         persistData();
         renderBadStockList();
         alert("✅ Gudang Rusak telah dikosongkan.");
@@ -1422,8 +767,7 @@
             inventory: inventory,
             badInventory: badInventory,
             badLogs: badLogs,
-            itemMaster: itemMaster,
-            modemDB: modemDB
+            itemMaster: itemMaster
         };
 
         const dataStr = JSON.stringify(dataToSave, null, 2);
@@ -1432,7 +776,7 @@
         
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Backup_Gudang_${new Date().toISOString().slice(0,10)}.json`;
+        a.download = `Backup_Gudang_General_${new Date().toISOString().slice(0,10)}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -1453,7 +797,7 @@
             try {
                 const json = JSON.parse(e.target.result);
                 
-                if (!json.logs && !json.inventory && !json.modemDB) {
+                if (!json.logs && !json.inventory) {
                     throw new Error("Format file tidak valid!");
                 }
 
@@ -1464,8 +808,7 @@
                 badInventory = json.badInventory || {};
                 badLogs = json.badLogs || [];
                 itemMaster = json.itemMaster || DEFAULT_BARANG;
-                modemDB = json.modemDB || [];
-
+                
                 persistData();
                 alert("✅ Data berhasil di-restore!");
                 document.getElementById('backupModal').style.display = 'none';
@@ -1478,51 +821,18 @@
     }
 
     function deleteFullLog(logId) {
-        if(!confirm("Hapus seluruh transaksi? Semua barang akan kembali ke stok READY.")) return;
+        if(!confirm("Hapus seluruh transaksi? Semua barang akan kembali ke stok.")) return;
         const logIdx = logs.findIndex(l => l.id === logId);
         if (logIdx !== -1) {
             const log = logs[logIdx];
             if(log.items) {
                 log.items.forEach(item => {
-                    // Jika bukan modem, kembalikan ke inventory manual
-                    if(!isModemItem(item.item)) {
-                        inventory[item.item] = (inventory[item.item] || 0) + item.qty; 
-                    }
-                    // Jika modem, kembalikan status DB
-                    if(item.details) {
-                        item.details.forEach(m => {
-                            const dbIdx = modemDB.findIndex(x => x.sn === m.sn);
-                            if(dbIdx !== -1) {
-                                modemDB[dbIdx].status = 'avail';
-                                modemDB[dbIdx].tech = '-';
-                                modemDB[dbIdx].date = '-';
-                            }
-                        });
-                    }
+                    inventory[item.item] = (inventory[item.item] || 0) + item.qty; 
                 });
             }
             logs.splice(logIdx, 1);
             persistData();
         }
-    }
-
-    function copyModems(logId) {
-        const log = logs.find(l => l.id === logId);
-        if(!log) return;
-        let txt = "";
-        let count = 0;
-        if(log.items) {
-            log.items.forEach(item => {
-                if(item.details) {
-                    item.details.forEach(m => {
-                        txt += `[${m.type}] ${m.sn} ${m.mac}\n`;
-                        count++;
-                    });
-                }
-            });
-        }
-        if(!txt) return alert("Tidak ada data modem.");
-        navigator.clipboard.writeText(txt).then(() => alert(`✅ ${count} Data disalin!`));
     }
 
     function openCopyModal() { document.getElementById('copyModal').style.display = 'flex'; }
@@ -1556,12 +866,9 @@
                 if(log.items) {
                     log.items.forEach(item => {
                         if(!groupedByTech[key].items[item.item]) {
-                            groupedByTech[key].items[item.item] = { qty: 0, details: [] };
+                            groupedByTech[key].items[item.item] = 0;
                         }
-                        groupedByTech[key].items[item.item].qty += item.qty;
-                        if(item.details && item.details.length > 0) {
-                            groupedByTech[key].items[item.item].details.push(...item.details);
-                        }
+                        groupedByTech[key].items[item.item] += item.qty;
                     });
                 }
             });
@@ -1569,27 +876,8 @@
             Object.values(groupedByTech).sort((a,b) => a.tech.localeCompare(b.tech)).forEach(group => {
                 txt += `👷‍♂️ *${group.tech}* (${formatDateIndo(group.date)})\n`;
                 
-                Object.entries(group.items).forEach(([itemName, data]) => {
-                    if(data.details && data.details.length > 0) {
-                        // --- MODIFIKASI: FORMAT BARU SESUAI PERMINTAAN ---
-                        
-                        // 1. Ambil list Tipe (SRB/SYN)
-                        const uniqueTypes = [...new Set(data.details.map(d => d.type))];
-                        const typeHeader = uniqueTypes.length > 0 ? `[${uniqueTypes.join(',')}]` : '';
-
-                        // 2. Tulis Header: • Item (Qty)[Type]
-                        txt += `• ${itemName} (${data.qty})${typeHeader}\n`;
-
-                        // 3. Tulis Detail: SN MAC (per baris)
-                        data.details.forEach(d => {
-                            const macTxt = d.mac ? ` ${d.mac}` : '';
-                            txt += `  ${d.sn}${macTxt}\n`; // 2 spasi indentasi
-                        });
-
-                    } else {
-                        // Barang biasa (Kabel/Acc)
-                        txt += `• ${itemName} (${data.qty})\n`;
-                    }
+                Object.entries(group.items).forEach(([itemName, qty]) => {
+                    txt += `• ${itemName} (${qty})\n`;
                 });
                 txt += `\n`;
             });
@@ -1605,8 +893,7 @@
             Object.keys(groupedBad).sort().reverse().forEach(date => {
                 txt += `📅 *${formatDateIndo(date)}*\n`;
                 groupedBad[date].forEach(b => {
-                    let snTxt = b.sn && b.sn !== '-' ? ` (SN: ${b.sn})` : '';
-                    txt += `❌ ${b.item} (${b.qty})${snTxt}\n`;
+                    txt += `❌ ${b.item} (${b.qty})\n`;
                 });
                 txt += `\n`;
             });
@@ -1627,23 +914,21 @@
         logs.forEach(log => {
             if(log.items){
                 log.items.forEach(item => {
-                    let snStr = item.sn;
-                    if(item.details) snStr = item.details.map(d => `[${d.type}] ${d.sn}`).join(", ");
-                    excelRows += `<tr><td>${log.date}</td><td>${log.tech}</td><td>${item.item}</td><td>${snStr}</td><td>${item.qty}</td></tr>`;
+                    excelRows += `<tr><td>${log.date}</td><td>${log.tech}</td><td>${item.item}</td><td>${item.qty}</td></tr>`;
                 });
             }
         });
 
         let badRows = "";
         badLogs.forEach(b => {
-            badRows += `<tr><td>${b.date}</td><td>${b.item}</td><td>${b.sn}</td><td>${b.qty}</td></tr>`;
+            badRows += `<tr><td>${b.date}</td><td>${b.item}</td><td>${b.qty}</td></tr>`;
         });
 
         let content = `
             <h3>LOG PENGELUARAN GUDANG</h3>
             <table border="1">
                 <thead>
-                    <tr style="background-color:#eee;"><th>Tanggal</th><th>Teknisi</th><th>Barang</th><th>SN/Ket</th><th>Qty</th></tr>
+                    <tr style="background-color:#eee;"><th>Tanggal</th><th>Teknisi</th><th>Barang</th><th>Qty</th></tr>
                 </thead>
                 <tbody>${excelRows}</tbody>
             </table>
@@ -1651,7 +936,7 @@
             <h3>LOG BARANG RUSAK (BAD STOCK)</h3>
             <table border="1">
                 <thead>
-                    <tr style="background-color:#fecaca;"><th>Tanggal Rusak</th><th>Nama Barang</th><th>SN</th><th>Qty</th></tr>
+                    <tr style="background-color:#fecaca;"><th>Tanggal Rusak</th><th>Nama Barang</th><th>Qty</th></tr>
                 </thead>
                 <tbody>${badRows}</tbody>
             </table>
@@ -1660,7 +945,7 @@
         let blob = new Blob(['\ufeff', content], {type: 'application/vnd.ms-excel'});
         let a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `Log_Gudang_Lengkap_${new Date().toISOString().slice(0,10)}.xls`;
+        a.download = `Log_Gudang_General_${new Date().toISOString().slice(0,10)}.xls`;
         a.click();
     }
 
@@ -1670,14 +955,10 @@
         const list = document.getElementById('modalStockList');
         list.innerHTML = "";
         itemMaster.sort().forEach(item => {
-            const isModem = isModemItem(item);
             const qty = inventory[item] || 0;
-            const disabledAttr = isModem ? 'disabled style="background:#f1f5f9; color:#94a3b8;"' : '';
-            const note = isModem ? '<div style="font-size:0.7rem; color:blue;">(Auto)</div>' : '';
-
             const row = document.createElement('div');
             row.className = "stock-row-edit";
-            row.innerHTML = `<span>${item} ${note}</span><input type="number" id="stk_${item}" value="${qty}" ${disabledAttr}>`;
+            row.innerHTML = `<span>${item}</span><input type="number" id="stk_${item}" value="${qty}">`;
             list.appendChild(row);
         });
         document.getElementById('stockModal').style.display = "flex";
@@ -1685,10 +966,8 @@
     
     function saveStockConfig() {
         itemMaster.forEach(item => {
-            if(!isModemItem(item)) { // Hanya simpan stok manual jika BUKAN modem
-                const el = document.getElementById(`stk_${item}`);
-                if (el) inventory[item] = parseInt(el.value) || 0; 
-            }
+            const el = document.getElementById(`stk_${item}`);
+            if (el) inventory[item] = parseInt(el.value) || 0; 
         });
         persistData();
         document.getElementById('stockModal').style.display = 'none';
@@ -1744,19 +1023,13 @@
         const container = document.getElementById('stockDisplay');
         container.innerHTML = "";
         itemMaster.sort().forEach(item => {
-            // Logic Auto-Count Modem
-            let qty = inventory[item] || 0;
-            if(isModemItem(item)) {
-                // Override tampilan dengan jumlah real dari DB Modem
-                qty = modemDB.filter(m => m.status === 'avail').length;
-                // Update internal inventory agar sync saat save
-                inventory[item] = qty;
-            }
-
+            const qty = inventory[item] || 0;
             const div = document.createElement('div');
             div.className = `stock-card ${qty < 5 ? 'low-stock' : ''}`;
             div.innerHTML = `<div>${item}</div><span class="stock-val">${qty}</span>`;
-            div.onclick = () => { document.getElementById('itemName').value = item; toggleSNField(); };
+            div.onclick = () => { 
+                document.getElementById('itemName').value = item; 
+            };
             container.appendChild(div);
         });
     }
