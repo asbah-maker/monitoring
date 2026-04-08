@@ -2872,15 +2872,15 @@
             ticketText = ticketText.trim();
             if (!ticketText) return;
 
-            const hasKendala = ticketText.toLowerCase().includes('kendala:');
+            const hasKunjungan = ticketText.toLowerCase().includes('Kunjungan:');
             const hasNamaLengkap = ticketText.toLowerCase().includes('nama lengkap :');
             
             if (hasNamaLengkap) {
                 createPSBCard(ticketText, index, container);
                 psbCount++;
-            } else if (hasKendala) {
+            } else if (hasKunjungan) {
                 createMTCard(ticketText, index, container);
-                if (ticketText.toLowerCase().includes('kendala: isolir')) {
+                if (ticketText.toLowerCase().includes('Kunjungan: isolir')) {
                     isolirCount++;
                 } else {
                     mtCount++;
@@ -2946,7 +2946,7 @@
 
     function createMTCard(text, index, container) {
         const jam = getFieldValue(text, 'Jam');
-        const kendala = getFieldValue(text, 'Kendala');
+        const Kunjungan = getFieldValue(text, 'Kunjungan');
         const nama = getFieldValue(text, 'Nama Pelanggan');
         const noLayanan = getFieldValue(text, 'No Layanan');
         const masaAktif = getFieldValue(text, 'Masa Aktif s/d');
@@ -2968,7 +2968,7 @@
         const router = getFieldValue(text, 'Router');
         const linkSC = getFieldValue(text, 'Link SC');
 
-        const isIsolir = kendala.toLowerCase().includes('isolir');
+        const isIsolir = Kunjungan.toLowerCase().includes('isolir');
 
         const card = document.createElement('div');
         card.className = isIsolir ? 'preview-card preview-isolir' : 'preview-card preview-mt';
@@ -2981,7 +2981,7 @@
             </div>
             <div class="preview-grid">
                 <input type="hidden" class="bulk-type" value="MT">
-                <div class="input-group"><label>Kendala</label><input type="text" class="bulk-kendala" value="${kendala}" required></div>
+                <div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${Kunjungan}" required></div>
                 <div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${nama}"></div>
                 <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${noLayanan}"></div>
                 <div class="input-group"><label>Masa Aktif s/d</label><input type="text" class="bulk-masa-aktif" value="${masaAktif}"></div>
@@ -3127,7 +3127,7 @@
                         }
                     };
                 } else {
-                    const kendala = getValue('.bulk-kendala');
+                    const Kunjungan = getValue('.bulk-Kunjungan');
                     const layanan = getValue('.bulk-layanan');
                     const masaAktif = getValue('.bulk-masa-aktif');
                     const telp = getValue('.bulk-telp');
@@ -3147,7 +3147,7 @@
                     const router = getValue('.bulk-router');
 
                     let details = {};
-                    details["Kendala"] = kendala || '-';
+                    details["Kunjungan"] = Kunjungan || '-';
                     if (layanan) details["Layanan"] = layanan;
                     if (masaAktif) details["Masa Aktif"] = masaAktif; 
                     if (telp) details["No Telp"] = telp; 
@@ -3173,8 +3173,8 @@
                         technical: {},
                         linkSC: '',
                         name: nama || '-',
-                        tag: kendala || 'MT (Lain)',
-                        tagClass: (kendala && kendala.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt",
+                        tag: Kunjungan || 'MT (Lain)',
+                        tagClass: (Kunjungan && Kunjungan.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt",
                         time: jam || "FLEXIBEL",
                         address: alamat || '-',
                         details: details
@@ -3289,7 +3289,7 @@ KATEGORI : ${job.tag}
 --------------------------------
 Jam: ${job.time}`;
             
-            textToCopy += `\nkendala: ${job.tag}`;
+            textToCopy += `\nKunjungan: ${job.tag}`;
             
             if (d['Nama Pelanggan'] || job.name) textToCopy += `\nNama Pelanggan: ${job.name}`;
             if (d['Layanan']) textToCopy += `\nNo Layanan: ${d['Layanan']}`;
@@ -3486,7 +3486,7 @@ Jam: ${job.time}`;
                     text += `Setuju berlangganan minimal 1 tahun: ${job.details['Setuju Berlangganan'] || '-'}\n`;
                 } else {
                     text += `Jam: ${job.time || '-'}\n`;
-                    text += `kendala: ${job.tag}\n`;
+                    text += `Kunjungan: ${job.tag}\n`;
                     text += `Nama Pelanggan: ${job.name}\n`;
                     text += `No Layanan: ${job.details['No Layanan'] || job.details['Layanan'] || '-'}\n`;
                     text += `No Telp.: ${job.details['No Telp.'] || job.details['No Telp'] || '-'}\n`;
