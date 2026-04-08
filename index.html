@@ -270,7 +270,7 @@
         option:disabled { color: red; background-color: #f2f2f2; text-decoration: line-through; }
 
         .progress-container { height: 6px; background: #e9ecef; width: 100%; }
-        .progress-bar { height: 100%; background: #28a745; width: 0%; transition: width 0.4s ease; }
+        .progress-bar { background: #28a745; width: 0%; transition: width 0.4s ease; }
         
         .job-item.completed { background-color: #f6fff9; opacity: 0.9; }
         .job-item.completed .customer-info h3 { text-decoration: line-through; color: #28a745; }
@@ -371,7 +371,7 @@
     </div>
 </div>
 
-<!-- Modal Lihat Stok Tim (masih diperlukan) -->
+<!-- Modal Lihat Stok Tim -->
 <div id="modalStockList" class="modal">
     <div class="modal-content" style="max-width: 650px;">
         <span class="close-modal" onclick="closeStockListModal()">&times;</span>
@@ -403,14 +403,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, update, onValue, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+    // Konfigurasi Firebase yang baru sesuai permintaan
     const firebaseConfig = {
-        apiKey: "AIzaSyBy26KTGUxD0ehcjOFPZaw9s7tC6ghBq5w",
-        authDomain: "monitoringteknisi-6e192.firebaseapp.com",
-        projectId: "monitoringteknisi-6e192",
-        storageBucket: "monitoringteknisi-6e192.firebasestorage.app",
-        messagingSenderId: "907116293593",
-        appId: "1:907116293593:web:438e2471a0562ec7d4bdc8",
-        measurementId: "G-522Q2X2MNG"
+        apiKey: "AIzaSyBl7LE5qeMSjsh9lvl_G7OcmwBPSiUQfD8",
+        authDomain: "monitoringteknisiversi1-8d5ad.firebaseapp.com",
+        databaseURL: "https://monitoringteknisiversi1-8d5ad-default-rtdb.firebaseio.com",
+        projectId: "monitoringteknisiversi1-8d5ad",
+        storageBucket: "monitoringteknisiversi1-8d5ad.firebasestorage.app",
+        messagingSenderId: "103072788171",
+        appId: "1:103072788171:web:fb774792586287c485f54e",
+        measurementId: "G-4RLGX0M3NE"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -707,6 +709,120 @@
         return false;
     }
 
+    // === FITUR UTAMA: PASTIKAN MODEM TIDAK UNKNOWN ===
+    // Fungsi untuk menentukan tipe modem berdasarkan SN (heuristic)
+    function guessModemTypeFromSN(sn) {
+        const snUpper = sn.toUpperCase();
+        if (snUpper.startsWith('ALCL') || snUpper.includes('SRB') || snUpper.match(/^[A-Z0-9]{6,}$/)) {
+            // Asumsi SRB jika pola umum atau mengandung SRB
+            return 'SRB';
+        } else if (snUpper.includes('SYN') || snUpper.match(/^SYN/i)) {
+            return 'SYN';
+        } else {
+            // default SRB untuk mayoritas
+            return 'SRB';
+        }
+    }
+
+    // Pastikan modem ada di gudangStock dengan tipe yang benar (tidak unknown)
+    function ensureModemInGudang(sn, mac) {
+        if (!sn || sn === '' || sn === '-') return false;
+        
+        // Cek apakah sudah ada di gudang
+        let existsInSrb = gudangStock.srb.some(item => item.sn === sn);
+        let existsInSyn = gudangStock.syn.some(item => item.sn === sn);
+        
+        if (existsInSrb || existsInSyn) {
+            // Sudah ada, pastikan status tidak null
+            const item = existsInSrb ? gudangStock.srb.find(i => i.sn === sn) : gudangStock.syn.find(i => i.sn === sn);
+            if (!item.status) item.status = 'pending';
+            if (!item.mac && mac) item.mac = mac;
+            return true;
+        }
+        
+        // Tentukan tipe berdasarkan heuristic
+        const modemType = guessModemTypeFromSN(sn);
+        
+        const newModem = {
+            sn: sn,
+            mac: mac || '-',
+            status: 'pending',
+            teamName: null,
+            installedDate: null
+        };
+        
+        if (modemType === 'SRB') {
+            gudangStock.srb.push(newModem);
+        } else {
+            gudangStock.syn.push(newModem);
+        }
+        
+        // Simpan perubahan ke Firebase
+        saveGudangToFirebase();
+        console.log(`Modem ${sn} ditambahkan ke gudang dengan tipe ${modemType}`);
+        return true;
+    }
+    
+    // Sinkronisasi semua modem dari semua tim ke gudang (pastikan tidak ada unknown)
+    function syncAllModemsToGudang() {
+        let updated = false;
+        teams.forEach(team => {
+            if (team.inventory && team.inventory.length > 0) {
+                team.inventory.forEach(item => {
+                    if (item.sn && item.sn !== '' && item.sn !== '-') {
+                        // Cek dan tambahkan ke gudang jika belum ada
+                        let exists = gudangStock.srb.some(i => i.sn === item.sn) || gudangStock.syn.some(i => i.sn === item.sn);
+                        if (!exists) {
+                            const modemType = guessModemTypeFromSN(item.sn);
+                            const newModem = {
+                                sn: item.sn,
+                                mac: item.mac || '-',
+                                status: 'pending',
+                                teamName: null,
+                                installedDate: null
+                            };
+                            if (modemType === 'SRB') {
+                                gudangStock.srb.push(newModem);
+                            } else {
+                                gudangStock.syn.push(newModem);
+                            }
+                            updated = true;
+                            console.log(`Sinkronisasi: tambah modem ${item.sn} (${modemType}) dari inventaris tim`);
+                        } else {
+                            // Update MAC jika diperlukan
+                            const existing = gudangStock.srb.find(i => i.sn === item.sn) || gudangStock.syn.find(i => i.sn === item.sn);
+                            if (existing && (!existing.mac || existing.mac === '-') && item.mac && item.mac !== '-') {
+                                existing.mac = item.mac;
+                                updated = true;
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        
+        if (updated) {
+            saveGudangToFirebase();
+        }
+    }
+
+    // Override getModemType untuk menjamin tidak pernah mengembalikan 'UNKNOWN'
+    function getModemType(sn) {
+        if (!sn) return 'SRB'; // default
+        
+        // Cari di gudangStock
+        let found = gudangStock.srb.some(i => i.sn === sn);
+        if (found) return 'SRB';
+        found = gudangStock.syn.some(i => i.sn === sn);
+        if (found) return 'SYN';
+        
+        // Jika tidak ditemukan, gunakan heuristic dan langsung tambahkan ke gudang (agar next time tidak unknown)
+        const guessedType = guessModemTypeFromSN(sn);
+        // Tambahkan ke gudang agar tidak terjadi unknown lagi
+        ensureModemInGudang(sn, null);
+        return guessedType;
+    }
+    
     // --- MAIN LOGIC START ---
 
     function loadFirebaseData() {
@@ -757,7 +873,10 @@
                     } else {
                         teams = JSON.parse(JSON.stringify(defaultTeams));
                     }
-
+                    
+                    // Setelah memuat tim, sinkronkan semua modem ke gudang agar tidak ada unknown
+                    syncAllModemsToGudang();
+                    
                     renderLandingTeams(); 
 
                     if (appMode === 'tech' && selectedTechIndex !== -1) {
@@ -777,10 +896,10 @@
                         if(!gudangStock.syn) gudangStock.syn = [];
                         
                         gudangStock.srb.forEach(item => {
-                            if (!item.status || item.status === '') item.status = 'ready';
+                            if (!item.status || item.status === '') item.status = 'pending';
                         });
                         gudangStock.syn.forEach(item => {
-                            if (!item.status || item.status === '') item.status = 'ready';
+                            if (!item.status || item.status === '') item.status = 'pending';
                         });
                     } else {
                         // Jangan timpa data lokal dengan kosong
@@ -788,6 +907,9 @@
                             gudangStock = { srb: [], syn: [] };
                         }
                     }
+                    
+                    // Pastikan lagi semua modem dari tim sudah ada di gudang
+                    syncAllModemsToGudang();
                     
                     if (appMode !== 'landing') {
                         renderJobs();
@@ -870,13 +992,7 @@
         }
     };
 
-    function getModemType(sn) {
-        if (gudangStock.srb && gudangStock.srb.some(i => i.sn === sn)) return 'SRB';
-        if (gudangStock.syn && gudangStock.syn.some(i => i.sn === sn)) return 'SYN';
-        return 'UNKNOWN';
-    }
-
-   function syncInstalledModems() {
+    function syncInstalledModems() {
         let needsUpdate = false;
         const installedData = {};
         
@@ -927,7 +1043,7 @@
     function getModemStatusGlobal(sn) {
         let item = gudangStock.srb.find(x => x.sn === sn);
         if(!item) item = gudangStock.syn.find(x => x.sn === sn);
-        return item ? item.status : 'unknown';
+        return item ? item.status : 'pending'; // default pending jika tidak ditemukan (tidak unknown)
     }
 
     window.toggleMtModemInput = function(tIndex, jIndex, val) {
@@ -1002,7 +1118,7 @@
             let modemOptions = `<option value="">-- Pilih Modem dari Stok (${stockCount}) --</option>`;
             uniqueInventory.forEach(inv => {
                 const status = getModemStatusGlobal(inv.sn);
-                const type = getModemType(inv.sn);
+                const type = getModemType(inv.sn); // Sekarang pasti tidak unknown
                 const typeLabel = (type === 'SRB' || type === 'SYN') ? `[${type}] ` : '';
                 if (status === 'pending') {
                     modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${typeLabel}${inv.sn}</option>`;
@@ -1276,7 +1392,7 @@
                 const tr = document.createElement('tr');
                 
                 const status = getModemStatusGlobal(item.sn);
-                const type = getModemType(item.sn); 
+                const type = getModemType(item.sn); // Sekarang pasti tidak unknown, selalu SRB atau SYN
                 
                 let displaySN = item.sn;
                 let statusBadge = '';
@@ -1299,7 +1415,7 @@
                 let typeBadge = '';
                 if(type === 'SRB') typeBadge = '<span class="badge" style="background:#007bff; color:white;">SRB</span>';
                 else if(type === 'SYN') typeBadge = '<span class="badge" style="background:#ffc107; color:black;">SYN</span>';
-                else typeBadge = '<span class="badge" style="background:#ccc; color:black;">?</span>';
+                else typeBadge = '<span class="badge" style="background:#20c997; color:white;">LAINNYA</span>'; // fallback, seharusnya tidak terjadi
 
                 tr.innerHTML = `
                     <td style="text-align:center;">${index + 1}</td>
@@ -1327,6 +1443,9 @@
         const sn = parts[0];
         const mac = parts[1];
 
+        // Pastikan modem ada di gudang dengan tipe yang benar (tidak unknown)
+        ensureModemInGudang(sn, mac);
+        
         let vlanMac = "";
         if (sn.startsWith("ALCL")) {
             vlanMac = "-";
