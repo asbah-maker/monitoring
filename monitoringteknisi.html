@@ -277,7 +277,7 @@
 <div id="modalTransferTicket" class="modal"><div class="modal-content" style="max-width: 600px;"><span class="close-modal" onclick="closeTransferModal()">&times;</span><h2 style="text-align: center; color: #17a2b8;">🔄 Transfer Tiket (Lempar)</h2><div class="form-group" style="background: #e8f4f8; padding: 10px; border-radius: 8px;"><label>1️⃣ Pilih Tim Asal:</label><select id="transfer-source-team" onchange="renderTransferJobs()"></select></div><div id="transfer-job-section" style="display: none;"><label style="font-weight: bold; display: block; margin-bottom: 5px;">2️⃣ Pilih Tiket yang akan dilempar:</label><div id="transfer-job-list" class="transfer-list"></div><div class="form-group" style="background: #e8f4f8; padding: 10px; border-radius: 8px; margin-top: 15px;"><label>3️⃣ Pilih Tim Tujuan:</label><select id="transfer-target-team" onchange="checkNewTeamOption()"><option value="">-- Pilih Tujuan --</option><option value="new_team">➕ BUAT TIM BARU</option></select></div><div id="new-team-input-section" style="display: none; border: 1px dashed #17a2b8; padding: 10px; border-radius: 8px; margin-top: 10px;"><h4 style="margin: 0 0 10px 0; color: #17a2b8;">Buat Tim Baru</h4><div class="tech-select-container"><div class="tech-select-wrapper"><label>👤 Teknisi 1</label><select id="transfer-new-tech-1"></select></div><div class="tech-select-wrapper"><label>👤 Teknisi 2</label><select id="transfer-new-tech-2"><option value="">-- Kosong --</option></select></div></div></div><button class="btn-add-list" style="background-color: #17a2b8; margin-top: 15px;" onclick="processTransfer()">🚀 Proses Transfer Tiket</button></div></div></div>
 <div id="modalRekapOption" class="modal"><div class="modal-content" style="max-width: 400px; text-align: center;"><span class="close-modal" onclick="closeRekapModemOption()">&times;</span><h3 style="margin-top:0; color:#343a40;">📋 Pilih Jenis Rekap Modem</h3><p style="font-size:0.9rem; color:#666;">Pilih jenis laporan stok modem yang ingin dicopy:</p><div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;"><button class="btn-action-main bg-blue" onclick="copyRekapModem('sisa')">📦 Hanya Sisa Stok (Belum Pasang)</button><button class="btn-action-main bg-green" onclick="copyRekapModem('all')">📑 Semua (Sisa + Terpasang + Bad)</button></div></div></div>
 
-<!-- GUDANG MODEM PUSAT - DIPERBAIKI: lebih cepat, rapi, tanpa bug -->
+<!-- GUDANG MODEM PUSAT - DIPERBAIKI: tanpa tombol delete -->
 <div id="modalGudang" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeGudangModal()">&times;</span>
@@ -310,7 +310,7 @@
 <div id="modalBulk" class="modal"><div class="modal-content" style="max-width: 600px;"><span class="close-modal" onclick="closeBulkModal()">&times;</span><h2 style="margin-top: 0; text-align: center; color: #20c997;">➕ Input Stok Massal</h2><div class="form-group"><label>Pilih Jenis Modem Tujuan:</label><select id="bulk-type" style="font-weight: bold; color: #333;"><option value="nokia">Modem Nokia</option><option value="fh">Modem FH</option><option value="lainnya">Modem Lainnya</option></select></div><div class="generator-box" style="border: 1px dashed #20c997; background: #f0fff4;"><label style="color: #20c997; font-weight: bold;">📋 Paste Data (SN dan MAC)</label><p style="font-size:0.8rem; margin:2px 0 5px 0; color:#666;">Format: Bisa 1 baris panjang atau enter. (SN [spasi] MAC)</p><textarea id="bulk-text" rows="10" placeholder="Contoh: FHTT9C7BA8F8 6C-D7-19-7B-A8-F8"></textarea></div><button class="btn-add-list" style="background-color: #20c997;" onclick="processBulkInput()">⚡ Proses & Simpan</button></div></div>
 <div id="modalStock" class="modal"><div class="modal-content"><span class="close-modal" onclick="closeStockModal()">&times;</span><h2 style="margin-top: 0; text-align: center; color: #007bff;">📦 Input Stok Manual (Darurat)</h2><input type="hidden" id="stock-team-index"><div class="form-group"><label>Serial Number (SN)</label><input type="text" id="stock-sn" placeholder="ZTEGC..."></div><div class="form-group"><label>MAC Address</label><input type="text" id="stock-mac" placeholder="A1:B2:C3..."></div><button class="btn-add-list" style="background-color: #28a745;" onclick="saveStockToTeam()">➕ Simpan ke Stok Tim</button></div></div>
 
-<!-- MODEM PERTEKNISI - bisa diakses admin & teknisi, di teknisi tanpa hapus & tanpa copy unknown & tanpa refresh unknown -->
+<!-- MODEM PERTEKNISI - bisa diakses admin & teknisi -->
 <div id="modalStockList" class="modal">
     <div class="modal-content" style="max-width: 650px;">
         <span class="close-modal" onclick="closeStockListModal()">&times;</span>
@@ -331,7 +331,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, update, onValue, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // ========== PERBAIKAN UTAMA: KONFIGURASI FIREBASE SESUAI PERMINTAAN (REALTIME DATABASE) ==========
+    // ========== KONFIGURASI FIREBASE ==========
     const firebaseConfig = {
         apiKey: "AIzaSyBl7LE5qeMSjsh9lvl_G7OcmwBPSiUQfD8",
         authDomain: "monitoringteknisiversi1-8d5ad.firebaseapp.com",
@@ -386,13 +386,12 @@
     function addPendingSyncOperation(type) { pendingSyncOperations.push({ type: type, timestamp: Date.now() }); if (pendingSyncOperations.length > 10) pendingSyncOperations.shift(); try { localStorage.setItem('pending_sync_ops', JSON.stringify(pendingSyncOperations)); } catch (e) {} }
     function loadPendingSyncOperations() { try { const saved = localStorage.getItem('pending_sync_ops'); if (saved) { pendingSyncOperations = JSON.parse(saved); const oneHourAgo = Date.now() - (60 * 60 * 1000); pendingSyncOperations = pendingSyncOperations.filter(op => op.timestamp > oneHourAgo); if (pendingSyncOperations.length > 0 && isFirebaseConnected) setTimeout(() => retryPendingSyncOperations(), 2000); } } catch (e) {} }
     
-    // --- PERBAIKAN UTAMA: ensureGudangIntegrity lebih ketat ---
+    // --- ensureGudangIntegrity lebih ketat ---
     function ensureGudangIntegrity() { 
         let fixedCount = 0; 
         let duplicateCount = 0;
         ['nokia','fh','lainnya'].forEach(cat => { 
             if (!gudangStock[cat]) gudangStock[cat] = []; 
-            // Perbaiki SN yang kosong
             gudangStock[cat].forEach((item, idx) => { 
                 if (!item.sn || item.sn === null || item.sn === undefined || item.sn.trim() === '') { 
                     console.warn(`⚠️ SN hilang ditemukan di kategori ${cat}, indeks ${idx}`); 
@@ -401,7 +400,6 @@
                 } 
                 if (!item.mac) item.mac = '-'; 
                 if (!item.status) item.status = 'ready'; 
-                // Pastikan setiap modem memiliki properti tambahan minimal
                 if (!item.hasOwnProperty('teamName')) item.teamName = '';
                 if (!item.hasOwnProperty('teamId')) item.teamId = null;
                 if (!item.hasOwnProperty('pendingDate')) item.pendingDate = null;
@@ -409,7 +407,6 @@
                 if (!item.hasOwnProperty('badDate')) item.badDate = null;
                 if (!item.hasOwnProperty('unknownDate')) item.unknownDate = null;
             }); 
-            // Hapus duplikat SN dalam kategori yang sama
             const uniqueMap = new Map();
             const newArray = [];
             for (const item of gudangStock[cat]) {
@@ -470,7 +467,6 @@
         } catch (e) {} 
     }
     
-    // --- Fungsi Refresh Gudang (pro) ---
     window.refreshGudangData = function() { if (appMode !== 'admin') { alert('Hanya admin yang bisa refresh manual.'); return; } showSyncNotification('Memuat ulang data gudang...', 'saving', true, 1500); renderGudangTable(currentGudangTab); updateGudangCounts(); };
     window.debouncedRenderGudangTable = function() { if (gudangSearchTimeout) clearTimeout(gudangSearchTimeout); gudangSearchTimeout = setTimeout(() => renderGudangTable(currentGudangTab), 300); };
     window.clearGudangSearch = function() { document.getElementById('gudang-search').value = ''; renderGudangTable(currentGudangTab); };
@@ -497,7 +493,6 @@
         }, (error) => { console.error("Error monitoring connection:", error); isFirebaseConnected = false; updateConnectionStatus('disconnected', 'Gagal terhubung ke Firebase'); document.getElementById('loading-text').style.display = 'none'; renderLandingTeams(); });
     }
     
-    // --- PERBAIKAN: syncInstalledModems tidak mengganggu modem bad/unknown ---
     function syncInstalledModems() { 
         let needsUpdate = false; 
         const installedData = {}; 
@@ -513,7 +508,6 @@
             } 
         }); 
         function updateItem(item) { 
-            // Jangan ubah modem yang sudah berstatus bad atau unknown
             if (item.status === 'bad' || item.status === 'unknown') return; 
             if (installedData[item.sn]) { 
                 if (item.status !== 'installed' || !item.installedDate) { 
@@ -551,7 +545,7 @@
     function getUniqueInventory(teamIndex) { const team = teams[teamIndex]; if (!team || !team.inventory) return []; const seen = new Set(); const unique = []; for (const item of team.inventory) { if (!seen.has(item.sn)) { seen.add(item.sn); unique.push(item); } } return unique; }
     function checkForDuplicateModems(teamIndex) { const team = teams[teamIndex]; if (!team || !team.inventory) return false; const seen = new Set(); for (const item of team.inventory) { if (seen.has(item.sn)) return true; seen.add(item.sn); } return false; }
     
-    // --- Render Jobs (sama seperti sebelumnya) ---
+    // --- Render Jobs ---
     function renderJobs() { 
         const container = document.getElementById('teams-container'); container.innerHTML = ''; if (!Array.isArray(teams)) teams = []; teams.sort((a,b) => { const getNum = (str) => { const m = str.match(/Tim\s+(\d+)/i); return m ? parseInt(m[1]) : 99999; }; return getNum(a.teamName) - getNum(b.teamName); }); let visibleTeamsCount = 0; teams.forEach((team, tIndex) => { if (appMode === 'tech' && tIndex !== selectedTechIndex) return; if(!team.jobs) team.jobs = []; if(!team.inventory) team.inventory = []; if (team.jobs.length === 0) return; visibleTeamsCount++; team.jobs.sort((a,b) => (timeToMinutes(a.time) - timeToMinutes(b.time))); const uniqueInventory = getUniqueInventory(tIndex); const stockCount = uniqueInventory.filter(inv => getModemStatusGlobal(inv.sn) === 'pending').length; const teamDiv = document.createElement('div'); teamDiv.className = 'team-card'; teamDiv.innerHTML = `<div class="team-header ${team.colorClass}"><div style="display:flex; flex-direction:column; align-items:flex-start;"><span>${team.teamName}</span><span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok: ${stockCount} pcs</span></div><div style="display:flex; align-items:center; gap:5px;"><button class="btn-copy-team" onclick="copyTeamSummary(${tIndex}, this)">📑 Rekap</button><button class="btn-view-stock" onclick="openStockListModal(${tIndex})">MODEM</button><span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">0/0</span></div></div><div class="progress-container"><div class="progress-bar" id="progress-${team.id}"></div></div><ul class="job-list" id="list-${team.id}"></ul>`; container.appendChild(teamDiv); const listContainer = document.getElementById(`list-${team.id}`); let modemOptions = `<option value="">-- Pilih Modem dari Stok (${stockCount}) --</option>`; uniqueInventory.forEach(inv => { const status = getModemStatusGlobal(inv.sn); const type = getModemType(inv.sn); const typeLabel = (type !== 'UNKNOWN') ? `[${type}] ` : ''; if (status === 'pending') modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${typeLabel}${inv.sn}</option>`; else if (status === 'installed' || status === 'bad' || status === 'unknown') modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="color:red; text-decoration:line-through;">❌ ${typeLabel}${inv.sn} (${status.toUpperCase()})</option>`; }); team.jobs.forEach((job, index) => { const li = document.createElement('li'); li.className = 'job-item'; const currentStatus = job.status || (job.completed ? 'completed' : 'pending'); if(currentStatus === 'completed') li.classList.add('completed'); else if(currentStatus === 'failed') li.classList.add('failed'); const isPSB = job.tag.toUpperCase().includes("PSB"); const tech = job.technical || {}; const uniqueId = `details-${team.id}-${index}`; const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none"; let detailHTML = ''; if (isPSB) { detailHTML += `<div class="detail-item"><span class="detail-label">Paket</span>${renderEditableValue(tIndex, index, 'package', job.details['Paket'] || '-')}</div><div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(tIndex, index, 'time', job.time || 'FLEXIBEL')}</div><div class="detail-item"><span class="detail-label">No Layanan</span>${renderEditableValue(tIndex, index, 'serviceNumber', job.details['No Layanan'] || job.details['Layanan'] || '-')}</div>`; } else { detailHTML += `<div class="detail-item"><span class="detail-label">Kunjungan</span>${renderEditableValue(tIndex, index, 'Kunjungan', job.tag)}</div><div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(tIndex, index, 'time', job.time || 'FLEXIBEL')}</div><div class="detail-item"><span class="detail-label">Layanan</span>${renderEditableValue(tIndex, index, 'layanan', job.details['Layanan'] || '-')}</div>`; } const hiddenFields = ["User PPPOE_RADIUS", "Pemakaian Bulan Ini (GB)", "ODC", "ODP", "Port ODP", "OLT SN/MAC", "Last DBM", "Last DBM Time", "Nama WiFi (SSID)", "Sandi WiFi", "Keterangan"]; for (const [key, value] of Object.entries(job.details)) { if ((isPSB && ['Paket','No Layanan','Layanan'].includes(key)) || (!isPSB && ['Layanan'].includes(key))) continue; const valStr = (value || "").toString().trim(); if (hiddenFields.includes(key) && (valStr === "" || valStr === "-")) continue; detailHTML += `<div class="detail-item"><span class="detail-label">${key}</span><span class="detail-value">${escapeHtml(valStr)}</span></div>`; } let formHTML = ''; if (isPSB) { formHTML = `<div class="manual-input-section"><h4 style="margin:0 0 10px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4><div style="margin:10px 0;"><label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})">${modemOptions}</select></div><div class="input-grid"><div class="input-group"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${tIndex}-${index}" class="realtime-input" data-key="kabel" data-team="${tIndex}" data-job="${index}" value="${tech.kabel || ''}" placeholder="150m"></div><div class="input-group"><label>Port</label><input type="text" id="port-${tIndex}-${index}" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div><div class="input-group"><label>Id ODP</label><input type="text" id="odp-${tIndex}-${index}" class="realtime-input" data-key="odp" data-team="${tIndex}" data-job="${index}" value="${tech.odp || ''}" placeholder="ODP-.."></div><div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${tIndex}-${index}" class="realtime-input" data-key="redaman" data-team="${tIndex}" data-job="${index}" value="${tech.redaman || ''}" placeholder="-18 dBm"></div><div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..." ${appMode === 'tech' ? 'readonly' : ''}></div></div></div>`; } else { const replaceStatus = job.replaceModem || 'no'; const displayMtTech = replaceStatus === 'yes' ? 'block' : 'none'; formHTML = `<div class="manual-input-section"><div style="margin:10px 0;"><label style="font-weight:bold; color:#d35400;">🔧 Opsi Perangkat:</label><select style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-weight:bold;" onchange="toggleMtModemInput(${tIndex}, ${index}, this.value)"><option value="no" ${replaceStatus === 'no' ? 'selected' : ''}>❌ Tidak Ganti Modem</option><option value="yes" ${replaceStatus === 'yes' ? 'selected' : ''}>✅ Ganti Modem Baru</option></select></div><div id="mt-tech-${tIndex}-${index}" style="display: ${displayMtTech}; border-top:1px dashed #ccc; padding-top:10px;"><label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})">${modemOptions}</select><div class="input-grid"><div class="input-group" style="grid-column: 1/-1;"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div><div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..." ${appMode === 'tech' ? 'readonly' : ''}></div></div></div></div>`; } const layID = job.details['No Layanan'] || job.details['Layanan'] || ''; const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${escapeHtml(job.failureNote)}</div>` : ''; const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${escapeHtml(job.completionNote)}</div>` : ''; let delButton = ''; if (appMode === 'admin') delButton = `<button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>`; let scButton = ''; if (job.linkSC) { if (appMode === 'admin') { scButton = `<div class="sc-dropdown"><button class="btn-sc">📊 SC</button><div class="sc-dropdown-content"><div class="sc-dropdown-item open" onclick="window.open('${job.linkSC}', '_blank')">🔗 Buka Link</div><div class="sc-dropdown-item edit" onclick="editLinkSC(${tIndex}, ${index})">✏️ Edit Link</div></div></div>`; } else { scButton = `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')" title="Buka Link Speedtest">📊 SC</button>`; } } li.innerHTML = `<div class="job-main-row"><div class="job-left"><div class="status-actions"><button class="btn-check-status ${currentStatus === 'completed' ? 'active-success' : (currentStatus === 'failed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'completed')" title="Selesai">✅</button><button class="btn-check-status ${currentStatus === 'failed' ? 'active-fail' : (currentStatus === 'completed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'failed')" title="Gagal">❌</button></div><div class="customer-info"><h3>${escapeHtml(job.name)} <span class="badge ${job.tagClass}">${escapeHtml(job.tag)}</span></h3><div style="font-weight:bold; color:#d35400; font-size:0.85rem; margin-top:3px;">🕒 ${escapeHtml(job.time || 'FLEXIBEL')}${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${escapeHtml(layID)}</span>` : ''}</div>${failureNote}${successNote}<p>📍 ${escapeHtml(job.address)}</p></div></div><div class="action-buttons"><button class="btn-copy" onclick="copyData(${tIndex}, ${index}, this)">📋 Copy</button><button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>${scButton}${delButton}</div></div><div id="${uniqueId}" class="job-details" style="display: ${displayStyle};"><div class="detail-grid">${detailHTML}</div>${formHTML}</div>`; listContainer.appendChild(li); const inputs = li.querySelectorAll('.realtime-input'); inputs.forEach(input => { input.addEventListener('change', (e) => { const key = e.target.getAttribute('data-key'); if (key) { if (key === 'linkSC') teams[tIndex].jobs[index][key] = e.target.value; else { if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {}; teams[tIndex].jobs[index].technical[key] = e.target.value; } saveDataToFirebase(); } }); }); }); updateProgressUI(team.id, team.jobs); }); if (visibleTeamsCount === 0) container.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif.<br>Silakan buat tiket baru untuk memunculkan Tim.</div>'; }
     function timeToMinutes(timeStr) { if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999; const lower = timeStr.toLowerCase(); if (lower.includes("pagi")) return 480; if (lower.includes("siang")) return 780; if (lower.includes("sore")) return 960; if (lower.includes("malam")) return 1140; const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/); if (match) { let hour = parseInt(match[1]); const minute = match[2] ? parseInt(match[2]) : 0; if (hour === 12 && lower.includes('siang')) hour = 12; else if (hour === 12 && lower.includes('malam')) hour = 0; else if (hour < 12 && lower.includes('sore')) hour += 12; else if (hour < 12 && lower.includes('malam')) hour += 12; else if (hour < 5 && lower.includes('siang')) hour += 12; return hour * 60 + minute; } return 99999; }
@@ -564,7 +558,7 @@
     window.deleteTicket = function(teamIndex, jobIndex) { let pin = prompt("🔐 Masukkan PIN untuk menghapus tiket:"); if (!checkPin(pin)) { alert("❌ PIN SALAH! Akses ditolak."); return; } teams[teamIndex].jobs.splice(jobIndex, 1); saveDataToFirebase(); };
     window.editLinkSC = function(teamIndex, jobIndex) { const job = teams[teamIndex].jobs[jobIndex]; const currentLink = job.linkSC || ''; const newLink = prompt('Edit Link SC (Speedtest):', currentLink); if (newLink !== null) { job.linkSC = newLink.trim(); saveDataToFirebase(); renderJobs(); } };
     
-    // --- FITUR GUDANG (dioptimasi, anti-hilang data) ---
+    // --- FITUR GUDANG (dioptimasi, tanpa tombol delete) ---
     function updateGudangCounts() { 
         const allItems = [...(gudangStock.nokia || []), ...(gudangStock.fh || []), ...(gudangStock.lainnya || [])]; 
         document.getElementById('stat-ready').innerText = allItems.filter(i => i.status === 'ready' || !i.status).length; 
@@ -585,7 +579,7 @@
     window.closeGudangModal = function() { document.getElementById('modalGudang').style.display = "none"; };
     window.switchGudangTab = function(type) { currentGudangTab = type; document.getElementById('gudang-search').value = ""; document.querySelectorAll('.tab-header .tab-btn').forEach(btn => btn.classList.remove('active')); if(type === 'nokia') document.querySelectorAll('.tab-header .tab-btn')[0].classList.add('active'); else if(type === 'fh') document.querySelectorAll('.tab-header .tab-btn')[1].classList.add('active'); else document.querySelectorAll('.tab-header .tab-btn')[2].classList.add('active'); renderGudangTable(type); };
     
-    // PERBAIKAN: renderGudangTable menggunakan originalIndex yang aman
+    // renderGudangTable tanpa tombol delete untuk status bad/unknown (hanya tombol reset)
     window.renderGudangTable = function(type) { 
         if (!type) type = currentGudangTab; 
         const tbody = document.getElementById('gudang-table-body'); 
@@ -608,9 +602,8 @@
             return; 
         } 
         data.forEach((item, displayIndex) => { 
-            // Cari index asli di gudangStock[type] berdasarkan referensi objek (bukan SN karena bisa duplikat tapi sudah dihapus)
             const originalIndex = gudangStock[type].findIndex(orig => orig.sn === item.sn);
-            if (originalIndex === -1) return; // keamanan
+            if (originalIndex === -1) return;
             const tr = document.createElement('tr'); 
             let statusSelect = `<select class="status-select" data-type="${type}" data-index="${originalIndex}" style="width:100%; margin-bottom:5px; font-size:0.8rem; padding:3px;"><option value="ready" ${(item.status === 'ready' || !item.status) ? 'selected' : ''}>Ready</option><option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option><option value="installed" ${item.status === 'installed' ? 'selected' : ''}>Terpasang</option><option value="bad" ${item.status === 'bad' ? 'selected' : ''}>Bad</option><option value="unknown" ${item.status === 'unknown' ? 'selected' : ''}>Tidak Diketahui</option></select>`; 
             let statusInfo = ''; 
@@ -626,7 +619,8 @@
             } else if (item.status === 'installed') { 
                 aksiContent = `<div style="display:flex; flex-direction:column; gap:5px;"><div style="display:flex; gap:5px;"><button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'retur')">↩️ Retur</button><button class="btn-bad-retur" onclick="processModemAction('${type}', ${originalIndex}, 'bad')">⚠️ Set BAD</button></div></div>`; 
             } else if (item.status === 'bad' || item.status === 'unknown') { 
-                aksiContent = `<div style="display:flex; flex-direction:column; gap:5px;"><div style="display:flex; gap:5px;"><button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'reset')">🔄 Reset</button><button class="btn-icon-del" onclick="deleteFromWarehouse('${type}', ${originalIndex})">🗑️</button></div></div>`; 
+                // HANYA TOMBOL RESET (tanpa tombol hapus)
+                aksiContent = `<div style="display:flex; flex-direction:column; gap:5px;"><div style="display:flex; gap:5px;"><button class="btn-return" onclick="processModemAction('${type}', ${originalIndex}, 'reset')">🔄 Reset</button></div></div>`; 
             } 
             let snDisplay = item.sn && item.sn.trim() !== '' ? item.sn : '⚠️ SN MISSING'; 
             let macDisplay = item.mac || '-'; 
@@ -744,11 +738,19 @@
         } 
     };
     
+    // PERBAIKAN: processModemAction - ketika reset modem bad/unknown, jika modem masih ada di inventory tim, status menjadi 'unknown' (bukan ready)
     window.processModemAction = function(type, index, action) { 
         const item = gudangStock[type][index]; 
         if (!item) return;
         if (action === 'retur') { 
             if(confirm(`⚠️ RETUR MODEM?\n\nApakah anda yakin menarik modem SN: ${item.sn} kembali ke Stok Ready?`)) { 
+                // Hapus dari inventory tim
+                teams.forEach(t => { 
+                    if(t.inventory) { 
+                        const invIndex = t.inventory.findIndex(inv => inv.sn === item.sn); 
+                        if(invIndex > -1) t.inventory.splice(invIndex, 1); 
+                    } 
+                }); 
                 gudangStock[type][index].status = 'ready'; 
                 gudangStock[type][index].teamName = ''; 
                 gudangStock[type][index].teamId = null; 
@@ -774,10 +776,27 @@
                 finalize(); 
             } 
         } else if (action === 'reset') { 
-            if(confirm(`Kembalikan modem BAD/UNKNOWN (SN: ${item.sn}) menjadi READY?`)) { 
-                gudangStock[type][index].status = 'ready'; 
-                finalize(); 
-            } 
+            // Reset modem bad/unknown
+            // Cek apakah modem ini masih ada di inventory tim mana pun
+            let foundInTeam = false;
+            for (let t of teams) {
+                if (t.inventory && t.inventory.some(inv => inv.sn === item.sn)) {
+                    foundInTeam = true;
+                    break;
+                }
+            }
+            if (foundInTeam) {
+                if(confirm(`Kembalikan modem BAD/UNKNOWN (SN: ${item.sn}) menjadi UNKNOWN (karena masih dipegang teknisi)?`)) { 
+                    gudangStock[type][index].status = 'unknown'; 
+                    gudangStock[type][index].unknownDate = new Date().toLocaleString('id-ID');
+                    finalize(); 
+                }
+            } else {
+                if(confirm(`Kembalikan modem BAD/UNKNOWN (SN: ${item.sn}) menjadi READY?`)) { 
+                    gudangStock[type][index].status = 'ready'; 
+                    finalize(); 
+                }
+            }
         } 
         function finalize() { 
             saveGudangToFirebase(); 
@@ -788,22 +807,7 @@
         } 
     };
     
-    window.deleteFromWarehouse = function(type, index) { 
-        if(confirm("Hapus modem ini permanen dari database gudang?")) { 
-            const item = gudangStock[type][index]; 
-            teams.forEach(t => { 
-                if (t.inventory) { 
-                    const invIndex = t.inventory.findIndex(inv => inv.sn === item.sn); 
-                    if (invIndex > -1) t.inventory.splice(invIndex, 1); 
-                } 
-            }); 
-            gudangStock[type].splice(index, 1); 
-            saveGudangToFirebase(); 
-            renderGudangTable(type); 
-            updateGudangCounts(); 
-            showSyncNotification('Modem berhasil dihapus', 'success'); 
-        } 
-    };
+    // Hapus fungsi deleteFromWarehouse karena tidak digunakan lagi
     
     window.openBulkModal = function() { document.getElementById('modalBulk').style.display = "block"; };
     window.closeBulkModal = function() { document.getElementById('modalBulk').style.display = "none"; };
@@ -836,7 +840,7 @@
         } else alert("⚠️ Tidak ada data baru yang ditambahkan atau format salah.\nPastikan urutannya: SN [spasi] MAC."); 
     };
     
-    // --- MODEM PERTEKNISI (tidak ada perubahan signifikan, tetap aman) ---
+    // --- MODEM PERTEKNISI (tanpa perubahan signifikan) ---
     window.openStockListModal = function(teamIndex) {
         const team = teams[teamIndex];
         const tbody = document.getElementById('stock-table-body');
@@ -891,7 +895,38 @@
     window.downloadExcel = function(mode) { let dataToExport = []; const todayRaw = new Date().toLocaleString('id-ID'); let rowNumber = 1; teams.forEach(team => { const rawTechName = team.teamName.split(':')[1]?.trim() || team.teamName; team.jobs.forEach((job) => { const isPSB = job.tag.toUpperCase().includes("PSB"); if (mode === 'psb' && !isPSB) return; if (mode === 'non_psb' && isPSB) return; const d = job.details; const tech = job.technical || {}; const addressParts = parseAddress(job.address); let rawDate = job.status === 'completed' ? (job.completedAt || todayRaw) : "-"; if(isPSB && rawDate === "-") rawDate = d['Tgl Pasang'] || d['Tanggal Pemasangan'] || "-"; const finalDate = formatDateIndo(rawDate); if (mode === 'psb') { dataToExport.push({ "No": rowNumber++, "No layanan": d['No Layanan'] || d['Layanan'] || "-", "Nama": job.name, "Alamat": job.address, "RT": addressParts.rt, "RW": addressParts.rw, "Kode Pos": "-", "No Handphone": d['No WA'] || d['No Telp'] || "-", "Tanggal pemasangan": finalDate, "Paket Layanan": d['Paket'] || "-", }); } else { let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel; if(kelurahan === '-') { if(job.address.includes("Jatinegara")) kelurahan = "Jatinegara"; if(job.address.includes("Cipinang")) kelurahan = "Cipinang"; } let statusExcel = "Pending"; if(job.status === 'completed' || (job.completed && !job.status)) statusExcel = "Selesai"; else if(job.status === 'failed') statusExcel = "Gagal Kunjungan"; let catatanFull = d['Catatan'] || "-"; if(job.status === 'failed' && job.failureNote) { if(catatanFull === "-") catatanFull = `GAGAL: ${job.failureNote}`; else catatanFull += ` | GAGAL: ${job.failureNote}`; } if(job.status === 'completed' && job.completionNote) { if(catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`; else catatanFull += ` | SOLUSI: ${job.completionNote}`; } dataToExport.push({ "No": rowNumber++, "No Layanan": d['No Layanan'] || d['Layanan'] || "-", "Nama Pelanggan": job.name, "Status Pengerjaan": statusExcel, "Nomor Telpon": d['No WA'] || d['No Telp'] || "-", "Tanggal Selesai Kunjungan": finalDate, "Nama Teknisi": rawTechName, "Alamat Lengkap": job.address, "RT": addressParts.rt, "RW": addressParts.rw, "Area Kelurahan": kelurahan, "SN": tech.sn || "-", "Catatan": catatanFull, }); } }); }); if (dataToExport.length === 0) { alert("⚠️ Tidak ada data untuk kategori ini."); closeExcelOption(); return; } const ws = XLSX.utils.json_to_sheet(dataToExport); if (mode === 'psb') ws['!cols'] = [{wch:5},{wch:20},{wch:30},{wch:40},{wch:5},{wch:5},{wch:10},{wch:15},{wch:25},{wch:20}]; else ws['!cols'] = [{wch:5},{wch:15},{wch:25},{wch:15},{wch:15},{wch:25},{wch:20},{wch:40},{wch:5},{wch:5},{wch:15},{wch:20},{wch:30}]; const wb = XLSX.utils.book_new(); let fileName = "Laporan_Teknisi.xlsx", sheetName = "Data"; if(mode === 'psb') { fileName = "Laporan_PSB_New.xlsx"; sheetName = "PSB"; } else if(mode === 'non_psb') { fileName = "Laporan_Maintenance_Isolir.xlsx"; sheetName = "MT_ISO"; } else { fileName = "Laporan_Semua_Data.xlsx"; sheetName = "All_Data"; } XLSX.utils.book_append_sheet(wb, ws, sheetName); XLSX.writeFile(wb, fileName); closeExcelOption(); };
     function parseAddress(addr) { const rtMatch = addr.match(/RT\s*[\.\:\-\/]?\s*0?(\d+)/i); const rwMatch = addr.match(/RW\s*[\.\:\-\/]?\s*0?(\d+)/i); const kelMatch = addr.match(/Kel\.?\s*([A-Za-z\s]+)/i); return { rt: rtMatch ? rtMatch[1] : '-', rw: rwMatch ? rwMatch[1] : '-', kel: kelMatch ? kelMatch[1] : '-' }; }
     function getNumberEmoji(n) { const emojis = ['0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟']; return emojis[n] || `${n}.`; }
-    window.resetDatabase = function() { let pin = prompt("🔐 Masukkan PIN untuk reset:"); if (!checkPin(pin)) { if (pin) alert("❌ PIN SALAH!"); return; } let choice = prompt("Pilih jenis reset:\n1 = Reset Tiket (hapus semua tiket, tim, dan stok tim)\n2 = Reset Gudang Modem (hapus semua modem di gudang)\n\nMasukkan angka 1 atau 2:"); if (choice === "1") { const nid = showSyncNotification('Meriset tiket...', 'saving', false); set(dbRef, []).then(() => { showSyncNotification('✅ Tiket & Tim berhasil di-reset!', 'success'); closeSyncNotification(nid); location.reload(); }).catch((err) => { showSyncNotification('❌ Gagal mereset tiket!', 'error'); closeSyncNotification(nid); alert("Gagal mereset tiket: " + err); }); } else if (choice === "2") { const nid = showSyncNotification('Meriset gudang modem...', 'saving', false); gudangStock = { nokia: [], fh: [], lainnya: [] }; saveGudangToFirebaseDirect().then(() => { showSyncNotification('✅ Gudang modem berhasil di-reset!', 'success'); closeSyncNotification(nid); updateGudangCounts(); if (document.getElementById("modalGudang").style.display === "block") renderGudangTable(currentGudangTab); renderJobs(); }).catch((err) => { showSyncNotification('❌ Gagal mereset gudang!', 'error'); closeSyncNotification(nid); alert("Gagal mereset gudang: " + err); }); } else alert("Pilihan tidak valid."); };
+    window.resetDatabase = function() { 
+        let pin = prompt("🔐 Masukkan PIN untuk reset:"); 
+        if (!checkPin(pin)) { if (pin) alert("❌ PIN SALAH!"); return; } 
+        let choice = prompt("Pilih jenis reset:\n1 = Reset Tiket (hapus semua tiket, tim, dan stok tim)\n2 = Reset Gudang Modem (hapus semua modem di gudang)\n\nMasukkan angka 1 atau 2:"); 
+        if (choice === "1") { 
+            const nid = showSyncNotification('Meriset tiket dan stok tim...', 'saving', false); 
+            // Reset teams menjadi array kosong (menghapus semua tiket dan inventory tim)
+            set(dbRef, []).then(() => { 
+                showSyncNotification('✅ Tiket, tim, dan stok modem teknisi berhasil di-reset!', 'success'); 
+                closeSyncNotification(nid); 
+                location.reload(); 
+            }).catch((err) => { 
+                showSyncNotification('❌ Gagal mereset tiket!', 'error'); 
+                closeSyncNotification(nid); 
+                alert("Gagal mereset tiket: " + err); 
+            }); 
+        } else if (choice === "2") { 
+            const nid = showSyncNotification('Meriset gudang modem...', 'saving', false); 
+            gudangStock = { nokia: [], fh: [], lainnya: [] }; 
+            saveGudangToFirebaseDirect().then(() => { 
+                showSyncNotification('✅ Gudang modem berhasil di-reset!', 'success'); 
+                closeSyncNotification(nid); 
+                updateGudangCounts(); 
+                if (document.getElementById("modalGudang").style.display === "block") renderGudangTable(currentGudangTab); 
+                renderJobs(); 
+            }).catch((err) => { 
+                showSyncNotification('❌ Gagal mereset gudang!', 'error'); 
+                closeSyncNotification(nid); 
+                alert("Gagal mereset gudang: " + err); 
+            }); 
+        } else alert("Pilihan tidak valid."); 
+    };
     window.downloadBackup = function() { const backupData = { teams: teams, gudangStock: gudangStock, timestamp: new Date().toISOString() }; const jsonStr = JSON.stringify(backupData, null, 2); const blob = new Blob([jsonStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup_sinyalku_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showSyncNotification('✅ Backup JSON berhasil diunduh!', 'success'); };
     window.uploadBackup = function(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const backupData = JSON.parse(e.target.result); if (!backupData.teams || !Array.isArray(backupData.teams)) throw new Error("Format file tidak valid: 'teams' tidak ditemukan atau bukan array."); if (!backupData.gudangStock || typeof backupData.gudangStock !== 'object') throw new Error("Format file tidak valid: 'gudangStock' tidak ditemukan."); if (confirm("⚠️ Yakin ingin merestore data dari file ini? Data yang ada sekarang akan ditimpa!")) { teams = backupData.teams; gudangStock = backupData.gudangStock; if (!gudangStock.nokia) gudangStock.nokia = []; if (!gudangStock.fh) gudangStock.fh = []; if (!gudangStock.lainnya) gudangStock.lainnya = []; ensureGudangIntegrity(); Promise.all([saveDataToFirebaseDirect(), saveGudangToFirebaseDirect()]).then(() => { showSyncNotification('✅ Restore data berhasil!', 'success'); renderJobs(); renderLandingTeams(); updateGudangCounts(); }).catch((err) => { showSyncNotification('❌ Gagal menyimpan ke Firebase!', 'error'); console.error(err); }); } } catch (error) { alert("❌ Gagal membaca file JSON: " + error.message); } finally { event.target.value = ''; } }; reader.readAsText(file); };
     window.openTicketOption = function() { document.getElementById('modalTicketSelection').style.display = "block"; }; window.closeTicketOption = function() { document.getElementById('modalTicketSelection').style.display = "none"; };
