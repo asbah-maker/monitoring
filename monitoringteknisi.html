@@ -84,6 +84,7 @@
         .btn-reset { background-color: #dc3545; border: 2px solid #b02a37; }
         .btn-download { background-color: #28a745; }
         .btn-upload { background-color: #ffc107; color: #212529; }
+        .btn-modem-rekap { background-color: #6c757d; color: white; }
         .btn-action-main:active { transform: scale(0.95); }
         .team-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; border: 1px solid #e1e4e8; }
         .team-header { padding: 15px; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 1rem; }
@@ -213,6 +214,31 @@
         .transfer-item:last-child { border-bottom: none; }
         .transfer-item label { cursor: pointer; font-size: 0.9rem; flex: 1; margin: 0; }
         .oper-select { margin: 0 5px; padding: 2px; font-size: 0.8rem; }
+        .global-stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            background: #e9ecef;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0 20px 0;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .global-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .global-stat-value {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-left: 5px;
+        }
         @media (max-width: 600px) {
             body { padding: 5px; background-color: #fff; }
             .container { padding: 0; }
@@ -232,6 +258,7 @@
             .btn-send-team { width: 100%; }
             .sync-notification { bottom: 10px; right: 10px; left: 10px; max-width: none; }
             .sc-dropdown-content { right: -50px; min-width: 120px; }
+            .global-stats-container { flex-wrap: wrap; gap: 10px; }
         }
     </style>
 </head>
@@ -262,15 +289,37 @@
             <button class="btn-action-main btn-excel" onclick="openExcelOption()">📊 Download Excel</button>
             <button class="btn-action-main btn-download" onclick="downloadBackup()">⬇️ Backup JSON</button>
             <button class="btn-action-main btn-upload" onclick="document.getElementById('uploadFile').click()">⬆️ Restore JSON</button>
-            <input type="file" id="uploadFile" accept=".json" style="display:none;" onchange="uploadBackup(event)">
+            <button class="btn-action-main btn-modem-rekap" onclick="openModemRecapOption()">📡 Rekap Modem</button>
             <button class="btn-action-main btn-reset" onclick="resetDatabase()">🔴 Reset Tiket</button>
+            <input type="file" id="uploadFile" accept=".json" style="display:none;" onchange="uploadBackup(event)">
         </div>
     </div>
+
+    <!-- Global Stats untuk total tiket seluruh teknisi -->
+    <div id="global-stats-container" class="global-stats-container" style="display: none;">
+        <div class="global-stat-item">
+            <span>📊 Total PSB:</span>
+            <span class="global-stat-value" id="global-psb-count">0</span>
+        </div>
+        <div class="global-stat-item">
+            <span>🛠️ Total Kunjungan:</span>
+            <span class="global-stat-value" id="global-mt-count">0</span>
+        </div>
+        <div class="global-stat-item">
+            <span>🚫 Total Isolir:</span>
+            <span class="global-stat-value" id="global-isolir-count">0</span>
+        </div>
+    </div>
+
     <div id="teams-container"><p style="text-align: center; color: #888;">Memuat data...</p></div>
 </div>
 
 <!-- Modal Pilihan Copy Rekap -->
 <div id="modalCopyOption" class="modal"><div class="modal-content" style="max-width: 450px; text-align: center;"><span class="close-modal" onclick="closeCopyOption()">&times;</span><h3 style="margin-top:0; color:#17a2b8;">📑 Pilih Jenis Rekap</h3><p style="font-size:0.9rem; color:#666;">Pilih jenis rekap yang ingin dicopy:</p><div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;"><button class="btn-action-main" style="background-color: #17a2b8;" onclick="copyAllSummary(); closeCopyOption();">📋 Rekap Semua Tiket</button><button class="btn-action-main" style="background-color: #28a745;" onclick="copyPSBSummary(); closeCopyOption();">📄 Rekap Kategori PSB (Berhasil)</button><button class="btn-action-main" style="background-color: #6f42c1;" onclick="copyAllSummaryV2(); closeCopyOption();">📋 Rekap Semua Tiket V2 (Detail)</button><button class="btn-action-main" style="background-color: #fd7e14;" onclick="copyPendingTickets(); closeCopyOption();">⏳ Rekap Pending Tiket</button></div></div></div>
+
+<!-- Modal Pilihan Rekap Modem -->
+<div id="modalModemRecapOption" class="modal"><div class="modal-content" style="max-width: 450px; text-align: center;"><span class="close-modal" onclick="closeModemRecapOption()">&times;</span><h3 style="margin-top:0; color:#6c757d;">📡 Rekap Modem Teknisi</h3><p style="font-size:0.9rem; color:#666;">Pilih status modem yang ingin direkap:</p><div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;"><button class="btn-action-main" style="background-color: #6c757d;" onclick="copyModemRecap('all'); closeModemRecapOption();">📋 Semua Status</button><button class="btn-action-main" style="background-color: #ffc107; color:#212529;" onclick="copyModemRecap('pending'); closeModemRecapOption();">⏳ Pending Saja</button><button class="btn-action-main" style="background-color: #28a745;" onclick="copyModemRecap('installed'); closeModemRecapOption();">✅ Terpasang Saja</button></div></div></div>
+
 <div id="modalExcelOption" class="modal"><div class="modal-content" style="max-width: 450px; text-align: center;"><span class="close-modal" onclick="closeExcelOption()">&times;</span><h3 style="margin-top:0; color:#217346;">📊 Download Laporan Excel</h3><p style="font-size:0.9rem; color:#666;">Pilih jenis data yang ingin diunduh:</p><div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;"><button class="btn-action-main" style="background-color: #007bff;" onclick="downloadExcel('psb')">📄 Download Khusus PSB</button><button class="btn-action-main" style="background-color: #ffc107; color:#333;" onclick="downloadExcel('non_psb')">🛠️ Download Khusus Selain PSB</button><button class="btn-action-main" style="background-color: #217346;" onclick="downloadExcel('all')">🗂️ Download Semua Data</button></div></div></div>
 <div id="modalTicketSelection" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-modal" onclick="closeTicketOption()">&times;</span><h2 style="text-align: center; margin-bottom: 25px;">🛠️ Pilih Aksi</h2><div class="menu-selection-container"><div class="menu-btn" onclick="openCreateTicketModal()"><div class="menu-icon">📝</div><div class="menu-text"><h3>Buat Tiket Baru</h3><p>Input tiket dari pesan WhatsApp (PSB/MT/ISOLIR).</p></div></div><div class="menu-btn" onclick="openEditTechModal()"><div class="menu-icon">👥</div><div class="menu-text"><h3>Edit Personil Tim</h3><p>Ubah nama teknisi 1 atau 2 pada tim yang sudah ada.</p></div></div><div class="menu-btn" onclick="openTransferModal()"><div class="menu-icon">🔄</div><div class="menu-text"><h3>Edit Tiket (Transfer/Lempar)</h3><p>Pindahkan tiket ke tim lain atau buat tim baru dari pecahan tiket.</p></div></div></div></div></div>
 <div id="modalEditTech" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-modal" onclick="closeEditTechModal()">&times;</span><h2 style="text-align: center; color: #007bff;">👥 Edit Personil Tim</h2><div class="form-group"><label>📝 Edit Nama Tim</label><div style="display: flex; gap: 10px;"><input type="text" id="edit-team-name" class="form-control" placeholder="Nama tim baru" style="flex:1;"><button class="btn-add-list" style="background-color: #17a2b8; margin:0; width:auto; padding:8px 15px;" onclick="updateTeamName()">Simpan Nama</button></div></div><hr style="margin: 15px 0;"><div class="form-group"><label>Pilih Tim yang akan diedit:</label><select id="edit-tech-team-select" onchange="loadTeamMembersForEdit()"></select></div><div class="tech-select-container"><div class="tech-select-wrapper"><label>👤 Teknisi 1 (Baru)</label><select id="edit-tech-1"></select></div><div class="tech-select-wrapper"><label>👤 Teknisi 2 (Baru)</label><select id="edit-tech-2"><option value="">-- Kosong --</option></select></div></div><button class="btn-add-list" style="background-color: #007bff;" onclick="saveEditTech()">💾 Simpan Personil</button><hr style="margin: 15px 0;"><button class="btn-add-list" style="background-color: #dc3545;" onclick="deleteTeam()">🗑️ Hapus Tim Ini</button></div></div>
@@ -289,7 +338,6 @@
             <div id="duplicate-warning" style="display: none; background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.8rem;">⚠️ <strong>Peringatan:</strong> Terdeteksi duplikasi data modem. Gunakan tombol "Bersihkan Duplikat" untuk menghapus data ganda.</div>
             <button id="btn-clean-duplicates" style="display: none; width: 100%; margin-top: 10px; background-color: #dc3545; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;" onclick="cleanDuplicateModems()">🗑️ Bersihkan Duplikat</button>
         </div>
-        <!-- Dropdown untuk oper modem (akan diisi dinamis) -->
         <div id="oper-modem-panel" style="margin-top:15px; display:none; border-top:1px solid #ccc; padding-top:10px;">
             <label>Pilih Tim Tujuan untuk Oper Modem:</label>
             <select id="oper-target-team-select" style="width:100%; padding:8px; margin:5px 0;"></select>
@@ -300,6 +348,19 @@
 </div>
 
 <div id="modalTicket" class="modal"><div class="modal-content"><span class="close-modal" onclick="closeCreateTicketModal()">&times;</span><h2 style="margin-top: 0; text-align: center;">Buat Tiket Baru</h2><div class="tech-select-container"><div class="tech-select-wrapper"><label>👤 Teknisi 1 (Wajib)</label><select id="tech-1"></select></div><div class="tech-select-wrapper"><label>👤 Teknisi 2 (Opsional)</label><select id="tech-2"><option value="">-- Kosong --</option></select></div></div><div class="generator-box"><label id="input-label" style="color: #1a73e8; font-weight: bold; font-size: 0.9rem;">✨ SMART INPUT (PSB / MT / ISOLIR)</label><p style="font-size:0.75rem; color:#666; margin:3px 0 5px 0;">Paste tiket disini. Sistem akan otomatis mendeteksi format (Termasuk format ISOLIR baru).</p><textarea id="bulk-input-text" rows="8" placeholder="Paste format tiket disini..."></textarea><button class="btn-generate" onclick="generatePreview()">⚡ Generate Smart Preview</button></div><div id="preview-container" style="max-height: 400px; overflow-y: auto; margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 10px;"><div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div></div><button class="btn-add-list" onclick="saveBulkTickets()">📥 Masukkan ke List</button></div></div>
+
+<!-- Modal Statistik Preview -->
+<div id="modalPreviewStats" class="modal">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <h3>📊 Ringkasan Tiket</h3>
+        <div id="preview-stats-content" style="margin: 20px 0; font-size: 1.1rem;">
+            <p>📝 PSB: <span id="preview-psb-count">0</span></p>
+            <p>🛠️ Kunjungan (MT): <span id="preview-mt-count">0</span></p>
+            <p>🚫 Isolir: <span id="preview-isolir-count">0</span></p>
+        </div>
+        <button class="btn-action-main" style="background: #007bff; margin: 0 auto; width: auto; padding: 10px 30px;" onclick="closePreviewStatsModal()">OK</button>
+    </div>
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -413,23 +474,49 @@
     function getPendingInventory(teamIndex) { const team = teams[teamIndex]; if (!team || !team.inventory) return []; return team.inventory.filter(item => item.status === 'pending'); }
     function checkForDuplicateModems(teamIndex) { const team = teams[teamIndex]; if (!team || !team.inventory) return false; const seen = new Set(); for (const item of team.inventory) { if (seen.has(item.sn)) return true; seen.add(item.sn); } return false; }
     
-    // --- Render Jobs ---
+    // Fungsi untuk menghitung total tiket global
+    function calculateGlobalStats() {
+        let psb = 0, mt = 0, isolir = 0;
+        teams.forEach(team => {
+            if (!team.jobs) return;
+            team.jobs.forEach(job => {
+                const tag = job.tag.toUpperCase();
+                if (tag.includes('PSB')) psb++;
+                else if (tag.includes('ISOLIR')) isolir++;
+                else mt++; // Kunjungan lainnya
+            });
+        });
+        return { psb, mt, isolir };
+    }
+
+    function updateGlobalStatsDisplay() {
+        const stats = calculateGlobalStats();
+        document.getElementById('global-psb-count').textContent = stats.psb;
+        document.getElementById('global-mt-count').textContent = stats.mt;
+        document.getElementById('global-isolir-count').textContent = stats.isolir;
+        const container = document.getElementById('global-stats-container');
+        if (appMode !== 'landing') {
+            container.style.display = 'flex';
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    // --- Render Jobs (tidak diubah) ---
     function renderJobs() { 
         const container = document.getElementById('teams-container'); container.innerHTML = ''; if (!Array.isArray(teams)) teams = []; teams.sort((a,b) => { const getNum = (str) => { const m = str.match(/Tim\s+(\d+)/i); return m ? parseInt(m[1]) : 99999; }; return getNum(a.teamName) - getNum(b.teamName); }); let visibleTeamsCount = 0; teams.forEach((team, tIndex) => { if (appMode === 'tech' && tIndex !== selectedTechIndex) return; if(!team.jobs) team.jobs = []; if(!team.inventory) team.inventory = []; if (team.jobs.length === 0) return; visibleTeamsCount++; team.jobs.sort((a,b) => (timeToMinutes(a.time) - timeToMinutes(b.time))); const pendingInv = getPendingInventory(tIndex); const stockCount = pendingInv.length;
         const teamDiv = document.createElement('div'); teamDiv.className = 'team-card'; teamDiv.innerHTML = `<div class="team-header ${team.colorClass}"><div style="display:flex; flex-direction:column; align-items:flex-start;"><span>${team.teamName}</span><span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok Pending: ${stockCount} pcs</span></div><div style="display:flex; align-items:center; gap:5px;"><button class="btn-copy-team" onclick="copyTeamSummary(${tIndex}, this)">📑 Rekap</button><button class="btn-view-stock" onclick="openStockListModal(${tIndex})">MODEM</button><span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">0/0</span></div></div><div class="progress-container"><div class="progress-bar" id="progress-${team.id}"></div></div><ul class="job-list" id="list-${team.id}"></ul>`; container.appendChild(teamDiv); const listContainer = document.getElementById(`list-${team.id}`); 
-        // MODIFIKASI: Tampilkan semua modem, yang installed dicoret merah dan disabled
         let modemOptions = `<option value="">-- Pilih Modem dari Stok (${team.inventory.length}) --</option>`;
         team.inventory.forEach(inv => {
             const cat = getModemCategory(inv.sn);
             if (inv.status === 'pending') {
                 modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${inv.sn} (${cat})</option>`;
-            } else { // installed
+            } else {
                 modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="text-decoration: line-through; color: #dc3545;">📦 ${inv.sn} (${cat}) - Terpasang</option>`;
             }
         });
         team.jobs.forEach((job, index) => { 
             const li = document.createElement('li'); li.className = 'job-item'; const currentStatus = job.status || (job.completed ? 'completed' : 'pending'); if(currentStatus === 'completed') li.classList.add('completed'); else if(currentStatus === 'failed') li.classList.add('failed'); const isPSB = job.tag.toUpperCase().includes("PSB"); const tech = job.technical || {}; const uniqueId = `details-${team.id}-${index}`; const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none"; let detailHTML = ''; if (isPSB) { detailHTML += `<div class="detail-item"><span class="detail-label">Paket</span>${renderEditableValue(tIndex, index, 'package', job.details['Paket'] || '-')}</div><div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(tIndex, index, 'time', job.time || 'FLEXIBEL')}</div><div class="detail-item"><span class="detail-label">No Layanan</span>${renderEditableValue(tIndex, index, 'serviceNumber', job.details['No Layanan'] || job.details['Layanan'] || '-')}</div>`; } else { detailHTML += `<div class="detail-item"><span class="detail-label">Kunjungan</span>${renderEditableValue(tIndex, index, 'Kunjungan', job.tag)}</div><div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(tIndex, index, 'time', job.time || 'FLEXIBEL')}</div><div class="detail-item"><span class="detail-label">Layanan</span>${renderEditableValue(tIndex, index, 'layanan', job.details['Layanan'] || '-')}</div>`; } const hiddenFields = ["User PPPOE_RADIUS", "Pemakaian Bulan Ini (GB)", "ODC", "ODP", "Port ODP", "OLT SN/MAC", "Last DBM", "Last DBM Time", "Nama WiFi (SSID)", "Sandi WiFi", "Keterangan"]; for (const [key, value] of Object.entries(job.details)) { if ((isPSB && ['Paket','No Layanan','Layanan'].includes(key)) || (!isPSB && ['Layanan'].includes(key))) continue; const valStr = (value || "").toString().trim(); if (hiddenFields.includes(key) && (valStr === "" || valStr === "-")) continue; detailHTML += `<div class="detail-item"><span class="detail-label">${key}</span><span class="detail-value">${escapeHtml(valStr)}</span></div>`; } 
-            // --- FORM DENGAN TOMBOL BACK ---
             let formHTML = '';
             const hasSn = tech.sn && tech.sn.trim() !== "";
             if (isPSB) {
@@ -439,7 +526,7 @@
                 const displayMtTech = replaceStatus === 'yes' ? 'block' : 'none';
                 formHTML = `<div class="manual-input-section"><div style="margin:10px 0;"><label style="font-weight:bold; color:#d35400;">🔧 Opsi Perangkat:</label><select style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-weight:bold;" onchange="toggleMtModemInput(${tIndex}, ${index}, this.value)"><option value="no" ${replaceStatus === 'no' ? 'selected' : ''}>❌ Tidak Ganti Modem</option><option value="yes" ${replaceStatus === 'yes' ? 'selected' : ''}>✅ Ganti Modem Baru</option></select></div><div id="mt-tech-${tIndex}-${index}" style="display: ${displayMtTech}; border-top:1px dashed #ccc; padding-top:10px;"><div style="margin:10px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})" style="flex:1;">${modemOptions}</select><button class="btn-back-modem" id="btn-back-${tIndex}-${index}" data-team="${tIndex}" data-job="${index}" onclick="resetModemData(${tIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button></div><div class="input-grid"><div class="input-group" style="grid-column: 1/-1;"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div><div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..." ${appMode === 'tech' ? 'readonly' : ''}></div></div></div></div>`;
             }
-            const layID = job.details['No Layanan'] || job.details['Layanan'] || ''; const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${escapeHtml(job.failureNote)}</div>` : ''; const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${escapeHtml(job.completionNote)}</div>` : ''; let delButton = ''; if (appMode === 'admin') delButton = `<button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>`; let scButton = ''; if (job.linkSC) { if (appMode === 'admin') { scButton = `<div class="sc-dropdown"><button class="btn-sc">📊 SC</button><div class="sc-dropdown-content"><div class="sc-dropdown-item open" onclick="window.open('${job.linkSC}', '_blank')">🔗 Buka Link</div><div class="sc-dropdown-item edit" onclick="editLinkSC(${tIndex}, ${index})">✏️ Edit Link</div></div></div>`; } else { scButton = `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')" title="Buka Link Speedtest">📊 SC</button>`; } } li.innerHTML = `<div class="job-main-row"><div class="job-left"><div class="status-actions"><button class="btn-check-status ${currentStatus === 'completed' ? 'active-success' : (currentStatus === 'failed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'completed')" title="Selesai">✅</button><button class="btn-check-status ${currentStatus === 'failed' ? 'active-fail' : (currentStatus === 'completed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'failed')" title="Gagal">❌</button></div><div class="customer-info"><h3>${escapeHtml(job.name)} <span class="badge ${job.tagClass}">${escapeHtml(job.tag)}</span></h3><div style="font-weight:bold; color:#d35400; font-size:0.85rem; margin-top:3px;">🕒 ${escapeHtml(job.time || 'FLEXIBEL')}${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${escapeHtml(layID)}</span>` : ''}</div>${failureNote}${successNote}<p>📍 ${escapeHtml(job.address)}</p></div></div><div class="action-buttons"><button class="btn-copy" onclick="copyData(${tIndex}, ${index}, this)">📋 Copy</button><button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>${scButton}${delButton}</div></div><div id="${uniqueId}" class="job-details" style="display: ${displayStyle};"><div class="detail-grid">${detailHTML}</div>${formHTML}</div>`; listContainer.appendChild(li); const inputs = li.querySelectorAll('.realtime-input'); inputs.forEach(input => { input.addEventListener('change', (e) => { const key = e.target.getAttribute('data-key'); if (key) { if (key === 'linkSC') teams[tIndex].jobs[index][key] = e.target.value; else { if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {}; teams[tIndex].jobs[index].technical[key] = e.target.value; } saveDataToFirebase(); } }); }); }); updateProgressUI(team.id, team.jobs); }); if (visibleTeamsCount === 0) container.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif.<br>Silakan buat tiket baru untuk memunculkan Tim.</div>'; }
+            const layID = job.details['No Layanan'] || job.details['Layanan'] || ''; const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${escapeHtml(job.failureNote)}</div>` : ''; const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${escapeHtml(job.completionNote)}</div>` : ''; let delButton = ''; if (appMode === 'admin') delButton = `<button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>`; let scButton = ''; if (job.linkSC) { if (appMode === 'admin') { scButton = `<div class="sc-dropdown"><button class="btn-sc">📊 SC</button><div class="sc-dropdown-content"><div class="sc-dropdown-item open" onclick="window.open('${job.linkSC}', '_blank')">🔗 Buka Link</div><div class="sc-dropdown-item edit" onclick="editLinkSC(${tIndex}, ${index})">✏️ Edit Link</div></div></div>`; } else { scButton = `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')" title="Buka Link Speedtest">📊 SC</button>`; } } li.innerHTML = `<div class="job-main-row"><div class="job-left"><div class="status-actions"><button class="btn-check-status ${currentStatus === 'completed' ? 'active-success' : (currentStatus === 'failed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'completed')" title="Selesai">✅</button><button class="btn-check-status ${currentStatus === 'failed' ? 'active-fail' : (currentStatus === 'completed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'failed')" title="Gagal">❌</button></div><div class="customer-info"><h3>${escapeHtml(job.name)} <span class="badge ${job.tagClass}">${escapeHtml(job.tag)}</span></h3><div style="font-weight:bold; color:#d35400; font-size:0.85rem; margin-top:3px;">🕒 ${escapeHtml(job.time || 'FLEXIBEL')}${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${escapeHtml(layID)}</span>` : ''}</div>${failureNote}${successNote}<p>📍 ${escapeHtml(job.address)}</p></div></div><div class="action-buttons"><button class="btn-copy" onclick="copyData(${tIndex}, ${index}, this)">📋 Copy</button><button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>${scButton}${delButton}</div></div><div id="${uniqueId}" class="job-details" style="display: ${displayStyle};"><div class="detail-grid">${detailHTML}</div>${formHTML}</div>`; listContainer.appendChild(li); const inputs = li.querySelectorAll('.realtime-input'); inputs.forEach(input => { input.addEventListener('change', (e) => { const key = e.target.getAttribute('data-key'); if (key) { if (key === 'linkSC') teams[tIndex].jobs[index][key] = e.target.value; else { if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {}; teams[tIndex].jobs[index].technical[key] = e.target.value; } saveDataToFirebase(); } }); }); }); updateProgressUI(team.id, team.jobs); }); if (visibleTeamsCount === 0) container.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif.<br>Silakan buat tiket baru untuk memunculkan Tim.</div>'; updateGlobalStatsDisplay(); }
     function timeToMinutes(timeStr) { if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999; const lower = timeStr.toLowerCase(); if (lower.includes("pagi")) return 480; if (lower.includes("siang")) return 780; if (lower.includes("sore")) return 960; if (lower.includes("malam")) return 1140; const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/); if (match) { let hour = parseInt(match[1]); const minute = match[2] ? parseInt(match[2]) : 0; if (hour === 12 && lower.includes('siang')) hour = 12; else if (hour === 12 && lower.includes('malam')) hour = 0; else if (hour < 12 && lower.includes('sore')) hour += 12; else if (hour < 12 && lower.includes('malam')) hour += 12; else if (hour < 5 && lower.includes('siang')) hour += 12; return hour * 60 + minute; } return 99999; }
     function updateProgressUI(teamId, jobs) { const total = jobs.length; const completed = jobs.filter(j => j.status === 'completed' || j.completed === true).length; const percent = (total === 0) ? 0 : (completed / total) * 100; const bar = document.getElementById(`progress-${teamId}`); const txt = document.getElementById(`count-${teamId}`); if(bar) bar.style.width = percent + '%'; if(txt) txt.innerText = `${completed}/${total} Selesai`; }
     function renderEditableValue(teamIdx, jobIdx, fieldType, value) { if (appMode === 'admin') return `<span class="detail-value">${escapeHtml(value)}<button class="edit-icon" onclick="editField(${teamIdx}, ${jobIdx}, '${fieldType}')" title="Edit">✏️</button></span>`; else return `<span class="detail-value">${escapeHtml(value)}</span>`; }
@@ -489,15 +576,12 @@
         teams[teamIdx].jobs[jobIdx].technical['sn'] = sn;
         teams[teamIdx].jobs[jobIdx].technical['mac'] = mac;
         teams[teamIdx].jobs[jobIdx].technical['vlan'] = vlanMac;
-        // Ubah status modem menjadi terpasang
         if (updateInventoryStatus(teamIdx, sn, 'installed')) {
             showSyncNotification(`Modem ${sn} ditandai Terpasang`, 'success');
         }
         saveDataToFirebase();
-        // Enable tombol back untuk tiket ini
         const backBtn = document.getElementById(`btn-back-${teamIdx}-${jobIdx}`);
         if(backBtn) backBtn.disabled = false;
-        // Render ulang agar dropdown di semua tiket terupdate
         renderJobs();
     };
     
@@ -506,25 +590,21 @@
         const tech = job.technical || {};
         const sn = tech.sn;
         if (!sn) return;
-        // Kembalikan status modem ke pending
         if (updateInventoryStatus(teamIdx, sn, 'pending')) {
             showSyncNotification(`Modem ${sn} dikembalikan ke stok (pending)`, 'success');
         }
-        // Kosongkan data teknis
         if (job.technical) {
             job.technical.sn = '';
             job.technical.mac = '';
             job.technical.vlan = '';
         }
-        // Update input fields di DOM (akan di-refresh oleh renderJobs)
         saveDataToFirebase();
-        // Render ulang agar tampilan kosong dan tombol back disable
         renderJobs();
     };
     
     window.toggleMtModemInput = function(tIndex, jIndex, val) { teams[tIndex].jobs[jIndex].replaceModem = val; if(val === 'no') { if(teams[tIndex].jobs[jIndex].technical) teams[tIndex].jobs[jIndex].technical = {}; } saveDataToFirebase(); renderJobs(); };
 
-    // --- MODAL STOK DENGAN STATUS ---
+    // --- MODAL STOK (tidak diubah) ---
     window.openStockListModal = function(teamIndex) {
         const team = teams[teamIndex];
         const tbody = document.getElementById('stock-table-body');
@@ -540,7 +620,7 @@
         document.getElementById('stock-stats').innerHTML = `<span>⏳ Pending: ${pendingCount}</span> <span style="text-decoration:line-through; color:#dc3545;">✅ Terpasang: ${installedCount}</span>`;
         const hasDuplicates = checkForDuplicateModems(teamIndex);
         const isAdmin = (appMode === 'admin');
-        const isTech = (appMode === 'tech'); // Mode teknisi
+        const isTech = (appMode === 'tech');
         if (hasDuplicates) { duplicateWarning.style.display = 'block'; cleanDuplicatesBtn.style.display = 'block'; cleanDuplicatesBtn.setAttribute('data-team-index', teamIndex); } else { duplicateWarning.style.display = 'none'; cleanDuplicatesBtn.style.display = 'none'; }
         if (!inventory || inventory.length === 0) { emptyMsg.style.display = 'block'; } else {
             emptyMsg.style.display = 'none';
@@ -550,7 +630,6 @@
                 const statusText = item.status === 'pending' ? 'Pending' : 'Terpasang';
                 const statusClass = item.status === 'pending' ? 'st-pending' : 'st-installed';
                 let actionBtns = '';
-                // Tombol Back dan Oper hanya muncul jika bukan mode teknisi
                 if (!isTech) {
                     if (item.status === 'installed') {
                         actionBtns += `<button class="btn-icon-return" onclick="returnModemToPending(${teamIndex}, '${item.sn}')" title="Kembalikan ke Pending">↩️ Back</button>`;
@@ -611,6 +690,70 @@
     window.deleteStock = function(teamIndex, sn) { if (appMode !== 'admin') return; let pin = prompt("🔒 Masukkan PIN untuk Hapus Stok Modem:"); if (!checkPin(pin)) { alert("❌ PIN SALAH! Akses ditolak."); return; } const team = teams[teamIndex]; const initialLength = team.inventory.length; team.inventory = team.inventory.filter(inv => inv.sn !== sn); if (initialLength !== team.inventory.length) { saveDataToFirebase(); openStockListModal(teamIndex); } };
     window.cleanDuplicateModems = function() { if (appMode !== 'admin') return; const teamIndex = document.getElementById('btn-clean-duplicates').getAttribute('data-team-index'); if (teamIndex === null) return; let pin = prompt("🔒 Masukkan PIN untuk membersihkan duplikat modem:"); if (!checkPin(pin)) { alert("❌ PIN SALAH! Akses ditolak."); return; } const team = teams[teamIndex]; if (!team || !team.inventory) return; const seen = new Set(); const uniqueInventory = []; for (const item of team.inventory) { if (!seen.has(item.sn)) { seen.add(item.sn); uniqueInventory.push(item); } } team.inventory = uniqueInventory; saveDataToFirebase(); openStockListModal(parseInt(teamIndex)); };
 
+    // ================= FITUR REKAP MODEM (DIPERBAIKI) =================
+    window.openModemRecapOption = function() {
+        document.getElementById('modalModemRecapOption').style.display = 'block';
+    };
+    window.closeModemRecapOption = function() {
+        document.getElementById('modalModemRecapOption').style.display = 'none';
+    };
+    
+    window.copyModemRecap = function(filter) {
+        const today = new Date();
+        const formattedDate = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
+        let header = `📋 *REKAP MODEM TEKNISI*\n📅 ${formattedDate}\n`;
+        
+        let filterText = "";
+        if (filter === 'all') filterText = "(Semua Status)";
+        else if (filter === 'pending') filterText = "(Pending Saja)";
+        else if (filter === 'installed') filterText = "(Terpasang Saja)";
+        header += `${filterText}\n\n`;
+        
+        let allText = header;
+        let hasAny = false;
+        
+        teams.forEach((team, idx) => {
+            if (!team.inventory || team.inventory.length === 0) return;
+            
+            let filtered = team.inventory;
+            if (filter === 'pending') filtered = team.inventory.filter(m => m.status === 'pending');
+            else if (filter === 'installed') filtered = team.inventory.filter(m => m.status === 'installed');
+            
+            if (filtered.length === 0) return;
+            hasAny = true;
+            
+            let teamNameDisplay = team.teamName.toUpperCase();
+            if (team.members && team.members.length) {
+                let membersStr = team.members.map(m => m.toUpperCase()).join(' & ');
+                const timMatch = teamNameDisplay.match(/TIM\s+(\d+)/i);
+                if (timMatch) {
+                    teamNameDisplay = `TIM ${timMatch[1]}: ${membersStr}`;
+                } else {
+                    teamNameDisplay = `${teamNameDisplay} (${membersStr})`;
+                }
+            }
+            
+            allText += `👤 *${teamNameDisplay}* (${filtered.length} unit)\n`;
+            filtered.forEach((modem, i) => {
+                const category = getModemCategory(modem.sn);
+                let statusLabel = "";
+                if (modem.status === 'pending') statusLabel = "PENDING";
+                else statusLabel = "TERPASANG";
+                allText += `${i+1}. ${modem.sn} [${category}] [${statusLabel}]\n`;
+            });
+            allText += `--------------------\n`;
+        });
+        
+        if (!hasAny) {
+            allText += "Tidak ada data modem sesuai filter.\n";
+        } else {
+            allText = allText.replace(/\n--------------------\n$/, '\n');
+        }
+        
+        copyToClipboard(allText, null, "✅ Rekap Modem tersalin!");
+    };
+    // ================= END FITUR BARU =================
+
     // --- Copy & Rekap Functions (tidak diubah) ---
     async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") { let success = false; if (navigator.clipboard && navigator.clipboard.writeText) { try { await navigator.clipboard.writeText(text); success = true; } catch (err) {} } if (!success) { try { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); if (successful) success = true; } catch (err) {} } if (success && btnElement) { const originalText = btnElement.innerHTML; const originalBg = btnElement.style.backgroundColor; btnElement.innerHTML = successMsg; btnElement.style.backgroundColor = "#28a745"; setTimeout(() => { btnElement.innerHTML = originalText; btnElement.style.backgroundColor = originalBg; }, 2000); } else if (success) alert(successMsg); }
     window.copyData = async function(teamIndex, jobIndex, btn) { const team = teams[teamIndex]; const job = teams[teamIndex].jobs[jobIndex]; const d = job.details; const tech = job.technical || {}; const isPSB = job.tag.toUpperCase().includes("PSB"); let textToCopy = ""; const checkVal = (val) => val && val.toString().trim() !== "" && val.toString().trim() !== "-"; if (isPSB) { const snVal = tech.sn || '-'; const macVal = formatMacForCopy(tech.mac); const vlanVal = formatMacForCopy(tech.vlan); const kabelVal = tech.kabel || '-'; const portVal = tech.port || '-'; const odpVal = tech.odp || '-'; const redamanVal = tech.redaman || '-'; const noLayanan = d['No Layanan'] || d['Layanan']; const isCompleted = job.status === 'completed' || (job.completed && !job.status); let header = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n--------------------------------`; let layananLine = ''; if (noLayanan && !isCompleted) layananLine = `Nolay Pra-Regist: ${noLayanan}\n`; let body = `Jam: ${job.time}\nNama Lengkap : ${job.name}\nAlamat Lengkap : ${job.address}\nEmail Aktif: ${d['Email'] || '-'}\nNo. Wa: ${d['No WA'] || d['No Telp'] || '-'}\nPaket Layanan : ${d['Paket'] || '-'}\nReferensi: ${d['Referensi'] || '-'}\nNo KTP : ${d['No KTP'] || '-'}\nTanggal pemasangan: ${d['Tgl Pasang'] || '-'}\nFOTO Depan Rumah : \nStatus Rumah : ${d['Status Rumah'] || '-'}\nSetuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || '-'}\n\n--- DATA TEKNIS ---\nkode SN : ${snVal}\nMac : ${macVal}\nMac vlan : ${vlanVal}\nPanjang kabel : ${kabelVal}\nPort : ${portVal}\nId ODP : ${odpVal}\nRedaman : ${redamanVal}`; textToCopy = header + '\n' + layananLine + body; } else { textToCopy = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n--------------------------------\nJam: ${job.time}\nKunjungan: ${job.tag}\nNama Pelanggan: ${job.name}`; if (d['Layanan']) textToCopy += `\nNo Layanan: ${d['Layanan']}`; if (d['Masa Aktif s/d']) textToCopy += `\nMasa Aktif s/d: ${d['Masa Aktif s/d']}`; if (d['No Telp']) textToCopy += `\nNo Telp.: ${d['No Telp']}`; if (d['Tgl Daftar']) textToCopy += `\nTanggal Daftar: ${d['Tgl Daftar']}`; if (d['Coverage']) textToCopy += `\nCoverage: ${d['Coverage']}`; if (job.address) textToCopy += `\nAlamat: ${job.address}`; if (checkVal(d['User PPPOE_RADIUS'])) textToCopy += `\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS']}`; if (checkVal(d['Pemakaian Bulan Ini (GB)'])) textToCopy += `\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)']}`; if (checkVal(d['ODC'])) textToCopy += `\nODC: ${d['ODC']}`; if (checkVal(d['ODP'])) textToCopy += `\nODP: ${d['ODP']}`; if (checkVal(d['Port ODP'])) textToCopy += `\nPort ODP: ${d['Port ODP']}`; if (checkVal(d['OLT SN/MAC'])) textToCopy += `\nOLT SN/MAC: ${d['OLT SN/MAC']}`; if (checkVal(d['Last DBM'])) textToCopy += `\nLast DBM: ${d['Last DBM']}`; if (checkVal(d['Last DBM Time'])) textToCopy += `\nLast DBM Time: ${d['Last DBM Time']}`; if (checkVal(d['Nama WiFi (SSID)'])) textToCopy += `\nNama WiFi (SSID): ${d['Nama WiFi (SSID)']}`; if (checkVal(d['Sandi WiFi'])) textToCopy += `\nSandi WiFi: ${d['Sandi WiFi']}`; if (checkVal(d['Keterangan'])) textToCopy += `\nKeterangan: ${d['Keterangan']}`; if (d['Router']) textToCopy += `\nRouter: ${d['Router']}`; if (job.replaceModem === 'yes' && tech.sn) { const macVal = formatMacForCopy(tech.mac); const vlanVal = formatMacForCopy(tech.vlan); textToCopy += `\n\n--- GANTI MODEM BARU ---\nSN : ${tech.sn}\nMAC : ${macVal}\nVLAN : ${vlanVal}`; } } copyToClipboard(textToCopy, btn); };
@@ -641,12 +784,300 @@
     window.checkNewTeamOption = function() { const val = document.getElementById('transfer-target-team').value; const newTeamDiv = document.getElementById('new-team-input-section'); if(val === 'new_team') { newTeamDiv.style.display = 'block'; populateTechSelect('transfer-new-tech-1', 'transfer-new-tech-2'); } else newTeamDiv.style.display = 'none'; };
     window.processTransfer = function() { const sourceIdx = document.getElementById('transfer-source-team').value; const targetVal = document.getElementById('transfer-target-team').value; if(sourceIdx === "" || targetVal === "") { alert("Lengkapi pilihan tim!"); return; } const cbs = document.querySelectorAll('.job-transfer-cb:checked'); if(cbs.length === 0) { alert("Pilih minimal 1 tiket untuk dilempar!"); return; } let jobIndices = Array.from(cbs).map(cb => parseInt(cb.value)).sort((a,b) => b-a); let jobsToMove = []; jobIndices.forEach(idx => jobsToMove.push(teams[sourceIdx].jobs[idx])); let targetTeamIdx; if (targetVal === 'new_team') { const t1 = document.getElementById('transfer-new-tech-1').value; const t2 = document.getElementById('transfer-new-tech-2').value; if(!t1) { alert("Pilih teknisi untuk tim baru!"); return; } let selectedMembers = [t1.toLowerCase()]; if(t2) selectedMembers.push(t2.toLowerCase()); selectedMembers.sort(); const newId = Date.now(); const colorIndex = (teams.length) % extraColors.length; const usedNumbers = teams.map(t => { const match = t.teamName.match(/Tim\s+(\d+)/i); return match ? parseInt(match[1]) : 0; }); let nextNum = 1; while (usedNumbers.includes(nextNum)) nextNum++; const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`; const newTeamObj = { id: newId, teamName: teamNameStr, colorClass: extraColors[colorIndex] || "bg-dark", members: selectedMembers, jobs: [], inventory: [] }; teams.push(newTeamObj); targetTeamIdx = teams.length - 1; } else targetTeamIdx = parseInt(targetVal); jobsToMove.forEach(j => teams[targetTeamIdx].jobs.push(j)); jobIndices.forEach(idx => teams[sourceIdx].jobs.splice(idx, 1)); saveDataToFirebase(); alert(`✅ Berhasil melempar ${jobsToMove.length} tiket ke ${teams[targetTeamIdx].teamName}!`); closeTransferModal(); };
     function populateTechSelect(id1, id2) { const s1 = document.getElementById(id1); const s2 = document.getElementById(id2); s1.innerHTML = ''; s2.innerHTML = '<option value="">-- Kosong --</option>'; techList.forEach(name => { s1.add(new Option(name, name)); s2.add(new Option(name, name)); }); s1.selectedIndex = 0; s2.value = ""; }
-    window.generatePreview = function() { const raw = document.getElementById('bulk-input-text').value; const container = document.getElementById('preview-container'); container.innerHTML = ''; if (!raw.trim()) { alert("Paste data dulu!"); return; } const tickets = raw.split(/\n\s*\n/); tickets.forEach((ticketText, index) => { ticketText = ticketText.trim(); if (!ticketText) return; const hasKunjungan = ticketText.toLowerCase().includes('Kunjungan:'); const hasNamaLengkap = ticketText.toLowerCase().includes('nama lengkap :'); if (hasNamaLengkap) { createPSBCard(ticketText, index, container); } else if (hasKunjungan) { createMTCard(ticketText, index, container); } else { createMTCard(ticketText, index, container); } }); };
-    function getFieldValue(text, fieldName) { const lines = text.split('\n'); for (let line of lines) { line = line.trim(); if (line.toLowerCase().startsWith(fieldName.toLowerCase())) { const separatorIndex = line.indexOf(':'); if (separatorIndex !== -1) { let value = line.substring(separatorIndex + 1).trim(); return value === "" ? "-" : value; } } } return "-"; }
-    function createPSBCard(text, index, container) { const jam = getFieldValue(text, 'Jam'); const nama = getFieldValue(text, 'Nama Lengkap'); const alamat = getFieldValue(text, 'Alamat Lengkap'); const email = getFieldValue(text, 'Email Aktif'); const wa = getFieldValue(text, 'No. Wa') || getFieldValue(text, 'No. WA'); const paket = getFieldValue(text, 'Paket Layanan'); const referensi = getFieldValue(text, 'Referensi'); const ktp = getFieldValue(text, 'No KTP'); const tgl = getFieldValue(text, 'Tanggal pemasangan'); const statusRumah = getFieldValue(text, 'Status Rumah'); const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun'); const card = document.createElement('div'); card.className = 'preview-card preview-psb'; card.innerHTML = `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:#007bff;">Ticket PSB #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="PSB"><div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${alamat}"></div><div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${email}"></div><div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${wa}"></div><div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${paket}"></div><div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${referensi}"></div><div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div><div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div><div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div><div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setuju}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`; container.appendChild(card); }
-    function createMTCard(text, index, container) { const jam = getFieldValue(text, 'Jam'); const Kunjungan = getFieldValue(text, 'Kunjungan'); const nama = getFieldValue(text, 'Nama Pelanggan'); const noLayanan = getFieldValue(text, 'No Layanan'); const masaAktif = getFieldValue(text, 'Masa Aktif s/d'); const noTelp = getFieldValue(text, 'No Telp.'); const tglDaftar = getFieldValue(text, 'Tanggal Daftar'); const coverage = getFieldValue(text, 'Coverage'); const alamat = getFieldValue(text, 'Alamat'); const pppoe = getFieldValue(text, 'User PPPOE_RADIUS'); const pemakaian = getFieldValue(text, 'Pemakaian Bulan Ini (GB)'); const odc = getFieldValue(text, 'ODC'); const odp = getFieldValue(text, 'ODP'); const portOdp = getFieldValue(text, 'Port ODP'); const oltSn = getFieldValue(text, 'OLT SN/MAC'); const lastDBM = getFieldValue(text, 'Last DBM'); const lastDBMTime = getFieldValue(text, 'Last DBM Time'); const ssid = getFieldValue(text, 'Nama WiFi (SSID)'); const sandiWifi = getFieldValue(text, 'Sandi WiFi'); const keterangan = getFieldValue(text, 'Keterangan'); const router = getFieldValue(text, 'Router'); const isIsolir = Kunjungan.toLowerCase().includes('isolir'); const card = document.createElement('div'); card.className = isIsolir ? 'preview-card preview-isolir' : 'preview-card preview-mt'; card.innerHTML = `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Lain)'} #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="MT"><div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${Kunjungan}" required></div><div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${noLayanan}"></div><div class="input-group"><label>Masa Aktif s/d</label><input type="text" class="bulk-masa-aktif" value="${masaAktif}"></div><div class="input-group"><label>No Telp.</label><input type="text" class="bulk-telp" value="${noTelp}"></div><div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${tglDaftar}"></div><div class="input-group"><label>Coverage</label><input type="text" class="bulk-coverage" value="${coverage}"></div><div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div><div class="input-group"><label>User PPPOE_RADIUS</label><input type="text" class="bulk-pppoe" value="${pppoe}"></div><div class="input-group"><label>Pemakaian Bulan Ini (GB)</label><input type="text" class="bulk-pemakaian" value="${pemakaian}"></div><div class="input-group"><label>ODC</label><input type="text" class="bulk-odc" value="${odc}"></div><div class="input-group"><label>ODP</label><input type="text" class="bulk-odp" value="${odp}"></div><div class="input-group"><label>Port ODP</label><input type="text" class="bulk-port-odp" value="${portOdp}"></div><div class="input-group"><label>OLT SN/MAC</label><input type="text" class="bulk-olt-sn" value="${oltSn}"></div><div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${lastDBM}"></div><div class="input-group"><label>Last DBM Time</label><input type="text" class="bulk-last-dbm-time" value="${lastDBMTime}"></div><div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${ssid}"></div><div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div><div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div><div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`; container.appendChild(card); }
-    window.saveBulkTickets = function() { if (!teams || !Array.isArray(teams)) teams = []; const previewCards = document.querySelectorAll('.preview-card'); if(previewCards.length === 0) { alert("⚠️ Generate preview dulu sebelum menyimpan!"); return; } const t1 = document.getElementById('tech-1').value; const t2 = document.getElementById('tech-2').value; if(!t1) { alert("⚠️ Pilih minimal Teknisi 1!"); return; } const nid = showSyncNotification('Menyimpan tiket baru...', 'saving', false); try { let selectedMembers = [t1.toLowerCase()]; if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase()); selectedMembers.sort(); let targetTeamIndex = teams.findIndex(team => { const members = team.members ? team.members : []; return JSON.stringify(members.sort()) === JSON.stringify(selectedMembers); }); if (targetTeamIndex === -1) { const newId = Date.now(); const colorIndex = (teams.length) % extraColors.length; const usedNumbers = teams.map(t => { const match = (t.teamName || "").match(/Tim\s+(\d+)/i); return match ? parseInt(match[1]) : 0; }); let nextNum = 1; while (usedNumbers.includes(nextNum)) nextNum++; const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`; const newTeamObj = { id: newId, teamName: teamNameStr, colorClass: extraColors[colorIndex] || "bg-dark", members: selectedMembers, jobs: [], inventory: [] }; teams.push(newTeamObj); targetTeamIndex = teams.length - 1; } if (!teams[targetTeamIndex]) throw new Error("Gagal mengakses index tim baru. Silakan refresh halaman."); if (!teams[targetTeamIndex].jobs || !Array.isArray(teams[targetTeamIndex].jobs)) teams[targetTeamIndex].jobs = []; let count = 0; previewCards.forEach((card, cardIndex) => { const type = card.querySelector('.bulk-type').value; const jamInput = card.querySelector('.bulk-input-jam'); const jam = jamInput ? jamInput.value.trim() : "FLEXIBEL"; const getValue = (selector) => { const el = card.querySelector(selector); return el ? el.value.trim() : ''; }; const nama = getValue('.bulk-nama'); const alamat = getValue('.bulk-alamat'); let newJob = {}; if(type === 'PSB') { const email = getValue('.bulk-email'); const wa = getValue('.bulk-wa'); const paket = getValue('.bulk-paket'); const referensi = getValue('.bulk-referensi'); const ktp = getValue('.bulk-ktp'); const tgl = getValue('.bulk-tgl'); const statusRumah = getValue('.bulk-status-rumah'); const setuju = getValue('.bulk-setuju'); newJob = { completed: false, status: 'pending', completedAt: null, technical: {}, linkSC: '', name: nama || '-', tag: `PSB (${paket || '150rb'})`, tagClass: "badge-psb", time: jam || "FLEXIBEL", address: alamat || '-', details: { "Paket": paket || '-', "Email": email || '-', "No WA": wa || '-', "Referensi": referensi || '-', "No KTP": ktp || '-', "Status Rumah": statusRumah || '-', "Setuju Berlangganan": setuju || '-', "Tgl Pasang": tgl || '-' } }; } else { const Kunjungan = getValue('.bulk-Kunjungan'); const layanan = getValue('.bulk-layanan'); const masaAktif = getValue('.bulk-masa-aktif'); const telp = getValue('.bulk-telp'); const tglDaftar = getValue('.bulk-tgl-daftar'); const coverage = getValue('.bulk-coverage'); const pppoe = getValue('.bulk-pppoe'); const pemakaian = getValue('.bulk-pemakaian'); const odc = getValue('.bulk-odc'); const odp = getValue('.bulk-odp'); const portOdp = getValue('.bulk-port-odp'); const oltSn = getValue('.bulk-olt-sn'); const lastDBM = getValue('.bulk-last-dbm'); const lastDBMTime = getValue('.bulk-last-dbm-time'); const ssid = getValue('.bulk-ssid'); const sandiWifi = getValue('.bulk-sandi-wifi'); const keterangan = getValue('.bulk-keterangan'); const router = getValue('.bulk-router'); let details = {}; details["Kunjungan"] = Kunjungan || '-'; if (layanan) details["Layanan"] = layanan; if (masaAktif) details["Masa Aktif"] = masaAktif; if (telp) details["No Telp"] = telp; if (tglDaftar) details["Tgl Daftar"] = tglDaftar; if (coverage) details["Coverage"] = coverage; if (pppoe) details["User PPPOE_RADIUS"] = pppoe; if (pemakaian) details["Pemakaian Bulan Ini (GB)"] = pemakaian; if (odc) details["ODC"] = odc; if (odp) details["ODP"] = odp; if (portOdp) details["Port ODP"] = portOdp; if (oltSn) details["OLT SN-MAC"] = oltSn; if (lastDBM) details["Last DBM"] = lastDBM; if (lastDBMTime) details["Last DBM Time"] = lastDBMTime; if (ssid) details["Nama WiFi (SSID)"] = ssid; if (sandiWifi) details["Sandi WiFi"] = sandiWifi; if (keterangan) details["Keterangan"] = keterangan; if (router) details["Router"] = router; newJob = { completed: false, status: 'pending', completedAt: null, technical: {}, linkSC: '', name: nama || '-', tag: Kunjungan || 'MT (Lain)', tagClass: (Kunjungan && Kunjungan.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt", time: jam || "FLEXIBEL", address: alamat || '-', details: details }; } teams[targetTeamIndex].jobs.push(newJob); count++; }); if (count > 0) { saveDataToFirebase(); closeCreateTicketModal(); showSyncNotification(`✅ Berhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}!`, 'success'); closeSyncNotification(nid); document.getElementById('bulk-input-text').value = ''; document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>'; renderJobs(); renderLandingTeams(); } else { closeSyncNotification(nid); alert("⚠️ Gagal memproses tiket. Data input mungkin tidak valid."); } } catch (error) { closeSyncNotification(nid); console.error("CRITICAL ERROR:", error); alert("❌ TERJADI ERROR SYSTEM:\n" + error.message + "\n\nCoba refresh halaman dan coba lagi."); } };
-    window.onclick = function(event) { if (event.target == document.getElementById("modalTicket")) closeCreateTicketModal(); if (event.target == document.getElementById("modalTicketSelection")) closeTicketOption(); if (event.target == document.getElementById("modalEditTech")) closeEditTechModal(); if (event.target == document.getElementById("modalTransferTicket")) closeTransferModal(); if (event.target == document.getElementById("modalStockList")) closeStockListModal(); if (event.target == document.getElementById("modalExcelOption")) closeExcelOption(); if (event.target == document.getElementById("modalCopyOption")) closeCopyOption(); }
+
+    // ========== GENERATE PREVIEW DENGAN POP-UP STATISTIK ==========
+    window.generatePreview = function() {
+        const raw = document.getElementById('bulk-input-text').value;
+        const container = document.getElementById('preview-container');
+        
+        if (!raw.trim()) {
+            alert("Paste data dulu!");
+            return;
+        }
+        
+        // Kosongkan container dulu
+        container.innerHTML = '';
+        
+        const tickets = raw.split(/\n\s*\n/);
+        let psbCount = 0, mtCount = 0, isolirCount = 0;
+        
+        tickets.forEach((ticketText, index) => {
+            ticketText = ticketText.trim();
+            if (!ticketText) return;
+            
+            const hasKunjungan = ticketText.toLowerCase().includes('Kunjungan:');
+            const hasNamaLengkap = ticketText.toLowerCase().includes('nama lengkap :');
+            
+            if (hasNamaLengkap) {
+                createPSBCard(ticketText, index, container);
+                psbCount++;
+            } else {
+                // MT atau Isolir
+                const kunjunganLine = ticketText.split('\n').find(line => line.toLowerCase().startsWith('kunjungan:'));
+                if (kunjunganLine) {
+                    const kunjunganValue = kunjunganLine.split(':')[1]?.trim().toLowerCase() || '';
+                    if (kunjunganValue.includes('isolir')) {
+                        isolirCount++;
+                    } else {
+                        mtCount++;
+                    }
+                } else {
+                    mtCount++; // default
+                }
+                createMTCard(ticketText, index, container);
+            }
+        });
+        
+        // Tampilkan modal statistik
+        document.getElementById('preview-psb-count').textContent = psbCount;
+        document.getElementById('preview-mt-count').textContent = mtCount;
+        document.getElementById('preview-isolir-count').textContent = isolirCount;
+        document.getElementById('modalPreviewStats').style.display = 'block';
+    };
+
+    window.closePreviewStatsModal = function() {
+        document.getElementById('modalPreviewStats').style.display = 'none';
+    };
+
+    // Helper functions untuk generate preview
+    function getFieldValue(text, fieldName) { 
+        const lines = text.split('\n'); 
+        for (let line of lines) { 
+            line = line.trim(); 
+            if (line.toLowerCase().startsWith(fieldName.toLowerCase())) { 
+                const separatorIndex = line.indexOf(':'); 
+                if (separatorIndex !== -1) { 
+                    let value = line.substring(separatorIndex + 1).trim(); 
+                    return value === "" ? "-" : value; 
+                } 
+            } 
+        } 
+        return "-"; 
+    }
+    
+    function createPSBCard(text, index, container) { 
+        const jam = getFieldValue(text, 'Jam'); 
+        const nama = getFieldValue(text, 'Nama Lengkap'); 
+        const alamat = getFieldValue(text, 'Alamat Lengkap'); 
+        const email = getFieldValue(text, 'Email Aktif'); 
+        const wa = getFieldValue(text, 'No. Wa') || getFieldValue(text, 'No. WA'); 
+        const paket = getFieldValue(text, 'Paket Layanan'); 
+        const referensi = getFieldValue(text, 'Referensi'); 
+        const ktp = getFieldValue(text, 'No KTP'); 
+        const tgl = getFieldValue(text, 'Tanggal pemasangan'); 
+        const statusRumah = getFieldValue(text, 'Status Rumah'); 
+        const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun'); 
+        const card = document.createElement('div'); 
+        card.className = 'preview-card preview-psb'; 
+        card.innerHTML = `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:#007bff;">Ticket PSB #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="PSB"><div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${alamat}"></div><div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${email}"></div><div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${wa}"></div><div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${paket}"></div><div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${referensi}"></div><div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div><div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div><div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div><div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setuju}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`; 
+        container.appendChild(card); 
+    }
+    
+    function createMTCard(text, index, container) { 
+        const jam = getFieldValue(text, 'Jam'); 
+        const Kunjungan = getFieldValue(text, 'Kunjungan'); 
+        const nama = getFieldValue(text, 'Nama Pelanggan'); 
+        const noLayanan = getFieldValue(text, 'No Layanan'); 
+        const masaAktif = getFieldValue(text, 'Masa Aktif s/d'); 
+        const noTelp = getFieldValue(text, 'No Telp.'); 
+        const tglDaftar = getFieldValue(text, 'Tanggal Daftar'); 
+        const coverage = getFieldValue(text, 'Coverage'); 
+        const alamat = getFieldValue(text, 'Alamat'); 
+        const pppoe = getFieldValue(text, 'User PPPOE_RADIUS'); 
+        const pemakaian = getFieldValue(text, 'Pemakaian Bulan Ini (GB)'); 
+        const odc = getFieldValue(text, 'ODC'); 
+        const odp = getFieldValue(text, 'ODP'); 
+        const portOdp = getFieldValue(text, 'Port ODP'); 
+        const oltSn = getFieldValue(text, 'OLT SN/MAC'); 
+        const lastDBM = getFieldValue(text, 'Last DBM'); 
+        const lastDBMTime = getFieldValue(text, 'Last DBM Time'); 
+        const ssid = getFieldValue(text, 'Nama WiFi (SSID)'); 
+        const sandiWifi = getFieldValue(text, 'Sandi WiFi'); 
+        const keterangan = getFieldValue(text, 'Keterangan'); 
+        const router = getFieldValue(text, 'Router'); 
+        const isIsolir = Kunjungan.toLowerCase().includes('isolir'); 
+        const card = document.createElement('div'); 
+        card.className = isIsolir ? 'preview-card preview-isolir' : 'preview-card preview-mt'; 
+        card.innerHTML = `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Lain)'} #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="MT"><div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${Kunjungan}" required></div><div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${noLayanan}"></div><div class="input-group"><label>Masa Aktif s/d</label><input type="text" class="bulk-masa-aktif" value="${masaAktif}"></div><div class="input-group"><label>No Telp.</label><input type="text" class="bulk-telp" value="${noTelp}"></div><div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${tglDaftar}"></div><div class="input-group"><label>Coverage</label><input type="text" class="bulk-coverage" value="${coverage}"></div><div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div><div class="input-group"><label>User PPPOE_RADIUS</label><input type="text" class="bulk-pppoe" value="${pppoe}"></div><div class="input-group"><label>Pemakaian Bulan Ini (GB)</label><input type="text" class="bulk-pemakaian" value="${pemakaian}"></div><div class="input-group"><label>ODC</label><input type="text" class="bulk-odc" value="${odc}"></div><div class="input-group"><label>ODP</label><input type="text" class="bulk-odp" value="${odp}"></div><div class="input-group"><label>Port ODP</label><input type="text" class="bulk-port-odp" value="${portOdp}"></div><div class="input-group"><label>OLT SN/MAC</label><input type="text" class="bulk-olt-sn" value="${oltSn}"></div><div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${lastDBM}"></div><div class="input-group"><label>Last DBM Time</label><input type="text" class="bulk-last-dbm-time" value="${lastDBMTime}"></div><div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${ssid}"></div><div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div><div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div><div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`; 
+        container.appendChild(card); 
+    }
+
+    window.saveBulkTickets = function() { 
+        if (!teams || !Array.isArray(teams)) teams = []; 
+        const previewCards = document.querySelectorAll('.preview-card'); 
+        if(previewCards.length === 0) { 
+            alert("⚠️ Generate preview dulu sebelum menyimpan!"); 
+            return; 
+        } 
+        const t1 = document.getElementById('tech-1').value; 
+        const t2 = document.getElementById('tech-2').value; 
+        if(!t1) { 
+            alert("⚠️ Pilih minimal Teknisi 1!"); 
+            return; 
+        } 
+        const nid = showSyncNotification('Menyimpan tiket baru...', 'saving', false); 
+        try { 
+            let selectedMembers = [t1.toLowerCase()]; 
+            if(t2 && t2 !== "") selectedMembers.push(t2.toLowerCase()); 
+            selectedMembers.sort(); 
+            let targetTeamIndex = teams.findIndex(team => { 
+                const members = team.members ? team.members : []; 
+                return JSON.stringify(members.sort()) === JSON.stringify(selectedMembers); 
+            }); 
+            if (targetTeamIndex === -1) { 
+                const newId = Date.now(); 
+                const colorIndex = (teams.length) % extraColors.length; 
+                const usedNumbers = teams.map(t => { 
+                    const match = (t.teamName || "").match(/Tim\s+(\d+)/i); 
+                    return match ? parseInt(match[1]) : 0; 
+                }); 
+                let nextNum = 1; 
+                while (usedNumbers.includes(nextNum)) nextNum++; 
+                const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`; 
+                const newTeamObj = { 
+                    id: newId, 
+                    teamName: teamNameStr, 
+                    colorClass: extraColors[colorIndex] || "bg-dark", 
+                    members: selectedMembers, 
+                    jobs: [], 
+                    inventory: [] 
+                }; 
+                teams.push(newTeamObj); 
+                targetTeamIndex = teams.length - 1; 
+            } 
+            if (!teams[targetTeamIndex]) throw new Error("Gagal mengakses index tim baru. Silakan refresh halaman."); 
+            if (!teams[targetTeamIndex].jobs || !Array.isArray(teams[targetTeamIndex].jobs)) teams[targetTeamIndex].jobs = []; 
+            let count = 0; 
+            previewCards.forEach((card, cardIndex) => { 
+                const type = card.querySelector('.bulk-type').value; 
+                const jamInput = card.querySelector('.bulk-input-jam'); 
+                const jam = jamInput ? jamInput.value.trim() : "FLEXIBEL"; 
+                const getValue = (selector) => { 
+                    const el = card.querySelector(selector); 
+                    return el ? el.value.trim() : ''; 
+                }; 
+                const nama = getValue('.bulk-nama'); 
+                const alamat = getValue('.bulk-alamat'); 
+                let newJob = {}; 
+                if(type === 'PSB') { 
+                    const email = getValue('.bulk-email'); 
+                    const wa = getValue('.bulk-wa'); 
+                    const paket = getValue('.bulk-paket'); 
+                    const referensi = getValue('.bulk-referensi'); 
+                    const ktp = getValue('.bulk-ktp'); 
+                    const tgl = getValue('.bulk-tgl'); 
+                    const statusRumah = getValue('.bulk-status-rumah'); 
+                    const setuju = getValue('.bulk-setuju'); 
+                    newJob = { 
+                        completed: false, 
+                        status: 'pending', 
+                        completedAt: null, 
+                        technical: {}, 
+                        linkSC: '', 
+                        name: nama || '-', 
+                        tag: `PSB (${paket || '150rb'})`, 
+                        tagClass: "badge-psb", 
+                        time: jam || "FLEXIBEL", 
+                        address: alamat || '-', 
+                        details: { 
+                            "Paket": paket || '-', 
+                            "Email": email || '-', 
+                            "No WA": wa || '-', 
+                            "Referensi": referensi || '-', 
+                            "No KTP": ktp || '-', 
+                            "Status Rumah": statusRumah || '-', 
+                            "Setuju Berlangganan": setuju || '-', 
+                            "Tgl Pasang": tgl || '-' 
+                        } 
+                    }; 
+                } else { 
+                    const Kunjungan = getValue('.bulk-Kunjungan'); 
+                    const layanan = getValue('.bulk-layanan'); 
+                    const masaAktif = getValue('.bulk-masa-aktif'); 
+                    const telp = getValue('.bulk-telp'); 
+                    const tglDaftar = getValue('.bulk-tgl-daftar'); 
+                    const coverage = getValue('.bulk-coverage'); 
+                    const pppoe = getValue('.bulk-pppoe'); 
+                    const pemakaian = getValue('.bulk-pemakaian'); 
+                    const odc = getValue('.bulk-odc'); 
+                    const odp = getValue('.bulk-odp'); 
+                    const portOdp = getValue('.bulk-port-odp'); 
+                    const oltSn = getValue('.bulk-olt-sn'); 
+                    const lastDBM = getValue('.bulk-last-dbm'); 
+                    const lastDBMTime = getValue('.bulk-last-dbm-time'); 
+                    const ssid = getValue('.bulk-ssid'); 
+                    const sandiWifi = getValue('.bulk-sandi-wifi'); 
+                    const keterangan = getValue('.bulk-keterangan'); 
+                    const router = getValue('.bulk-router'); 
+                    let details = {}; 
+                    details["Kunjungan"] = Kunjungan || '-'; 
+                    if (layanan) details["Layanan"] = layanan; 
+                    if (masaAktif) details["Masa Aktif"] = masaAktif; 
+                    if (telp) details["No Telp"] = telp; 
+                    if (tglDaftar) details["Tgl Daftar"] = tglDaftar; 
+                    if (coverage) details["Coverage"] = coverage; 
+                    if (pppoe) details["User PPPOE_RADIUS"] = pppoe; 
+                    if (pemakaian) details["Pemakaian Bulan Ini (GB)"] = pemakaian; 
+                    if (odc) details["ODC"] = odc; 
+                    if (odp) details["ODP"] = odp; 
+                    if (portOdp) details["Port ODP"] = portOdp; 
+                    if (oltSn) details["OLT SN-MAC"] = oltSn; 
+                    if (lastDBM) details["Last DBM"] = lastDBM; 
+                    if (lastDBMTime) details["Last DBM Time"] = lastDBMTime; 
+                    if (ssid) details["Nama WiFi (SSID)"] = ssid; 
+                    if (sandiWifi) details["Sandi WiFi"] = sandiWifi; 
+                    if (keterangan) details["Keterangan"] = keterangan; 
+                    if (router) details["Router"] = router; 
+                    newJob = { 
+                        completed: false, 
+                        status: 'pending', 
+                        completedAt: null, 
+                        technical: {}, 
+                        linkSC: '', 
+                        name: nama || '-', 
+                        tag: Kunjungan || 'MT (Lain)', 
+                        tagClass: (Kunjungan && Kunjungan.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt", 
+                        time: jam || "FLEXIBEL", 
+                        address: alamat || '-', 
+                        details: details 
+                    }; 
+                } 
+                teams[targetTeamIndex].jobs.push(newJob); 
+                count++; 
+            }); 
+            if (count > 0) { 
+                saveDataToFirebase(); 
+                closeCreateTicketModal(); 
+                showSyncNotification(`✅ Berhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}!`, 'success'); 
+                closeSyncNotification(nid); 
+                document.getElementById('bulk-input-text').value = ''; 
+                document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>'; 
+                renderJobs(); 
+                renderLandingTeams(); 
+            } else { 
+                closeSyncNotification(nid); 
+                alert("⚠️ Gagal memproses tiket. Data input mungkin tidak valid."); 
+            } 
+        } catch (error) { 
+            closeSyncNotification(nid); 
+            console.error("CRITICAL ERROR:", error); 
+            alert("❌ TERJADI ERROR SYSTEM:\n" + error.message + "\n\nCoba refresh halaman dan coba lagi."); 
+        } 
+    };
+
+    // Close modals on outside click
+    window.onclick = function(event) { 
+        if (event.target == document.getElementById("modalTicket")) closeCreateTicketModal(); 
+        if (event.target == document.getElementById("modalTicketSelection")) closeTicketOption(); 
+        if (event.target == document.getElementById("modalEditTech")) closeEditTechModal(); 
+        if (event.target == document.getElementById("modalTransferTicket")) closeTransferModal(); 
+        if (event.target == document.getElementById("modalStockList")) closeStockListModal(); 
+        if (event.target == document.getElementById("modalExcelOption")) closeExcelOption(); 
+        if (event.target == document.getElementById("modalCopyOption")) closeCopyOption(); 
+        if (event.target == document.getElementById("modalModemRecapOption")) closeModemRecapOption(); 
+        if (event.target == document.getElementById("modalPreviewStats")) closePreviewStatsModal();
+    }
+
     loadFirebaseData();
 </script>
 </body>
