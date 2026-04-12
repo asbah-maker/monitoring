@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Mode Teknisi</title>
+    <title>Monitoring Teknisi - Mode Teknisi</title>
+    <!-- Firebase & SheetJS -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
-        /* --- CSS UTAMA & RESET (optimal, rapi, responsif) --- */
+        /* --- CSS lengkap (sama seperti sebelumnya, hanya untuk mode teknisi) --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
@@ -22,9 +23,11 @@
         .sync-notification.success { background-color: #28a745; color: white; border-left: 5px solid #1e7e34; }
         .sync-notification.error { background-color: #dc3545; color: white; border-left: 5px solid #bd2130; }
         .sync-notification.warning { background-color: #ffc107; color: #212529; border-left: 5px solid #d39e00; }
+        .sync-notification .sync-icon { font-size: 1.2rem; }
         .sync-notification .sync-close { background: transparent; border: none; color: inherit; font-size: 1.2rem; cursor: pointer; margin-left: auto; }
         .sync-notification.fade-out { animation: fadeOut 0.5s ease forwards; }
         @keyframes fadeOut { from { opacity: 0.95; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+        
         .connection-status { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-left: 10px; }
         .connection-status.connected { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .connection-status.connecting { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
@@ -36,12 +39,11 @@
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .connection-status.disconnected .status-dot { background-color: #dc3545; }
 
-        /* --- LANDING PAGE --- */
         #landing-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
         .landing-box { background: white; width: 100%; max-width: 450px; padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .landing-title { font-size: 1.4rem; font-weight: bold; color: #333; margin-bottom: 5px; }
         .landing-subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
-        .tech-list-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; width: 100%; }
+        .tech-list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; width: 100%; }
         .btn-select-team { background: white; border: 1px solid #ddd; padding: 15px; border-radius: 10px; font-weight: bold; color: #333; cursor: pointer; text-align: center; font-size: 0.95rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s; }
         .btn-select-team:hover { border-color: #007bff; transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
         .btn-select-team:active { background: #f0f7ff; border-color: #007bff; color: #007bff; transform: scale(0.98); }
@@ -81,31 +83,21 @@
         .toggle-btn { background: #f0f7ff; border: 1px solid #007bff; color: #007bff; }
         .btn-copy { background: #fff5eb; border: 1px solid #fd7e14; color: #fd7e14; }
         .btn-copy-team { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; flex: none; display: flex; align-items: center; gap: 5px; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
-        .btn-copy-team:hover { background: rgba(255,255,255,0.3); }
         .btn-view-stock { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-left: 5px; }
-        .btn-view-stock:hover { background: rgba(0,0,0,0.4); }
-        .sc-dropdown { position: relative; display: inline-block; }
-        .sc-dropdown-content { display: none; position: absolute; background-color: white; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1000; border-radius: 6px; overflow: hidden; border: 1px solid #ddd; right: 0; top: 100%; }
-        .sc-dropdown:hover .sc-dropdown-content { display: block; }
-        .sc-dropdown-item { color: #333; padding: 10px 14px; text-decoration: none; display: block; font-size: 0.85rem; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; }
-        .sc-dropdown-item:hover { background-color: #f8f9fa; }
-        .sc-dropdown-item.open { color: #007bff; }
         .btn-sc { background: #e8f0fe; border: 1px solid #1a73e8; color: #1a73e8; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; min-width: 60px; justify-content: center; }
-        .btn-sc:hover { background: #d2e3fc; border-color: #0d62d9; }
         .job-details { display: none; margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
         .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .detail-item { background: white; padding: 8px; border-radius: 4px; border: 1px solid #eee; }
         .detail-label { font-size: 0.75rem; color: #888; display: block; margin-bottom: 2px;}
-        .detail-value { font-size: 0.95rem; color: #333; font-weight: 500; word-break: break-word; }
+        .detail-value { font-size: 0.95rem; color: #333; font-weight: 500; word-break: break-word; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .manual-input-section { background-color: #fff; border: 1px solid #dfe6ed; padding: 15px; border-radius: 8px; }
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .input-group label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 4px; }
-        .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; }
         .locked-input { background-color: #e9ecef; color: #495057; cursor: not-allowed; border: 1px solid #ced4da; font-weight: bold; }
         .modem-selector { background-color: #e8f0fe; border: 1px solid #1a73e8; color: #1a73e8; font-weight: bold; margin-bottom: 10px; width: 100%; padding: 10px; border-radius: 5px;}
         .btn-back-modem { background-color: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-left: 8px; transition: 0.2s; }
         .btn-back-modem:disabled { background-color: #adb5bd; cursor: not-allowed; opacity: 0.6; }
-        .btn-back-modem:not(:disabled):hover { background-color: #5a6268; }
         .progress-container { height: 6px; background: #e9ecef; width: 100%; }
         .progress-bar { background: #28a745; width: 0%; transition: width 0.4s ease; }
         .job-item.completed { background-color: #f6fff9; opacity: 0.9; }
@@ -120,13 +112,15 @@
         .table-stock { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
         .table-stock th, .table-stock td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         .table-stock th { background-color: #f8f9fa; color: #333; font-weight: bold; }
-        .table-stock tr:nth-child(even) { background-color: #f9f9f9; }
         .btn-icon-return { background: #e8f5e9; color: #28a745; border: 1px solid #28a745; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; }
+        .btn-icon-oper { background: #17a2b8; color: white; border: 1px solid #138496; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; margin: 0 2px; }
         .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-bottom: 2px;}
         .st-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .st-installed { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; text-decoration: line-through; color: #dc3545; }
+        .gudang-control { display:flex; gap: 5px; align-items: center; flex-wrap: wrap; margin-top:10px;}
         @media (max-width: 600px) {
             body { padding: 5px; background-color: #fff; }
+            .container { padding: 0; }
             .header-section { margin: 15px 5px; }
             .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #ddd; margin-bottom: 15px; }
             .job-main-row { flex-direction: column; align-items: stretch; }
@@ -135,6 +129,7 @@
             .status-actions { flex-direction: row; justify-content: flex-start; margin-bottom: 10px;}
             .modal-content { width: 95%; padding: 15px; margin-top: 10px; }
             .input-grid { grid-template-columns: 1fr; }
+            .table-stock { font-size: 0.8rem; }
             .sync-notification { bottom: 10px; right: 10px; left: 10px; max-width: none; }
         }
     </style>
@@ -143,6 +138,7 @@
 
 <div id="sync-notification-container"></div>
 
+<!-- LANDING PAGE (PILIH TIM) -->
 <div id="landing-overlay">
     <div class="landing-box">
         <div class="landing-title">👋 Halo, Sinyalku Team!</div>
@@ -153,6 +149,7 @@
     </div>
 </div>
 
+<!-- MAIN APP CONTAINER (MODE TEKNISI) -->
 <div class="container" id="main-app-container">
     <div class="header-section">
         <button class="btn-back-home" id="btn-back-tech" onclick="exitTechMode()">⬅️ Kembali / Ganti Tim</button>
@@ -160,10 +157,11 @@
             <div id="connection-status">Connecting to server...</div>
         </h1>
     </div>
+
     <div id="teams-container"><p style="text-align: center; color: #888;">Memuat data...</p></div>
 </div>
 
-<!-- MODAL STOK PER TIM (hanya lihat & kembalikan) -->
+<!-- MODAL STOK MODEM -->
 <div id="modalStockList" class="modal">
     <div class="modal-content" style="max-width: 900px;">
         <span class="close-modal" onclick="closeStockListModal()">&times;</span>
@@ -172,10 +170,17 @@
         <div id="stock-stats" style="display:flex; gap:20px; justify-content:center; margin-bottom:10px;"></div>
         <div style="overflow-x: auto;">
             <table class="table-stock">
-                <thead><tr><th>No</th><th>Serial Number (SN)</th><th>MAC Address</th><th>Kategori</th><th>Status</th><th>Aksi</th></tr></thead>
+                <thead><tr><th>No</th><th>Serial Number (SN)</th><th>MAC Address</th><th>Kategori</th><th>Status</th><th style="min-width:140px;">Aksi</th></tr></thead>
                 <tbody id="stock-table-body"></tbody>
             </table>
             <div id="stock-empty-msg" style="text-align: center; padding: 20px; color: #999; font-style: italic; display: none;">Belum ada data stok modem.</div>
+        </div>
+        <!-- Panel Oper Modem -->
+        <div id="oper-modem-panel" style="margin-top:15px; display:none; border-top:1px solid #ccc; padding-top:10px;">
+            <label>Pilih Tim Tujuan untuk Oper Modem:</label>
+            <select id="oper-target-team-select" style="width:100%; padding:8px; margin:5px 0;"></select>
+            <button onclick="executeOperModem()" style="background:#17a2b8; color:white; border:none; padding:8px 15px; border-radius:4px; font-weight:bold;">Kirim Modem</button>
+            <button onclick="cancelOperModem()" style="background:#6c757d; color:white; border:none; padding:8px 15px; border-radius:4px; margin-left:5px;">Batal</button>
         </div>
     </div>
 </div>
@@ -184,6 +189,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+    // Konfigurasi Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyBl7LE5qeMSjsh9lvl_G7OcmwBPSiUQfD8",
         authDomain: "monitoringteknisiversi1-8d5ad.firebaseapp.com",
@@ -201,10 +207,13 @@
 
     let isFirebaseConnected = false;
     let openDetailIds = new Set();
+    const techList = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Reno", "Kholis", "Yudha", "Rival", "Tangguh", "Adam", "Ipang", "Irfan"];
+    techList.sort(); 
     const extraColors = ["bg-orange", "bg-purple", "bg-teal", "bg-dark"];
     let teams = [];
     let appMode = 'landing';
     let selectedTechIndex = -1;
+    let currentOperSN = null, currentOperTeamIndex = null;
     
     function getModemCategory(sn) {
         if (!sn) return 'LAINNYA';
@@ -214,7 +223,7 @@
         return 'LAINNYA';
     }
 
-    // Notifikasi sinkronisasi
+    // Notifikasi
     function showSyncNotification(message, type = 'saving', autoClose = true, duration = 3000) { 
         const container = document.getElementById('sync-notification-container');
         const notification = document.createElement('div');
@@ -231,31 +240,31 @@
     function updateConnectionStatus(status, message) { 
         const el = document.getElementById('connection-status'); 
         let sc = 'connecting', txt = message; 
-        if (status === 'connected') { sc = 'connected'; if (!message) txt = '✅ Terhubung Online'; } 
-        else if (status === 'disconnected') { sc = 'disconnected'; if (!message) txt = '❌ Terputus dari Server'; } 
-        else if (status === 'connecting') { sc = 'connecting'; if (!message) txt = '🔄 Menghubungkan...'; } 
+        if (status === 'connected') { sc = 'connected'; txt = '✅ Terhubung Online'; } 
+        else if (status === 'disconnected') { sc = 'disconnected'; txt = '❌ Terputus dari Server'; } 
+        else if (status === 'connecting') { sc = 'connecting'; txt = '🔄 Menghubungkan...'; } 
         el.innerHTML = `<span class="connection-status ${sc}"><span class="status-dot"></span> ${txt}</span>`; 
         isFirebaseConnected = (status === 'connected'); 
+        if (status === 'disconnected') showSyncNotification('Koneksi terputus. Perubahan disimpan lokal.', 'warning', true, 5000);
     }
     
     function saveDataToFirebase() { 
-        const nid = showSyncNotification('Menyimpan perubahan...', 'saving', false); 
+        const nid = showSyncNotification('Menyimpan data...', 'saving', false); 
         set(dbRef, teams).then(() => { 
             showSyncNotification('Data tersimpan!', 'success'); 
             closeSyncNotification(nid); 
         }).catch((err) => { 
-            showSyncNotification('Gagal sinkron! Periksa koneksi.', 'error'); 
+            showSyncNotification('Gagal sinkron!', 'error'); 
             closeSyncNotification(nid); 
         }); 
     }
-
-    // --- Landing & Mode Teknisi ---
+    
+    // Render Landing
     function renderLandingTeams() { 
         if (appMode !== 'landing') return; 
         const container = document.getElementById('landing-tech-grid'); 
         const noMsg = document.getElementById('landing-empty-msg'); 
-        container.innerHTML = ''; 
-        container.style.display = 'grid'; 
+        container.innerHTML = ''; container.style.display = 'grid'; 
         let hasActiveTeams = false; 
         teams.forEach((team, index) => { 
             if (team.jobs && team.jobs.length > 0) { 
@@ -267,8 +276,7 @@
                 container.appendChild(btn); 
             } 
         }); 
-        if (!hasActiveTeams) noMsg.style.display = 'block'; 
-        else noMsg.style.display = 'none'; 
+        noMsg.style.display = hasActiveTeams ? 'none' : 'block'; 
     }
     
     window.enterTechMode = function(index) { 
@@ -278,19 +286,18 @@
         document.getElementById('main-app-container').style.display = 'block'; 
         document.getElementById('btn-back-tech').style.display = 'block'; 
         renderJobs(); 
-    };
-    
+    }
     window.exitTechMode = function() { 
         appMode = 'landing'; 
         selectedTechIndex = -1; 
         document.getElementById('main-app-container').style.display = 'none'; 
         document.getElementById('landing-overlay').style.display = 'flex'; 
         renderLandingTeams(); 
-    };
+    }
 
-    // Load data dari Firebase
+    // Load data Firebase
     function loadFirebaseData() {
-        updateConnectionStatus('connecting', 'Menghubungkan ke Firebase...');
+        updateConnectionStatus('connecting', 'Menghubungkan...');
         const connectedRef = ref(db, ".info/connected");
         onValue(connectedRef, (snap) => {
             if (snap.val() === true) {
@@ -300,41 +307,39 @@
                     document.getElementById('loading-text').style.display = 'none'; 
                     if (data) { 
                         teams = data; 
-                        teams.forEach(t => { 
-                            if(!t.inventory) t.inventory = []; 
-                            t.inventory = t.inventory.map(item => { if (!item.status) item.status = 'pending'; return item; }); 
-                        }); 
+                        teams.forEach(t => { if(!t.inventory) t.inventory = []; t.inventory = t.inventory.map(item => { if (!item.status) item.status = 'pending'; return item; }); }); 
                     } else { teams = []; } 
                     renderLandingTeams(); 
                     if (appMode === 'tech' && selectedTechIndex !== -1) renderJobs(); 
                 });
             } else { 
-                isFirebaseConnected = false; updateConnectionStatus('disconnected', 'Terputus dari Firebase'); 
+                isFirebaseConnected = false; 
+                updateConnectionStatus('disconnected', 'Terputus'); 
                 document.getElementById('loading-text').style.display = 'none'; 
                 renderLandingTeams(); 
             }
         });
     }
-
+    
     function getPendingInventory(teamIndex) { 
         const team = teams[teamIndex]; 
-        if (!team || !team.inventory) return []; 
-        return team.inventory.filter(item => item.status === 'pending'); 
+        return team?.inventory?.filter(item => item.status === 'pending') || []; 
     }
-
-    // --- Render Tugas Teknisi ---
+    
+    // Render Jobs (hanya tim yang dipilih)
     function renderJobs() { 
         const container = document.getElementById('teams-container'); 
         container.innerHTML = ''; 
         if (!Array.isArray(teams)) teams = []; 
-        const team = teams[selectedTechIndex]; 
-        if (!team || !team.jobs || team.jobs.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">👋 Tidak ada tiket aktif untuk tim ini.</div>';
-            return;
-        }
+        const team = teams[selectedTechIndex];
+        if (!team) { container.innerHTML = '<p style="text-align:center;">Tim tidak ditemukan.</p>'; return; }
+        if(!team.jobs) team.jobs = [];
         if(!team.inventory) team.inventory = [];
+        if (team.jobs.length === 0) { container.innerHTML = '<p style="text-align:center;">Tidak ada tiket untuk tim ini.</p>'; return; }
+        
         team.jobs.sort((a,b) => (timeToMinutes(a.time) - timeToMinutes(b.time)));
         const pendingInv = getPendingInventory(selectedTechIndex);
+        const stockCount = pendingInv.length;
         
         const teamDiv = document.createElement('div'); 
         teamDiv.className = 'team-card'; 
@@ -342,7 +347,7 @@
             <div class="team-header ${team.colorClass}">
                 <div style="display:flex; flex-direction:column; align-items:flex-start;">
                     <span>${team.teamName}</span>
-                    <span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok Pending: ${pendingInv.length} pcs</span>
+                    <span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok Pending: ${stockCount} pcs</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:5px;">
                     <button class="btn-copy-team" onclick="copyTeamSummary(${selectedTechIndex}, this)">📑 Rekap</button>
@@ -369,7 +374,7 @@
         team.jobs.forEach((job, index) => { 
             const li = document.createElement('li'); 
             li.className = 'job-item'; 
-            const currentStatus = job.status || (job.completed ? 'completed' : 'pending'); 
+            const currentStatus = job.status || (job.completed ? 'completed' : 'pending');
             if(currentStatus === 'completed') li.classList.add('completed'); 
             else if(currentStatus === 'failed') li.classList.add('failed'); 
             const isPSB = job.tag.toUpperCase().includes("PSB"); 
@@ -379,85 +384,81 @@
             
             let detailHTML = ''; 
             if (isPSB) { 
-                detailHTML += `<div class="detail-item"><span class="detail-label">Paket</span><span class="detail-value">${escapeHtml(job.details['Paket'] || '-')}</span></div>`;
-                detailHTML += `<div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${escapeHtml(job.time || 'FLEXIBEL')}</span></div>`;
-                detailHTML += `<div class="detail-item"><span class="detail-label">No Layanan</span><span class="detail-value">${escapeHtml(job.details['No Layanan'] || job.details['Layanan'] || '-')}</span></div>`;
+                detailHTML += `<div class="detail-item"><span class="detail-label">Paket</span><span class="detail-value">${escapeHtml(job.details['Paket'] || '-')}</span></div>
+                               <div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${escapeHtml(job.time || 'FLEXIBEL')}</span></div>
+                               <div class="detail-item"><span class="detail-label">No Layanan</span><span class="detail-value">${escapeHtml(job.details['No Layanan'] || job.details['Layanan'] || '-')}</span></div>`; 
             } else { 
-                detailHTML += `<div class="detail-item"><span class="detail-label">Kunjungan</span><span class="detail-value">${escapeHtml(job.tag)}</span></div>`;
-                detailHTML += `<div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${escapeHtml(job.time || 'FLEXIBEL')}</span></div>`;
-                detailHTML += `<div class="detail-item"><span class="detail-label">Layanan</span><span class="detail-value">${escapeHtml(job.details['Layanan'] || '-')}</span></div>`;
+                detailHTML += `<div class="detail-item"><span class="detail-label">Kunjungan</span><span class="detail-value">${escapeHtml(job.tag)}</span></div>
+                               <div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${escapeHtml(job.time || 'FLEXIBEL')}</span></div>
+                               <div class="detail-item"><span class="detail-label">Layanan</span><span class="detail-value">${escapeHtml(job.details['Layanan'] || '-')}</span></div>`; 
             }
-            const hiddenFields = ["User PPPOE_RADIUS", "Pemakaian Bulan Ini (GB)", "ODC", "ODP", "Port ODP", "OLT SN/MAC", "Last DBM", "Last DBM Time", "Nama WiFi (SSID)", "Sandi WiFi", "Keterangan"];
             for (const [key, value] of Object.entries(job.details)) { 
                 if ((isPSB && ['Paket','No Layanan','Layanan'].includes(key)) || (!isPSB && ['Layanan'].includes(key))) continue; 
                 const valStr = (value || "").toString().trim(); 
-                if (hiddenFields.includes(key) && (valStr === "" || valStr === "-")) continue; 
+                if (valStr === "" || valStr === "-") continue; 
                 detailHTML += `<div class="detail-item"><span class="detail-label">${key}</span><span class="detail-value">${escapeHtml(valStr)}</span></div>`; 
             } 
             
-            const hasSn = tech.sn && tech.sn.trim() !== "";
             let formHTML = '';
+            const hasSn = tech.sn && tech.sn.trim() !== "";
             if (isPSB) {
-                formHTML = `<div class="manual-input-section"><h4 style="margin:0 0 10px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4>
+                formHTML = `<div class="manual-input-section"><h4 style="margin:0 0 10px 0;">📝 Input Data Teknis</h4>
                     <div style="margin:10px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label>
                         <select class="modem-selector" onchange="fillModemData(this, ${selectedTechIndex}, ${index})" style="flex:1;">${modemOptions}</select>
-                        <button class="btn-back-modem" id="btn-back-${selectedTechIndex}-${index}" data-team="${selectedTechIndex}" data-job="${index}" onclick="resetModemData(${selectedTechIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button>
+                        <button class="btn-back-modem" id="btn-back-${selectedTechIndex}-${index}" onclick="resetModemData(${selectedTechIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button>
                     </div>
                     <div class="input-grid">
-                        <div class="input-group"><label>Kode SN</label><input type="text" id="sn-${selectedTechIndex}-${index}" class="realtime-input locked-input" data-key="sn" value="${tech.sn || ''}" readonly></div>
-                        <div class="input-group"><label>Mac</label><input type="text" id="mac-${selectedTechIndex}-${index}" class="realtime-input locked-input" data-key="mac" value="${tech.mac || ''}" readonly></div>
-                        <div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${selectedTechIndex}-${index}" class="realtime-input locked-input" data-key="vlan" value="${tech.vlan || ''}" readonly></div>
-                        <div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${selectedTechIndex}-${index}" class="realtime-input" data-key="kabel" value="${tech.kabel || ''}" placeholder="150m"></div>
-                        <div class="input-group"><label>Port</label><input type="text" id="port-${selectedTechIndex}-${index}" class="realtime-input" data-key="port" value="${tech.port || ''}" placeholder="2"></div>
-                        <div class="input-group"><label>Id ODP</label><input type="text" id="odp-${selectedTechIndex}-${index}" class="realtime-input" data-key="odp" value="${tech.odp || ''}" placeholder="ODP-.."></div>
-                        <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${selectedTechIndex}-${index}" class="realtime-input" data-key="redaman" value="${tech.redaman || ''}" placeholder="-18 dBm"></div>
-                        <div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${selectedTechIndex}-${index}" class="realtime-input" data-key="linkSC" value="${job.linkSC || ''}" placeholder="https://..."></div>
+                        <div class="input-group"><label>Kode SN</label><input type="text" id="sn-${selectedTechIndex}-${index}" class="locked-input" value="${tech.sn || ''}" readonly></div>
+                        <div class="input-group"><label>Mac</label><input type="text" id="mac-${selectedTechIndex}-${index}" class="locked-input" value="${tech.mac || ''}" readonly></div>
+                        <div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${selectedTechIndex}-${index}" class="locked-input" value="${tech.vlan || ''}" readonly></div>
+                        <div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${selectedTechIndex}-${index}" data-key="kabel" value="${tech.kabel || ''}" placeholder="150m"></div>
+                        <div class="input-group"><label>Port</label><input type="text" id="port-${selectedTechIndex}-${index}" data-key="port" value="${tech.port || ''}" placeholder="2"></div>
+                        <div class="input-group"><label>Id ODP</label><input type="text" id="odp-${selectedTechIndex}-${index}" data-key="odp" value="${tech.odp || ''}" placeholder="ODP-.."></div>
+                        <div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${selectedTechIndex}-${index}" data-key="redaman" value="${tech.redaman || ''}" placeholder="-18 dBm"></div>
+                        <div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${selectedTechIndex}-${index}" data-key="linkSC" value="${job.linkSC || ''}" placeholder="https://..."></div>
                     </div></div>`;
             } else {
                 const replaceStatus = job.replaceModem || 'no';
                 const displayMtTech = replaceStatus === 'yes' ? 'block' : 'none';
                 formHTML = `<div class="manual-input-section">
-                    <div style="margin:10px 0;"><label style="font-weight:bold; color:#d35400;">🔧 Opsi Perangkat:</label>
-                        <select style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-weight:bold;" onchange="toggleMtModemInput(${selectedTechIndex}, ${index}, this.value)">
+                    <div style="margin:10px 0;">
+                        <label style="font-weight:bold;">🔧 Opsi Perangkat:</label>
+                        <select style="width:100%; padding:8px;" onchange="toggleMtModemInput(${selectedTechIndex}, ${index}, this.value)">
                             <option value="no" ${replaceStatus === 'no' ? 'selected' : ''}>❌ Tidak Ganti Modem</option>
                             <option value="yes" ${replaceStatus === 'yes' ? 'selected' : ''}>✅ Ganti Modem Baru</option>
                         </select>
                     </div>
-                    <div id="mt-tech-${selectedTechIndex}-${index}" style="display: ${displayMtTech}; border-top:1px dashed #ccc; padding-top:10px;">
-                        <div style="margin:10px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label>
+                    <div id="mt-tech-${selectedTechIndex}-${index}" style="display: ${displayMtTech};">
+                        <div style="margin:10px 0; display: flex; align-items: center; gap: 8px;">
+                            <label>📦 Ambil Modem:</label>
                             <select class="modem-selector" onchange="fillModemData(this, ${selectedTechIndex}, ${index})" style="flex:1;">${modemOptions}</select>
                             <button class="btn-back-modem" id="btn-back-${selectedTechIndex}-${index}" onclick="resetModemData(${selectedTechIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button>
                         </div>
                         <div class="input-grid">
-                            <div class="input-group" style="grid-column: 1/-1;"><label>Kode SN</label><input type="text" id="sn-${selectedTechIndex}-${index}" class="realtime-input locked-input" data-key="sn" value="${tech.sn || ''}" readonly></div>
-                            <div class="input-group"><label>Mac</label><input type="text" id="mac-${selectedTechIndex}-${index}" class="realtime-input locked-input" data-key="mac" value="${tech.mac || ''}" readonly></div>
-                            <div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${selectedTechIndex}-${index}" class="realtime-input locked-input" data-key="vlan" value="${tech.vlan || ''}" readonly></div>
-                            <div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${selectedTechIndex}-${index}" class="realtime-input" data-key="linkSC" value="${job.linkSC || ''}" placeholder="https://..."></div>
+                            <div class="input-group"><label>Kode SN</label><input type="text" id="sn-${selectedTechIndex}-${index}" class="locked-input" value="${tech.sn || ''}" readonly></div>
+                            <div class="input-group"><label>Mac</label><input type="text" id="mac-${selectedTechIndex}-${index}" class="locked-input" value="${tech.mac || ''}" readonly></div>
+                            <div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${selectedTechIndex}-${index}" class="locked-input" value="${tech.vlan || ''}" readonly></div>
+                            <div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest</label><input type="text" id="linkSC-${selectedTechIndex}-${index}" data-key="linkSC" value="${job.linkSC || ''}"></div>
                         </div>
-                    </div>
-                </div>`;
+                    </div></div>`;
             }
             
             const layID = job.details['No Layanan'] || job.details['Layanan'] || ''; 
             const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${escapeHtml(job.failureNote)}</div>` : ''; 
             const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${escapeHtml(job.completionNote)}</div>` : ''; 
-            let scButton = ''; 
-            if (job.linkSC) { 
-                scButton = `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')" title="Buka Link Speedtest">📊 SC</button>`; 
-            }
+            let scButton = job.linkSC ? `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')">📊 SC</button>` : '';
             
             li.innerHTML = `
                 <div class="job-main-row">
                     <div class="job-left">
                         <div class="status-actions">
-                            <button class="btn-check-status ${currentStatus === 'completed' ? 'active-success' : (currentStatus === 'failed' ? 'inactive' : '')}" onclick="toggleJobStatus(${selectedTechIndex}, ${index}, 'completed')" title="Selesai">✅</button>
-                            <button class="btn-check-status ${currentStatus === 'failed' ? 'active-fail' : (currentStatus === 'completed' ? 'inactive' : '')}" onclick="toggleJobStatus(${selectedTechIndex}, ${index}, 'failed')" title="Gagal">❌</button>
+                            <button class="btn-check-status ${currentStatus === 'completed' ? 'active-success' : ''}" onclick="toggleJobStatus(${selectedTechIndex}, ${index}, 'completed')">✅</button>
+                            <button class="btn-check-status ${currentStatus === 'failed' ? 'active-fail' : ''}" onclick="toggleJobStatus(${selectedTechIndex}, ${index}, 'failed')">❌</button>
                         </div>
                         <div class="customer-info">
                             <h3>${escapeHtml(job.name)} <span class="badge ${job.tagClass}">${escapeHtml(job.tag)}</span></h3>
-                            <div style="font-weight:bold; color:#d35400; font-size:0.85rem; margin-top:3px;">🕒 ${escapeHtml(job.time || 'FLEXIBEL')}${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${escapeHtml(layID)}</span>` : ''}</div>
+                            <div style="font-weight:bold; color:#d35400; font-size:0.85rem;">🕒 ${escapeHtml(job.time || 'FLEXIBEL')}${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${escapeHtml(layID)}</span>` : ''}</div>
                             ${failureNote}${successNote}
                             <p>📍 ${escapeHtml(job.address)}</p>
                         </div>
@@ -471,26 +472,22 @@
                 <div id="${uniqueId}" class="job-details" style="display: ${displayStyle};">
                     <div class="detail-grid">${detailHTML}</div>
                     ${formHTML}
-                </div>
-            `; 
-            listContainer.appendChild(li); 
+                </div>`;
+            listContainer.appendChild(li);
             
-            const inputs = li.querySelectorAll('.realtime-input'); 
-            inputs.forEach(input => { 
-                input.addEventListener('change', (e) => { 
-                    const key = e.target.getAttribute('data-key'); 
-                    if (key) { 
-                        if (key === 'linkSC') teams[selectedTechIndex].jobs[index][key] = e.target.value; 
-                        else { 
-                            if(!teams[selectedTechIndex].jobs[index].technical) teams[selectedTechIndex].jobs[index].technical = {}; 
-                            teams[selectedTechIndex].jobs[index].technical[key] = e.target.value; 
-                        } 
-                        saveDataToFirebase(); 
-                    } 
-                }); 
-            }); 
-        }); 
-        updateProgressUI(team.id, team.jobs); 
+            li.querySelectorAll('[data-key]').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const key = e.target.getAttribute('data-key');
+                    if (key === 'linkSC') teams[selectedTechIndex].jobs[index][key] = e.target.value;
+                    else {
+                        if(!teams[selectedTechIndex].jobs[index].technical) teams[selectedTechIndex].jobs[index].technical = {};
+                        teams[selectedTechIndex].jobs[index].technical[key] = e.target.value;
+                    }
+                    saveDataToFirebase();
+                });
+            });
+        });
+        updateProgressUI(team.id, team.jobs);
     }
     
     function timeToMinutes(timeStr) { 
@@ -504,11 +501,6 @@
         if (match) { 
             let hour = parseInt(match[1]); 
             const minute = match[2] ? parseInt(match[2]) : 0; 
-            if (hour === 12 && lower.includes('siang')) hour = 12; 
-            else if (hour === 12 && lower.includes('malam')) hour = 0; 
-            else if (hour < 12 && lower.includes('sore')) hour += 12; 
-            else if (hour < 12 && lower.includes('malam')) hour += 12; 
-            else if (hour < 5 && lower.includes('siang')) hour += 12; 
             return hour * 60 + minute; 
         } 
         return 99999; 
@@ -524,21 +516,14 @@
         if(txt) txt.innerText = `${completed}/${total} Selesai`; 
     }
     
-    function escapeHtml(str) { 
-        if (!str) return ''; 
-        return str.replace(/[&<>]/g, function(m) { 
-            if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; 
-        }); 
-    }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
     
     window.toggleJobStatus = function(tIndex, jobIndex, newStatus) { 
         const job = teams[tIndex].jobs[jobIndex]; 
         const oldStatus = job.status || (job.completed ? 'completed' : 'pending'); 
         const isPSB = job.tag.toUpperCase().includes("PSB"); 
         if (oldStatus === newStatus) { 
-            job.status = 'pending'; 
-            job.completed = false; 
-            job.completedAt = null; 
+            job.status = 'pending'; job.completed = false; job.completedAt = null; 
             if (oldStatus === 'failed') job.failureNote = null; 
             if (oldStatus === 'completed') job.completionNote = null; 
         } else { 
@@ -546,30 +531,22 @@
                 if (isPSB) { 
                     let currentNo = job.details['No Layanan'] || ""; 
                     if(!currentNo || currentNo.trim() === "") { 
-                        let inputLayanan = prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", ""); 
+                        let inputLayanan = prompt("⚠️ Masukkan No Layanan (Wajib Angka):", ""); 
                         if (inputLayanan === null) return; 
-                        inputLayanan = inputLayanan.trim(); 
-                        if (!/^\d+$/.test(inputLayanan)) { alert("❌ Error: No Layanan harus format angka!"); return; } 
-                        job.details['No Layanan'] = inputLayanan; 
+                        if (!/^\d+$/.test(inputLayanan.trim())) { alert("No Layanan harus angka!"); return; } 
+                        job.details['No Layanan'] = inputLayanan.trim(); 
                     } 
                 } else { 
-                    let note = prompt("✅ TIKET SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):", job.completionNote || ""); 
+                    let note = prompt("✅ Masukkan Laporan/Solusi:", job.completionNote || ""); 
                     if (note === null) return; 
                     job.completionNote = note; 
                 } 
-                job.status = 'completed'; 
-                job.completed = true; 
-                job.completedAt = new Date().toLocaleString('id-ID'); 
+                job.status = 'completed'; job.completed = true; job.completedAt = new Date().toLocaleString('id-ID'); 
                 job.failureNote = null; 
             } else if (newStatus === 'failed') { 
-                let note = prompt("⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || ""); 
-                if (note === null) return; 
-                if (note.trim() === "") { alert("❌ Catatan Gagal wajib diisi!"); return; } 
-                job.status = 'failed'; 
-                job.completed = false; 
-                job.completedAt = null; 
-                job.failureNote = note; 
-                job.completionNote = null; 
+                let note = prompt("⛔ Alasan gagal kunjungan:", job.failureNote || ""); 
+                if (note === null || note.trim() === "") { alert("Catatan gagal wajib diisi!"); return; } 
+                job.status = 'failed'; job.completed = false; job.failureNote = note; job.completionNote = null; 
             } 
         } 
         saveDataToFirebase(); 
@@ -583,45 +560,38 @@
         else { el.style.display = "block"; openDetailIds.add(id); } 
     };
     
-    // --- Status Modem & Inventory ---
-    function updateInventoryStatus(teamIdx, sn, newStatus) {
-        const team = teams[teamIdx];
-        if (!team || !team.inventory) return false;
-        const item = team.inventory.find(inv => inv.sn === sn);
-        if (item) { item.status = newStatus; return true; }
-        return false;
-    }
-    
     window.fillModemData = function(selectEl, teamIdx, jobIdx) {
         const val = selectEl.value;
-        if(val === "" || val === "manual") return;
-        const parts = val.split("|");
-        const sn = parts[0]; const mac = parts[1];
+        if(val === "") return;
+        const [sn, mac] = val.split("|");
         let vlanMac = "";
-        if (sn.startsWith("ALCL")) vlanMac = "-";
-        else {
+        if (!sn.startsWith("ALCL")) {
             try {
                 const sep = mac.includes('-') ? '-' : ':';
                 const macParts = mac.split(sep);
                 if(macParts.length === 6) {
                     let lastByte = parseInt(macParts[5], 16);
                     lastByte = (lastByte + 1) % 256;
-                    let newLastPart = lastByte.toString(16).toUpperCase().padStart(2, '0');
-                    macParts[5] = newLastPart;
+                    macParts[5] = lastByte.toString(16).toUpperCase().padStart(2, '0');
                     vlanMac = macParts.join(sep);
                 } else vlanMac = mac;
             } catch(e) { vlanMac = mac; }
-        }
-        document.getElementById(`sn-${teamIdx}-${jobIdx}`).value = sn;
-        document.getElementById(`mac-${teamIdx}-${jobIdx}`).value = mac;
-        document.getElementById(`vlan-${teamIdx}-${jobIdx}`).value = vlanMac;
+        } else vlanMac = "-";
+        
+        const snEl = document.getElementById(`sn-${teamIdx}-${jobIdx}`);
+        const macEl = document.getElementById(`mac-${teamIdx}-${jobIdx}`);
+        const vlanEl = document.getElementById(`vlan-${teamIdx}-${jobIdx}`);
+        if(snEl) snEl.value = sn;
+        if(macEl) macEl.value = mac;
+        if(vlanEl) vlanEl.value = vlanMac;
+        
         if(!teams[teamIdx].jobs[jobIdx].technical) teams[teamIdx].jobs[jobIdx].technical = {};
-        teams[teamIdx].jobs[jobIdx].technical['sn'] = sn;
-        teams[teamIdx].jobs[jobIdx].technical['mac'] = mac;
-        teams[teamIdx].jobs[jobIdx].technical['vlan'] = vlanMac;
-        if (updateInventoryStatus(teamIdx, sn, 'installed')) {
-            showSyncNotification(`Modem ${sn} ditandai Terpasang`, 'success');
-        }
+        teams[teamIdx].jobs[jobIdx].technical.sn = sn;
+        teams[teamIdx].jobs[jobIdx].technical.mac = mac;
+        teams[teamIdx].jobs[jobIdx].technical.vlan = vlanMac;
+        
+        const invItem = teams[teamIdx].inventory.find(i => i.sn === sn);
+        if (invItem) invItem.status = 'installed';
         saveDataToFirebase();
         document.getElementById(`btn-back-${teamIdx}-${jobIdx}`).disabled = false;
         renderJobs();
@@ -629,39 +599,33 @@
     
     window.resetModemData = function(teamIdx, jobIdx) {
         const job = teams[teamIdx].jobs[jobIdx];
-        const tech = job.technical || {};
-        const sn = tech.sn;
+        const sn = job.technical?.sn;
         if (!sn) return;
-        if (updateInventoryStatus(teamIdx, sn, 'pending')) {
-            showSyncNotification(`Modem ${sn} dikembalikan ke stok (pending)`, 'success');
-        }
-        if (job.technical) {
-            job.technical.sn = '';
-            job.technical.mac = '';
-            job.technical.vlan = '';
-        }
+        const invItem = teams[teamIdx].inventory.find(i => i.sn === sn);
+        if (invItem) invItem.status = 'pending';
+        if (job.technical) { job.technical.sn = ''; job.technical.mac = ''; job.technical.vlan = ''; }
         saveDataToFirebase();
         renderJobs();
     };
     
     window.toggleMtModemInput = function(tIndex, jIndex, val) { 
         teams[tIndex].jobs[jIndex].replaceModem = val; 
-        if(val === 'no') { if(teams[tIndex].jobs[jIndex].technical) teams[tIndex].jobs[jIndex].technical = {}; } 
+        if(val === 'no' && teams[tIndex].jobs[jIndex].technical) teams[tIndex].jobs[jIndex].technical = {}; 
         saveDataToFirebase(); 
         renderJobs(); 
     };
-
-    // --- Modal Stok (hanya lihat & kembalikan) ---
+    
+    // Stok Modal
     window.openStockListModal = function(teamIndex) {
         const team = teams[teamIndex];
-        const tbody = document.getElementById('stock-table-body');
         document.getElementById('stock-list-title').innerText = team.teamName;
+        const tbody = document.getElementById('stock-table-body');
         tbody.innerHTML = '';
         const inventory = team.inventory || [];
         const pendingCount = inventory.filter(i => i.status === 'pending').length;
         const installedCount = inventory.filter(i => i.status === 'installed').length;
         document.getElementById('stock-stats').innerHTML = `<span>⏳ Pending: ${pendingCount}</span> <span style="text-decoration:line-through; color:#dc3545;">✅ Terpasang: ${installedCount}</span>`;
-        if (!inventory || inventory.length === 0) {
+        if (inventory.length === 0) {
             document.getElementById('stock-empty-msg').style.display = 'block';
         } else {
             document.getElementById('stock-empty-msg').style.display = 'none';
@@ -670,94 +634,164 @@
                 const category = getModemCategory(item.sn);
                 const statusText = item.status === 'pending' ? 'Pending' : 'Terpasang';
                 const statusClass = item.status === 'pending' ? 'st-pending' : 'st-installed';
-                let actionBtn = '';
+                let actionBtns = '';
                 if (item.status === 'installed') {
-                    actionBtn = `<button class="btn-icon-return" onclick="returnModemToPending(${teamIndex}, '${item.sn}')" title="Kembalikan ke Pending">↩️ Back</button>`;
-                } else {
-                    actionBtn = '-';
+                    actionBtns += `<button class="btn-icon-return" onclick="returnModemToPending(${teamIndex}, '${item.sn}')">↩️ Back</button>`;
                 }
-                tr.innerHTML = `<td>${idx+1}</td><td>${item.sn}</td><td>${item.mac}</td><td>${category}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionBtn}</td>`;
+                actionBtns += `<button class="btn-icon-oper" onclick="prepareOperModem(${teamIndex}, '${item.sn}')">🔄 Oper</button>`;
+                tr.innerHTML = `<td>${idx+1}</td><td>${item.sn}</td><td>${item.mac}</td><td>${category}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionBtns}</td>`;
                 tbody.appendChild(tr);
             });
         }
         document.getElementById('modalStockList').style.display = 'block';
+        document.getElementById('oper-modem-panel').style.display = 'none';
     };
     
-    window.closeStockListModal = function() { document.getElementById('modalStockList').style.display = "none"; };
+    window.closeStockListModal = () => document.getElementById('modalStockList').style.display = 'none';
     
     window.returnModemToPending = function(teamIdx, sn) {
-        if (updateInventoryStatus(teamIdx, sn, 'pending')) {
-            saveDataToFirebase();
-            openStockListModal(teamIdx);
-            showSyncNotification(`Modem ${sn} dikembalikan ke Pending`, 'success');
+        const inv = teams[teamIdx].inventory.find(i => i.sn === sn);
+        if (inv) { inv.status = 'pending'; saveDataToFirebase(); openStockListModal(teamIdx); showSyncNotification(`Modem ${sn} dikembalikan ke Pending`, 'success'); }
+    };
+    
+    window.prepareOperModem = function(teamIdx, sn) {
+        currentOperSN = sn;
+        currentOperTeamIndex = teamIdx;
+        const select = document.getElementById('oper-target-team-select');
+        select.innerHTML = '';
+        teams.forEach((t, i) => { if (i !== teamIdx) select.add(new Option(t.teamName, i)); });
+        document.getElementById('oper-modem-panel').style.display = 'block';
+    };
+    
+    window.executeOperModem = function() {
+        const targetIdx = document.getElementById('oper-target-team-select').value;
+        if (targetIdx === '') return alert('Pilih tim tujuan');
+        const sourceTeam = teams[currentOperTeamIndex];
+        const targetTeam = teams[targetIdx];
+        const idx = sourceTeam.inventory.findIndex(inv => inv.sn === currentOperSN);
+        if (idx === -1) return alert('Modem tidak ditemukan');
+        const [item] = sourceTeam.inventory.splice(idx, 1);
+        targetTeam.inventory.push(item);
+        saveDataToFirebase();
+        showSyncNotification(`Modem ${currentOperSN} dipindahkan ke ${targetTeam.teamName}`, 'success');
+        closeStockListModal();
+        currentOperSN = null;
+    };
+    window.cancelOperModem = () => { document.getElementById('oper-modem-panel').style.display = 'none'; currentOperSN = null; };
+    
+    // ================= FUNGSI COPY YANG DIPERBAIKI (SEPERTI MODE ADMIN) =================
+    async function copyToClipboard(text, btn, msg) {
+        try { await navigator.clipboard.writeText(text); } catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+        if (btn) { const orig = btn.innerHTML; btn.innerHTML = msg; setTimeout(() => btn.innerHTML = orig, 2000); } else alert(msg);
+    }
+    
+    window.copyData = function(teamIdx, jobIdx, btn) {
+        const team = teams[teamIdx];
+        const job = team.jobs[jobIdx];
+        const d = job.details;
+        const tech = job.technical || {};
+        const isPSB = job.tag.toUpperCase().includes("PSB");
+        
+        let textToCopy = "";
+        
+        const formatMacForCopy = (input) => {
+            if (!input || input === '-' || input.trim() === "") return '-';
+            let clean = input.replace(/[^a-fA-F0-9]/g, "").toUpperCase();
+            if (clean.length > 2) return clean.match(/.{1,2}/g).join(':');
+            return clean;
+        };
+        
+        if (isPSB) {
+            const snVal = tech.sn || '-';
+            const macVal = formatMacForCopy(tech.mac);
+            const vlanVal = formatMacForCopy(tech.vlan);
+            const kabelVal = tech.kabel || '-';
+            const portVal = tech.port || '-';
+            const odpVal = tech.odp || '-';
+            const redamanVal = tech.redaman || '-';
+            const noLayanan = d['No Layanan'] || d['Layanan'] || '-';
+            
+            // Header
+            let header = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n--------------------------------`;
+            
+            // Nolay Pra-Regist (selalu tampil jika ada)
+            let layananLine = '';
+            if (noLayanan && noLayanan !== '-') {
+                layananLine = `Nolay Pra-Regist: ${noLayanan}\n`;
+            }
+            
+            // Body data customer
+            let body = `Jam: ${job.time}\n` +
+                       `Nama Lengkap : ${job.name}\n` +
+                       `Alamat Lengkap : ${job.address}\n` +
+                       `Email Aktif: ${d['Email'] || '-'}\n` +
+                       `No. Wa: ${d['No WA'] || d['No Telp'] || '-'}\n` +
+                       `Paket Layanan : ${d['Paket'] || '-'}\n` +
+                       `Referensi: ${d['Referensi'] || '-'}\n` +
+                       `No KTP : ${d['No KTP'] || '-'}\n` +
+                       `Tanggal pemasangan: ${d['Tgl Pasang'] || '-'}\n` +
+                       `FOTO Depan Rumah : \n` +
+                       `Status Rumah : ${d['Status Rumah'] || '-'}\n` +
+                       `Setuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || '-'}\n\n` +
+                       `--- DATA TEKNIS ---\n` +
+                       `kode SN : ${snVal}\n` +
+                       `Mac : ${macVal}\n` +
+                       `Mac vlan : ${vlanVal}\n` +
+                       `Panjang kabel : ${kabelVal}\n` +
+                       `Port : ${portVal}\n` +
+                       `Id ODP : ${odpVal}\n` +
+                       `Redaman : ${redamanVal}`;
+            
+            textToCopy = header + '\n' + layananLine + body;
+        } else {
+            // Format non-PSB (MT/Isolir)
+            textToCopy = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n--------------------------------\nJam: ${job.time}\nKunjungan: ${job.tag}\nNama Pelanggan: ${job.name}`;
+            if (d['Layanan']) textToCopy += `\nNo Layanan: ${d['Layanan']}`;
+            if (d['Masa Aktif s/d']) textToCopy += `\nMasa Aktif s/d: ${d['Masa Aktif s/d']}`;
+            if (d['No Telp']) textToCopy += `\nNo Telp.: ${d['No Telp']}`;
+            if (d['Tgl Daftar']) textToCopy += `\nTanggal Daftar: ${d['Tgl Daftar']}`;
+            if (d['Coverage']) textToCopy += `\nCoverage: ${d['Coverage']}`;
+            if (job.address) textToCopy += `\nAlamat: ${job.address}`;
+            
+            const checkVal = (val) => val && val.toString().trim() !== "" && val.toString().trim() !== "-";
+            if (checkVal(d['User PPPOE_RADIUS'])) textToCopy += `\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS']}`;
+            if (checkVal(d['Pemakaian Bulan Ini (GB)'])) textToCopy += `\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)']}`;
+            if (checkVal(d['ODC'])) textToCopy += `\nODC: ${d['ODC']}`;
+            if (checkVal(d['ODP'])) textToCopy += `\nODP: ${d['ODP']}`;
+            if (checkVal(d['Port ODP'])) textToCopy += `\nPort ODP: ${d['Port ODP']}`;
+            if (checkVal(d['OLT SN/MAC'])) textToCopy += `\nOLT SN/MAC: ${d['OLT SN/MAC']}`;
+            if (checkVal(d['Last DBM'])) textToCopy += `\nLast DBM: ${d['Last DBM']}`;
+            if (checkVal(d['Last DBM Time'])) textToCopy += `\nLast DBM Time: ${d['Last DBM Time']}`;
+            if (checkVal(d['Nama WiFi (SSID)'])) textToCopy += `\nNama WiFi (SSID): ${d['Nama WiFi (SSID)']}`;
+            if (checkVal(d['Sandi WiFi'])) textToCopy += `\nSandi WiFi: ${d['Sandi WiFi']}`;
+            if (checkVal(d['Keterangan'])) textToCopy += `\nKeterangan: ${d['Keterangan']}`;
+            if (d['Router']) textToCopy += `\nRouter: ${d['Router']}`;
+            
+            if (job.replaceModem === 'yes' && tech.sn) {
+                const macVal = formatMacForCopy(tech.mac);
+                const vlanVal = formatMacForCopy(tech.vlan);
+                textToCopy += `\n\n--- GANTI MODEM BARU ---\nSN : ${tech.sn}\nMAC : ${macVal}\nVLAN : ${vlanVal}`;
+            }
         }
+        copyToClipboard(textToCopy, btn, "✅ Tersalin!");
     };
-
-    // --- Copy Functions ---
-    async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") { 
-        let success = false; 
-        if (navigator.clipboard && navigator.clipboard.writeText) { 
-            try { await navigator.clipboard.writeText(text); success = true; } catch (err) {} 
-        } 
-        if (!success) { 
-            try { 
-                const textArea = document.createElement("textarea"); textArea.value = text; 
-                textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); 
-                textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); 
-                if (successful) success = true; 
-            } catch (err) {} 
-        } 
-        if (success && btnElement) { 
-            const originalText = btnElement.innerHTML; 
-            btnElement.innerHTML = successMsg; 
-            btnElement.style.backgroundColor = "#28a745"; 
-            setTimeout(() => { btnElement.innerHTML = originalText; btnElement.style.backgroundColor = ""; }, 2000); 
-        } 
-    }
+    // ================================================================================
     
-    window.copyData = async function(teamIndex, jobIndex, btn) { 
-        const job = teams[teamIndex].jobs[jobIndex]; 
-        const d = job.details; const tech = job.technical || {}; 
-        const isPSB = job.tag.toUpperCase().includes("PSB"); 
-        let textToCopy = ""; 
-        if (isPSB) { 
-            textToCopy = `TEKNISI : ${teams[teamIndex].teamName}\nKATEGORI : ${job.tag}\n--------------------------------\nJam: ${job.time}\nNama Lengkap : ${job.name}\nAlamat Lengkap : ${job.address}\nEmail Aktif: ${d['Email'] || '-'}\nNo. Wa: ${d['No WA'] || d['No Telp'] || '-'}\nPaket Layanan : ${d['Paket'] || '-'}\nReferensi: ${d['Referensi'] || '-'}\nNo KTP : ${d['No KTP'] || '-'}\nTanggal pemasangan: ${d['Tgl Pasang'] || '-'}\n\n--- DATA TEKNIS ---\nkode SN : ${tech.sn || '-'}\nMac : ${formatMacForCopy(tech.mac)}\nMac vlan : ${formatMacForCopy(tech.vlan)}\nPanjang kabel : ${tech.kabel || '-'}\nPort : ${tech.port || '-'}\nId ODP : ${tech.odp || '-'}\nRedaman : ${tech.redaman || '-'}`; 
-        } else { 
-            textToCopy = `TEKNISI : ${teams[teamIndex].teamName}\nKATEGORI : ${job.tag}\n--------------------------------\nJam: ${job.time}\nKunjungan: ${job.tag}\nNama Pelanggan: ${job.name}\nNo Layanan: ${d['Layanan'] || '-'}`; 
-            if (job.replaceModem === 'yes' && tech.sn) textToCopy += `\n\n--- GANTI MODEM BARU ---\nSN : ${tech.sn}\nMAC : ${formatMacForCopy(tech.mac)}\nVLAN : ${formatMacForCopy(tech.vlan)}`; 
-        } 
-        copyToClipboard(textToCopy, btn); 
+    window.copyTeamSummary = function(tIndex, btn) {
+        const team = teams[tIndex];
+        let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
+        team.jobs.forEach((job, i) => {
+            const status = job.status === 'completed' ? '✅ SELESAI' : (job.status === 'failed' ? '⛔ GAGAL' : '⏳ PENDING');
+            text += `${i+1}. ${job.name} (${job.tag}) - ${status}\n📍 ${job.address}\n🕒 ${job.time || 'FLEX'}\n---\n`;
+        });
+        copyToClipboard(text, btn, '✅ Rekap Tim Tersalin!');
     };
     
-    function formatMacForCopy(input) { 
-        if (!input || input === '-' || input.trim() === "") return '-'; 
-        let clean = input.replace(/[^a-fA-F0-9]/g, "").toUpperCase(); 
-        if (clean.length > 2) return clean.match(/.{1,2}/g).join(':'); 
-        return clean; 
-    }
-    
-    window.copyTeamSummary = function(tIndex, btn) { 
-        const team = teams[tIndex]; 
-        let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`; 
-        team.jobs.forEach((job, index) => { 
-            const layID = job.details['No Layanan'] || job.details['Layanan'] || '-'; 
-            const time = job.time || 'FLEXIBEL'; 
-            let statusLine = "", failureLine = "", noteSuffix = ""; 
-            if(job.status === 'completed' || (job.completed && !job.status)) { 
-                if(job.completionNote) noteSuffix = ` (${job.completionNote})`; 
-                statusLine = `✅ STATUS: SELESAI${noteSuffix}`; 
-            } else if(job.status === 'failed') { 
-                statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`; 
-                if(job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`; 
-            } else statusLine = `⏳ STATUS: PENDING`; 
-            text += `${index+1}. ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`; 
-        }); 
-        copyToClipboard(text, btn, "✅ Disalin!"); 
-    };
-
-    window.onclick = function(event) { if (event.target == document.getElementById("modalStockList")) closeStockListModal(); };
-    
+    // Inisialisasi
     loadFirebaseData();
+    
+    // Close modal on outside click
+    window.onclick = (e) => { if (e.target == document.getElementById('modalStockList')) closeStockListModal(); };
 </script>
 </body>
 </html>
