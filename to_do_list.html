@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>TaskMate Realtime · Diki & Eko | Firebase To-Do + Rekap</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #eef2f9 0%, #d9e2ef 100%);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    /* Container utama */
+    .app-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ========== INDIKATOR KONEKSI ========== */
+    .connection-status {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
+      background: white;
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      backdrop-filter: blur(4px);
+      transition: all 0.2s;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    .connection-status.online {
+      background: #dcfce7;
+      color: #15803d;
+      border-left: 4px solid #22c55e;
+    }
+    .connection-status.offline {
+      background: #fee2e2;
+      color: #b91c1c;
+      border-left: 4px solid #ef4444;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .online .status-dot {
+      background: #22c55e;
+      box-shadow: 0 0 4px #22c55e;
+    }
+    .offline .status-dot {
+      background: #ef4444;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      margin-top: 0.5rem;
+    }
+    .header h1 {
+      font-size: 1.8rem;
+      background: linear-gradient(145deg, #1e2b3c, #2c4c6e);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .sub {
+      color: #2c4c6e;
+      font-weight: 500;
+      margin-top: 6px;
+      font-size: 0.85rem;
+    }
+
+    /* Tombol pilih user */
+    .user-selector {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .user-btn {
+      background: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+    }
+    .user-btn.active {
+      background: #1e3a5f;
+      color: white;
+      border-color: #1e3a5f;
+      box-shadow: 0 4px 12px rgba(30,58,95,0.2);
+    }
+    .user-btn.diki.active { background: #0f3b5c; }
+    .user-btn.eko.active { background: #2c5f2d; }
+    .user-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Grid dua kolom -> stack di mobile */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 780px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+      }
+      body {
+        padding: 0.8rem;
+      }
+      .connection-status {
+        top: 8px;
+        right: 8px;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+      }
+      .header h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Card */
+    .card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(2px);
+      border-radius: 28px;
+      padding: 1.2rem 1.2rem;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255,255,255,0.6);
+      transition: all 0.2s;
+    }
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid #3b82f6;
+      padding-left: 14px;
+      color: #0f172a;
+    }
+    .recap-title {
+      border-left-color: #10b981;
+    }
+
+    /* Form tambah tugas */
+    .add-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .task-input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 40px;
+      border: 1.5px solid #e2e8f0;
+      font-size: 0.9rem;
+      background: white;
+      outline: none;
+      transition: 0.2s;
+    }
+    .task-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .btn-primary {
+      background: #3b82f6;
+      border: none;
+      padding: 0 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.85rem;
+    }
+    .btn-primary:hover {
+      background: #2563eb;
+      transform: scale(0.97);
+    }
+
+    /* Section generate */
+    .generate-section {
+      background: #f1f5f9;
+      border-radius: 24px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .date-picker-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      padding: 5px 12px;
+      border-radius: 40px;
+      flex-wrap: wrap;
+    }
+    .date-picker-wrapper label {
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 0.85rem;
+    }
+    #recapDate {
+      padding: 6px 10px;
+      border-radius: 30px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .btn-generate {
+      background: #10b981;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-generate:hover {
+      background: #059669;
+      transform: scale(0.97);
+    }
+
+    /* Statistik */
+    .stats-row {
+      background: #f1f5f9;
+      border-radius: 24px;
+      padding: 8px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .stat-badge {
+      background: white;
+      padding: 4px 14px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .clear-completed {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: 500;
+    }
+    .clear-completed:hover {
+      background: #fee2e2;
+      border-color: #f87171;
+      color: #b91c1c;
+    }
+
+    /* Daftar tugas */
+    .task-list {
+      max-height: 420px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 4px;
+    }
+    .task-item {
+      background: white;
+      border-radius: 20px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid #eef2ff;
+      transition: all 0.15s;
+    }
+    .task-check {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #3b82f6;
+    }
+    .task-text {
+      flex: 1;
+      font-weight: 500;
+      color: #1e293b;
+      word-break: break-word;
+      font-size: 0.9rem;
+    }
+    .task-text.completed {
+      text-decoration: line-through;
+      color: #94a3b8;
+    }
+    .delete-task {
+      background: transparent;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #cbd5e1;
+      padding: 4px 6px;
+      border-radius: 30px;
+    }
+    .delete-task:hover {
+      color: #ef4444;
+      background: #fef2f2;
+    }
+
+    /* Rekap grup */
+    .recap-group {
+      background: #f8fafc;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 1px solid #d1dbe8;
+    }
+    .recap-group-header {
+      background: #e6f7ec;
+      padding: 10px 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0b3b2f;
+      border-left: 4px solid #10b981;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .delete-group-btn {
+      background: transparent;
+      border: none;
+      font-size: 0.7rem;
+      color: #b91c1c;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 30px;
+    }
+    .delete-group-btn:hover {
+      background: #fee2e2;
+    }
+    .recap-items {
+      padding: 4px 0;
+    }
+    .recap-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      background: white;
+    }
+    .recap-item:last-child {
+      border-bottom: none;
+    }
+    .recap-task-text {
+      flex: 1;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #14532d;
+    }
+    .delete-recap {
+      background: transparent;
+      border: none;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #4b5563;
+      padding: 4px 8px;
+      border-radius: 30px;
+    }
+    .delete-recap:hover {
+      color: #ef4444;
+      background: #fee2e2;
+    }
+    .empty-msg {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: #f8fafc;
+      border-radius: 24px;
+      color: #64748b;
+      font-size: 0.8rem;
+    }
+
+    /* Scrollbar */
+    .task-list::-webkit-scrollbar, .recap-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .task-list::-webkit-scrollbar-track {
+      background: #eef2ff;
+      border-radius: 10px;
+    }
+    .task-list::-webkit-scrollbar-thumb {
+      background: #b9c8f0;
+      border-radius: 10px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.65rem;
+      color: #4b5563;
+      opacity: 0.7;
+    }
+
+    /* Animasi */
+    @keyframes fadePop {
+      from { opacity: 0; transform: translateY(6px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .task-item, .recap-group {
+      animation: fadePop 0.2s ease;
+    }
+
+    /* Mode offline: disable interaksi */
+    body.offline-mode .btn-primary,
+    body.offline-mode .btn-generate,
+    body.offline-mode .task-check,
+    body.offline-mode .delete-task,
+    body.offline-mode .delete-recap,
+    body.offline-mode .delete-group-btn {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    body.offline-mode .add-form button {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <!-- Indikator koneksi -->
+  <div id="connectionStatus" class="connection-status offline">
+    <span class="status-dot"></span>
+    <span id="statusText">Mengecek koneksi...</span>
+  </div>
+
+  <div class="header">
+    <h1>📋 <span>TaskMate Realtime</span> · Diki & Eko</h1>
+    <div class="sub">✅ Tersimpan di Firebase | Sinkron realtime antar perangkat</div>
+  </div>
+
+  <div class="user-selector">
+    <button class="user-btn diki" data-user="diki">🧑‍💻 Diki</button>
+    <button class="user-btn eko" data-user="eko">🌿 Eko</button>
+  </div>
+
+  <div class="dashboard">
+    <!-- KIRI: DAFTAR TUGAS -->
+    <div class="card">
+      <div class="card-title">
+        <span>📌</span> Tugas <span id="userNameSpan">Diki</span>
+      </div>
+      <form id="taskForm" class="add-form">
+        <input type="text" id="taskInput" class="task-input" placeholder="Tulis pekerjaan baru..." autocomplete="off">
+        <button type="submit" class="btn-primary">+ Tambah</button>
+      </form>
+
+      <div class="generate-section">
+        <div class="date-picker-wrapper">
+          <label>📅 Tanggal Rekap:</label>
+          <input type="date" id="recapDate" value="">
+        </div>
+        <button id="generateRecapBtn" class="btn-generate">✨ Generate ke Rekap</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-badge">📊 Total: <span id="totalCount">0</span></div>
+        <div class="stat-badge">✅ Tercentang: <span id="checkedCount">0</span></div>
+        <button id="clearCompletedBtn" class="clear-completed">🧹 Hapus Semua Centang</button>
+      </div>
+
+      <div id="taskListContainer" class="task-list">
+        <div class="empty-msg">✨ Belum ada tugas. Tambah pekerjaan harian!</div>
+      </div>
+      <p style="font-size: 0.7rem; margin-top: 12px; color: #475569; text-align: center;">💡 Centang tugas yang selesai, pilih tanggal, lalu klik Generate. Semua pekerjaan dengan tanggal yang sama menjadi satu blok rekap.</p>
+    </div>
+
+    <!-- KANAN: REKAP PEKERJAAN (GROUPED BY TANGGAL) -->
+    <div class="card">
+      <div class="card-title recap-title">
+        <span>🏆</span> Rekap Pekerjaan · <span id="recapUserName">Diki</span>
+      </div>
+      <div style="font-size:0.7rem; background:#eef2ff; padding:4px 12px; border-radius:20px; margin-bottom:16px; display:inline-block;">
+        📋 Dikelompokkan berdasarkan tanggal rekap
+      </div>
+      <div id="recapListContainer" class="recap-list">
+        <div class="empty-msg">📭 Belum ada rekap. Centang tugas, pilih tanggal, lalu klik Generate!</div>
+      </div>
+    </div>
+  </div>
+  <footer>⚡ Data tersimpan di Firebase Realtime Database | Perubahan langsung tersinkronisasi</footer>
+</div>
+
+<script>
+  // ======================= FIREBASE KONFIGURASI =======================
+  const firebaseConfig = {
+    apiKey: "AIzaSyCY8J2weMvbgB6Ux90CDHhzwVijzpqE9S0",
+    authDomain: "todolist-6e854.firebaseapp.com",
+    projectId: "todolist-6e854",
+    storageBucket: "todolist-6e854.firebasestorage.app",
+    messagingSenderId: "825203134419",
+    appId: "1:825203134419:web:4a831b25f4d4f8a7292926"
+  };
+
+  const app = firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  // ======================= INDIKATOR ONLINE/OFFLINE =======================
+  const connectionStatusDiv = document.getElementById('connectionStatus');
+  const statusTextSpan = document.getElementById('statusText');
+  
+  function updateConnectionStatus(isOnline) {
+    if (isOnline) {
+      connectionStatusDiv.className = 'connection-status online';
+      statusTextSpan.innerText = 'Online · Tersinkronisasi';
+      document.body.classList.remove('offline-mode');
+    } else {
+      connectionStatusDiv.className = 'connection-status offline';
+      statusTextSpan.innerText = 'Offline · Periksa koneksi';
+      document.body.classList.add('offline-mode');
+    }
+  }
+
+  const connectedRef = database.ref('.info/connected');
+  connectedRef.on('value', (snap) => {
+    updateConnectionStatus(snap.val() === true);
+  });
+  window.addEventListener('online', () => {
+    setTimeout(() => {
+      connectedRef.once('value', (snap) => updateConnectionStatus(snap.val() === true));
+    }, 1000);
+  });
+  window.addEventListener('offline', () => updateConnectionStatus(false));
+
+  // ======================= DATA MODEL =======================
+  let currentUser = "diki";
+  let localTasks = [];
+  let localRecaps = [];
+
+  // DOM Elements
+  const taskForm = document.getElementById('taskForm');
+  const taskInput = document.getElementById('taskInput');
+  const taskListContainer = document.getElementById('taskListContainer');
+  const recapListContainer = document.getElementById('recapListContainer');
+  const totalCountSpan = document.getElementById('totalCount');
+  const checkedCountSpan = document.getElementById('checkedCount');
+  const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+  const userNameSpan = document.getElementById('userNameSpan');
+  const recapUserNameSpan = document.getElementById('recapUserName');
+  const recapDateInput = document.getElementById('recapDate');
+  const generateRecapBtn = document.getElementById('generateRecapBtn');
+
+  function setDefaultDate() {
+    if (!recapDateInput.value) {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      recapDateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+  }
+
+  function formatDisplayDate(dateStr) {
+    if (!dateStr) return 'Tanggal tidak valid';
+    const [year, month, day] = dateStr.split('-');
+    const date = new Date(year, month-1, day);
+    return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  // ======================= FIREBASE REALTIME LISTENERS =======================
+  function getUserRef() {
+    return database.ref(`users/${currentUser}`);
+  }
+  let tasksListener = null, recapsListener = null;
+
+  function attachFirebaseListeners() {
+    if (tasksListener) tasksListener.off();
+    if (recapsListener) recapsListener.off();
+    const userRef = getUserRef();
+    tasksListener = userRef.child('tasks').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data && typeof data === 'object') {
+        localTasks = Object.keys(data).map(key => ({ ...data[key], id: parseInt(key) })).sort((a,b) => a.id - b.id);
+      } else localTasks = [];
+      renderTaskList();
+      updateStats();
+    });
+    recapsListener = userRef.child('recaps').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data && typeof data === 'object') {
+        localRecaps = Object.keys(data).map(key => ({ ...data[key], id: parseInt(key) })).sort((a,b) => b.createdAt - a.createdAt);
+      } else localRecaps = [];
+      renderGroupedRecap();
+    });
+  }
+
+  async function saveTasksToFirebase(tasks) {
+    const tasksObj = {};
+    tasks.forEach(t => { tasksObj[t.id] = { text: t.text, completed: t.completed }; });
+    await getUserRef().child('tasks').set(tasksObj);
+  }
+  async function saveRecapsToFirebase(recaps) {
+    const recapsObj = {};
+    recaps.forEach(r => { recapsObj[r.id] = { text: r.text, recapDate: r.recapDate, createdAt: r.createdAt }; });
+    await getUserRef().child('recaps').set(recapsObj);
+  }
+  async function updateTasks(newTasks) { localTasks = newTasks; await saveTasksToFirebase(localTasks); }
+  async function updateRecaps(newRecaps) { localRecaps = newRecaps; await saveRecapsToFirebase(localRecaps); }
+
+  // ======================= RENDER =======================
+  function renderTaskList() {
+    if (!localTasks.length) {
+      taskListContainer.innerHTML = `<div class="empty-msg">📭 Belum ada tugas. Tambah pekerjaan harian!</div>`;
+      return;
+    }
+    let html = '';
+    localTasks.forEach(task => {
+      html += `
+        <div class="task-item">
+          <input type="checkbox" class="task-check" ${task.completed ? 'checked' : ''} data-id="${task.id}">
+          <span class="task-text ${task.completed ? 'completed' : ''}">${escapeHtml(task.text)}</span>
+          <button class="delete-task" data-id="${task.id}">🗑️</button>
+        </div>
+      `;
+    });
+    taskListContainer.innerHTML = html;
+    document.querySelectorAll('.task-check').forEach(cb => {
+      cb.addEventListener('change', (e) => { toggleTaskComplete(parseInt(cb.dataset.id)); });
+    });
+    document.querySelectorAll('.delete-task').forEach(btn => {
+      btn.addEventListener('click', (e) => { deleteTaskById(parseInt(btn.dataset.id)); });
+    });
+  }
+
+  function renderGroupedRecap() {
+    if (!localRecaps.length) {
+      recapListContainer.innerHTML = `<div class="empty-msg">📭 Belum ada rekap. Centang tugas, pilih tanggal, lalu klik Generate!</div>`;
+      return;
+    }
+    const groups = new Map();
+    localRecaps.forEach(r => { const d = r.recapDate; if(!groups.has(d)) groups.set(d, []); groups.get(d).push(r); });
+    const sortedDates = Array.from(groups.keys()).sort((a,b) => new Date(b) - new Date(a));
+    let html = '';
+    for (let date of sortedDates) {
+      const items = groups.get(date);
+      html += `
+        <div class="recap-group">
+          <div class="recap-group-header">
+            <span>📅 ${formatDisplayDate(date)}  ·  ${items.length} pekerjaan</span>
+            <button class="delete-group-btn" data-date="${date}">Hapus Semua</button>
+          </div>
+          <div class="recap-items">
+      `;
+      items.forEach(item => {
+        html += `
+          <div class="recap-item">
+            <span>✅</span>
+            <div class="recap-task-text">${escapeHtml(item.text)}</div>
+            <button class="delete-recap" data-id="${item.id}">✖️</button>
+          </div>
+        `;
+      });
+      html += `</div></div>`;
+    }
+    recapListContainer.innerHTML = html;
+    document.querySelectorAll('.delete-recap').forEach(btn => {
+      btn.addEventListener('click', (e) => { deleteRecapById(parseInt(btn.dataset.id)); });
+    });
+    document.querySelectorAll('.delete-group-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => { deleteRecapGroupByDate(btn.dataset.date); });
+    });
+  }
+
+  function updateStats() {
+    totalCountSpan.innerText = localTasks.length;
+    checkedCountSpan.innerText = localTasks.filter(t => t.completed).length;
+  }
+
+  // ======================= CRUD =======================
+  async function toggleTaskComplete(id) {
+    const idx = localTasks.findIndex(t => t.id === id);
+    if (idx !== -1) {
+      localTasks[idx].completed = !localTasks[idx].completed;
+      await updateTasks([...localTasks]);
+    }
+  }
+  async function deleteTaskById(id) { await updateTasks(localTasks.filter(t => t.id !== id)); }
+  async function deleteRecapById(id) { await updateRecaps(localRecaps.filter(r => r.id !== id)); }
+  async function deleteRecapGroupByDate(date) {
+    if (confirm(`Hapus semua rekap untuk tanggal ${formatDisplayDate(date)}?`)) {
+      await updateRecaps(localRecaps.filter(r => r.recapDate !== date));
+    }
+  }
+  async function addNewTask(text) {
+    const trimmed = text.trim();
+    if (!trimmed) { alert("Tugas tidak boleh kosong!"); return false; }
+    const newId = Date.now();
+    await updateTasks([...localTasks, { id: newId, text: trimmed, completed: false }]);
+    return true;
+  }
+  async function clearAllChecked() {
+    if (!localTasks.some(t => t.completed)) { alert("Tidak ada tugas yang dicentang."); return; }
+    if (confirm("Hapus semua centang pada tugas?")) {
+      await updateTasks(localTasks.map(t => ({ ...t, completed: false })));
+    }
+  }
+  async function generateRecap() {
+    const selectedDate = recapDateInput.value;
+    if (!selectedDate) { alert("Pilih tanggal rekap!"); return; }
+    const checkedTasks = localTasks.filter(t => t.completed);
+    if (!checkedTasks.length) { alert("Tidak ada tugas yang dicentang."); return; }
+    let newRecaps = [...localRecaps];
+    let updatedTasks = localTasks.map(t => ({ ...t }));
+    for (let task of checkedTasks) {
+      const newId = Date.now() + Math.random() * 1000;
+      newRecaps.push({ id: newId, text: task.text, recapDate: selectedDate, createdAt: Date.now() });
+      const idx = updatedTasks.findIndex(t => t.id === task.id);
+      if (idx !== -1) updatedTasks[idx].completed = false;
+    }
+    await updateTasks(updatedTasks);
+    await updateRecaps(newRecaps);
+    alert(`✅ ${checkedTasks.length} pekerjaan ditambahkan ke rekap tgl ${formatDisplayDate(selectedDate)}.`);
+  }
+
+  // ======================= SWITCH USER =======================
+  function updateActiveUserButton() {
+    const btnDiki = document.querySelector('.user-btn.diki');
+    const btnEko = document.querySelector('.user-btn.eko');
+    if (currentUser === 'diki') {
+      btnDiki.classList.add('active'); btnEko.classList.remove('active');
+    } else {
+      btnEko.classList.add('active'); btnDiki.classList.remove('active');
+    }
+    const name = currentUser === 'diki' ? 'Diki' : 'Eko';
+    userNameSpan.innerText = name;
+    recapUserNameSpan.innerText = name;
+  }
+  async function switchToUser(user) {
+    if (currentUser === user) return;
+    currentUser = user;
+    updateActiveUserButton();
+    attachFirebaseListeners();
+    taskInput.value = '';
+  }
+
+  // ======================= INITIAL DATA =======================
+  async function checkAndInitDefaultData() {
+    const dikiTasks = await database.ref('users/diki/tasks').once('value');
+    if (!dikiTasks.exists()) {
+      const now = Date.now();
+      await database.ref('users/diki/tasks').set({
+        1001: { text: "Menyusun laporan mingguan", completed: false },
+        1002: { text: "Meeting dengan klien 10.00", completed: true },
+        1003: { text: "Review kode aplikasi", completed: false }
+      });
+      await database.ref('users/diki/recaps').set({
+        9001: { text: "Meeting dengan klien 10.00", recapDate: "2026-04-22", createdAt: now - 86400000 }
+      });
+    }
+    const ekoTasks = await database.ref('users/eko/tasks').once('value');
+    if (!ekoTasks.exists()) {
+      const now = Date.now();
+      await database.ref('users/eko/tasks').set({
+        2001: { text: "Desain UI dashboard", completed: false },
+        2002: { text: "Rapat tim produk", completed: false },
+        2003: { text: "Membuat dokumentasi", completed: true }
+      });
+      await database.ref('users/eko/recaps').set({
+        9002: { text: "Membuat dokumentasi", recapDate: "2026-04-23", createdAt: now - 3600000 }
+      });
+    }
+  }
+
+  // ======================= EVENT LISTENERS =======================
+  taskForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    addNewTask(taskInput.value).then(() => { taskInput.value = ''; taskInput.focus(); });
+  });
+  clearCompletedBtn.addEventListener('click', clearAllChecked);
+  generateRecapBtn.addEventListener('click', generateRecap);
+  document.querySelector('.user-btn.diki').addEventListener('click', () => switchToUser('diki'));
+  document.querySelector('.user-btn.eko').addEventListener('click', () => switchToUser('eko'));
+
+  // START
+  async function init() {
+    setDefaultDate();
+    await checkAndInitDefaultData();
+    attachFirebaseListeners();
+    updateActiveUserButton();
+  }
+  init();
+</script>
+</body>
+</html>
