@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>TaskMate Realtime · Diki & Eko | Firebase To-Do + Rekap</title>
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
@@ -21,14 +20,12 @@
       padding: 1rem;
     }
 
-    /* Container utama */
     .app-wrapper {
       max-width: 1400px;
       margin: 0 auto;
       position: relative;
     }
 
-    /* ========== INDIKATOR KONEKSI ========== */
     .connection-status {
       position: fixed;
       top: 16px;
@@ -71,7 +68,6 @@
       background: #ef4444;
     }
 
-    /* Header */
     .header {
       text-align: center;
       margin-bottom: 1.5rem;
@@ -96,7 +92,6 @@
       font-size: 0.85rem;
     }
 
-    /* Tombol pilih user */
     .user-selector {
       display: flex;
       justify-content: center;
@@ -132,7 +127,6 @@
       transform: translateY(-2px);
     }
 
-    /* Grid dua kolom -> stack di mobile */
     .dashboard {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -157,7 +151,6 @@
       }
     }
 
-    /* Card */
     .card {
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(2px);
@@ -182,7 +175,6 @@
       border-left-color: #10b981;
     }
 
-    /* Form tambah tugas */
     .add-form {
       display: flex;
       gap: 10px;
@@ -219,7 +211,6 @@
       transform: scale(0.97);
     }
 
-    /* Section generate */
     .generate-section {
       background: #f1f5f9;
       border-radius: 24px;
@@ -271,7 +262,6 @@
       transform: scale(0.97);
     }
 
-    /* Statistik */
     .stats-row {
       background: #f1f5f9;
       border-radius: 24px;
@@ -306,7 +296,6 @@
       color: #b91c1c;
     }
 
-    /* Daftar tugas */
     .task-list {
       max-height: 420px;
       overflow-y: auto;
@@ -350,13 +339,13 @@
       color: #cbd5e1;
       padding: 4px 6px;
       border-radius: 30px;
+      transition: 0.2s;
     }
     .delete-task:hover {
       color: #ef4444;
       background: #fef2f2;
     }
 
-    /* Rekap grup */
     .recap-group {
       background: #f8fafc;
       border-radius: 20px;
@@ -429,19 +418,6 @@
       font-size: 0.8rem;
     }
 
-    /* Scrollbar */
-    .task-list::-webkit-scrollbar, .recap-list::-webkit-scrollbar {
-      width: 4px;
-    }
-    .task-list::-webkit-scrollbar-track {
-      background: #eef2ff;
-      border-radius: 10px;
-    }
-    .task-list::-webkit-scrollbar-thumb {
-      background: #b9c8f0;
-      border-radius: 10px;
-    }
-
     footer {
       text-align: center;
       margin-top: 2rem;
@@ -450,7 +426,6 @@
       opacity: 0.7;
     }
 
-    /* Animasi */
     @keyframes fadePop {
       from { opacity: 0; transform: translateY(6px);}
       to { opacity: 1; transform: translateY(0);}
@@ -459,7 +434,6 @@
       animation: fadePop 0.2s ease;
     }
 
-    /* Mode offline: disable interaksi */
     body.offline-mode .btn-primary,
     body.offline-mode .btn-generate,
     body.offline-mode .task-check,
@@ -477,7 +451,6 @@
 </head>
 <body>
 <div class="app-wrapper">
-  <!-- Indikator koneksi -->
   <div id="connectionStatus" class="connection-status offline">
     <span class="status-dot"></span>
     <span id="statusText">Mengecek koneksi...</span>
@@ -485,7 +458,7 @@
 
   <div class="header">
     <h1>📋 <span>TaskMate Realtime</span> · Diki & Eko</h1>
-    <div class="sub">✅ Tersimpan di Firebase | Sinkron realtime antar perangkat</div>
+    <div class="sub">✅ Tersimpan di Firebase | Sinkron realtime | Tidak ada tugas otomatis, tambah manual</div>
   </div>
 
   <div class="user-selector">
@@ -494,7 +467,6 @@
   </div>
 
   <div class="dashboard">
-    <!-- KIRI: DAFTAR TUGAS -->
     <div class="card">
       <div class="card-title">
         <span>📌</span> Tugas <span id="userNameSpan">Diki</span>
@@ -515,16 +487,15 @@
       <div class="stats-row">
         <div class="stat-badge">📊 Total: <span id="totalCount">0</span></div>
         <div class="stat-badge">✅ Tercentang: <span id="checkedCount">0</span></div>
-        <button id="clearCompletedBtn" class="clear-completed">🧹 Hapus Semua Centang</button>
+        <button id="clearCompletedBtn" class="clear-completed">🧹 Batal centang semua</button>
       </div>
 
       <div id="taskListContainer" class="task-list">
         <div class="empty-msg">✨ Belum ada tugas. Tambah pekerjaan harian!</div>
       </div>
-      <p style="font-size: 0.7rem; margin-top: 12px; color: #475569; text-align: center;">💡 Centang tugas yang selesai, pilih tanggal, lalu klik Generate. Semua pekerjaan dengan tanggal yang sama menjadi satu blok rekap.</p>
+      <p style="font-size: 0.7rem; margin-top: 12px; color: #475569; text-align: center;">💡 Centang tugas yang selesai, pilih tanggal, lalu klik Generate. Rekap akan muncul di sebelah kanan. Tugas yang dihapus tidak akan muncul lagi, dan tidak ada tugas bawaan otomatis.</p>
     </div>
 
-    <!-- KANAN: REKAP PEKERJAAN (GROUPED BY TANGGAL) -->
     <div class="card">
       <div class="card-title recap-title">
         <span>🏆</span> Rekap Pekerjaan · <span id="recapUserName">Diki</span>
@@ -537,11 +508,10 @@
       </div>
     </div>
   </div>
-  <footer>⚡ Data tersimpan di Firebase Realtime Database | Perubahan langsung tersinkronisasi</footer>
+  <footer>⚡ Data tersimpan di Firebase Realtime Database | Perubahan realtime | Hapus = hilang permanen, tidak ada tugas otomatis</footer>
 </div>
 
 <script>
-  // ======================= FIREBASE KONFIGURASI =======================
   const firebaseConfig = {
     apiKey: "AIzaSyCY8J2weMvbgB6Ux90CDHhzwVijzpqE9S0",
     authDomain: "todolist-6e854.firebaseapp.com",
@@ -554,7 +524,6 @@
   const app = firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
-  // ======================= INDIKATOR ONLINE/OFFLINE =======================
   const connectionStatusDiv = document.getElementById('connectionStatus');
   const statusTextSpan = document.getElementById('statusText');
   
@@ -581,12 +550,10 @@
   });
   window.addEventListener('offline', () => updateConnectionStatus(false));
 
-  // ======================= DATA MODEL =======================
   let currentUser = "diki";
-  let localTasks = [];
-  let localRecaps = [];
+  let tasksArray = [];
+  let recapsArray = [];
 
-  // DOM Elements
   const taskForm = document.getElementById('taskForm');
   const taskInput = document.getElementById('taskInput');
   const taskListContainer = document.getElementById('taskListContainer');
@@ -625,84 +592,159 @@
     });
   }
 
-  // ======================= FIREBASE REALTIME LISTENERS =======================
-  function getUserRef() {
-    return database.ref(`users/${currentUser}`);
+  function getUserTasksRef() {
+    return database.ref(`users/${currentUser}/tasks`);
   }
-  let tasksListener = null, recapsListener = null;
+  function getUserRecapsRef() {
+    return database.ref(`users/${currentUser}/recaps`);
+  }
+
+  async function addNewTask(text) {
+    const trimmed = text.trim();
+    if (!trimmed) { alert("Tugas tidak boleh kosong!"); return false; }
+    const newTaskRef = getUserTasksRef().push();
+    await newTaskRef.set({ text: trimmed, completed: false });
+    return true;
+  }
+
+  async function toggleTaskComplete(taskKey, currentCompleted) {
+    await getUserTasksRef().child(taskKey).update({ completed: !currentCompleted });
+  }
+
+  async function deleteTaskByKey(taskKey) {
+    await getUserTasksRef().child(taskKey).remove();
+  }
+
+  async function clearAllCheckedTasks() {
+    const checkedKeys = tasksArray.filter(t => t.completed).map(t => t.key);
+    if (checkedKeys.length === 0) { alert("Tidak ada tugas yang dicentang."); return; }
+    if (confirm(`Batalkan centang pada ${checkedKeys.length} tugas? (tugas tidak dihapus, hanya centang dihilangkan)`)) {
+      const updates = {};
+      checkedKeys.forEach(key => { updates[`${key}/completed`] = false; });
+      await getUserTasksRef().update(updates);
+    }
+  }
+
+  async function deleteRecapByKey(recapKey) {
+    await getUserRecapsRef().child(recapKey).remove();
+  }
+
+  async function deleteRecapGroupByDate(date) {
+    const keysToDelete = recapsArray.filter(r => r.recapDate === date).map(r => r.key);
+    if (keysToDelete.length === 0) return;
+    if (confirm(`Hapus semua rekap untuk tanggal ${formatDisplayDate(date)} (${keysToDelete.length} item)?`)) {
+      const promises = keysToDelete.map(key => getUserRecapsRef().child(key).remove());
+      await Promise.all(promises);
+    }
+  }
+
+  async function generateRecap() {
+    const selectedDate = recapDateInput.value;
+    if (!selectedDate) { alert("Pilih tanggal rekap!"); return; }
+    const checkedTasks = tasksArray.filter(t => t.completed);
+    if (!checkedTasks.length) { alert("Tidak ada tugas yang dicentang."); return; }
+    
+    const recapPromises = [];
+    const uncheckUpdates = {};
+    
+    for (let task of checkedTasks) {
+      const newRecapRef = getUserRecapsRef().push();
+      recapPromises.push(newRecapRef.set({
+        text: task.text,
+        recapDate: selectedDate,
+        createdAt: Date.now()
+      }));
+      uncheckUpdates[`${task.key}/completed`] = false;
+    }
+    
+    await Promise.all(recapPromises);
+    if (Object.keys(uncheckUpdates).length) {
+      await getUserTasksRef().update(uncheckUpdates);
+    }
+    alert(`✅ ${checkedTasks.length} pekerjaan ditambahkan ke rekap tgl ${formatDisplayDate(selectedDate)}.`);
+  }
+
+  let tasksListener = null;
+  let recapsListener = null;
 
   function attachFirebaseListeners() {
     if (tasksListener) tasksListener.off();
     if (recapsListener) recapsListener.off();
-    const userRef = getUserRef();
-    tasksListener = userRef.child('tasks').on('value', (snapshot) => {
+    
+    const tasksRef = getUserTasksRef();
+    tasksListener = tasksRef.on('value', (snapshot) => {
       const data = snapshot.val();
+      const newTasks = [];
       if (data && typeof data === 'object') {
-        localTasks = Object.keys(data).map(key => ({ ...data[key], id: parseInt(key) })).sort((a,b) => a.id - b.id);
-      } else localTasks = [];
+        for (const [key, value] of Object.entries(data)) {
+          newTasks.push({
+            key: key,
+            text: value.text || "No text",
+            completed: value.completed === true
+          });
+        }
+      }
+      newTasks.sort((a, b) => (a.key.localeCompare(b.key)));
+      tasksArray = newTasks;
       renderTaskList();
       updateStats();
     });
-    recapsListener = userRef.child('recaps').on('value', (snapshot) => {
+    
+    const recapsRef = getUserRecapsRef();
+    recapsListener = recapsRef.on('value', (snapshot) => {
       const data = snapshot.val();
+      const newRecaps = [];
       if (data && typeof data === 'object') {
-        localRecaps = Object.keys(data).map(key => ({ ...data[key], id: parseInt(key) })).sort((a,b) => b.createdAt - a.createdAt);
-      } else localRecaps = [];
+        for (const [key, value] of Object.entries(data)) {
+          newRecaps.push({
+            key: key,
+            text: value.text || "",
+            recapDate: value.recapDate || "",
+            createdAt: value.createdAt || 0
+          });
+        }
+      }
+      newRecaps.sort((a, b) => b.createdAt - a.createdAt);
+      recapsArray = newRecaps;
       renderGroupedRecap();
     });
   }
 
-  async function saveTasksToFirebase(tasks) {
-    const tasksObj = {};
-    tasks.forEach(t => { tasksObj[t.id] = { text: t.text, completed: t.completed }; });
-    await getUserRef().child('tasks').set(tasksObj);
-  }
-  async function saveRecapsToFirebase(recaps) {
-    const recapsObj = {};
-    recaps.forEach(r => { recapsObj[r.id] = { text: r.text, recapDate: r.recapDate, createdAt: r.createdAt }; });
-    await getUserRef().child('recaps').set(recapsObj);
-  }
-  async function updateTasks(newTasks) { localTasks = newTasks; await saveTasksToFirebase(localTasks); }
-  async function updateRecaps(newRecaps) { localRecaps = newRecaps; await saveRecapsToFirebase(localRecaps); }
-
-  // ======================= RENDER =======================
   function renderTaskList() {
-    if (!localTasks.length) {
+    if (!tasksArray.length) {
       taskListContainer.innerHTML = `<div class="empty-msg">📭 Belum ada tugas. Tambah pekerjaan harian!</div>`;
       return;
     }
     let html = '';
-    localTasks.forEach(task => {
+    tasksArray.forEach(task => {
       html += `
-        <div class="task-item">
-          <input type="checkbox" class="task-check" ${task.completed ? 'checked' : ''} data-id="${task.id}">
+        <div class="task-item" data-task-key="${task.key}">
+          <input type="checkbox" class="task-check" ${task.completed ? 'checked' : ''} data-key="${task.key}">
           <span class="task-text ${task.completed ? 'completed' : ''}">${escapeHtml(task.text)}</span>
-          <button class="delete-task" data-id="${task.id}">🗑️</button>
+          <button class="delete-task" data-key="${task.key}">🗑️</button>
         </div>
       `;
     });
     taskListContainer.innerHTML = html;
-    document.querySelectorAll('.task-check').forEach(cb => {
-      cb.addEventListener('change', (e) => { toggleTaskComplete(parseInt(cb.dataset.id)); });
-    });
-    document.querySelectorAll('.delete-task').forEach(btn => {
-      btn.addEventListener('click', (e) => { deleteTaskById(parseInt(btn.dataset.id)); });
-    });
   }
 
   function renderGroupedRecap() {
-    if (!localRecaps.length) {
+    if (!recapsArray.length) {
       recapListContainer.innerHTML = `<div class="empty-msg">📭 Belum ada rekap. Centang tugas, pilih tanggal, lalu klik Generate!</div>`;
       return;
     }
     const groups = new Map();
-    localRecaps.forEach(r => { const d = r.recapDate; if(!groups.has(d)) groups.set(d, []); groups.get(d).push(r); });
+    recapsArray.forEach(r => { 
+      const d = r.recapDate; 
+      if (!groups.has(d)) groups.set(d, []); 
+      groups.get(d).push(r); 
+    });
     const sortedDates = Array.from(groups.keys()).sort((a,b) => new Date(b) - new Date(a));
     let html = '';
     for (let date of sortedDates) {
       const items = groups.get(date);
       html += `
-        <div class="recap-group">
+        <div class="recap-group" data-recap-date="${date}">
           <div class="recap-group-header">
             <span>📅 ${formatDisplayDate(date)}  ·  ${items.length} pekerjaan</span>
             <button class="delete-group-btn" data-date="${date}">Hapus Semua</button>
@@ -711,76 +753,66 @@
       `;
       items.forEach(item => {
         html += `
-          <div class="recap-item">
+          <div class="recap-item" data-recap-key="${item.key}">
             <span>✅</span>
             <div class="recap-task-text">${escapeHtml(item.text)}</div>
-            <button class="delete-recap" data-id="${item.id}">✖️</button>
+            <button class="delete-recap" data-key="${item.key}">✖️</button>
           </div>
         `;
       });
       html += `</div></div>`;
     }
     recapListContainer.innerHTML = html;
-    document.querySelectorAll('.delete-recap').forEach(btn => {
-      btn.addEventListener('click', (e) => { deleteRecapById(parseInt(btn.dataset.id)); });
-    });
-    document.querySelectorAll('.delete-group-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => { deleteRecapGroupByDate(btn.dataset.date); });
-    });
   }
 
   function updateStats() {
-    totalCountSpan.innerText = localTasks.length;
-    checkedCountSpan.innerText = localTasks.filter(t => t.completed).length;
+    totalCountSpan.innerText = tasksArray.length;
+    checkedCountSpan.innerText = tasksArray.filter(t => t.completed).length;
   }
 
-  // ======================= CRUD =======================
-  async function toggleTaskComplete(id) {
-    const idx = localTasks.findIndex(t => t.id === id);
-    if (idx !== -1) {
-      localTasks[idx].completed = !localTasks[idx].completed;
-      await updateTasks([...localTasks]);
+  taskListContainer.addEventListener('click', async (e) => {
+    const deleteBtn = e.target.closest('.delete-task');
+    if (deleteBtn) {
+      const key = deleteBtn.getAttribute('data-key');
+      if (key && confirm('Hapus tugas ini secara permanen?')) {
+        await deleteTaskByKey(key);
+      }
+      return;
     }
-  }
-  async function deleteTaskById(id) { await updateTasks(localTasks.filter(t => t.id !== id)); }
-  async function deleteRecapById(id) { await updateRecaps(localRecaps.filter(r => r.id !== id)); }
-  async function deleteRecapGroupByDate(date) {
-    if (confirm(`Hapus semua rekap untuk tanggal ${formatDisplayDate(date)}?`)) {
-      await updateRecaps(localRecaps.filter(r => r.recapDate !== date));
+  });
+  
+  taskListContainer.addEventListener('change', async (e) => {
+    if (e.target.classList.contains('task-check')) {
+      const key = e.target.getAttribute('data-key');
+      if (key) {
+        const task = tasksArray.find(t => t.key === key);
+        if (task) {
+          await toggleTaskComplete(key, task.completed);
+        }
+      }
     }
-  }
-  async function addNewTask(text) {
-    const trimmed = text.trim();
-    if (!trimmed) { alert("Tugas tidak boleh kosong!"); return false; }
-    const newId = Date.now();
-    await updateTasks([...localTasks, { id: newId, text: trimmed, completed: false }]);
-    return true;
-  }
-  async function clearAllChecked() {
-    if (!localTasks.some(t => t.completed)) { alert("Tidak ada tugas yang dicentang."); return; }
-    if (confirm("Hapus semua centang pada tugas?")) {
-      await updateTasks(localTasks.map(t => ({ ...t, completed: false })));
+  });
+  
+  recapListContainer.addEventListener('click', async (e) => {
+    const deleteRecapBtn = e.target.closest('.delete-recap');
+    if (deleteRecapBtn) {
+      const key = deleteRecapBtn.getAttribute('data-key');
+      if (key && confirm('Hapus rekap ini?')) {
+        await deleteRecapByKey(key);
+      }
+      return;
     }
-  }
-  async function generateRecap() {
-    const selectedDate = recapDateInput.value;
-    if (!selectedDate) { alert("Pilih tanggal rekap!"); return; }
-    const checkedTasks = localTasks.filter(t => t.completed);
-    if (!checkedTasks.length) { alert("Tidak ada tugas yang dicentang."); return; }
-    let newRecaps = [...localRecaps];
-    let updatedTasks = localTasks.map(t => ({ ...t }));
-    for (let task of checkedTasks) {
-      const newId = Date.now() + Math.random() * 1000;
-      newRecaps.push({ id: newId, text: task.text, recapDate: selectedDate, createdAt: Date.now() });
-      const idx = updatedTasks.findIndex(t => t.id === task.id);
-      if (idx !== -1) updatedTasks[idx].completed = false;
+    
+    const deleteGroupBtn = e.target.closest('.delete-group-btn');
+    if (deleteGroupBtn) {
+      const date = deleteGroupBtn.getAttribute('data-date');
+      if (date) {
+        await deleteRecapGroupByDate(date);
+      }
+      return;
     }
-    await updateTasks(updatedTasks);
-    await updateRecaps(newRecaps);
-    alert(`✅ ${checkedTasks.length} pekerjaan ditambahkan ke rekap tgl ${formatDisplayDate(selectedDate)}.`);
-  }
+  });
 
-  // ======================= SWITCH USER =======================
   function updateActiveUserButton() {
     const btnDiki = document.querySelector('.user-btn.diki');
     const btnEko = document.querySelector('.user-btn.eko');
@@ -793,6 +825,7 @@
     userNameSpan.innerText = name;
     recapUserNameSpan.innerText = name;
   }
+
   async function switchToUser(user) {
     if (currentUser === user) return;
     currentUser = user;
@@ -801,48 +834,24 @@
     taskInput.value = '';
   }
 
-  // ======================= INITIAL DATA =======================
-  async function checkAndInitDefaultData() {
-    const dikiTasks = await database.ref('users/diki/tasks').once('value');
-    if (!dikiTasks.exists()) {
-      const now = Date.now();
-      await database.ref('users/diki/tasks').set({
-        1001: { text: "Menyusun laporan mingguan", completed: false },
-        1002: { text: "Meeting dengan klien 10.00", completed: true },
-        1003: { text: "Review kode aplikasi", completed: false }
-      });
-      await database.ref('users/diki/recaps').set({
-        9001: { text: "Meeting dengan klien 10.00", recapDate: "2026-04-22", createdAt: now - 86400000 }
-      });
-    }
-    const ekoTasks = await database.ref('users/eko/tasks').once('value');
-    if (!ekoTasks.exists()) {
-      const now = Date.now();
-      await database.ref('users/eko/tasks').set({
-        2001: { text: "Desain UI dashboard", completed: false },
-        2002: { text: "Rapat tim produk", completed: false },
-        2003: { text: "Membuat dokumentasi", completed: true }
-      });
-      await database.ref('users/eko/recaps').set({
-        9002: { text: "Membuat dokumentasi", recapDate: "2026-04-23", createdAt: now - 3600000 }
-      });
-    }
-  }
-
-  // ======================= EVENT LISTENERS =======================
   taskForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    addNewTask(taskInput.value).then(() => { taskInput.value = ''; taskInput.focus(); });
+    const text = taskInput.value;
+    if (text.trim()) {
+      addNewTask(text).then(() => { taskInput.value = ''; taskInput.focus(); });
+    } else {
+      alert("Tugas tidak boleh kosong");
+    }
   });
-  clearCompletedBtn.addEventListener('click', clearAllChecked);
+  
+  clearCompletedBtn.addEventListener('click', clearAllCheckedTasks);
   generateRecapBtn.addEventListener('click', generateRecap);
   document.querySelector('.user-btn.diki').addEventListener('click', () => switchToUser('diki'));
   document.querySelector('.user-btn.eko').addEventListener('click', () => switchToUser('eko'));
 
-  // START
   async function init() {
     setDefaultDate();
-    await checkAndInitDefaultData();
+    // TIDAK ADA SEED DATA OTOMATIS. Biarkan database kosong.
     attachFirebaseListeners();
     updateActiveUserButton();
   }
