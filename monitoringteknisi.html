@@ -666,7 +666,7 @@
                 if (isAdmin) {
                     actionBtns += `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, '${item.sn}')">🗑️</button>`;
                 }
-                tr.innerHTML = `<tr>${idx+1}</td><td>${item.sn}</td><td>${item.mac}</td><td>${category}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionBtns}</td>`;
+                tr.innerHTML = `<td>${idx+1}</td><td>${item.sn}</td><td>${item.mac}</td><td>${category}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionBtns}</td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -789,7 +789,7 @@
     window.copyAllSummary = function() { let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`; teams.forEach(team => { summaryText += `📋 REKAP ${team.teamName.toUpperCase()}\n\n`; team.jobs.forEach((job, index) => { const layID = job.details['No Layanan'] || job.details['Layanan'] || '-'; const time = job.time || 'FLEXIBEL'; const numIcon = getNumberEmoji(index + 1); let statusLine = "", failureLine = "", noteSuffix = ""; if(job.status === 'completed' || (job.completed && !job.status)) { if(job.completionNote) noteSuffix = ` (${job.completionNote})`; statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if(job.status === 'failed') { statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`; if(job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`; } else statusLine = `⏳ STATUS: PENDING`; summaryText += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`; }); summaryText += `\n`; }); copyToClipboard(summaryText, null, "✅ Rekap Semua Tiket Tersalin!"); };
     window.copyPSBSummary = function() { let text = `📋 *REKAP PSB BERHASIL*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`; let count = 0; teams.forEach(team => { team.jobs.forEach(job => { const isPSB = job.tag.toUpperCase().includes("PSB"); const isCompleted = job.status === 'completed' || (job.completed && !job.status); if (isPSB && isCompleted) { const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '-'; const referensi = job.details['Referensi'] || '-'; if (noLayanan !== '-') { text += `${noLayanan} referensi: ${referensi}\n`; count++; } } }); }); if (count === 0) text += "Tidak ada data PSB berhasil.\n"; copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!"); };
     
-    // ================= PERBAIKAN REKAP V2 (ganti gagal -> fail) =================
+    // ================= PERBAIKAN REKAP V2 SESUAI FORMAT REQUEST =================
     window.copyAllSummaryV2 = function() { 
         let text = `📋 *REKAP STATUS TIKET*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`; 
         teams.forEach((team, tIndex) => { 
@@ -797,32 +797,51 @@
             text += `TEKNISI : ${team.teamName}\n\n`; 
             team.jobs.forEach((job, jIndex) => { 
                 const isPSB = job.tag.toUpperCase().includes("PSB"); 
-                let statusLine = "";
                 const isCompleted = (job.status === 'completed' || job.completed === true);
                 const isFailed = (job.status === 'failed');
+                const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '';
+                let statusLine = "";
                 
-                if (isCompleted) {
-                    if (isPSB) {
-                        statusLine = "*done*";
+                if (isPSB) {
+                    if (isCompleted) {
+                        if (noLayanan && noLayanan !== '-') {
+                            statusLine = `*done dengan nolay status aktif: ${noLayanan}*`;
+                        } else {
+                            statusLine = "*done*";
+                        }
+                    } else if (isFailed) {
+                        const reason = job.failureNote && job.failureNote.trim() !== "" ? job.failureNote : "alasan tidak diketahui";
+                        statusLine = `*fail (${reason})*`;
                     } else {
+                        // Pending
+                        statusLine = "*Pending*";
+                    }
+                } else {
+                    // Non-PSB (MT/Isolir)
+                    if (isCompleted) {
                         if (job.completionNote && job.completionNote.trim() !== "") {
                             statusLine = `*done (${job.completionNote})*`;
                         } else {
                             statusLine = "*done*";
                         }
-                    }
-                } else if (isFailed) {
-                    // Ganti kata gagal menjadi fail
-                    if (job.failureNote && job.failureNote.trim() !== "") {
-                        statusLine = `*fail (${job.failureNote})*`;
+                    } else if (isFailed) {
+                        if (job.failureNote && job.failureNote.trim() !== "") {
+                            statusLine = `*fail (${job.failureNote})*`;
+                        } else {
+                            statusLine = "*fail*";
+                        }
                     } else {
-                        statusLine = "*fail*";
+                        statusLine = "*Pending*";
                     }
-                } else {
-                    statusLine = "*Pending*";
                 }
                 
-                text += `status: \n${statusLine}\n`; 
+                text += `status: \n${statusLine}\n`;
+                
+                // Untuk PSB pending atau failed, tambahkan baris Nolay Pra-Regist jika ada no layanan
+                if (isPSB && !isCompleted && noLayanan && noLayanan !== '-') {
+                    text += `Nolay Pra-Regist: ${noLayanan}\n`;
+                }
+                
                 const d = job.details;
                 const tech = job.technical || {};
                 if (isPSB) { 
