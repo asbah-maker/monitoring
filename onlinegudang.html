@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistem Gudang Lite - General Stock</title>
+    <title>Sistem Gudang Lite - General Stock + OPM</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -24,41 +24,54 @@
         /* --- HEADER & DASHBOARD --- */
         .header-section { background: var(--card); padding: 15px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; }
         h1 { margin: 0 0 5px 0; color: var(--primary); text-align: center; font-size: 1.5rem; }
-        
+
         .network-status { text-align: center; font-size: 0.85rem; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 10px; color: var(--secondary); }
 
-        .stock-dashboard { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
-            gap: 8px; 
-            max-height: 250px; 
-            overflow-y: auto; 
+        .stock-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
             padding-right: 5px;
         }
-        
-        .stock-card { 
-            background: #fff; border: 1px solid var(--border); 
-            padding: 10px; border-radius: 8px; text-align: center; 
+
+        .stock-card {
+            background: #fff; border: 1px solid var(--border);
+            padding: 10px; border-radius: 8px; text-align: center;
             font-size: 0.8rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .stock-card:active { transform: scale(0.95); }
         .stock-card.low-stock { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
         .stock-val { font-weight: 800; font-size: 1.2rem; display: block; margin-top: 4px; }
-        
+
         .btn-config { background: var(--warning); color: #000; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: block; margin: 0 auto 15px; transition: 0.2s;}
         .btn-config:hover { background: #d97706; }
 
+        /* --- OPM SECTION --- */
+        .opm-section { background: var(--card); padding: 15px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .btn-toggle-opm { width: 100%; background: #f1f5f9; border: 2px solid #cbd5e1; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .btn-toggle-opm:hover { background: #e2e8f0; }
+        .opm-panel { margin-top: 12px; display: none; }
+        .opm-panel.open { display: block; }
+        .opm-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .opm-sn { font-weight: 700; min-width: 150px; font-family: monospace; font-size: 0.95rem; }
+        .opm-sn.borrowed { text-decoration: line-through; color: #b91c1c; }
+        .opm-tech { color: var(--primary); font-size: 0.9rem; font-weight: 600; min-width: 80px; }
+        .opm-tech-select { padding: 8px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.85rem; min-width: 110px; flex:1; }
+        .btn-opm-action { border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
+
         /* --- LAYOUT UTAMA --- */
         .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        
+
         .card-panel { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 100%; display: flex; flex-direction: column; }
         .panel-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
-        
+
         .form-group { margin-bottom: 12px; }
         label { display: block; font-weight: 600; color: var(--secondary); margin-bottom: 5px; font-size: 0.9rem; }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background: #fff; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        
+
         input:disabled, button:disabled { background-color: #f1f5f9; cursor: not-allowed; opacity: 0.7; color: #94a3b8; border-color: #e2e8f0; }
         input[readonly] { background-color: #f8fafc; color: #64748b; }
 
@@ -74,8 +87,8 @@
 
         /* --- KERANJANG --- */
         .cart-container { background: #eff6ff; border: 1px dashed var(--primary); }
-        .cart-scroll-area { 
-            flex-grow: 1; max-height: 350px; overflow-y: auto; 
+        .cart-scroll-area {
+            flex-grow: 1; max-height: 350px; overflow-y: auto;
             background: rgba(255,255,255,0.7); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border);
         }
 
@@ -83,7 +96,7 @@
         .mini-table th, .mini-table td { padding: 10px; text-align: left; font-size: 0.9rem; border-bottom: 1px solid var(--border); vertical-align: top;}
         .mini-table th { background: #fff; position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .btn-del-mini { background: none; border: none; color: var(--danger); font-size: 1.2rem; padding: 0 10px; cursor: pointer; }
-        
+
         /* --- HISTORY TABLE --- */
         .history-section { background: var(--card); padding: 15px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .toolbar { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; justify-content: flex-end; }
@@ -95,7 +108,7 @@
         .bg-orange { background: #f97316; }
 
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .main-table { width: 100%; border-collapse: collapse; min-width: 600px; } 
+        .main-table { width: 100%; border-collapse: collapse; min-width: 600px; }
         .main-table th, .main-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
         .main-table th { background: #f1f5f9; font-weight: 700; color: var(--secondary); white-space: nowrap; }
         .main-table tr:nth-child(even) { background: #f8fafc; }
@@ -108,7 +121,7 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
         .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 12px; padding: 20px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
         .close-btn { float: right; font-size: 1.5rem; cursor: pointer; color: #aaa; align-self: flex-end; margin-bottom: 10px; }
-        
+
         .stock-row-edit { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
         .stock-row-edit input { width: 80px; padding: 8px; text-align: center; border: 1px solid #cbd5e1; border-radius: 6px; }
 
@@ -123,12 +136,14 @@
         .btn-retur-bad { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
 
         @media (max-width: 768px) {
-            .main-grid { grid-template-columns: 1fr; gap: 20px; } 
-            .cart-container { order: 2; min-height: 400px; } 
-            .btn-tool { max-width: none; width: 30%; } 
+            .main-grid { grid-template-columns: 1fr; gap: 20px; }
+            .cart-container { order: 2; min-height: 400px; }
+            .btn-tool { max-width: none; width: 30%; }
             h1 { font-size: 1.3rem; }
             body { padding: 8px; }
             .header-section { padding: 12px; }
+            .opm-item { gap: 6px; }
+            .opm-sn { min-width: 130px; }
         }
     </style>
 </head>
@@ -139,15 +154,26 @@
     <div class="header-section">
         <h1>📦 Gudang Umum (No SN)</h1>
         <div id="networkStatus" class="network-status">⏳ Menghubungkan ke Server...</div>
-        
+
         <button class="btn-config" onclick="openChoiceModal()">⚙️ Pengaturan & Data</button>
         <div class="stock-dashboard" id="stockDisplay"></div>
+    </div>
+
+    <!-- OPM SECTION -->
+    <div class="opm-section">
+        <button class="btn-toggle-opm" onclick="toggleOpm()">
+            <span>📟 Peminjaman OPM (S/N)</span>
+            <span id="opmToggleIcon">▼</span>
+        </button>
+        <div id="opmPanel" class="opm-panel">
+            <div id="opmListContainer"></div>
+        </div>
     </div>
 
     <div class="main-grid">
         <div class="card-panel">
             <div class="panel-title">📝 Input Transaksi</div>
-            
+
             <div class="form-group">
                 <label>Tanggal</label>
                 <input type="date" id="dateInput">
@@ -184,7 +210,7 @@
                 <span>🛒 Keranjang</span>
                 <span style="background:var(--primary); color:white; padding:2px 8px; border-radius:10px; font-size:0.8rem;" id="cartCount">0</span>
             </div>
-            
+
             <div class="cart-scroll-area">
                 <table class="mini-table">
                     <thead>
@@ -250,7 +276,7 @@
     <div class="modal-content">
         <span class="close-btn" onclick="document.getElementById('choiceModal').style.display='none'">&times;</span>
         <h3 style="margin-top:0">⚙️ Pengaturan</h3>
-        
+
         <button class="choice-btn" onclick="openStockModal()">
             <span class="choice-icon">🔢</span>
             <div>
@@ -266,7 +292,7 @@
                 <div style="font-size:0.8rem; color:#64748b;">Tambah/Hapus/Edit Item Master</div>
             </div>
         </button>
-        
+
         <button class="choice-btn" style="border-color:#fecaca; background:#fef2f2;" onclick="openBadStockModal()">
             <span class="choice-icon">🗑️</span>
             <div>
@@ -289,7 +315,7 @@
     <div class="modal-content">
         <span class="close-btn" onclick="document.getElementById('backupModal').style.display='none'">&times;</span>
         <h3 style="margin-top:0">💾 Backup & Restore Database</h3>
-        
+
         <div style="padding:15px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; margin-bottom:15px;">
             <h4 style="margin:0 0 5px 0;">1. Download Data (Backup)</h4>
             <p style="font-size:0.8rem; margin:0 0 10px 0;">Simpan seluruh data gudang saat ini ke file komputer Anda.</p>
@@ -309,7 +335,7 @@
     <div class="modal-content">
         <span class="close-btn" onclick="document.getElementById('badStockModal').style.display='none'">&times;</span>
         <h3 style="margin-top:0; color:#dc2626;">🗑️ Gudang Barang Rusak</h3>
-        
+
         <div style="margin-bottom:15px;">
             <h4 style="margin:5px 0; border-bottom:1px solid #eee;">List Barang Rusak</h4>
             <ul id="badMaterialList" class="item-list-group" style="max-height:300px; overflow-y:auto; padding-right:5px;"></ul>
@@ -376,35 +402,46 @@
       appId: "1:527203022313:web:c70204958e7b028ac28778",
       measurementId: "G-XZJE4901DB"
     };
-    
+
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.database();
-    const dataRef = db.ref('gudang_v8_data'); 
+    const dataRef = db.ref('gudang_v8_data');
     const connectedRef = db.ref('.info/connected');
 
     // --- DATA AWAL ---
     const TEKNISI_LIST = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Kholis", "Yudha", "Rival", "Ifsal", "Reno", "Tangguh", "Riki"];
-    
+
     const DEFAULT_BARANG = [
-        "Modem/ONT", 
-        "Kabel Dropcore", 
-        "Kabel Patchcord", 
+        "Modem/ONT",
+        "Kabel Dropcore",
+        "Kabel Patchcord",
         "Splitter 1:2",
-        "Splitter 1:4", 
-        "Splitter 1:8", 
-        "Roset Optik", 
+        "Splitter 1:4",
+        "Splitter 1:8",
+        "Roset Optik",
         "Breket Tiang",
         "Adaptor Modem",
         "S-Clamp"
     ];
 
+    const DEFAULT_OPM_SN = [
+        "45361217",
+        "45361214",
+        "45361219",
+        "45361220",
+        "45361221",
+        "45361212",
+        "45361216"
+    ];
+
     // --- STATE VARIABLES ---
     let logs = [];
     let inventory = {};
-    let badInventory = {}; 
-    let badLogs = []; 
+    let badInventory = {};
+    let badLogs = [];
     let itemMaster = [];
-    
+    let opmLoans = {};
+
     let cart = [];
     let isInitialLoad = true;
 
@@ -413,9 +450,94 @@
         return Array.isArray(arr) ? arr : Object.values(arr);
     };
 
-    // ========== PERBAIKAN UTAMA: COPY LAPORAN STOK YANG HANDAL ==========
+    // ========== OPM FUNCTIONS ==========
+    function initOpmLoans() {
+        let changed = false;
+        DEFAULT_OPM_SN.forEach(sn => {
+            if (!opmLoans[sn]) {
+                opmLoans[sn] = { status: "available", borrowedBy: null, borrowedAt: null };
+                changed = true;
+            }
+        });
+        return changed;
+    }
+
+    function renderOpmList() {
+        const container = document.getElementById('opmListContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        const sns = Object.keys(opmLoans).sort();
+        if (sns.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#94a3b8;">Tidak ada data OPM.</p>';
+            return;
+        }
+        sns.forEach(sn => {
+            const data = opmLoans[sn];
+            const div = document.createElement('div');
+            div.className = 'opm-item';
+            if (data.status === 'borrowed') {
+                div.innerHTML = `
+                    <span class="opm-sn borrowed">S/N: ${sn}</span>
+                    <span class="opm-tech">👷 ${data.borrowedBy}</span>
+                    <button class="btn-opm-action bg-teal" style="color:white;" onclick="returnOpm('${sn}')">↩️ Kembalikan</button>
+                `;
+            } else {
+                div.innerHTML = `
+                    <span class="opm-sn">S/N: ${sn}</span>
+                    <select class="opm-tech-select" id="opmTech_${sn}">
+                        <option value="">-- Pilih Teknisi --</option>
+                        ${TEKNISI_LIST.map(t => `<option value="${t}">${t}</option>`).join('')}
+                    </select>
+                    <button class="btn-opm-action bg-green" style="color:white;" onclick="pinjamOpm('${sn}')">📥 Pinjam</button>
+                `;
+            }
+            container.appendChild(div);
+        });
+    }
+
+    function toggleOpm() {
+        const panel = document.getElementById('opmPanel');
+        const icon = document.getElementById('opmToggleIcon');
+        if (panel.style.display === 'block') {
+            panel.style.display = 'none';
+            icon.textContent = '▼';
+        } else {
+            panel.style.display = 'block';
+            icon.textContent = '▲';
+        }
+    }
+
+    function pinjamOpm(sn) {
+        const select = document.getElementById('opmTech_' + sn);
+        if (!select) return;
+        const tech = select.value;
+        if (!tech) {
+            alert('⚠️ Pilih teknisi terlebih dahulu!');
+            return;
+        }
+        if (!confirm(`Pinjamkan OPM S/N: ${sn} kepada ${tech}?`)) return;
+        opmLoans[sn] = {
+            status: 'borrowed',
+            borrowedBy: tech,
+            borrowedAt: new Date().toISOString()
+        };
+        persistData();
+        renderOpmList();
+    }
+
+    function returnOpm(sn) {
+        if (!confirm(`Kembalikan OPM S/N: ${sn}?`)) return;
+        opmLoans[sn] = {
+            status: 'available',
+            borrowedBy: null,
+            borrowedAt: null
+        };
+        persistData();
+        renderOpmList();
+    }
+
+    // ========== CLIPBOARD & REPORT ==========
     function copyToClipboard(text, successMsg = "✅ Berhasil disalin ke clipboard!") {
-        // Metode modern clipboard API dengan fallback
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(() => {
                 alert(successMsg);
@@ -446,23 +568,20 @@
         const today = new Date();
         const formattedDate = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
         let txt = `*LAPORAN STOK GUDANG*\n📅 ${formattedDate}\n=================================\n\n`;
-        
-        // Pastikan semua item yang ada di master tercantum (stok 0 akan masuk kategori kosong)
+
         const itemsWithStock = itemMaster.map(item => ({
             name: item,
             qty: inventory[item] !== undefined ? inventory[item] : 0
         }));
-        
-        // Kategorisasi
+
         const zeroStock = itemsWithStock.filter(i => i.qty === 0);
         const lowStock = itemsWithStock.filter(i => i.qty >= 1 && i.qty <= 29);
         const highStock = itemsWithStock.filter(i => i.qty >= 30);
-        
-        // Urutkan abjad
+
         zeroStock.sort((a,b) => a.name.localeCompare(b.name));
         lowStock.sort((a,b) => a.name.localeCompare(b.name));
         highStock.sort((a,b) => a.name.localeCompare(b.name));
-        
+
         if (zeroStock.length > 0) {
             txt += `*🔴 STOK KOSONG (0)*\n`;
             zeroStock.forEach((item, idx) => {
@@ -470,7 +589,7 @@
             });
             txt += `\n=================================\n\n`;
         }
-        
+
         if (lowStock.length > 0) {
             txt += `*🟠 STOK TERBATAS (1 - 29)*\n`;
             lowStock.forEach((item, idx) => {
@@ -478,7 +597,7 @@
             });
             txt += `\n=================================\n\n`;
         }
-        
+
         if (highStock.length > 0) {
             txt += `*🟢 STOK AMAN (≥30)*\n`;
             highStock.forEach((item, idx) => {
@@ -486,7 +605,7 @@
             });
             txt += `\n=================================\n`;
         }
-        
+
         if (zeroStock.length === 0 && lowStock.length === 0 && highStock.length === 0) {
             txt += "Tidak ada data stok.\n";
         } else {
@@ -496,7 +615,6 @@
         return txt;
     }
 
-    // --- PROSES COPY DENGAN PERBAIKAN ---
     function processCopy(mode) {
         if (mode === 'stock') {
             const report = generateStockReport();
@@ -504,8 +622,7 @@
             document.getElementById('copyModal').style.display = 'none';
             return;
         }
-        
-        // Kode asli untuk today dan all (tetap dipertahankan, tapi juga menggunakan copyToClipboard)
+
         let targetLogs = logs;
         let targetBadLogs = badLogs;
         let title = `*REKAP SEMUA TRANSAKSI*`;
@@ -558,9 +675,8 @@
         copyToClipboard(txt, "✅ Berhasil dicopy! Paste di WhatsApp.");
         document.getElementById('copyModal').style.display = 'none';
     }
-    // ========== AKHIR PERBAIKAN ==========
 
-    // --- SISANYA TIDAK BERUBAH, NAMUN DIPASTIKAN FUNGSIONAL ---
+    // ========== CORE LOGIC ==========
     window.onload = function() {
         connectedRef.on('value', (snap) => {
             const statusEl = document.getElementById('networkStatus');
@@ -578,7 +694,7 @@
 
             logs = normalizeArray(data.logs);
             badLogs = normalizeArray(data.badLogs);
-            
+
             if (!data.itemMaster && isInitialLoad) {
                 itemMaster = [...DEFAULT_BARANG];
             } else {
@@ -588,13 +704,27 @@
 
             inventory = data.inventory || {};
             badInventory = data.badInventory || {};
+            opmLoans = data.opmLoans || {};
 
             if (isInitialLoad) {
                 itemMaster.forEach(item => {
-                    if (inventory[item] === undefined) inventory[item] = 0; 
-                    if (badInventory[item] === undefined) badInventory[item] = 0; 
+                    if (inventory[item] === undefined) inventory[item] = 0;
+                    if (badInventory[item] === undefined) badInventory[item] = 0;
                 });
-                
+
+                if (initOpmLoans()) {
+                    // Jika ada OPM baru yang ditambahkan dari DEFAULT, simpan langsung
+                    const safeData = {
+                        logs: logs,
+                        inventory: inventory,
+                        badInventory: badInventory,
+                        badLogs: badLogs,
+                        itemMaster: itemMaster,
+                        opmLoans: opmLoans
+                    };
+                    dataRef.set(safeData).catch(() => {});
+                }
+
                 populateDropdowns();
                 document.getElementById('dateInput').valueAsDate = new Date();
                 isInitialLoad = false;
@@ -609,7 +739,8 @@
             renderStockDashboard();
             renderTable();
             renderCart();
-            
+            renderOpmList();
+
             if(document.getElementById('manageItemModal').style.display === 'flex') {
                 renderManageItemList();
             }
@@ -622,8 +753,8 @@
     function populateDropdowns() {
         const techSel = document.getElementById('techName');
         const itemSel = document.getElementById('itemName');
-        const currentItemSel = itemSel.value; 
-        
+        const currentItemSel = itemSel.value;
+
         itemSel.innerHTML = '<option value="" disabled selected>-- Pilih Barang --</option>';
 
         if(techSel.options.length <= 1) {
@@ -631,7 +762,7 @@
         }
 
         itemMaster.sort().forEach(b => itemSel.add(new Option(b, b)));
-        
+
         if (currentItemSel && itemMaster.includes(currentItemSel)) {
             itemSel.value = currentItemSel;
         }
@@ -643,7 +774,8 @@
             inventory: inventory,
             badInventory: badInventory,
             badLogs: badLogs,
-            itemMaster: itemMaster
+            itemMaster: itemMaster,
+            opmLoans: opmLoans
         };
         dataRef.set(safeData).catch((error) => {
             console.error("Firebase write error: ", error);
@@ -657,14 +789,14 @@
 
     function addToCart() {
         const item = document.getElementById('itemName').value;
-        const qty = parseInt(document.getElementById('qty').value) || 1; 
+        const qty = parseInt(document.getElementById('qty').value) || 1;
 
         if(!item) { alert("⚠️ Pilih Barang!"); return; }
         if(qty <= 0) { alert("⚠️ Qty minimal 1"); return; }
 
         const currentStock = inventory[item] || 0;
         const inCartQty = cart.filter(c => c.item === item).reduce((sum, c) => sum + c.qty, 0);
-        
+
         if (currentStock - inCartQty < qty) {
             alert(`⛔ Stok Kurang!\nSisa: ${currentStock}`);
             return;
@@ -677,9 +809,9 @@
         } else {
             cart.push({ item: item, qty: qty });
         }
-        
+
         document.getElementById('qty').value = "1";
-        document.getElementById('itemName').value = ""; 
+        document.getElementById('itemName').value = "";
         renderCart();
     }
 
@@ -692,7 +824,7 @@
         const tbody = document.getElementById('cartBody');
         tbody.innerHTML = "";
         document.getElementById('cartCount').innerText = cart.length;
-        
+
         if (cart.length === 0) {
             document.getElementById('cartEmptyMsg').style.display = 'block';
         } else {
@@ -710,9 +842,9 @@
     }
 
     function saveTransaction() {
-        if (cart.length === 0) { 
-            alert("⚠️ Keranjang kosong!"); 
-            return; 
+        if (cart.length === 0) {
+            alert("⚠️ Keranjang kosong!");
+            return;
         }
         const tech = document.getElementById('techName').value;
         const date = document.getElementById('dateInput').value;
@@ -720,7 +852,7 @@
         if(!tech || !date) { return alert("⚠️ Mohon isi Tanggal dan Nama Teknisi!"); }
 
         cart.forEach(c => {
-            inventory[c.item] = (inventory[c.item] || 0) - c.qty; 
+            inventory[c.item] = (inventory[c.item] || 0) - c.qty;
         });
 
         const existingLog = logs.find(l => l.date === date && l.tech === tech);
@@ -744,8 +876,8 @@
         }
 
         cart = [];
-        persistData(); 
-        renderCart(); 
+        persistData();
+        renderCart();
         alert("✅ Transaksi Berhasil Disimpan!");
     }
 
@@ -756,7 +888,7 @@
 
         sortedLogs.forEach((log, index) => {
             let itemListHtml = `<ul class="item-list-group">`;
-            
+
             if(log.items && log.items.length > 0) {
                 log.items.forEach((item) => {
                     itemListHtml += `<li><b>${item.item}</b> (${item.qty})</li>`;
@@ -791,7 +923,7 @@
     function renderEditLogModal() {
         const container = document.getElementById('editLogContainer');
         container.innerHTML = "";
-        
+
         const log = logs.find(l => l.id === currentEditLogId);
         if(!log) return;
 
@@ -819,7 +951,7 @@
                         </div>
                     </div>
                 </div>`;
-            
+
             wrapper.innerHTML = content;
             container.appendChild(wrapper);
         });
@@ -827,12 +959,12 @@
 
     function returnUnitItem(logId, itemIdx, condition) {
         if(!confirm(condition === 'good' ? "Kembali ke Stok Ready?" : "Masuk ke Gudang Rusak?")) return;
-        
+
         const log = logs.find(l => l.id === logId);
         const item = log.items[itemIdx];
 
         if(condition === 'good') {
-            inventory[item.item] = (inventory[item.item] || 0) + 1; 
+            inventory[item.item] = (inventory[item.item] || 0) + 1;
         } else {
             const today = new Date().toISOString().split('T')[0];
             badInventory[item.item] = (badInventory[item.item] || 0) + 1;
@@ -898,7 +1030,8 @@
             inventory: inventory,
             badInventory: badInventory,
             badLogs: badLogs,
-            itemMaster: itemMaster
+            itemMaster: itemMaster,
+            opmLoans: opmLoans
         };
         const dataStr = JSON.stringify(dataToSave, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
@@ -927,6 +1060,8 @@
                 badInventory = json.badInventory || {};
                 badLogs = json.badLogs || [];
                 itemMaster = json.itemMaster || DEFAULT_BARANG;
+                opmLoans = json.opmLoans || {};
+                initOpmLoans();
                 persistData();
                 alert("✅ Data berhasil di-restore!");
                 document.getElementById('backupModal').style.display = 'none';
@@ -944,7 +1079,7 @@
             const log = logs[logIdx];
             if(log.items) {
                 log.items.forEach(item => {
-                    inventory[item.item] = (inventory[item.item] || 0) + item.qty; 
+                    inventory[item.item] = (inventory[item.item] || 0) + item.qty;
                 });
             }
             logs.splice(logIdx, 1);
@@ -953,7 +1088,7 @@
     }
 
     function openCopyModal() { document.getElementById('copyModal').style.display = 'flex'; }
-    
+
     function exportToExcel() {
         if(logs.length === 0 && badLogs.length === 0) return alert("Data kosong");
         let excelRows = "";
@@ -990,22 +1125,22 @@
         });
         document.getElementById('stockModal').style.display = "flex";
     }
-    
+
     function saveStockConfig() {
         itemMaster.forEach(item => {
             const el = document.getElementById(`stk_${item}`);
-            if (el) inventory[item] = parseInt(el.value) || 0; 
+            if (el) inventory[item] = parseInt(el.value) || 0;
         });
         persistData();
         document.getElementById('stockModal').style.display = 'none';
     }
-    
+
     function openManageItemsModal() {
         document.getElementById('choiceModal').style.display = 'none';
         renderManageItemList();
         document.getElementById('manageItemModal').style.display = 'flex';
     }
-    
+
     function renderManageItemList() {
         const container = document.getElementById('manageItemList');
         container.innerHTML = "";
@@ -1022,21 +1157,21 @@
             container.appendChild(div);
         });
     }
-    
+
     function addNewItem() {
         let val = document.getElementById('newItemName').value.trim();
-        val = val.replace(/['"]/g, ""); 
+        val = val.replace(/['"]/g, "");
         if(val && !itemMaster.includes(val)) {
             itemMaster.push(val);
             if(inventory[val] === undefined) inventory[val] = 0;
             if(badInventory[val] === undefined) badInventory[val] = 0;
             document.getElementById('newItemName').value = "";
-            persistData(); 
-            renderManageItemList(); 
+            persistData();
+            renderManageItemList();
             populateDropdowns();
         } else if (itemMaster.includes(val)) alert("⚠️ Nama barang sudah ada!");
     }
-    
+
     function renameMasterItem(oldName) {
         const newName = prompt("Masukkan nama baru untuk: " + oldName, oldName);
         if (!newName || newName === oldName) return;
@@ -1059,12 +1194,12 @@
     function removeMasterItem(val) {
         if(confirm(`Yakin ingin menghapus ${val} dari daftar barang?\n\nPerhatian: Data stok di database tetap aman, hanya hilang dari tampilan.`)) {
             itemMaster = itemMaster.filter(i => i !== val);
-            persistData(); 
-            renderManageItemList(); 
-            populateDropdowns(); 
+            persistData();
+            renderManageItemList();
+            populateDropdowns();
         }
     }
-    
+
     function renderStockDashboard() {
         const container = document.getElementById('stockDisplay');
         container.innerHTML = "";
@@ -1077,8 +1212,8 @@
             container.appendChild(div);
         });
     }
-    
-    function formatDateIndo(d) { 
+
+    function formatDateIndo(d) {
         if(!d || d === '-') return '-';
         const date = new Date(d);
         if(isNaN(date.getTime())) return d;
