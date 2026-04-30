@@ -84,6 +84,7 @@
         .btn-warning { background: var(--warning); color: black; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-dark { background: #334155; color: white; }
+        .btn-teal { background: #0d9488; color: white; }
 
         /* --- KERANJANG --- */
         .cart-container { background: #eff6ff; border: 1px dashed var(--primary); }
@@ -382,7 +383,8 @@
         <div style="display:flex; flex-direction:column; gap:10px;">
             <button class="btn-action btn-blue" onclick="processCopy('today')">📅 Copy Laporan Hari Ini</button>
             <button class="btn-action btn-green" onclick="processCopy('all')">🗂️ Copy Semua History</button>
-            <button class="btn-action btn-purple" onclick="processCopy('stock')">📊 Copy Laporan Stok</button>
+            <button class="btn-action btn-purple" onclick="processCopy('stock')">📊 Copy Laporan Stok (Urut Qty)</button>
+            <button class="btn-action btn-teal" onclick="copyOpmReport()">📟 Laporan OPM (Peminjaman & Stok Tersedia)</button>
         </div>
     </div>
 </div>
@@ -536,6 +538,102 @@
         renderOpmList();
     }
 
+    // ========== LAPORAN STOK DENGAN SORTING ==========
+    function generateStockReport() {
+        const today = new Date();
+        const formattedDate = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
+        let txt = `*LAPORAN STOK GUDANG (Urut Jumlah)*\n📅 ${formattedDate}\n=================================\n\n`;
+    
+        const itemsWithStock = itemMaster.map(item => ({
+            name: item,
+            qty: inventory[item] !== undefined ? inventory[item] : 0
+        }));
+        // Urutkan berdasarkan qty ascending (dari sedikit ke banyak)
+        itemsWithStock.sort((a,b) => a.qty - b.qty);
+        
+        let zeroStock = itemsWithStock.filter(i => i.qty === 0);
+        let lowStock = itemsWithStock.filter(i => i.qty >= 1 && i.qty <= 29);
+        let highStock = itemsWithStock.filter(i => i.qty >= 30);
+        
+        if (zeroStock.length > 0) {
+            txt += `*🔴 STOK KOSONG (0)*\n`;
+            zeroStock.forEach((item, idx) => {
+                txt += `${idx+1}. ${item.name} : ${item.qty}\n`;
+            });
+            txt += `\n=================================\n\n`;
+        }
+        if (lowStock.length > 0) {
+            txt += `*🟠 STOK TERBATAS (1 - 29)*\n`;
+            lowStock.forEach((item, idx) => {
+                txt += `${idx+1}. ${item.name} : ${item.qty}\n`;
+            });
+            txt += `\n=================================\n\n`;
+        }
+        if (highStock.length > 0) {
+            txt += `*🟢 STOK AMAN (≥30)*\n`;
+            highStock.forEach((item, idx) => {
+                txt += `${idx+1}. ${item.name} : ${item.qty}\n`;
+            });
+            txt += `\n=================================\n`;
+        }
+        if (zeroStock.length === 0 && lowStock.length === 0 && highStock.length === 0) {
+            txt += "Tidak ada data stok.\n";
+        } else {
+            txt += `\n*Total Item Terdaftar:* ${itemsWithStock.length}\n`;
+            txt += `*Total Stok Tersedia:* ${itemsWithStock.reduce((sum, i) => sum + i.qty, 0)} unit\n`;
+        }
+        return txt;
+    }
+
+    // ========== LAPORAN OPM (PEMINJAMAN + SISA STOK) ==========
+    function generateOpmReport() {
+        const today = new Date();
+        const formattedDate = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
+        let txt = `📟 *LAPORAN OPM (OTDR)*\n📅 ${formattedDate}\n=================================\n\n`;
+        
+        const borrowedList = [];
+        const availableList = [];
+        
+        Object.keys(opmLoans).sort().forEach(sn => {
+            const data = opmLoans[sn];
+            if (data.status === 'borrowed') {
+                borrowedList.push({ sn, tech: data.borrowedBy });
+            } else {
+                availableList.push(sn);
+            }
+        });
+        
+        txt += `*🔴 SEDANG DIPINJAM (${borrowedList.length} unit)*\n`;
+        if (borrowedList.length === 0) {
+            txt += `Tidak ada OPM yang dipinjam.\n`;
+        } else {
+            borrowedList.forEach((item, idx) => {
+                txt += `${idx+1}. S/N: ${item.sn} → dipinjam oleh: ${item.tech}\n`;
+            });
+        }
+        txt += `\n=================================\n\n`;
+        
+        txt += `*🟢 OPM TERSEDIA (Sisa Stok ${availableList.length} unit)*\n`;
+        if (availableList.length === 0) {
+            txt += `Tidak ada OPM tersedia.\n`;
+        } else {
+            availableList.forEach((sn, idx) => {
+                txt += `${idx+1}. S/N: ${sn}\n`;
+            });
+        }
+        txt += `\n=================================\n`;
+        txt += `*Total OPM Terdaftar:* ${Object.keys(opmLoans).length} unit\n`;
+        txt += `*Dipinjam:* ${borrowedList.length} unit\n`;
+        txt += `*Tersedia:* ${availableList.length} unit\n`;
+        return txt;
+    }
+
+    function copyOpmReport() {
+        const report = generateOpmReport();
+        copyToClipboard(report, "✅ Laporan OPM berhasil dicopy! Paste di WhatsApp.");
+        document.getElementById('copyModal').style.display = 'none';
+    }
+
     // ========== CLIPBOARD & REPORT ==========
     function copyToClipboard(text, successMsg = "✅ Berhasil disalin ke clipboard!") {
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -564,57 +662,6 @@
         }
     }
 
-    function generateStockReport() {
-        const today = new Date();
-        const formattedDate = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
-        let txt = `*LAPORAN STOK GUDANG*\n📅 ${formattedDate}\n=================================\n\n`;
-
-        const itemsWithStock = itemMaster.map(item => ({
-            name: item,
-            qty: inventory[item] !== undefined ? inventory[item] : 0
-        }));
-
-        const zeroStock = itemsWithStock.filter(i => i.qty === 0);
-        const lowStock = itemsWithStock.filter(i => i.qty >= 1 && i.qty <= 29);
-        const highStock = itemsWithStock.filter(i => i.qty >= 30);
-
-        zeroStock.sort((a,b) => a.name.localeCompare(b.name));
-        lowStock.sort((a,b) => a.name.localeCompare(b.name));
-        highStock.sort((a,b) => a.name.localeCompare(b.name));
-
-        if (zeroStock.length > 0) {
-            txt += `*🔴 STOK KOSONG (0)*\n`;
-            zeroStock.forEach((item, idx) => {
-                txt += `${idx+1}. ${item.name} : ${item.qty}\n`;
-            });
-            txt += `\n=================================\n\n`;
-        }
-
-        if (lowStock.length > 0) {
-            txt += `*🟠 STOK TERBATAS (1 - 29)*\n`;
-            lowStock.forEach((item, idx) => {
-                txt += `${idx+1}. ${item.name} : ${item.qty}\n`;
-            });
-            txt += `\n=================================\n\n`;
-        }
-
-        if (highStock.length > 0) {
-            txt += `*🟢 STOK AMAN (≥30)*\n`;
-            highStock.forEach((item, idx) => {
-                txt += `${idx+1}. ${item.name} : ${item.qty}\n`;
-            });
-            txt += `\n=================================\n`;
-        }
-
-        if (zeroStock.length === 0 && lowStock.length === 0 && highStock.length === 0) {
-            txt += "Tidak ada data stok.\n";
-        } else {
-            txt += `\n*Total Item Terdaftar:* ${itemsWithStock.length}\n`;
-            txt += `*Total Stok Tersedia:* ${itemsWithStock.reduce((sum, i) => sum + i.qty, 0)} unit\n`;
-        }
-        return txt;
-    }
-
     function processCopy(mode) {
         if (mode === 'stock') {
             const report = generateStockReport();
@@ -622,7 +669,7 @@
             document.getElementById('copyModal').style.display = 'none';
             return;
         }
-
+        
         let targetLogs = logs;
         let targetBadLogs = badLogs;
         let title = `*REKAP SEMUA TRANSAKSI*`;
@@ -711,9 +758,7 @@
                     if (inventory[item] === undefined) inventory[item] = 0;
                     if (badInventory[item] === undefined) badInventory[item] = 0;
                 });
-
                 if (initOpmLoans()) {
-                    // Jika ada OPM baru yang ditambahkan dari DEFAULT, simpan langsung
                     const safeData = {
                         logs: logs,
                         inventory: inventory,
@@ -724,7 +769,6 @@
                     };
                     dataRef.set(safeData).catch(() => {});
                 }
-
                 populateDropdowns();
                 document.getElementById('dateInput').valueAsDate = new Date();
                 isInitialLoad = false;
@@ -888,7 +932,6 @@
 
         sortedLogs.forEach((log, index) => {
             let itemListHtml = `<ul class="item-list-group">`;
-
             if(log.items && log.items.length > 0) {
                 log.items.forEach((item) => {
                     itemListHtml += `<li><b>${item.item}</b> (${item.qty})</li>`;
@@ -923,15 +966,12 @@
     function renderEditLogModal() {
         const container = document.getElementById('editLogContainer');
         container.innerHTML = "";
-
         const log = logs.find(l => l.id === currentEditLogId);
         if(!log) return;
-
         if(!log.items || log.items.length === 0) {
             container.innerHTML = "<div style='text-align:center; color:#999'>Item kosong (telah diretur semua).</div>";
             return;
         }
-
         log.items.forEach((item, idx) => {
             const wrapper = document.createElement('div');
             wrapper.style.marginBottom = "10px";
@@ -939,8 +979,7 @@
             wrapper.style.padding = "10px";
             wrapper.style.borderRadius = "8px";
             wrapper.style.border = "1px solid #e2e8f0";
-
-            let content = `
+            wrapper.innerHTML = `
                 <div class="edit-item-row">
                     <span style="font-weight:bold">${item.item} (Qty: ${item.qty})</span>
                     <div class="action-group" style="flex-direction:column; align-items:flex-end;">
@@ -951,18 +990,14 @@
                         </div>
                     </div>
                 </div>`;
-
-            wrapper.innerHTML = content;
             container.appendChild(wrapper);
         });
     }
 
     function returnUnitItem(logId, itemIdx, condition) {
         if(!confirm(condition === 'good' ? "Kembali ke Stok Ready?" : "Masuk ke Gudang Rusak?")) return;
-
         const log = logs.find(l => l.id === logId);
         const item = log.items[itemIdx];
-
         if(condition === 'good') {
             inventory[item.item] = (inventory[item.item] || 0) + 1;
         } else {
@@ -975,10 +1010,8 @@
                 info: 'Retur Material'
             });
         }
-
         item.qty -= 1;
         if(item.qty <= 0) { log.items.splice(itemIdx, 1); }
-
         persistData();
         renderEditLogModal();
     }
@@ -998,10 +1031,7 @@
                 hasMaterial = true;
                 const li = document.createElement('li');
                 li.style.cssText = "border-bottom:1px solid #eee; padding:5px 0; display:flex; justify-content:space-between;";
-                li.innerHTML = `
-                    <div><span style="font-weight:bold">${item}</span></div>
-                    <div>Qty: <b>${badInventory[item]}</b></div>
-                `;
+                li.innerHTML = `<div><span style="font-weight:bold">${item}</span></div><div>Qty: <b>${badInventory[item]}</b></div>`;
                 matList.appendChild(li);
             }
         });
