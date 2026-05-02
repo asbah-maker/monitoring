@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>✨ Dashboard Operasional | NeoGlass — Motivasi CS</title>
+    <title>✨ Dashboard Operasional | NeoGlass — Hijau Tua & Putih</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,22 +13,76 @@
             box-sizing: border-box;
         }
 
+        /* CSS VARIABLES - DARK MODE (DEFAULT) */
+        :root {
+            --bg-gradient-start: #0b1120;
+            --bg-gradient-end: #0a0f1c;
+            --orb-primary: rgba(59,130,246,0.28);
+            --orb-secondary: rgba(139,92,246,0.2);
+            --glass-bg: rgba(15, 25, 45, 0.55);
+            --glass-border: rgba(255,255,255,0.15);
+            --card-bg: rgba(20, 30, 55, 0.6);
+            --card-bg-hover: rgba(30, 45, 75, 0.75);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --stat-bg: rgba(0,0,0,0.35);
+            --search-bg: rgba(255,255,255,0.08);
+            --search-border: rgba(255,255,255,0.2);
+            --filter-btn-bg: rgba(255,255,255,0.05);
+            --filter-btn-border: rgba(255,255,255,0.15);
+            --filter-btn-color: #e2e8f0;
+            --motivation-gradient: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2));
+            --motivation-border: rgba(255,255,255,0.2);
+            --footer-bg: rgba(0,0,0,0.2);
+            --footer-color: #4b556b;
+            --empty-bg: rgba(0,0,0,0.25);
+            --star-color: #cbd5e1;
+            --star-active: #fbbf24;
+        }
+
+        /* LIGHT MODE - HIJAU TUA & PUTIH (ELEGAN, TENANG, PROFESIONAL) */
+        body.light-mode {
+            --bg-gradient-start: #ffffff;
+            --bg-gradient-end: #f5f5f5;
+            --orb-primary: rgba(0, 77, 64, 0.08);
+            --orb-secondary: rgba(27, 94, 32, 0.06);
+            --glass-bg: rgba(255, 255, 255, 0.88);
+            --glass-border: rgba(0, 77, 64, 0.15);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-bg-hover: rgba(255, 255, 255, 0.98);
+            --text-primary: #004d40;
+            --text-secondary: #1b5e20;
+            --stat-bg: rgba(0,0,0,0.02);
+            --search-bg: rgba(255, 255, 255, 0.95);
+            --search-border: rgba(0, 77, 64, 0.2);
+            --filter-btn-bg: rgba(255, 255, 255, 0.8);
+            --filter-btn-border: rgba(0, 77, 64, 0.2);
+            --filter-btn-color: #004d40;
+            --motivation-gradient: linear-gradient(135deg, rgba(0, 77, 64, 0.08), rgba(27, 94, 32, 0.05));
+            --motivation-border: rgba(0, 77, 64, 0.12);
+            --footer-bg: rgba(0,0,0,0.02);
+            --footer-color: #2e7d32;
+            --empty-bg: rgba(0,0,0,0.02);
+            --star-color: #66bb6a;
+            --star-active: #f9a825;
+        }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle at 20% 30%, #0b1120, #0a0f1c);
+            background: radial-gradient(circle at 20% 30%, var(--bg-gradient-start), var(--bg-gradient-end));
             min-height: 100vh;
             padding: 20px 20px 30px;
             position: relative;
             overflow-x: hidden;
+            transition: background 0.3s ease, color 0.2s;
         }
 
-        /* Orbs dekoratif */
         body::before {
             content: '';
             position: fixed;
             width: min(320px, 70vw);
             height: min(320px, 70vw);
-            background: radial-gradient(circle, rgba(59,130,246,0.28) 0%, rgba(59,130,246,0) 70%);
+            background: radial-gradient(circle, var(--orb-primary) 0%, transparent 70%);
             top: -80px;
             left: -80px;
             border-radius: 50%;
@@ -41,7 +95,7 @@
             position: fixed;
             width: min(450px, 85vw);
             height: min(450px, 85vw);
-            background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0) 70%);
+            background: radial-gradient(circle, var(--orb-secondary) 0%, transparent 70%);
             bottom: -120px;
             right: -100px;
             border-radius: 50%;
@@ -50,8 +104,8 @@
             animation: floatOrb 28s infinite alternate-reverse;
         }
         @keyframes floatOrb {
-            0% { transform: translate(0, 0) scale(1); opacity: 0.35; }
-            100% { transform: translate(35px, 35px) scale(1.1); opacity: 0.55; }
+            0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+            100% { transform: translate(35px, 35px) scale(1.1); opacity: 0.6; }
         }
 
         .container {
@@ -61,13 +115,13 @@
             z-index: 2;
         }
 
-        /* Glass panel */
         .glass-panel {
-            background: rgba(15, 25, 45, 0.55);
+            background: var(--glass-bg);
             backdrop-filter: blur(12px);
             border-radius: 2rem;
-            border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.3s;
         }
 
         .header {
@@ -77,6 +131,7 @@
             align-items: center;
             padding: 18px 28px;
             margin-bottom: 24px;
+            gap: 16px;
         }
 
         .logo-area h1 {
@@ -88,16 +143,22 @@
             color: transparent;
             letter-spacing: -0.3px;
         }
+        body.light-mode .logo-area h1 {
+            background: linear-gradient(135deg, #004d40, #1b5e20, #2e7d32);
+            background-clip: text;
+            -webkit-background-clip: text;
+        }
         .logo-area p {
-            color: #94a3b8;
+            color: var(--text-secondary);
             font-size: 0.75rem;
             margin-top: 5px;
+            font-weight: 500;
         }
 
         .stats {
             display: flex;
             gap: 20px;
-            background: rgba(0,0,0,0.35);
+            background: var(--stat-bg);
             padding: 6px 20px;
             border-radius: 60px;
             backdrop-filter: blur(4px);
@@ -108,14 +169,38 @@
         .stat-number {
             font-weight: 800;
             font-size: 1.4rem;
-            color: white;
+            color: var(--text-primary);
         }
         .stat-label {
             font-size: 0.7rem;
-            color: #cbd5e1;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
-        /* Search bar */
+        .theme-toggle {
+            background: var(--filter-btn-bg);
+            border: 1px solid var(--filter-btn-border);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--filter-btn-color);
+            backdrop-filter: blur(5px);
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .theme-toggle:hover {
+            background: #004d40;
+            color: white;
+            transform: translateY(-2px);
+        }
+        body.light-mode .theme-toggle:hover {
+            background: #1b5e20;
+        }
+
         .action-bar {
             display: flex;
             flex-wrap: wrap;
@@ -125,7 +210,7 @@
             justify-content: space-between;
         }
         .search-glass {
-            background: rgba(255,255,255,0.08);
+            background: var(--search-bg);
             border-radius: 60px;
             padding: 10px 20px;
             display: flex;
@@ -133,61 +218,61 @@
             gap: 12px;
             flex: 1;
             max-width: 380px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid var(--search-border);
             transition: all 0.3s;
         }
         .search-glass:focus-within {
-            background: rgba(255,255,255,0.15);
-            border-color: #3b82f6;
-            box-shadow: 0 0 12px rgba(59,130,246,0.3);
+            background: white;
+            border-color: #004d40;
+            box-shadow: 0 0 12px rgba(0,77,64,0.2);
         }
-        .search-glass i { color: #94a3b8; font-size: 1rem; }
+        .search-glass i { color: var(--text-secondary); font-size: 1rem; }
         .search-glass input {
             background: transparent;
             border: none;
             outline: none;
-            color: white;
+            color: var(--text-primary);
             width: 100%;
             font-size: 0.9rem;
         }
-        .search-glass input::placeholder { color: #64748b; }
+        .search-glass input::placeholder { color: var(--text-secondary); opacity: 0.7; }
 
         .filter-group {
             display: flex;
             gap: 12px;
         }
         .filter-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.15);
+            background: var(--filter-btn-bg);
+            border: 1px solid var(--filter-btn-border);
             padding: 8px 18px;
             border-radius: 40px;
             font-weight: 600;
             font-size: 0.8rem;
             cursor: pointer;
             transition: 0.2s;
-            color: #e2e8f0;
+            color: var(--filter-btn-color);
             backdrop-filter: blur(5px);
         }
         .filter-btn i { margin-right: 6px; }
         .filter-btn.active {
-            background: #3b82f6;
-            border-color: #3b82f6;
+            background: #004d40;
+            border-color: #004d40;
             color: white;
-            box-shadow: 0 0 12px rgba(59,130,246,0.5);
+            box-shadow: 0 0 12px rgba(0,77,64,0.4);
         }
         .filter-btn:hover {
-            background: rgba(59,130,246,0.6);
+            background: #1b5e20;
             transform: translateY(-2px);
+            color: white;
         }
 
-        /* MOTIVASI CS */
         .motivation-card {
-            background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2));
+            background: var(--motivation-gradient);
             backdrop-filter: blur(10px);
             border-radius: 1.5rem;
             padding: 16px 24px;
             margin-bottom: 28px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid var(--motivation-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -203,31 +288,28 @@
         }
         .motivation-icon {
             font-size: 2rem;
-            color: #fbbf24;
-            filter: drop-shadow(0 0 6px rgba(251,191,36,0.5));
-        }
-        .motivation-text {
-            flex: 1;
+            color: #2e7d32;
+            filter: drop-shadow(0 0 4px rgba(0,77,64,0.3));
         }
         .motivation-quote {
             font-size: 1rem;
             font-weight: 500;
-            color: #f1f5f9;
+            color: var(--text-primary);
             line-height: 1.4;
             font-style: italic;
         }
         .motivation-author {
             font-size: 0.7rem;
-            color: #94a3b8;
+            color: var(--text-secondary);
             margin-top: 6px;
             letter-spacing: 0.5px;
         }
         .refresh-motivation {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.2);
             border: none;
             border-radius: 40px;
             padding: 8px 16px;
-            color: white;
+            color: var(--text-primary);
             font-size: 0.8rem;
             cursor: pointer;
             transition: 0.2s;
@@ -237,17 +319,11 @@
             backdrop-filter: blur(4px);
         }
         .refresh-motivation:hover {
-            background: rgba(59,130,246,0.5);
+            background: #004d40;
             transform: scale(1.02);
-        }
-        @media (max-width: 550px) {
-            .motivation-card { padding: 12px 18px; }
-            .motivation-quote { font-size: 0.85rem; }
-            .motivation-icon { font-size: 1.5rem; }
-            .refresh-motivation { padding: 6px 12px; font-size: 0.7rem; }
+            color: white;
         }
 
-        /* SCROLLABLE GRID */
         .scrollable-menu-container {
             max-height: 58vh;
             overflow-y: auto;
@@ -257,23 +333,18 @@
             border-radius: 28px;
             scroll-behavior: smooth;
         }
-
         .scrollable-menu-container::-webkit-scrollbar {
             width: 6px;
         }
         .scrollable-menu-container::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
+            background: rgba(128,128,128,0.2);
             border-radius: 10px;
         }
         .scrollable-menu-container::-webkit-scrollbar-thumb {
-            background: #3b82f6;
+            background: #004d40;
             border-radius: 10px;
         }
-        .scrollable-menu-container::-webkit-scrollbar-thumb:hover {
-            background: #60a5fa;
-        }
 
-        /* Grid card */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -281,13 +352,13 @@
         }
 
         .card {
-            background: rgba(20, 30, 55, 0.6);
+            background: var(--card-bg);
             backdrop-filter: blur(12px);
             border-radius: 28px;
             padding: 20px 14px 18px;
             text-align: center;
             transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--glass-border);
             cursor: pointer;
             position: relative;
             overflow: hidden;
@@ -299,17 +370,16 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            background: linear-gradient(90deg, transparent, rgba(0,77,64,0.08), transparent);
             transition: left 0.5s;
         }
         .card:hover::before { left: 100%; }
         .card:hover {
             transform: translateY(-6px) scale(1.01);
-            border-color: rgba(59,130,246,0.6);
-            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.3);
-            background: rgba(30, 45, 75, 0.75);
+            border-color: #004d40;
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.15);
+            background: var(--card-bg-hover);
         }
-
         .card-icon {
             font-size: 2.2rem;
             margin-bottom: 14px;
@@ -317,30 +387,28 @@
             transition: transform 0.2s;
         }
         .card:hover .card-icon { transform: scale(1.05) rotate(2deg); }
-
         .card-title {
             font-weight: 700;
             font-size: 0.9rem;
-            color: #f1f5f9;
+            color: var(--text-primary);
             margin-bottom: 6px;
-            letter-spacing: -0.2px;
         }
         .card-category {
             font-size: 0.62rem;
-            color: #94a3b8;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.8px;
+            font-weight: 600;
         }
-
         .favorite-icon {
             position: absolute;
             top: 12px;
             right: 12px;
             font-size: 1rem;
-            color: #cbd5e1;
+            color: var(--star-color);
             transition: 0.2s;
             z-index: 3;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.05);
             width: 28px;
             height: 28px;
             border-radius: 30px;
@@ -350,32 +418,30 @@
             cursor: pointer;
         }
         .favorite-icon.fav-active {
-            color: #fbbf24;
-            text-shadow: 0 0 6px #f59e0b;
+            color: var(--star-active);
+            text-shadow: 0 0 6px #f9a825;
         }
         .card a {
             text-decoration: none;
             display: block;
             color: inherit;
         }
-
         .empty-message {
             text-align: center;
             padding: 48px 20px;
-            color: #94a3b8;
-            background: rgba(0,0,0,0.25);
+            color: var(--text-secondary);
+            background: var(--empty-bg);
             border-radius: 2rem;
             backdrop-filter: blur(8px);
             margin: 20px 0;
             font-weight: 500;
         }
-
         footer {
             margin-top: 35px;
             text-align: center;
             font-size: 0.7rem;
-            color: #4b556b;
-            background: rgba(0,0,0,0.2);
+            color: var(--footer-color);
+            background: var(--footer-bg);
             padding: 12px;
             border-radius: 48px;
             backdrop-filter: blur(4px);
@@ -385,13 +451,13 @@
             body { padding: 15px 15px 25px; }
             .menu-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 16px; }
             .card { padding: 16px 10px 14px; }
-            .card-icon { font-size: 1.9rem; margin-bottom: 10px; }
+            .card-icon { font-size: 1.9rem; }
             .card-title { font-size: 0.8rem; }
-            .header { flex-direction: column; gap: 14px; align-items: flex-start; }
-            .stats { gap: 14px; padding: 5px 16px; }
-            .stat-number { font-size: 1.2rem; }
+            .header { flex-direction: column; align-items: stretch; }
+            .stats { justify-content: center; }
             .scrollable-menu-container { max-height: 52vh; }
             .filter-btn { padding: 6px 14px; font-size: 0.75rem; }
+            .theme-toggle { align-self: flex-start; }
         }
         @media (max-width: 480px) {
             .scrollable-menu-container { max-height: 50vh; }
@@ -406,9 +472,12 @@
             <h1><i class="fas fa-bolt"></i> NexDash Operasional</h1>
             <p>Smart workspace • akses cepat & favorit • scroll grid seamless</p>
         </div>
-        <div class="stats">
-            <div class="stat-item"><div class="stat-number" id="totalCount">0</div><div class="stat-label">Total Menu</div></div>
-            <div class="stat-item"><div class="stat-number" id="favCount">0</div><div class="stat-label">Favorit</div></div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <button id="themeToggleBtn" class="theme-toggle"><i class="fas fa-moon"></i> <span id="themeText">Mode Gelap</span></button>
+            <div class="stats">
+                <div class="stat-item"><div class="stat-number" id="totalCount">0</div><div class="stat-label">Total Menu</div></div>
+                <div class="stat-item"><div class="stat-number" id="favCount">0</div><div class="stat-label">Favorit</div></div>
+            </div>
         </div>
     </div>
 
@@ -423,10 +492,9 @@
         </div>
     </div>
 
-    <!-- MOTIVASI UNTUK TIM CS -->
-    <div class="motivation-card" id="motivationCard">
+    <div class="motivation-card">
         <div class="motivation-content">
-            <div class="motivation-icon"><i class="fas fa-heart"></i></div>
+            <div class="motivation-icon"><i class="fas fa-seedling"></i></div>
             <div class="motivation-text">
                 <div class="motivation-quote" id="motivationQuote">"Pelayanan terbaik berawal dari hati yang tulus."</div>
                 <div class="motivation-author" id="motivationAuthor">— Tim CS Excellence</div>
@@ -440,12 +508,11 @@
         <div id="emptyState" class="empty-message" style="display:none">✨ Tidak ada menu yang cocok dengan filter ✨<br><i class="fas fa-arrows-spin"></i> Coba ubah kata kunci atau nonaktifkan filter favorit</div>
     </div>
 
-    <footer>⭐ Klik bintang untuk favorit • Data tersimpan otomatis • Gulir grid dengan nyaman • Kata motivasi untuk semangat CS setiap hari!</footer>
+    <footer>⭐ Klik bintang untuk favorit • Data tersimpan otomatis • Gulir grid dengan nyaman • Kata motivasi untuk semangat CS setiap hari! 🍃🌿</footer>
 </div>
 
 <script>
     // ========= DATA MENU ==========
-    // Perubahan: logo Social Chat diganti dari fab fa-whatsapp menjadi fas fa-comments dengan warna biru cerah
     const menuData = [
         { name: "Social Chat", icon: "fas fa-comments", color: "#3b82f6", url: "https://app.socialchat.id/app/chat", category: "Komunikasi", keywords: "chat social" },
         { name: "ACS Sinyalku", icon: "fas fa-wifi", color: "#e67e22", url: "http://192.168.31.1:3000/#!/devices", category: "Monitoring", keywords: "acs sinyalku" },
@@ -470,7 +537,6 @@
         { name: "YouTube", icon: "fab fa-youtube", color: "#ff0000", url: "https://www.youtube.com/", category: "Hiburan", keywords: "video" }
     ];
 
-    // KATA MOTIVASI CS
     const motivationQuotes = [
         { text: "Setiap pelanggan adalah kesempatan untuk membuat hari mereka lebih baik.", author: "— CS Expert" },
         { text: "Senyum di balik suara adalah kunci kepuasan pelanggan.", author: "— Tim Support" },
@@ -490,6 +556,27 @@
     let favorites = JSON.parse(localStorage.getItem('nex_favorites')) || [];
     let favFilterActive = false;
     let searchTerm = "";
+
+    // Theme handling
+    let isLightMode = localStorage.getItem('nex_theme') === 'light';
+    function applyTheme() {
+        if (isLightMode) {
+            document.body.classList.add('light-mode');
+            document.getElementById('themeText').innerText = 'Mode Terang';
+            document.getElementById('themeToggleBtn').querySelector('i').className = 'fas fa-sun';
+        } else {
+            document.body.classList.remove('light-mode');
+            document.getElementById('themeText').innerText = 'Mode Gelap';
+            document.getElementById('themeToggleBtn').querySelector('i').className = 'fas fa-moon';
+        }
+    }
+    function toggleTheme() {
+        isLightMode = !isLightMode;
+        localStorage.setItem('nex_theme', isLightMode ? 'light' : 'dark');
+        applyTheme();
+    }
+    document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+    applyTheme();
 
     function updateStats() {
         document.getElementById('totalCount').innerText = menuData.length;
@@ -560,7 +647,6 @@
         const randomIndex = Math.floor(Math.random() * motivationQuotes.length);
         return motivationQuotes[randomIndex];
     }
-
     function displayRandomMotivation() {
         const quote = getRandomMotivation();
         document.getElementById('motivationQuote').innerText = `"${quote.text}"`;
@@ -571,7 +657,6 @@
         searchTerm = e.target.value;
         render();
     });
-
     const favBtn = document.getElementById('favFilterBtn');
     favBtn.addEventListener('click', () => {
         favFilterActive = !favFilterActive;
@@ -584,7 +669,6 @@
         }
         render();
     });
-
     document.getElementById('resetFilterBtn').addEventListener('click', () => {
         searchTerm = "";
         favFilterActive = false;
@@ -593,7 +677,6 @@
         favBtn.innerHTML = '<i class="far fa-star"></i> Favorit';
         render();
     });
-
     document.getElementById('refreshMotivationBtn').addEventListener('click', () => {
         displayRandomMotivation();
     });
@@ -603,9 +686,7 @@
     displayRandomMotivation();
 
     const scrollContainer = document.getElementById('scrollableGridContainer');
-    if (scrollContainer) {
-        scrollContainer.style.scrollBehavior = "smooth";
-    }
+    if (scrollContainer) scrollContainer.style.scrollBehavior = "smooth";
 </script>
 </body>
 </html>
