@@ -359,9 +359,9 @@
             text-align: center;
             transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             border: 1px solid var(--glass-border);
-            cursor: pointer;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
         .card::before {
             content: '';
@@ -385,6 +385,7 @@
             margin-bottom: 14px;
             display: inline-block;
             transition: transform 0.2s;
+            pointer-events: none;
         }
         .card:hover .card-icon { transform: scale(1.05) rotate(2deg); }
         .card-title {
@@ -392,6 +393,7 @@
             font-size: 0.9rem;
             color: var(--text-primary);
             margin-bottom: 6px;
+            pointer-events: none;
         }
         .card-category {
             font-size: 0.62rem;
@@ -399,6 +401,7 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
             font-weight: 600;
+            pointer-events: none;
         }
         .favorite-icon {
             position: absolute;
@@ -407,7 +410,7 @@
             font-size: 1rem;
             color: var(--star-color);
             transition: 0.2s;
-            z-index: 3;
+            z-index: 10;
             background: rgba(0,0,0,0.05);
             width: 28px;
             height: 28px;
@@ -416,15 +419,14 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            backdrop-filter: blur(2px);
+        }
+        .favorite-icon:hover {
+            transform: scale(1.1);
         }
         .favorite-icon.fav-active {
             color: var(--star-active);
             text-shadow: 0 0 6px #f9a825;
-        }
-        .card a {
-            text-decoration: none;
-            display: block;
-            color: inherit;
         }
         .empty-message {
             text-align: center;
@@ -470,7 +472,7 @@
     <div class="glass-panel header">
         <div class="logo-area">
             <h1><i class="fas fa-bolt"></i> NexDash Operasional</h1>
-            <p>Smart workspace • akses cepat & favorit • scroll grid seamless</p>
+            <p>Smart workspace • akses cepat & favorit • klik 1x langsung buka</p>
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
             <button id="themeToggleBtn" class="theme-toggle"><i class="fas fa-moon"></i> <span id="themeText">Mode Gelap</span></button>
@@ -508,7 +510,7 @@
         <div id="emptyState" class="empty-message" style="display:none">✨ Tidak ada menu yang cocok dengan filter ✨<br><i class="fas fa-arrows-spin"></i> Coba ubah kata kunci atau nonaktifkan filter favorit</div>
     </div>
 
-    <footer>⭐ Klik bintang untuk favorit • Data tersimpan otomatis • Gulir grid dengan nyaman • Kata motivasi untuk semangat CS setiap hari! 🍃🌿</footer>
+    <footer>⭐ Klik bintang untuk favorit • Klik area kartu mana saja (kecuali bintang) untuk langsung membuka halaman • Data tersimpan otomatis • Gulir grid dengan nyaman 🌿</footer>
 </div>
 
 <script>
@@ -599,6 +601,15 @@
         saveFav();
     }
 
+    // Fungsi untuk membuka link (satu klik)
+    function openMenuUrl(url, e) {
+        // Pastikan tidak tertrigger dari star
+        if (e && e.target && e.target.closest('.favorite-icon')) return;
+        if (url) {
+            window.open(url, '_blank', 'noopener noreferrer');
+        }
+    }
+
     function render() {
         let filtered = [...menuData];
         if (favFilterActive) {
@@ -621,24 +632,35 @@
         grid.innerHTML = filtered.map(item => {
             const isFav = favorites.includes(item.name);
             return `
-                <div class="card" data-menu='${JSON.stringify(item)}'>
+                <div class="card" data-url="${item.url.replace(/"/g, '&quot;')}" data-name="${item.name}">
                     <div class="favorite-icon ${isFav ? 'fav-active' : ''}" data-name="${item.name}">
                         <i class="${isFav ? 'fas fa-star' : 'far fa-star'}"></i>
                     </div>
-                    <a href="${item.url}" target="_blank" rel="noopener noreferrer">
-                        <div class="card-icon" style="color: ${item.color}"><i class="${item.icon}"></i></div>
-                        <div class="card-title">${item.name}</div>
-                        <div class="card-category">${item.category}</div>
-                    </a>
+                    <div class="card-icon" style="color: ${item.color}"><i class="${item.icon}"></i></div>
+                    <div class="card-title">${item.name}</div>
+                    <div class="card-category">${item.category}</div>
                 </div>
             `;
         }).join('');
 
+        // Attach event listeners: card click (buka url) dan star click (toggle fav)
+        document.querySelectorAll('.card').forEach(card => {
+            const url = card.getAttribute('data-url');
+            // Handler klik kartu (seluruh area)
+            card.addEventListener('click', (e) => {
+                // Jangan buka jika yang diklik adalah tombol favorite atau ikon di dalamnya
+                if (e.target.closest('.favorite-icon')) return;
+                if (url) {
+                    window.open(url, '_blank', 'noopener noreferrer');
+                }
+            });
+        });
+
         document.querySelectorAll('.favorite-icon').forEach(star => {
             star.addEventListener('click', (e) => {
-                e.preventDefault();
-                const name = star.getAttribute('data-name');
-                if (name) toggleFavorite(name, e);
+                e.stopPropagation();
+                const menuName = star.getAttribute('data-name');
+                if (menuName) toggleFavorite(menuName, e);
             });
         });
     }
