@@ -2,336 +2,496 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Operasional</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>✨ Dashboard Operasional | NeoGlass</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        /* Reset CSS dasar */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 20% 30%, #0b1120, #0a0f1c);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            padding: 24px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* animated background orbs */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0) 70%);
+            top: -100px;
+            left: -100px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatOrb 20s infinite alternate;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0) 70%);
+            bottom: -150px;
+            right: -100px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatOrb 25s infinite alternate-reverse;
+        }
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+            100% { transform: translate(40px, 40px) scale(1.2); opacity: 0.7; }
         }
 
         .container {
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 1000px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* header glass */
+        .glass-panel {
+            background: rgba(15, 25, 45, 0.55);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+        }
+
+        .logo-area h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a5f3fc, #7dd3fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .logo-area p {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-top: 6px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 24px;
+            background: rgba(0,0,0,0.35);
+            padding: 10px 24px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+        }
+        .stat-item {
             text-align: center;
         }
+        .stat-number {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: white;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: #cbd5e1;
+        }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
+        /* search + filter bar */
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .search-glass {
+            background: rgba(255,255,255,0.08);
+            border-radius: 60px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            max-width: 360px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        .search-glass:focus-within {
+            background: rgba(255,255,255,0.15);
+            border-color: #3b82f6;
+            box-shadow: 0 0 12px rgba(59,130,246,0.3);
+        }
+        .search-glass i { color: #94a3b8; }
+        .search-glass input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        .search-glass input::placeholder { color: #64748b; }
+
+        .filter-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #e2e8f0;
+            backdrop-filter: blur(5px);
+        }
+        .filter-btn i { margin-right: 6px; }
+        .filter-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 0 12px rgba(59,130,246,0.5);
+        }
+        .filter-btn:hover {
+            background: rgba(59,130,246,0.6);
+            transform: translateY(-2px);
+        }
+
+        /* kategori chips */
+        .category-roll {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .cat-chip {
+            background: rgba(255,255,255,0.05);
+            border-radius: 40px;
+            padding: 6px 18px;
+            font-size: 0.75rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #cbd5e1;
+        }
+        .cat-chip.active {
+            background: linear-gradient(120deg, #3b82f6, #8b5cf6);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
         }
 
-        p {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        /* --- PENGATURAN GRID --- */
-        .grid-menu {
+        /* GRID MENU —— super menarik */
+        .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 24px;
         }
 
         .card {
-            background-color: white;
-            border: 1px solid #eee;
-            border-radius: 15px;
-            padding: 25px 15px;
-            text-decoration: none;
-            color: #444;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: rgba(20, 30, 55, 0.55);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            padding: 24px 16px;
+            text-align: center;
+            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
             position: relative;
             overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
             height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
         }
-
+        .card:hover::before { left: 100%; }
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-            border-color: transparent;
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(59,130,246,0.6);
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.3);
+            background: rgba(30, 45, 75, 0.7);
+        }
+        .card-icon {
+            font-size: 2.8rem;
+            margin-bottom: 18px;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .card:hover .card-icon { transform: scale(1.1) rotate(3deg); }
+        .card-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+        .card-category {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .favorite-icon {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            transition: 0.2s;
+            z-index: 3;
+            background: rgba(0,0,0,0.3);
+            width: 28px;
+            height: 28px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .favorite-icon.fav-active {
+            color: #fbbf24;
+            text-shadow: 0 0 6px #f59e0b;
+        }
+        .card a {
+            text-decoration: none;
+            display: block;
+            color: inherit;
         }
 
-        .card:active {
-            transform: scale(0.98);
-            background-color: #f5f5f5;
+        .empty-message {
+            text-align: center;
+            padding: 60px;
+            color: #94a3b8;
+            background: rgba(0,0,0,0.3);
+            border-radius: 2rem;
+            backdrop-filter: blur(8px);
         }
 
-        .card i {
-            font-size: 32px;
-            margin-bottom: 15px;
-            transition: color 0.3s;
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #475569;
         }
-
-        .card span {
-            font-weight: 600;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-
-        /* --- WARNA & ICONS EKSISTING --- */
-        
-        .social:hover { border-top: 4px solid #00a8ff; }
-        .social i { color: #00a8ff; }
-
-        .acs:hover { border-top: 4px solid #e67e22; }
-        .acs i { color: #e67e22; }
-
-        .member:hover { border-top: 4px solid #9b59b6; }
-        .member i { color: #9b59b6; }
-
-        .barantum:hover { border-top: 4px solid #ff4757; }
-        .barantum i { color: #ff4757; }
-
-        .wa:hover { border-top: 4px solid #25D366; }
-        .wa i { color: #25D366; }
-
-        .petak:hover { border-top: 4px solid #c0392b; }
-        .petak i { color: #c0392b; }
-
-        .monitor:hover { border-top: 4px solid #2980b9; }
-        .monitor i { color: #2980b9; }
-        
-        .psb:hover { border-top: 4px solid #16a085; }
-        .psb i { color: #16a085; }
-
-        .github:hover { border-top: 4px solid #333; background-color: #f9f9f9; }
-        .github i { color: #333; }
-
-        .gemini:hover { border-top: 4px solid #4E54C8; }
-        .gemini i { 
-            background: -webkit-linear-gradient(#4E54C8, #8F94FB);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .excel:hover { border-top: 4px solid #217346; }
-        .excel i { color: #217346; }
-
-        /* --- MENU BARU (DeepSeek, Gudang, Wahafe) --- */
-        .deepseek:hover { border-top: 4px solid #4d88ff; }
-        .deepseek i { color: #4d88ff; }
-
-        .gudang:hover { border-top: 4px solid #d35400; }
-        .gudang i { color: #d35400; }
-
-        .wahafe:hover { border-top: 4px solid #00b894; }
-        .wahafe i { color: #00b894; }
-
-        /* --- CSS UNTUK MENU TAMBAHAN (ZTE, HSGQ, YOUTUBE) --- */
-        .allow-zte:hover { border-top: 4px solid #00cec9; }
-        .allow-zte i { color: #00cec9; }
-
-        .allow-HSGQ:hover { border-top: 4px solid #6ab04c; }
-        .allow-HSGQ i { color: #6ab04c; }
-
-        .youtube:hover { border-top: 4px solid #ff0000; }
-        .youtube i { color: #ff0000; }
-
-        /* --- MENU BARU: Gudang Modem Teknisi --- */
-        .gudang-modem-teknisi:hover { border-top: 4px solid #e84393; }
-        .gudang-modem-teknisi i { color: #e84393; }
-
-        /* --- MENU BARU: OLT ZTE & HSGQ --- */
-        .olt-zte-hsgq:hover { border-top: 4px solid #2c3e50; }
-        .olt-zte-hsgq i { color: #2c3e50; }
-
-        /* --- MENU BARU: TO DO LIST --- */
-        .todo-list:hover { border-top: 4px solid #f39c12; }
-        .todo-list i { color: #f39c12; }
-
-        /* --- MENU PEMINJAMAN BARANG (TAMBAHAN BARU) --- */
-        .peminjaman-barang:hover { border-top: 4px solid #2ecc71; }
-        .peminjaman-barang i { color: #2ecc71; }
-
-        .footer {
-            margin-top: 40px;
-            font-size: 12px;
-            color: #888;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-
-        /* --- MEDIA QUERIES --- */
-        @media (max-width: 768px) {
-            body {
-                align-items: flex-start;
-                padding: 15px;
-            }
-
-            .container {
-                padding: 25px 20px;
-                margin-top: 10px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            .grid-menu {
-                gap: 15px;
-            }
-
-            .card {
-                padding: 20px 10px;
-            }
-            
-            .card i {
-                font-size: 28px;
-                margin-bottom: 10px;
-            }
+        @media (max-width: 650px) {
+            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+            .header { flex-direction: column; gap: 16px; }
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1>Dashboard Akses Cepat</h1>
-        <p>Silakan pilih menu operasional:</p>
-        
-        <div class="grid-menu">
-            
-            <a href="https://app.socialchat.id/app/chat" target="_blank" class="card social">
-                <i class="fas fa-comments"></i>
-                <span>Social Chat</span>
-            </a>
-
-            <a href="http://192.168.31.1:3000/#!/devices" target="_blank" class="card acs">
-                <i class="fas fa-wifi"></i>
-                <span>ACS Sinyalku</span>
-            </a>
-
-            <a href="https://srb.r-config.com/add-onu" target="_blank" class="card allow-zte">
-                <i class="fas fa-check-to-slot"></i>
-                <span>Web Allow ZTE</span>
-            </a>
-
-            <a href="https://linktr.ee/sinyalku" target="_blank" class="card allow-HSGQ">
-                <i class="fas fa-link"></i>
-                <span>Web Allow HSGQ</span>
-            </a>
-
-            <a href="https://webolt.sinyalku.net/" target="_blank" class="card olt-zte-hsgq">
-                <i class="fas fa-microchip"></i>
-                <span>OLT ZTE & HSGQ</span>
-            </a>
-
-            <a href="https://member.sinyalku.net/dashboard" target="_blank" class="card member">
-                <i class="fas fa-users"></i>
-                <span>Member Sinyalku</span>
-            </a>
-
-            <a href="https://my.barantum.com/barantumchat" target="_blank" class="card barantum">
-                <i class="fas fa-headset"></i>
-                <span>Barantum</span>
-            </a>
-
-            <a href="https://web.whatsapp.com/" target="_blank" class="card wa">
-                <i class="fab fa-whatsapp"></i>
-                <span>WhatsApp Web</span>
-            </a>
-
-            <a href="https://wahafe2.sinyalku.net/export-chat" target="_blank" class="card wahafe">
-                <i class="fas fa-file-export"></i>
-                <span>Wahafe Sinyalku</span>
-            </a>
-
-            <a href="http://edot92:pernahganteng2025@192.168.31.1:4021/monitoroffline?a=3" target="_blank" class="card petak">
-                <i class="fas fa-network-wired"></i>
-                <span>PETAK Monitor</span>
-            </a>
-
-            <a href="https://asbah-maker.github.io/monitoring/" target="_blank" class="card monitor">
-                <i class="fas fa-chart-line"></i>
-                <span>Monitoring Teknisi</span>
-            </a>
-
-            <a href="https://asbah-maker.github.io/monitoring/monitoring%20barang%20gudang" target="_blank" class="card gudang">
-                <i class="fas fa-warehouse"></i>
-                <span>Monitoring Gudang</span>
-            </a>
-
-            <a href="https://asbah-maker.github.io/monitoring/gudangmodem_teknisi" target="_blank" class="card gudang-modem-teknisi">
-                <i class="fas fa-cubes"></i>
-                <span>Gudang Modem Teknisi</span>
-            </a>
-
-            <a href="https://asbah-maker.github.io/monitoring/web-psb" target="_blank" class="card psb">
-                <i class="fas fa-user-plus"></i>
-                <span>Web PSB</span>
-            </a>
-
-            <a href="https://asbah-maker.github.io/monitoring/to_do_list" target="_blank" class="card todo-list">
-                <i class="fas fa-tasks"></i>
-                <span>To Do List</span>
-            </a>
-
-            <!-- MENU PEMINJAMAN BARANG (TAMBAHAN BARU) -->
-            <a href="https://asbah-maker.github.io/monitoring/peminjamanbarang" target="_blank" class="card peminjaman-barang">
-                <i class="fas fa-hand-holding"></i>
-                <span>Peminjaman Barang</span>
-            </a>
-
-            <a href="https://github.com/asbah-maker/monitoring/settings/pages" target="_blank" class="card github">
-                <i class="fab fa-github"></i>
-                <span>GitHub Config</span>
-            </a>
-
-            <a href="https://gemini.google.com/app?hl=id" target="_blank" class="card gemini">
-                <i class="fas fa-brain"></i>
-                <span>Gemini AI</span>
-            </a>
-
-            <a href="https://chat.deepseek.com/" target="_blank" class="card deepseek">
-                <i class="fas fa-robot"></i>
-                <span>DeepSeek AI</span>
-            </a>
-
-            <a href="https://1drv.ms/x/c/4955526dc9bda579/IQBKkfhUj420Sa4L_o1DCABBAYDavNcinH9PxU5Sj8Zx8xA" target="_blank" class="card excel">
-                <i class="fas fa-file-excel"></i>
-                <span>Data Alat (Excel)</span>
-            </a>
-
-            <a href="https://www.youtube.com/" target="_blank" class="card youtube">
-                <i class="fab fa-youtube"></i>
-                <span>YouTube</span>
-            </a>
-
+<div class="container">
+    <div class="glass-panel header">
+        <div class="logo-area">
+            <h1><i class="fas fa-bolt"></i> NexDash Operasional</h1>
+            <p>Smart workspace • akses cepat & favorit</p>
         </div>
-
-        <div class="footer">
-            &copy; 2026 Tim Operasional.
+        <div class="stats">
+            <div class="stat-item"><div class="stat-number" id="totalCount">0</div><div class="stat-label">Total Menu</div></div>
+            <div class="stat-item"><div class="stat-number" id="favCount">0</div><div class="stat-label">Favorit</div></div>
         </div>
     </div>
 
+    <div class="action-bar">
+        <div class="search-glass">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Cepat cari menu... (ex: AI, gudang, OLT)">
+        </div>
+        <div class="filter-group">
+            <button id="favFilterBtn" class="filter-btn"><i class="far fa-star"></i> Favorit</button>
+            <button id="resetFilterBtn" class="filter-btn"><i class="fas fa-sync-alt"></i> Reset</button>
+        </div>
+    </div>
+
+    <div class="category-roll" id="categoryList"></div>
+
+    <div id="menuGrid" class="menu-grid"></div>
+    <div id="emptyState" class="empty-message" style="display:none">✨ Tidak ada menu yang cocok ✨</div>
+
+    <footer>⚡ Klik bintang untuk favorit • Data tersimpan otomatis • Desain futuristik</footer>
+</div>
+
+<script>
+    // ========= DATA MENU (LENGKAP DENGAN KATEGORI & ICON) ==========
+    const menuData = [
+        { name: "Social Chat", icon: "fab fa-whatsapp", color: "#25D366", url: "https://app.socialchat.id/app/chat", category: "Komunikasi", keywords: "chat social" },
+        { name: "ACS Sinyalku", icon: "fas fa-wifi", color: "#e67e22", url: "http://192.168.31.1:3000/#!/devices", category: "Monitoring", keywords: "acs sinyalku" },
+        { name: "Web Allow ZTE", icon: "fas fa-check-to-slot", color: "#00cec9", url: "https://srb.r-config.com/add-onu", category: "Tools", keywords: "zte allow" },
+        { name: "Web Allow HSGQ", icon: "fas fa-link", color: "#6ab04c", url: "https://linktr.ee/sinyalku", category: "Tools", keywords: "hsgq" },
+        { name: "OLT ZTE & HSGQ", icon: "fas fa-microchip", color: "#2c3e50", url: "https://webolt.sinyalku.net/", category: "Monitoring", keywords: "olt zte hsgq" },
+        { name: "Member Sinyalku", icon: "fas fa-users", color: "#9b59b6", url: "https://member.sinyalku.net/dashboard", category: "Pelanggan", keywords: "member" },
+        { name: "Barantum", icon: "fas fa-headset", color: "#ff4757", url: "https://my.barantum.com/barantumchat", category: "Support", keywords: "barantum chat" },
+        { name: "WhatsApp Web", icon: "fab fa-whatsapp", color: "#25D366", url: "https://web.whatsapp.com/", category: "Komunikasi", keywords: "wa web" },
+        { name: "Wahafe Sinyalku", icon: "fas fa-file-export", color: "#00b894", url: "https://wahafe2.sinyalku.net/export-chat", category: "Data", keywords: "wahafe export" },
+        { name: "PETAK Monitor", icon: "fas fa-network-wired", color: "#c0392b", url: "http://edot92:pernahganteng2025@192.168.31.1:4021/monitoroffline?a=3", category: "Monitoring", keywords: "petak offline" },
+        { name: "Monitoring Teknisi", icon: "fas fa-chart-line", color: "#2980b9", url: "https://asbah-maker.github.io/monitoring/", category: "Monitoring", keywords: "teknisi" },
+        { name: "Monitoring Gudang", icon: "fas fa-warehouse", color: "#d35400", url: "https://asbah-maker.github.io/monitoring/monitoring%20barang%20gudang", category: "Inventory", keywords: "gudang stok" },
+        { name: "Gudang Modem Teknisi", icon: "fas fa-cubes", color: "#e84393", url: "https://asbah-maker.github.io/monitoring/gudangmodem_teknisi", category: "Inventory", keywords: "modem teknisi" },
+        { name: "Web PSB", icon: "fas fa-user-plus", color: "#16a085", url: "https://asbah-maker.github.io/monitoring/web-psb", category: "Operasional", keywords: "psb daftar" },
+        { name: "To Do List", icon: "fas fa-tasks", color: "#f39c12", url: "https://asbah-maker.github.io/monitoring/to_do_list", category: "Produktivitas", keywords: "tugas" },
+        { name: "Peminjaman Barang", icon: "fas fa-hand-holding", color: "#2ecc71", url: "https://asbah-maker.github.io/monitoring/peminjamanbarang", category: "Inventory", keywords: "pinjam barang" },
+        { name: "GitHub Config", icon: "fab fa-github", color: "#333", url: "https://github.com/asbah-maker/monitoring/settings/pages", category: "Developer", keywords: "github" },
+        { name: "Gemini AI", icon: "fas fa-brain", color: "#8b5cf6", url: "https://gemini.google.com/app?hl=id", category: "AI", keywords: "gemini" },
+        { name: "DeepSeek AI", icon: "fas fa-robot", color: "#4d88ff", url: "https://chat.deepseek.com/", category: "AI", keywords: "deepseek" },
+        { name: "Data Alat (Excel)", icon: "fas fa-file-excel", color: "#217346", url: "https://1drv.ms/x/c/4955526dc9bda579/IQBKkfhUj420Sa4L_o1DCABBAYDavNcinH9PxU5Sj8Zx8xA", category: "Data", keywords: "excel" },
+        { name: "YouTube", icon: "fab fa-youtube", color: "#ff0000", url: "https://www.youtube.com/", category: "Hiburan", keywords: "video" }
+    ];
+
+    // Load favorit dari local storage
+    let favorites = JSON.parse(localStorage.getItem('nex_favorites')) || [];
+    let currentCategory = "Semua";
+    let favFilterActive = false;
+    let searchTerm = "";
+
+    // Helper update stat
+    function updateStats() {
+        document.getElementById('totalCount').innerText = menuData.length;
+        document.getElementById('favCount').innerText = favorites.length;
+    }
+
+    function saveFav() {
+        localStorage.setItem('nex_favorites', JSON.stringify(favorites));
+        updateStats();
+        render();
+    }
+
+    function toggleFavorite(menuName, e) {
+        e.stopPropagation();
+        if (favorites.includes(menuName)) {
+            favorites = favorites.filter(f => f !== menuName);
+        } else {
+            favorites.push(menuName);
+        }
+        saveFav();
+    }
+
+    // render berdasarkan filter
+    function render() {
+        let filtered = [...menuData];
+        if (currentCategory !== "Semua") {
+            filtered = filtered.filter(m => m.category === currentCategory);
+        }
+        if (favFilterActive) {
+            filtered = filtered.filter(m => favorites.includes(m.name));
+        }
+        if (searchTerm.trim() !== "") {
+            const q = searchTerm.toLowerCase();
+            filtered = filtered.filter(m => m.name.toLowerCase().includes(q) || m.keywords.toLowerCase().includes(q));
+        }
+
+        const grid = document.getElementById('menuGrid');
+        const emptyDiv = document.getElementById('emptyState');
+        if (filtered.length === 0) {
+            grid.innerHTML = '';
+            emptyDiv.style.display = 'block';
+            return;
+        }
+        emptyDiv.style.display = 'none';
+
+        grid.innerHTML = filtered.map(item => {
+            const isFav = favorites.includes(item.name);
+            return `
+                <div class="card" data-menu='${JSON.stringify(item)}'>
+                    <div class="favorite-icon ${isFav ? 'fav-active' : ''}" data-name="${item.name}">
+                        <i class="${isFav ? 'fas fa-star' : 'far fa-star'}"></i>
+                    </div>
+                    <a href="${item.url}" target="_blank">
+                        <div class="card-icon" style="color: ${item.color}"><i class="${item.icon}"></i></div>
+                        <div class="card-title">${item.name}</div>
+                        <div class="card-category">${item.category}</div>
+                    </a>
+                </div>
+            `;
+        }).join('');
+
+        // event listener untuk star
+        document.querySelectorAll('.favorite-icon').forEach(star => {
+            star.addEventListener('click', (e) => {
+                e.preventDefault();
+                const name = star.getAttribute('data-name');
+                toggleFavorite(name, e);
+            });
+        });
+    }
+
+    // generate category chips
+    function buildCategoryChips() {
+        const cats = ["Semua", ...new Set(menuData.map(m => m.category))];
+        const container = document.getElementById('categoryList');
+        container.innerHTML = cats.map(cat => `
+            <div class="cat-chip ${currentCategory === cat ? 'active' : ''}" data-cat="${cat}">${cat}</div>
+        `).join('');
+        document.querySelectorAll('.cat-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                currentCategory = chip.getAttribute('data-cat');
+                buildCategoryChips(); // refresh active
+                render();
+            });
+        });
+    }
+
+    // event listeners
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        searchTerm = e.target.value;
+        render();
+    });
+
+    document.getElementById('favFilterBtn').addEventListener('click', () => {
+        favFilterActive = !favFilterActive;
+        const btn = document.getElementById('favFilterBtn');
+        if (favFilterActive) {
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-star"></i> Favorit (aktif)';
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="far fa-star"></i> Favorit';
+        }
+        render();
+    });
+
+    document.getElementById('resetFilterBtn').addEventListener('click', () => {
+        searchTerm = "";
+        currentCategory = "Semua";
+        favFilterActive = false;
+        document.getElementById('searchInput').value = "";
+        document.getElementById('favFilterBtn').classList.remove('active');
+        document.getElementById('favFilterBtn').innerHTML = '<i class="far fa-star"></i> Favorit';
+        buildCategoryChips();
+        render();
+    });
+
+    updateStats();
+    buildCategoryChips();
+    render();
+</script>
 </body>
 </html>
