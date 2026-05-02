@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>✨ Dashboard Operasional | NeoGlass</title>
+    <title>✨ Dashboard Operasional | NeoGlass — Motivasi CS</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -17,41 +17,41 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: radial-gradient(circle at 20% 30%, #0b1120, #0a0f1c);
             min-height: 100vh;
-            padding: 24px 20px;
+            padding: 20px 20px 30px;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* animated background orbs */
+        /* Orbs dekoratif */
         body::before {
             content: '';
             position: fixed;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0) 70%);
-            top: -100px;
-            left: -100px;
+            width: min(320px, 70vw);
+            height: min(320px, 70vw);
+            background: radial-gradient(circle, rgba(59,130,246,0.28) 0%, rgba(59,130,246,0) 70%);
+            top: -80px;
+            left: -80px;
             border-radius: 50%;
             pointer-events: none;
             z-index: 0;
-            animation: floatOrb 20s infinite alternate;
+            animation: floatOrb 22s infinite alternate;
         }
         body::after {
             content: '';
             position: fixed;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0) 70%);
-            bottom: -150px;
+            width: min(450px, 85vw);
+            height: min(450px, 85vw);
+            background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0) 70%);
+            bottom: -120px;
             right: -100px;
             border-radius: 50%;
             pointer-events: none;
             z-index: 0;
-            animation: floatOrb 25s infinite alternate-reverse;
+            animation: floatOrb 28s infinite alternate-reverse;
         }
         @keyframes floatOrb {
-            0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-            100% { transform: translate(40px, 40px) scale(1.2); opacity: 0.7; }
+            0% { transform: translate(0, 0) scale(1); opacity: 0.35; }
+            100% { transform: translate(35px, 35px) scale(1.1); opacity: 0.55; }
         }
 
         .container {
@@ -61,7 +61,7 @@
             z-index: 2;
         }
 
-        /* header glass */
+        /* Glass panel */
         .glass-panel {
             background: rgba(15, 25, 45, 0.55);
             backdrop-filter: blur(12px);
@@ -75,12 +75,12 @@
             flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 28px;
-            margin-bottom: 28px;
+            padding: 18px 28px;
+            margin-bottom: 24px;
         }
 
         .logo-area h1 {
-            font-size: 1.8rem;
+            font-size: 1.7rem;
             font-weight: 800;
             background: linear-gradient(135deg, #fff, #a5f3fc, #7dd3fc);
             background-clip: text;
@@ -90,15 +90,15 @@
         }
         .logo-area p {
             color: #94a3b8;
-            font-size: 0.8rem;
-            margin-top: 6px;
+            font-size: 0.75rem;
+            margin-top: 5px;
         }
 
         .stats {
             display: flex;
-            gap: 24px;
+            gap: 20px;
             background: rgba(0,0,0,0.35);
-            padding: 10px 24px;
+            padding: 6px 20px;
             border-radius: 60px;
             backdrop-filter: blur(4px);
         }
@@ -107,7 +107,7 @@
         }
         .stat-number {
             font-weight: 800;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             color: white;
         }
         .stat-label {
@@ -115,7 +115,7 @@
             color: #cbd5e1;
         }
 
-        /* search + filter bar */
+        /* Search bar */
         .action-bar {
             display: flex;
             flex-wrap: wrap;
@@ -132,7 +132,7 @@
             align-items: center;
             gap: 12px;
             flex: 1;
-            max-width: 360px;
+            max-width: 380px;
             border: 1px solid rgba(255,255,255,0.2);
             transition: all 0.3s;
         }
@@ -141,7 +141,7 @@
             border-color: #3b82f6;
             box-shadow: 0 0 12px rgba(59,130,246,0.3);
         }
-        .search-glass i { color: #94a3b8; }
+        .search-glass i { color: #94a3b8; font-size: 1rem; }
         .search-glass input {
             background: transparent;
             border: none;
@@ -155,14 +155,13 @@
         .filter-group {
             display: flex;
             gap: 12px;
-            flex-wrap: wrap;
         }
         .filter-btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.15);
             padding: 8px 18px;
             border-radius: 40px;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.8rem;
             cursor: pointer;
             transition: 0.2s;
@@ -181,45 +180,113 @@
             transform: translateY(-2px);
         }
 
-        /* kategori chips */
-        .category-roll {
+        /* MOTIVASI CS */
+        .motivation-card {
+            background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2));
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 16px 24px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(255,255,255,0.2);
             display: flex;
+            align-items: center;
+            justify-content: space-between;
             flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 32px;
+            gap: 16px;
+            transition: all 0.3s;
         }
-        .cat-chip {
-            background: rgba(255,255,255,0.05);
+        .motivation-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+        .motivation-icon {
+            font-size: 2rem;
+            color: #fbbf24;
+            filter: drop-shadow(0 0 6px rgba(251,191,36,0.5));
+        }
+        .motivation-text {
+            flex: 1;
+        }
+        .motivation-quote {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #f1f5f9;
+            line-height: 1.4;
+            font-style: italic;
+        }
+        .motivation-author {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+        .refresh-motivation {
+            background: rgba(255,255,255,0.1);
+            border: none;
             border-radius: 40px;
-            padding: 6px 18px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #cbd5e1;
-        }
-        .cat-chip.active {
-            background: linear-gradient(120deg, #3b82f6, #8b5cf6);
-            border-color: transparent;
+            padding: 8px 16px;
             color: white;
-            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
+        }
+        .refresh-motivation:hover {
+            background: rgba(59,130,246,0.5);
+            transform: scale(1.02);
+        }
+        @media (max-width: 550px) {
+            .motivation-card { padding: 12px 18px; }
+            .motivation-quote { font-size: 0.85rem; }
+            .motivation-icon { font-size: 1.5rem; }
+            .refresh-motivation { padding: 6px 12px; font-size: 0.7rem; }
         }
 
-        /* GRID MENU —— super menarik */
+        /* SCROLLABLE GRID */
+        .scrollable-menu-container {
+            max-height: 58vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 6px;
+            margin-top: 8px;
+            border-radius: 28px;
+            scroll-behavior: smooth;
+        }
+
+        .scrollable-menu-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollable-menu-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        .scrollable-menu-container::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+        .scrollable-menu-container::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa;
+        }
+
+        /* Grid card */
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 22px;
         }
 
         .card {
-            background: rgba(20, 30, 55, 0.55);
+            background: rgba(20, 30, 55, 0.6);
             backdrop-filter: blur(12px);
             border-radius: 28px;
-            padding: 24px 16px;
+            padding: 20px 14px 18px;
             text-align: center;
-            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             border: 1px solid rgba(255,255,255,0.1);
             cursor: pointer;
             position: relative;
@@ -232,40 +299,44 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
             transition: left 0.5s;
         }
         .card:hover::before { left: 100%; }
         .card:hover {
-            transform: translateY(-8px) scale(1.02);
+            transform: translateY(-6px) scale(1.01);
             border-color: rgba(59,130,246,0.6);
-            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.3);
-            background: rgba(30, 45, 75, 0.7);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.3);
+            background: rgba(30, 45, 75, 0.75);
         }
+
         .card-icon {
-            font-size: 2.8rem;
-            margin-bottom: 18px;
+            font-size: 2.2rem;
+            margin-bottom: 14px;
             display: inline-block;
             transition: transform 0.2s;
         }
-        .card:hover .card-icon { transform: scale(1.1) rotate(3deg); }
+        .card:hover .card-icon { transform: scale(1.05) rotate(2deg); }
+
         .card-title {
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #f1f5f9;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            letter-spacing: -0.2px;
         }
         .card-category {
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
         }
+
         .favorite-icon {
             position: absolute;
-            top: 14px;
-            right: 14px;
-            font-size: 1.1rem;
+            top: 12px;
+            right: 12px;
+            font-size: 1rem;
             color: #cbd5e1;
             transition: 0.2s;
             z-index: 3;
@@ -276,6 +347,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
         .favorite-icon.fav-active {
             color: #fbbf24;
@@ -289,22 +361,41 @@
 
         .empty-message {
             text-align: center;
-            padding: 60px;
+            padding: 48px 20px;
             color: #94a3b8;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.25);
             border-radius: 2rem;
             backdrop-filter: blur(8px);
+            margin: 20px 0;
+            font-weight: 500;
         }
 
         footer {
-            margin-top: 50px;
+            margin-top: 35px;
             text-align: center;
             font-size: 0.7rem;
-            color: #475569;
+            color: #4b556b;
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 48px;
+            backdrop-filter: blur(4px);
         }
+
         @media (max-width: 650px) {
-            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
-            .header { flex-direction: column; gap: 16px; }
+            body { padding: 15px 15px 25px; }
+            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 16px; }
+            .card { padding: 16px 10px 14px; }
+            .card-icon { font-size: 1.9rem; margin-bottom: 10px; }
+            .card-title { font-size: 0.8rem; }
+            .header { flex-direction: column; gap: 14px; align-items: flex-start; }
+            .stats { gap: 14px; padding: 5px 16px; }
+            .stat-number { font-size: 1.2rem; }
+            .scrollable-menu-container { max-height: 52vh; }
+            .filter-btn { padding: 6px 14px; font-size: 0.75rem; }
+        }
+        @media (max-width: 480px) {
+            .scrollable-menu-container { max-height: 50vh; }
+            .card-icon { font-size: 1.7rem; }
         }
     </style>
 </head>
@@ -313,7 +404,7 @@
     <div class="glass-panel header">
         <div class="logo-area">
             <h1><i class="fas fa-bolt"></i> NexDash Operasional</h1>
-            <p>Smart workspace • akses cepat & favorit</p>
+            <p>Smart workspace • akses cepat & favorit • scroll grid seamless</p>
         </div>
         <div class="stats">
             <div class="stat-item"><div class="stat-number" id="totalCount">0</div><div class="stat-label">Total Menu</div></div>
@@ -324,7 +415,7 @@
     <div class="action-bar">
         <div class="search-glass">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Cepat cari menu... (ex: AI, gudang, OLT)">
+            <input type="text" id="searchInput" placeholder="Cari menu, AI, gudang, OLT, support...">
         </div>
         <div class="filter-group">
             <button id="favFilterBtn" class="filter-btn"><i class="far fa-star"></i> Favorit</button>
@@ -332,18 +423,31 @@
         </div>
     </div>
 
-    <div class="category-roll" id="categoryList"></div>
+    <!-- MOTIVASI UNTUK TIM CS -->
+    <div class="motivation-card" id="motivationCard">
+        <div class="motivation-content">
+            <div class="motivation-icon"><i class="fas fa-heart"></i></div>
+            <div class="motivation-text">
+                <div class="motivation-quote" id="motivationQuote">"Pelayanan terbaik berawal dari hati yang tulus."</div>
+                <div class="motivation-author" id="motivationAuthor">— Tim CS Excellence</div>
+            </div>
+        </div>
+        <button class="refresh-motivation" id="refreshMotivationBtn"><i class="fas fa-sync-alt"></i> Ganti Motivasi</button>
+    </div>
 
-    <div id="menuGrid" class="menu-grid"></div>
-    <div id="emptyState" class="empty-message" style="display:none">✨ Tidak ada menu yang cocok ✨</div>
+    <div class="scrollable-menu-container" id="scrollableGridContainer">
+        <div id="menuGrid" class="menu-grid"></div>
+        <div id="emptyState" class="empty-message" style="display:none">✨ Tidak ada menu yang cocok dengan filter ✨<br><i class="fas fa-arrows-spin"></i> Coba ubah kata kunci atau nonaktifkan filter favorit</div>
+    </div>
 
-    <footer>⚡ Klik bintang untuk favorit • Data tersimpan otomatis • Desain futuristik</footer>
+    <footer>⭐ Klik bintang untuk favorit • Data tersimpan otomatis • Gulir grid dengan nyaman • Kata motivasi untuk semangat CS setiap hari!</footer>
 </div>
 
 <script>
-    // ========= DATA MENU (LENGKAP DENGAN KATEGORI & ICON) ==========
+    // ========= DATA MENU ==========
+    // Perubahan: logo Social Chat diganti dari fab fa-whatsapp menjadi fas fa-comments dengan warna biru cerah
     const menuData = [
-        { name: "Social Chat", icon: "fab fa-whatsapp", color: "#25D366", url: "https://app.socialchat.id/app/chat", category: "Komunikasi", keywords: "chat social" },
+        { name: "Social Chat", icon: "fas fa-comments", color: "#3b82f6", url: "https://app.socialchat.id/app/chat", category: "Komunikasi", keywords: "chat social" },
         { name: "ACS Sinyalku", icon: "fas fa-wifi", color: "#e67e22", url: "http://192.168.31.1:3000/#!/devices", category: "Monitoring", keywords: "acs sinyalku" },
         { name: "Web Allow ZTE", icon: "fas fa-check-to-slot", color: "#00cec9", url: "https://srb.r-config.com/add-onu", category: "Tools", keywords: "zte allow" },
         { name: "Web Allow HSGQ", icon: "fas fa-link", color: "#6ab04c", url: "https://linktr.ee/sinyalku", category: "Tools", keywords: "hsgq" },
@@ -360,19 +464,33 @@
         { name: "To Do List", icon: "fas fa-tasks", color: "#f39c12", url: "https://asbah-maker.github.io/monitoring/to_do_list", category: "Produktivitas", keywords: "tugas" },
         { name: "Peminjaman Barang", icon: "fas fa-hand-holding", color: "#2ecc71", url: "https://asbah-maker.github.io/monitoring/peminjamanbarang", category: "Inventory", keywords: "pinjam barang" },
         { name: "GitHub Config", icon: "fab fa-github", color: "#333", url: "https://github.com/asbah-maker/monitoring/settings/pages", category: "Developer", keywords: "github" },
-        { name: "Gemini AI", icon: "fas fa-brain", color: "#8b5cf6", url: "https://gemini.google.com/app?hl=id", category: "AI", keywords: "gemini" },
-        { name: "DeepSeek AI", icon: "fas fa-robot", color: "#4d88ff", url: "https://chat.deepseek.com/", category: "AI", keywords: "deepseek" },
-        { name: "Data Alat (Excel)", icon: "fas fa-file-excel", color: "#217346", url: "https://1drv.ms/x/c/4955526dc9bda579/IQBKkfhUj420Sa4L_o1DCABBAYDavNcinH9PxU5Sj8Zx8xA", category: "Data", keywords: "excel" },
+        { name: "Gemini AI", icon: "fas fa-brain", color: "#8b5cf6", url: "https://gemini.google.com/app?hl=id", category: "AI", keywords: "gemini ai" },
+        { name: "DeepSeek AI", icon: "fas fa-robot", color: "#4d88ff", url: "https://chat.deepseek.com/", category: "AI", keywords: "deepseek ai" },
+        { name: "Data Alat (Excel)", icon: "fas fa-file-excel", color: "#217346", url: "https://1drv.ms/x/c/4955526dc9bda579/IQBKkfhUj420Sa4L_o1DCABBAYDavNcinH9PxU5Sj8Zx8xA", category: "Data", keywords: "excel data" },
         { name: "YouTube", icon: "fab fa-youtube", color: "#ff0000", url: "https://www.youtube.com/", category: "Hiburan", keywords: "video" }
     ];
 
-    // Load favorit dari local storage
+    // KATA MOTIVASI CS
+    const motivationQuotes = [
+        { text: "Setiap pelanggan adalah kesempatan untuk membuat hari mereka lebih baik.", author: "— CS Expert" },
+        { text: "Senyum di balik suara adalah kunci kepuasan pelanggan.", author: "— Tim Support" },
+        { text: "Bukan tentang masalah, tapi tentang solusi yang kita berikan.", author: "— Motivasi CS" },
+        { text: "Kesabaran dan empati adalah senjata utama customer service.", author: "— Leader CS" },
+        { text: "Satu pelanggan puas, bisa membawa seribu pelanggan baru.", author: "— Prinsip Layanan" },
+        { text: "Jadilah alasan seseorang tersenyum hari ini.", author: "— Spirit CS" },
+        { text: "Pelayanan terbaik adalah saat pelanggan merasa didengar dan dihargai.", author: "— Motto Kami" },
+        { text: "Kritik adalah hadiah tersembunyi untuk perbaikan.", author: "— Mental Juara" },
+        { text: "Setiap keluhan adalah kesempatan membangun loyalitas.", author: "— Insight CS" },
+        { text: "Bersama kita kuat, melayani dengan hati.", author: "— Solidaritas Tim" },
+        { text: "Jadilah profesional yang ramah, bukan hanya ramah yang profesional.", author: "— Quote of the Day" },
+        { text: "Energi positif akan terpancar sampai ke pelanggan.", author: "— Mindset Hebat" },
+        { text: "Tantangan hari ini adalah peningkatan untuk esok.", author: "— Semangat Kerja" }
+    ];
+
     let favorites = JSON.parse(localStorage.getItem('nex_favorites')) || [];
-    let currentCategory = "Semua";
     let favFilterActive = false;
     let searchTerm = "";
 
-    // Helper update stat
     function updateStats() {
         document.getElementById('totalCount').innerText = menuData.length;
         document.getElementById('favCount').innerText = favorites.length;
@@ -394,12 +512,8 @@
         saveFav();
     }
 
-    // render berdasarkan filter
     function render() {
         let filtered = [...menuData];
-        if (currentCategory !== "Semua") {
-            filtered = filtered.filter(m => m.category === currentCategory);
-        }
         if (favFilterActive) {
             filtered = filtered.filter(m => favorites.includes(m.name));
         }
@@ -424,7 +538,7 @@
                     <div class="favorite-icon ${isFav ? 'fav-active' : ''}" data-name="${item.name}">
                         <i class="${isFav ? 'fas fa-star' : 'far fa-star'}"></i>
                     </div>
-                    <a href="${item.url}" target="_blank">
+                    <a href="${item.url}" target="_blank" rel="noopener noreferrer">
                         <div class="card-icon" style="color: ${item.color}"><i class="${item.icon}"></i></div>
                         <div class="card-title">${item.name}</div>
                         <div class="card-category">${item.category}</div>
@@ -433,65 +547,65 @@
             `;
         }).join('');
 
-        // event listener untuk star
         document.querySelectorAll('.favorite-icon').forEach(star => {
             star.addEventListener('click', (e) => {
                 e.preventDefault();
                 const name = star.getAttribute('data-name');
-                toggleFavorite(name, e);
+                if (name) toggleFavorite(name, e);
             });
         });
     }
 
-    // generate category chips
-    function buildCategoryChips() {
-        const cats = ["Semua", ...new Set(menuData.map(m => m.category))];
-        const container = document.getElementById('categoryList');
-        container.innerHTML = cats.map(cat => `
-            <div class="cat-chip ${currentCategory === cat ? 'active' : ''}" data-cat="${cat}">${cat}</div>
-        `).join('');
-        document.querySelectorAll('.cat-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                currentCategory = chip.getAttribute('data-cat');
-                buildCategoryChips(); // refresh active
-                render();
-            });
-        });
+    function getRandomMotivation() {
+        const randomIndex = Math.floor(Math.random() * motivationQuotes.length);
+        return motivationQuotes[randomIndex];
     }
 
-    // event listeners
+    function displayRandomMotivation() {
+        const quote = getRandomMotivation();
+        document.getElementById('motivationQuote').innerText = `"${quote.text}"`;
+        document.getElementById('motivationAuthor').innerHTML = quote.author;
+    }
+
     document.getElementById('searchInput').addEventListener('input', (e) => {
         searchTerm = e.target.value;
         render();
     });
 
-    document.getElementById('favFilterBtn').addEventListener('click', () => {
+    const favBtn = document.getElementById('favFilterBtn');
+    favBtn.addEventListener('click', () => {
         favFilterActive = !favFilterActive;
-        const btn = document.getElementById('favFilterBtn');
         if (favFilterActive) {
-            btn.classList.add('active');
-            btn.innerHTML = '<i class="fas fa-star"></i> Favorit (aktif)';
+            favBtn.classList.add('active');
+            favBtn.innerHTML = '<i class="fas fa-star"></i> Favorit (aktif)';
         } else {
-            btn.classList.remove('active');
-            btn.innerHTML = '<i class="far fa-star"></i> Favorit';
+            favBtn.classList.remove('active');
+            favBtn.innerHTML = '<i class="far fa-star"></i> Favorit';
         }
         render();
     });
 
     document.getElementById('resetFilterBtn').addEventListener('click', () => {
         searchTerm = "";
-        currentCategory = "Semua";
         favFilterActive = false;
         document.getElementById('searchInput').value = "";
-        document.getElementById('favFilterBtn').classList.remove('active');
-        document.getElementById('favFilterBtn').innerHTML = '<i class="far fa-star"></i> Favorit';
-        buildCategoryChips();
+        favBtn.classList.remove('active');
+        favBtn.innerHTML = '<i class="far fa-star"></i> Favorit';
         render();
     });
 
+    document.getElementById('refreshMotivationBtn').addEventListener('click', () => {
+        displayRandomMotivation();
+    });
+
     updateStats();
-    buildCategoryChips();
     render();
+    displayRandomMotivation();
+
+    const scrollContainer = document.getElementById('scrollableGridContainer');
+    if (scrollContainer) {
+        scrollContainer.style.scrollBehavior = "smooth";
+    }
 </script>
 </body>
 </html>
