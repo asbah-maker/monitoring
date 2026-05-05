@@ -3,16 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>ToolStock Pro | Manajemen Alat Compact</title>
+    <title>ToolStock Pro | Manajemen Alat + Kelengkapan</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', system-ui, sans-serif;
             background: linear-gradient(145deg, #e9f5f1 0%, #ddebe6 100%);
@@ -20,13 +15,7 @@
             padding: 20px;
             color: #1e2b2c;
         }
-
-        .container {
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
-        /* HEADER */
+        .container { max-width: 1300px; margin: 0 auto; }
         .app-header {
             background: linear-gradient(115deg, #0a3627, #145c44);
             border-radius: 32px;
@@ -40,21 +29,7 @@
             color: white;
             box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.2);
         }
-
-        .app-header h1 {
-            font-weight: 800;
-            font-size: 1.7rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .app-header p {
-            opacity: 0.8;
-            font-size: 0.85rem;
-            margin-top: 6px;
-        }
-
+        .app-header h1 { font-weight: 800; font-size: 1.7rem; display: flex; align-items: center; gap: 12px; }
         .status-badge {
             background: rgba(255,255,255,0.12);
             backdrop-filter: blur(8px);
@@ -67,8 +42,6 @@
             align-items: center;
             gap: 8px;
         }
-
-        /* CARDS */
         .card {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(4px);
@@ -78,7 +51,6 @@
             border: 1px solid rgba(255,255,255,0.8);
             overflow: hidden;
         }
-
         .card-header {
             padding: 16px 24px;
             background: rgba(250, 252, 250, 0.7);
@@ -89,34 +61,10 @@
             justify-content: space-between;
             gap: 12px;
         }
-
-        .card-header h2 {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: #126e4b;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card-body {
-            padding: 20px 24px;
-        }
-
-        /* INVENTORY GRID COMPACT + SCROLL */
-        .inventory-grid-scroll {
-            max-height: 460px;
-            overflow-y: auto;
-            padding-right: 6px;
-        }
-
-        .compact-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-            gap: 14px;
-        }
-
-        /* kotak alat / item-card */
+        .card-header h2 { font-weight: 700; font-size: 1.2rem; color: #126e4b; display: flex; align-items: center; gap: 8px; }
+        .card-body { padding: 20px 24px; }
+        .inventory-grid-scroll { max-height: 460px; overflow-y: auto; padding-right: 6px; }
+        .compact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
         .item-card {
             background: white;
             border-radius: 20px;
@@ -128,26 +76,17 @@
             flex-direction: column;
             gap: 8px;
         }
-
-        .item-card:hover {
-            transform: translateY(-2px);
-            border-color: #bdd9cf;
-            box-shadow: 0 10px 18px -8px rgba(0, 0, 0, 0.1);
-        }
-
+        .item-card:hover { transform: translateY(-2px); border-color: #bdd9cf; box-shadow: 0 10px 18px -8px rgba(0,0,0,0.1); }
         .item-name {
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             background: #ecf9f2;
             padding: 6px 10px;
             border-radius: 40px;
             display: inline-block;
             text-align: center;
             color: #106a4a;
-            word-break: break-word;
-            line-height: 1.3;
         }
-
         .item-stock-area {
             display: flex;
             align-items: center;
@@ -157,99 +96,44 @@
             border-radius: 48px;
             margin-top: 4px;
         }
-
-        .stock-control-compact {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: white;
+        .stock-control-compact { display: flex; align-items: center; gap: 12px; background: white; border-radius: 40px; padding: 2px 8px; border: 1px solid #dee8e3; }
+        .stock-value { font-weight: 800; font-size: 1.1rem; min-width: 32px; text-align: center; color: #1e462e; }
+        .stock-btn { width: 28px; height: 28px; border-radius: 30px; background: white; border: 1px solid #cbdcd3; font-weight: bold; cursor: pointer; }
+        .stock-btn:hover { background: #1d6f4c; color: white; border-color: #1d6f4c; }
+        .status-tag-mini { font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 28px; text-align: center; }
+        .status-available { background: #dcfce7; color: #15803d; }
+        .status-empty { background: #ffe4e2; color: #b91c1c; }
+        .completeness-badge {
+            background: #eef2ff;
+            color: #1e3a8a;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 8px;
             border-radius: 40px;
-            padding: 2px 8px;
-            border: 1px solid #dee8e3;
-        }
-
-        .stock-value {
-            font-weight: 800;
-            font-size: 1.1rem;
-            min-width: 32px;
-            text-align: center;
-            color: #1e462e;
-        }
-
-        .stock-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 30px;
-            background: white;
-            border: 1px solid #cbdcd3;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.15s;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            gap: 6px;
+            width: fit-content;
         }
-
-        .stock-btn:hover {
-            background: #1d6f4c;
-            color: white;
-            border-color: #1d6f4c;
-        }
-
-        .status-tag-mini {
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 28px;
-            text-align: center;
-        }
-
-        .status-available {
-            background: #dcfce7;
-            color: #15803d;
-        }
-
-        .status-empty {
-            background: #ffe4e2;
-            color: #b91c1c;
-        }
-
         .card-actions {
             display: flex;
             justify-content: space-between;
-            gap: 8px;
+            gap: 6px;
             margin-top: 6px;
         }
-
         .card-actions button {
             background: transparent;
             border: none;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             padding: 5px 0;
             border-radius: 28px;
             cursor: pointer;
-            width: 50%;
+            width: 33%;
             font-weight: 500;
-            transition: 0.1s;
         }
-
-        .btn-edit-card {
-            background: #eef3f0;
-            color: #2c6b4c;
-        }
-        .btn-edit-card:hover {
-            background: #ddece4;
-        }
-        .btn-delete-card {
-            background: #fef1f0;
-            color: #c2412c;
-        }
-        .btn-delete-card:hover {
-            background: #fde2df;
-        }
-
-        /* FORM & BUTTONS GLOBAL */
+        .btn-edit-card { background: #eef3f0; color: #2c6b4c; }
+        .btn-delete-card { background: #fef1f0; color: #c2412c; }
+        .btn-checklist-card { background: #e6f0fa; color: #1e4a76; }
         .btn {
             padding: 8px 18px;
             border-radius: 40px;
@@ -262,88 +146,49 @@
             gap: 8px;
             transition: 0.2s;
         }
-        .btn-primary {
-            background: linear-gradient(100deg, #1f6e48, #0f543b);
-            color: white;
-            box-shadow: 0 2px 6px rgba(26, 86, 59, 0.2);
+        .btn-primary { background: linear-gradient(100deg, #1f6e48, #0f543b); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); background: #115e3e; }
+        .btn-outline { background: white; border: 1px solid #cadcd3; color: #2d4a3e; }
+        .btn-outline:hover { background: #edf5f1; }
+        .btn-warning { background: #fbbf24; color: #2c2b1f; }
+        .btn-danger { background: #fee2e2; color: #b91c1c; }
+        .btn-sm { padding: 4px 12px; font-size: 0.7rem; }
+        .search-input { padding: 8px 16px; border-radius: 40px; border: 1px solid #cfe3db; background: white; font-size: 0.8rem; width: 200px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { text-align: left; padding: 10px 12px; background: #f4fbf7; font-weight: 700; color: #1c5a44; border-bottom: 1px solid #d4e6df; }
+        td { padding: 12px 12px; border-bottom: 1px solid #ecf3ef; }
+        .empty-state { text-align: center; padding: 32px; color: #88a89b; font-weight: 500; }
+        .inventory-grid-scroll::-webkit-scrollbar { width: 5px; }
+        .inventory-grid-scroll::-webkit-scrollbar-track { background: #e0ebe5; border-radius: 10px; }
+        .inventory-grid-scroll::-webkit-scrollbar-thumb { background: #8bb7a4; border-radius: 10px; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; visibility: hidden; opacity: 0; transition: 0.2s;
         }
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            background: #115e3e;
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-container {
+            background: white; border-radius: 32px; width: 90%; max-width: 550px;
+            padding: 24px; box-shadow: 0 25px 40px rgba(0,0,0,0.2);
+            max-height: 80vh; overflow-y: auto;
         }
-        .btn-outline {
-            background: white;
-            border: 1px solid #cadcd3;
-            color: #2d4a3e;
+        .modal-container h3 { margin-bottom: 20px; font-weight: 700; }
+        .modal-field { margin-bottom: 16px; }
+        .modal-field label { font-weight: 600; font-size: 0.75rem; display: block; margin-bottom: 6px; }
+        .modal-field input, .modal-field select { width: 100%; padding: 10px 12px; border-radius: 28px; border: 1px solid #ccc; }
+        .accessory-item {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #f9f9f9; padding: 8px 12px; border-radius: 40px; margin-bottom: 8px;
         }
-        .btn-outline:hover {
-            background: #edf5f1;
-        }
-        .btn-warning {
-            background: #fbbf24;
-            color: #2c2b1f;
-        }
-        .btn-danger {
-            background: #fee2e2;
-            color: #b91c1c;
-        }
-        .search-input {
-            padding: 8px 16px;
-            border-radius: 40px;
-            border: 1px solid #cfe3db;
-            background: white;
-            font-size: 0.8rem;
-            width: 200px;
-        }
-        .search-input:focus {
-            outline: none;
-            border-color: #2c8b60;
-            box-shadow: 0 0 0 2px rgba(44,139,96,0.15);
-        }
-
-        /* TABLES */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-        th {
-            text-align: left;
-            padding: 10px 12px;
-            background: #f4fbf7;
-            font-weight: 700;
-            color: #1c5a44;
-            border-bottom: 1px solid #d4e6df;
-        }
-        td {
-            padding: 12px 12px;
-            border-bottom: 1px solid #ecf3ef;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 32px;
-            color: #88a89b;
-            font-weight: 500;
-        }
-
-        /* SCROLLBAR */
-        .inventory-grid-scroll::-webkit-scrollbar {
-            width: 5px;
-        }
-        .inventory-grid-scroll::-webkit-scrollbar-track {
-            background: #e0ebe5;
-            border-radius: 10px;
-        }
-        .inventory-grid-scroll::-webkit-scrollbar-thumb {
-            background: #8bb7a4;
-            border-radius: 10px;
-        }
-        @media (max-width: 640px) {
-            body { padding: 14px; }
-            .compact-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-            .card-body { padding: 16px; }
-        }
+        .accessory-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; width: 70%; }
+        .accessory-item input[type="checkbox"] { width: 18px; height: 18px; margin: 0; }
+        .delete-acc-btn { background: none; border: none; color: #b91c1c; cursor: pointer; font-size: 1rem; }
+        .add-accessory { display: flex; gap: 8px; margin-top: 12px; }
+        .add-accessory input { flex: 1; padding: 8px 12px; border-radius: 40px; border: 1px solid #ccc; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+        @media (max-width: 640px) { body { padding: 14px; } .compact-grid { grid-template-columns: 1fr 1fr; } .card-body { padding: 16px; } }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
     </style>
 </head>
 <body>
@@ -351,20 +196,22 @@
     <header class="app-header">
         <div>
             <h1><i class="fas fa-toolbox"></i> ToolStock Pro</h1>
-            <p>Manajemen alat & peminjaman teknisi · tampilan compact</p>
+            <p>Manajemen alat + kelengkapan aksesoris · compact</p>
         </div>
-        <div style="display: flex; gap: 12px; align-items: center;">
+        <div style="display: flex; gap: 12px;">
             <div class="status-badge"><i class="fas fa-circle" id="connIcon"></i> <span id="connText">Online</span></div>
             <div class="status-badge"><i class="fas fa-cubes"></i> <span id="totalItemsCount">0</span> item</div>
         </div>
     </header>
 
-    <!-- INVENTORY CARD : COMPACT GRID + SCROLLABLE -->
+    <!-- INVENTORY CARD -->
     <div class="card">
         <div class="card-header">
             <h2><i class="fas fa-archive"></i> Inventaris Alat</h2>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div class="btn-group">
                 <input type="text" id="searchItemInput" class="search-input" placeholder="Cari nama alat...">
+                <button id="copyStockBtn" class="btn btn-outline"><i class="fas fa-copy"></i> Copy Stok</button>
+                <button id="copyActiveLoansBtn" class="btn btn-outline"><i class="fas fa-copy"></i> Copy Aktif</button>
                 <button id="hideInventoryBtn" class="btn btn-outline"><i class="fas fa-eye-slash"></i> Sembunyi</button>
                 <button id="unhideInventoryBtn" class="btn btn-primary"><i class="fas fa-lock-open"></i> Buka</button>
                 <button id="addItemBtn" class="btn btn-primary" style="background:#475569;"><i class="fas fa-plus"></i> Tambah</button>
@@ -382,18 +229,9 @@
         <div class="card-header"><h2><i class="fas fa-hand-holding"></i> Peminjaman Baru</h2></div>
         <div class="card-body">
             <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end;">
-                <div style="flex:2; min-width: 170px;">
-                    <label style="font-weight:600; font-size:0.7rem;">PILIH ALAT</label>
-                    <select id="borrowItemSelect" class="search-input" style="width:100%; margin-top:6px;"></select>
-                </div>
-                <div style="flex:1.5; min-width: 140px;">
-                    <label style="font-weight:600; font-size:0.7rem;">TEKNISI</label>
-                    <select id="borrowTechnicianSelect" class="search-input" style="width:100%;"></select>
-                </div>
-                <div style="flex:1; min-width: 100px;">
-                    <label style="font-weight:600; font-size:0.7rem;">JUMLAH</label>
-                    <input type="number" id="borrowQty" value="1" min="1" class="search-input" style="width:100%;">
-                </div>
+                <div style="flex:2; min-width: 170px;"><label style="font-weight:600;">PILIH ALAT</label><select id="borrowItemSelect" class="search-input" style="width:100%; margin-top:6px;"></select></div>
+                <div style="flex:1.5;"><label>TEKNISI</label><select id="borrowTechnicianSelect" class="search-input" style="width:100%;"></select></div>
+                <div style="flex:1;"><label>JUMLAH</label><input type="number" id="borrowQty" value="1" min="1" class="search-input" style="width:100%;"></div>
                 <button id="borrowBtn" class="btn btn-primary"><i class="fas fa-check-circle"></i> Pinjam</button>
             </div>
         </div>
@@ -401,12 +239,9 @@
 
     <!-- PEMINJAMAN AKTIF -->
     <div class="card">
-        <div class="card-header">
-            <h2><i class="fas fa-sync-alt"></i> Peminjaman Aktif</h2>
-            <input type="text" id="searchActiveLoan" class="search-input" placeholder="Cari alat/teknisi...">
-        </div>
+        <div class="card-header"><h2><i class="fas fa-sync-alt"></i> Peminjaman Aktif</h2><input type="text" id="searchActiveLoan" class="search-input" placeholder="Cari alat/teknisi..."></div>
         <div class="card-body" style="overflow-x: auto;">
-            <table style="min-width: 500px;">
+            <table style="min-width: 600px;">
                 <thead><tr><th>No</th><th>Alat</th><th>Teknisi</th><th>Jml</th><th>Tanggal Pinjam</th><th>Aksi</th></tr></thead>
                 <tbody id="activeLoansBody"></tbody>
             </table>
@@ -415,27 +250,26 @@
 
     <!-- RIWAYAT -->
     <div class="card">
-        <div class="card-header">
-            <h2><i class="fas fa-history"></i> Riwayat Pengembalian</h2>
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="searchHistoryInput" class="search-input" placeholder="Cari...">
-                <button id="clearHistoryBtn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Bersihkan</button>
-            </div>
-        </div>
+        <div class="card-header"><h2><i class="fas fa-history"></i> Riwayat Pengembalian</h2><div class="btn-group"><input type="text" id="searchHistoryInput" class="search-input" placeholder="Cari..."><button id="copyHistoryBtn" class="btn btn-outline"><i class="fas fa-copy"></i> Copy Riwayat</button><button id="clearHistoryBtn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Bersihkan</button></div></div>
         <div class="card-body" style="overflow-x: auto;">
-            <table style="min-width: 600px;">
-                <thead><tr><th>No</th><th>Alat</th><th>Teknisi</th><th>Jml</th><th>Pinjam</th><th>Kembali</th><th>Hapus</th></tr></thead>
+            <table style="min-width: 700px;">
+                <thead><tr><th>No</th><th>Alat</th><th>Teknisi</th><th>Jml</th><th>Pinjam</th><th>Kembali</th><th>Aksi</th></tr></thead>
                 <tbody id="historyBody"></tbody>
             </table>
         </div>
     </div>
 </div>
 
+<!-- MODAL EDIT PEMINJAMAN -->
+<div id="editModal" class="modal-overlay"><div class="modal-container"><h3 id="modalTitle">Edit Data</h3><div class="modal-field"><label>Alat</label><select id="modalItemSelect"></select></div><div class="modal-field"><label>Teknisi</label><select id="modalTechnicianSelect"></select></div><div class="modal-field"><label>Jumlah</label><input type="number" id="modalQty" min="1"></div><div class="modal-field"><label>Tanggal Pinjam</label><input type="datetime-local" id="modalBorrowDate"></div><div class="modal-field" id="modalReturnField" style="display:none;"><label>Tanggal Kembali</label><input type="datetime-local" id="modalReturnDate"></div><div class="modal-actions"><button class="btn btn-outline" id="modalCancelBtn">Batal</button><button class="btn btn-primary" id="modalSaveBtn">Simpan</button></div></div></div>
+
+<!-- MODAL KELENGKAPAN BARANG -->
+<div id="accessoryModal" class="modal-overlay"><div class="modal-container"><h3><i class="fas fa-clipboard-list"></i> Kelengkapan Barang</h3><div id="accessoryItemName" style="font-weight:bold; margin-bottom:12px;"></div><div id="accessoryList"></div><div class="add-accessory"><input type="text" id="newAccName" placeholder="Nama aksesoris (contoh: Charger)"><button id="addAccBtn" class="btn btn-sm btn-primary">Tambah</button></div><div class="modal-actions"><button class="btn btn-outline" id="closeAccModal">Tutup</button></div></div></div>
+
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script>
-    (function() {
-        // Firebase config (sama seperti sebelumnya)
+    (function(){
         const firebaseConfig = {
             apiKey: "AIzaSyAtcThyvxbqHAq9mdBZQpNvgEzls2dAPLY",
             authDomain: "clonemonitoringteknisi.firebaseapp.com",
@@ -445,14 +279,16 @@
             messagingSenderId: "248130180868",
             appId: "1:248130180868:web:1859dab6e4c8c0c8cb6251"
         };
-        const PASSWORD = "bengkel2024";
+        const PASSWORD = "0789"; // Password baru
         const TECHNICIANS = ["Ajis","Bima","Bimo","Dani","Deni","Tomy","Takim","Reza","Pian","Rahmat","Kholis","Yudha","Rival","Ifsal","Reno","Tangguh","Riki"];
-
-        let items = [];
-        let loans = [];
-        let isOnline = false;
+        let items = [], loans = [], isOnline = false;
         let db, itemsRef, loansRef;
-        let inventoryHidden = false;
+        
+        // Kunci inventaris saat pertama buka web
+        let inventoryHidden = true; // <-- KUNCI AWAL
+        
+        let currentEditLoanId = null, currentEditIsActive = false;
+        let currentAccessoryItemId = null;
 
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
@@ -464,30 +300,23 @@
             isOnline = snap.val() === true;
             const icon = document.getElementById('connIcon');
             const text = document.getElementById('connText');
-            if (isOnline) {
-                icon.style.color = '#2ecc71';
-                text.textContent = 'Online · realtime';
-                startDataSync();
-            } else {
-                icon.style.color = '#f39c12';
-                text.textContent = 'Offline (menunggu)';
-            }
+            if (isOnline) { icon.style.color = '#2ecc71'; text.textContent = 'Online · realtime'; startDataSync(); }
+            else { icon.style.color = '#f39c12'; text.textContent = 'Offline (menunggu)'; }
         });
 
         function startDataSync() {
             itemsRef.on('value', (snap) => {
                 const data = snap.val() || {};
                 items = Object.entries(data).map(([id, val]) => ({
-                    id, name: val.name || '?', stock: val.stock || 0
+                    id, name: val.name || '?', stock: val.stock || 0,
+                    accessories: val.accessories || {}
                 }));
                 renderCompactInventory();
                 updateBorrowSelect();
                 document.getElementById('totalItemsCount').innerText = items.length;
             });
-
             loansRef.on('value', (snap) => {
-                const data = snap.val() || {};
-                loans = Object.entries(data).map(([id, val]) => ({
+                loans = Object.entries(snap.val() || {}).map(([id, val]) => ({
                     id, itemId: val.itemId, itemName: val.itemName || '', technician: val.technician || '',
                     quantity: val.quantity || 1, borrowDate: val.borrowDate || new Date().toISOString(),
                     returned: val.returned || false, returnDate: val.returnDate || null
@@ -497,99 +326,79 @@
             });
         }
 
-        // ADJUST (stok +/-)
-        function adjustStock(itemId, delta) {
-            itemsRef.child(itemId).transaction(current => {
-                if (current) {
-                    const newStock = (current.stock || 0) + delta;
-                    if (newStock < 0) return undefined;
-                    return { ...current, stock: newStock };
-                }
-                return undefined;
-            }, (err, committed) => {
-                if (err) alert("Error update stok");
-                if (!committed) alert("Stok tidak mencukupi!");
-            });
-        }
-
-        function addItem(name, stock) {
-            if (!name.trim()) return;
-            itemsRef.push({ name: name.trim(), stock: Math.max(0, parseInt(stock) || 0) });
-        }
-
-        function editItem(id, newName, newStock) {
-            itemsRef.child(id).update({ name: newName, stock: Math.max(0, parseInt(newStock) || 0) });
-        }
-
-        function deleteItem(id) {
-            const isBorrowed = loans.some(l => l.itemId === id && !l.returned);
-            if (isBorrowed) { alert("Barang sedang dipinjam, tidak bisa dihapus!"); return; }
-            itemsRef.child(id).remove();
-        }
-
-        function borrowItem(itemId, technician, quantity) {
-            const item = items.find(i => i.id === itemId);
-            if (!item || item.stock < quantity || !TECHNICIANS.includes(technician)) {
-                alert("Stok tidak cukup atau teknisi tidak valid!");
-                return;
+        // Fungsi kelengkapan untuk stok dan riwayat (dengan kata "Kurang:")
+        function getCompactAccessoryStatus(item) {
+            if (!item || !item.accessories || Object.keys(item.accessories).length === 0) {
+                return "Tidak ada aksesoris";
             }
-            itemsRef.child(itemId).transaction(current => {
-                if (current && current.stock >= quantity) {
-                    return { ...current, stock: current.stock - quantity };
-                }
-                return undefined;
-            }, (err, committed) => {
-                if (!committed) { alert("Gagal meminjam, periksa stok."); return; }
-                loansRef.push({
-                    itemId, itemName: item.name, technician, quantity,
-                    borrowDate: new Date().toISOString(), returned: false, returnDate: null
-                });
-            });
-        }
-
-        function returnLoan(loanId) {
-            const loan = loans.find(l => l.id === loanId);
-            if (!loan || loan.returned) return;
-            itemsRef.child(loan.itemId).transaction(current => {
-                if (current) return { ...current, stock: (current.stock || 0) + loan.quantity };
-            });
-            loansRef.child(loanId).update({ returned: true, returnDate: new Date().toISOString() });
-        }
-
-        function deleteHistoryEntry(loanId) {
-            const loan = loans.find(l => l.id === loanId);
-            if (loan && loan.returned) loansRef.child(loanId).remove();
-        }
-
-        function clearHistory() {
-            const returnedIds = loans.filter(l => l.returned).map(l => l.id);
-            if (returnedIds.length && confirm("Hapus semua riwayat pengembalian?")) {
-                const updates = {};
-                returnedIds.forEach(id => updates[id] = null);
-                loansRef.update(updates);
+            const entries = Object.entries(item.accessories);
+            const total = entries.length;
+            const checkedCount = entries.filter(([_, v]) => v === true).length;
+            
+            if (checkedCount === total) {
+                return "Lengkap";
+            } else {
+                const missing = entries.filter(([_, v]) => !v).map(([name]) => name);
+                return "Kurang: " + missing.join(", ");
             }
         }
 
-        // RENDER INVENTORY -- COMPACT GRID + SCROLLABLE
+        // Fungsi khusus untuk copy peminjaman aktif (format -nama huruf kecil)
+        function getCompactAccessoryStatusForActive(item) {
+            if (!item || !item.accessories || Object.keys(item.accessories).length === 0) {
+                return "Tidak ada aksesoris";
+            }
+            const entries = Object.entries(item.accessories);
+            const total = entries.length;
+            const checkedCount = entries.filter(([_, v]) => v === true).length;
+            
+            if (checkedCount === total) {
+                return "Lengkap";
+            } else {
+                const missing = entries.filter(([_, v]) => !v).map(([name]) => "-" + name.toLowerCase());
+                return missing.join(" ");
+            }
+        }
+
+        function getCompletenessSummary(accessories) {
+            if (!accessories || Object.keys(accessories).length === 0) return { total: 0, checked: 0 };
+            const entries = Object.entries(accessories);
+            const total = entries.length;
+            const checked = entries.filter(([_, val]) => val === true).length;
+            return { total, checked };
+        }
+
+        function formatDateOnly(iso) {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function updateAccessoryCheck(itemId, accName, checked) {
+            itemsRef.child(itemId).child('accessories').child(accName).set(checked);
+        }
+        function addAccessory(itemId, accName) {
+            if (!accName.trim()) return;
+            itemsRef.child(itemId).child('accessories').child(accName.trim()).set(false);
+        }
+        function deleteAccessory(itemId, accName) {
+            itemsRef.child(itemId).child('accessories').child(accName).remove();
+        }
+
         function renderCompactInventory() {
-            const gridContainer = document.getElementById('inventoryCompactGrid');
-            if (!gridContainer) return;
-
-            if (inventoryHidden) {
-                gridContainer.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-lock fa-2x"></i><p>Inventaris disembunyikan (klik Buka dengan password)</p></div>`;
-                return;
+            const grid = document.getElementById('inventoryCompactGrid');
+            if(!grid) return;
+            if(inventoryHidden){ 
+                grid.innerHTML='<div class="empty-state"><i class="fas fa-lock fa-2x"></i><p>Inventaris terkunci. Silakan buka dengan password.</p></div>'; 
+                return; 
             }
-
-            const searchTerm = document.getElementById('searchItemInput')?.value.toLowerCase() || '';
-            const filtered = items.filter(i => i.name.toLowerCase().includes(searchTerm));
-
-            if (filtered.length === 0) {
-                gridContainer.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">🔍 Tidak ada alat ditemukan</div>`;
-                return;
-            }
-
-            // Membangun kartu-kartu kecil (compact boxes)
-            gridContainer.innerHTML = filtered.map(item => `
+            const search = document.getElementById('searchItemInput')?.value.toLowerCase()||'';
+            const filtered = items.filter(i=>i.name.toLowerCase().includes(search));
+            if(filtered.length===0){ grid.innerHTML='<div class="empty-state">🔍 Tidak ada alat</div>'; return; }
+            grid.innerHTML = filtered.map(item => {
+                const { total, checked } = getCompletenessSummary(item.accessories);
+                const completenessText = total>0 ? `✓ ${checked}/${total}` : 'Kelengkapan: -';
+                return `
                 <div class="item-card" data-item-id="${item.id}">
                     <div class="item-name">${escapeHtml(item.name)}</div>
                     <div class="item-stock-area">
@@ -598,130 +407,325 @@
                             <span class="stock-value">${item.stock}</span>
                             <button class="stock-btn plus-btn" data-id="${item.id}" data-d="1">+</button>
                         </div>
-                        <span class="status-tag-mini ${item.stock > 0 ? 'status-available' : 'status-empty'}">${item.stock > 0 ? 'Tersedia' : 'Kosong'}</span>
+                        <span class="status-tag-mini ${item.stock>0?'status-available':'status-empty'}">${item.stock>0?'Tersedia':'Kosong'}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="completeness-badge"><i class="fas fa-check-circle"></i> ${completenessText}</span>
                     </div>
                     <div class="card-actions">
+                        <button class="btn-checklist-card" data-checklist="${item.id}"><i class="fas fa-clipboard-list"></i> Ceklis</button>
                         <button class="btn-edit-card" data-edit="${item.id}"><i class="fas fa-pen"></i> Edit</button>
                         <button class="btn-delete-card" data-delete="${item.id}"><i class="fas fa-trash"></i> Hapus</button>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
-        function updateBorrowSelect() {
-            const select = document.getElementById('borrowItemSelect');
-            if (!select) return;
-            select.innerHTML = '<option value="">-- Pilih alat tersedia --</option>';
-            const availableItems = items.filter(i => i.stock > 0);
-            availableItems.forEach(i => {
-                select.innerHTML += `<option value="${i.id}">${escapeHtml(i.name)} (stok: ${i.stock})</option>`;
+        function openAccessoryModal(itemId) {
+            if(inventoryHidden){ alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+            const item = items.find(i => i.id === itemId);
+            if(!item) return;
+            currentAccessoryItemId = itemId;
+            document.getElementById('accessoryItemName').innerText = item.name;
+            renderAccessoryList(itemId);
+            document.getElementById('accessoryModal').classList.add('active');
+        }
+
+        function renderAccessoryList(itemId) {
+            const item = items.find(i => i.id === itemId);
+            const container = document.getElementById('accessoryList');
+            if(!item || !item.accessories) { container.innerHTML = '<div class="empty-state">Belum ada aksesoris</div>'; return; }
+            const acc = item.accessories;
+            const names = Object.keys(acc);
+            if(names.length === 0) { container.innerHTML = '<div class="empty-state">Belum ada aksesoris</div>'; return; }
+            container.innerHTML = names.map(accName => `
+                <div class="accessory-item">
+                    <label>
+                        <input type="checkbox" class="acc-checkbox" data-acc="${accName}" ${acc[accName] ? 'checked' : ''}>
+                        <span>${escapeHtml(accName)}</span>
+                    </label>
+                    <button class="delete-acc-btn" data-delacc="${accName}"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `).join('');
+            document.querySelectorAll('.acc-checkbox').forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    const accName = cb.dataset.acc;
+                    updateAccessoryCheck(itemId, accName, cb.checked);
+                });
+            });
+            document.querySelectorAll('.delete-acc-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const accName = btn.dataset.delacc;
+                    if(confirm(`Hapus aksesoris "${accName}"?`)) deleteAccessory(itemId, accName);
+                });
             });
         }
 
+        // STOCK & CRUD
+        function adjustStock(itemId, delta) {
+            if(inventoryHidden){ alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+            itemsRef.child(itemId).transaction(current => { if(current) { let ns = (current.stock||0)+delta; if(ns<0) return; return {...current, stock:ns}; } });
+        }
+        function addItem(name, stock) { 
+            if(inventoryHidden){ alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+            if(name.trim()) itemsRef.push({ name: name.trim(), stock: Math.max(0,stock||0), accessories: {} }); 
+        }
+        function editItem(id, newName, newStock) { 
+            if(inventoryHidden){ alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+            itemsRef.child(id).update({ name: newName, stock: Math.max(0,newStock) }); 
+        }
+        function deleteItem(id) { 
+            if(inventoryHidden){ alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+            if(loans.some(l=>l.itemId===id && !l.returned)){ alert("Barang sedang dipinjam!"); return; } 
+            itemsRef.child(id).remove(); 
+        }
+        function borrowItem(itemId, technician, quantity) {
+            const item = items.find(i=>i.id===itemId);
+            if(!item || item.stock<quantity || !TECHNICIANS.includes(technician)) { alert("Stok atau teknisi tidak valid"); return; }
+            itemsRef.child(itemId).transaction(current => { if(current && current.stock>=quantity) return {...current, stock:current.stock-quantity}; });
+            loansRef.push({ itemId, itemName: item.name, technician, quantity, borrowDate: new Date().toISOString(), returned:false, returnDate:null });
+        }
+        function returnLoan(loanId) {
+            const loan=loans.find(l=>l.id===loanId);
+            if(!loan||loan.returned) return;
+            itemsRef.child(loan.itemId).transaction(c=>{ if(c) return {...c, stock:(c.stock||0)+loan.quantity}; });
+            loansRef.child(loanId).update({ returned:true, returnDate:new Date().toISOString() });
+        }
+        function deleteHistoryEntry(loanId) { const loan=loans.find(l=>l.id===loanId); if(loan && loan.returned) loansRef.child(loanId).remove(); }
+        function clearHistory() { const returnedIds=loans.filter(l=>l.returned).map(l=>l.id); if(returnedIds.length && confirm("Hapus semua riwayat?")){ let up={}; returnedIds.forEach(id=>up[id]=null); loansRef.update(up); } }
+        async function updateActiveLoan(loanId, newItemId, newTechnician, newQuantity, newBorrowDate) {
+            const oldLoan=loans.find(l=>l.id===loanId); if(!oldLoan||oldLoan.returned) return;
+            if(newQuantity<=0){ alert("Jumlah positif"); return; }
+            const newItem=items.find(i=>i.id===newItemId); if(!newItem) return;
+            if(newItem.stock+oldLoan.quantity<newQuantity){ alert(`Stok ${newItem.name} tidak cukup`); return; }
+            await adjustStock(oldLoan.itemId, oldLoan.quantity);
+            const success=await new Promise(res=>{ itemsRef.child(newItemId).transaction(c=>{ if(c && c.stock>=newQuantity) return {...c, stock:c.stock-newQuantity}; return undefined; }, (err,committed)=>{ res(committed); }); });
+            if(!success){ await adjustStock(oldLoan.itemId, -oldLoan.quantity); alert("Gagal update stok"); return; }
+            await loansRef.child(loanId).update({ itemId:newItemId, itemName:newItem.name, technician:newTechnician, quantity:newQuantity, borrowDate:newBorrowDate });
+        }
+        async function updateHistoryEntry(entryId, newItemId, newTechnician, newQuantity, newBorrowDate, newReturnDate) {
+            const entry=loans.find(l=>l.id===entryId); if(!entry||!entry.returned) return;
+            const newItem=items.find(i=>i.id===newItemId); if(!newItem) return;
+            await loansRef.child(entryId).update({ itemId:newItemId, itemName:newItem.name, technician:newTechnician, quantity:newQuantity, borrowDate:newBorrowDate, returnDate:newReturnDate });
+        }
+        function updateBorrowSelect() { const sel=document.getElementById('borrowItemSelect'); if(!sel) return; sel.innerHTML='<option value="">-- Pilih alat tersedia --</option>'; items.filter(i=>i.stock>0).forEach(i=>{ sel.innerHTML+=`<option value="${i.id}">${escapeHtml(i.name)} (stok:${i.stock})</option>`; }); }
+        
+        // TABEL
         function renderActiveLoans() {
-            const search = document.getElementById('searchActiveLoan')?.value.toLowerCase() || '';
-            const filtered = loans.filter(l => !l.returned && (l.itemName.toLowerCase().includes(search) || l.technician.toLowerCase().includes(search)));
-            const tbody = document.getElementById('activeLoansBody');
-            if (!tbody) return;
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">✨ Tidak ada peminjaman aktif</td></tr>';
-                return;
-            }
-            tbody.innerHTML = filtered.map((l, idx) => `
+            const search=document.getElementById('searchActiveLoan')?.value.toLowerCase()||'';
+            const filtered=loans.filter(l=>!l.returned && (l.itemName.toLowerCase().includes(search)||l.technician.toLowerCase().includes(search)));
+            const tbody=document.getElementById('activeLoansBody');
+            if(!tbody) return;
+            if(filtered.length===0){ tbody.innerHTML='<tr><td colspan="6" class="empty-state">✨ Tidak ada peminjaman aktif</td></tr>'; return; }
+            tbody.innerHTML=filtered.map((l,idx)=>`
                 <tr>
-                    <td>${idx+1}</td><td><strong>${escapeHtml(l.itemName)}</strong></td><td>${escapeHtml(l.technician)}</td>
-                    <td>${l.quantity}</td><td>${formatDate(l.borrowDate)}</td>
-                    <td><button class="btn btn-warning return-loan-btn" data-return="${l.id}" style="padding:6px 12px;"><i class="fas fa-undo-alt"></i> Kembali</button></td>
+                    <td>${idx+1}</td>
+                    <td><strong>${escapeHtml(l.itemName)}</strong></td>
+                    <td>${escapeHtml(l.technician)}</td>
+                    <td>${l.quantity}</td>
+                    <td>${formatDateOnly(l.borrowDate)}</td>
+                    <td><button class="btn btn-warning btn-sm return-loan-btn" data-return="${l.id}"><i class="fas fa-undo-alt"></i> Kembali</button> <button class="btn btn-outline btn-sm edit-active-btn" data-editactive="${l.id}"><i class="fas fa-edit"></i> Edit</button></td>
                 </tr>
             `).join('');
         }
 
         function renderHistory() {
-            const search = document.getElementById('searchHistoryInput')?.value.toLowerCase() || '';
-            const filtered = loans.filter(l => l.returned && (l.itemName.toLowerCase().includes(search) || l.technician.toLowerCase().includes(search)));
-            const tbody = document.getElementById('historyBody');
-            if (!tbody) return;
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">📭 Belum ada riwayat pengembalian</td></tr>';
-                return;
-            }
-            tbody.innerHTML = filtered.map((l, idx) => `
+            const search=document.getElementById('searchHistoryInput')?.value.toLowerCase()||'';
+            const filtered=loans.filter(l=>l.returned && (l.itemName.toLowerCase().includes(search)||l.technician.toLowerCase().includes(search)));
+            const tbody=document.getElementById('historyBody');
+            if(!tbody) return;
+            if(filtered.length===0){ tbody.innerHTML='<tr><td colspan="7" class="empty-state">📭 Belum ada riwayat pengembalian</td></tr>'; return; }
+            tbody.innerHTML=filtered.map((l,idx)=>`
                 <tr>
-                    <td>${idx+1}</td><td>${escapeHtml(l.itemName)}</td><td>${escapeHtml(l.technician)}</td><td>${l.quantity}</td>
-                    <td>${formatDate(l.borrowDate)}</td><td>${l.returnDate ? formatDate(l.returnDate) : '-'}</td>
-                    <td><button class="btn btn-outline del-hist-btn" data-delhist="${l.id}" style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Hapus</button></td>
+                    <td>${idx+1}</td>
+                    <td>${escapeHtml(l.itemName)}</td>
+                    <td>${escapeHtml(l.technician)}</td>
+                    <td>${l.quantity}</td>
+                    <td>${formatDateOnly(l.borrowDate)}</td>
+                    <td>${l.returnDate?formatDateOnly(l.returnDate):'-'}</td>
+                    <td><button class="btn btn-outline btn-sm edit-hist-btn" data-edithist="${l.id}"><i class="fas fa-edit"></i> Edit</button> <button class="btn btn-outline btn-sm del-hist-btn" data-delhist="${l.id}" style="color:#b91c1c;"><i class="fas fa-times-circle"></i> Hapus</button></td>
                 </tr>
             `).join('');
         }
 
-        function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;});}
-        function formatDate(iso) { if(!iso) return '-'; return new Date(iso).toLocaleString('id-ID', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
+        function escapeHtml(str){ return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
-        // EVENT DELEGATION (semua tombol)
-        document.body.addEventListener('click', (e) => {
-            const target = e.target.closest('button');
-            if (!target) return;
-
-            // stock +/- dari compact grid
-            if (target.classList.contains('stock-btn') || (target.dataset.d && target.dataset.id)) {
-                const itemId = target.dataset.id;
-                const delta = parseInt(target.dataset.d);
-                if (itemId && !isNaN(delta)) adjustStock(itemId, delta);
+        // ========== FUNGSI COPY ==========
+        async function copyToClipboard(text, msg){ 
+            try{ await navigator.clipboard.writeText(text); alert(msg); } 
+            catch(e){ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert(msg+" (fallback)"); } 
+        }
+        
+        function copyStockOnly() {
+            if(inventoryHidden){ alert("Inventaris terkunci! Buka dengan password untuk menyalin stok."); return; }
+            let text = "========================================\n";
+            text += "          REKAP STOK & KELENGKAPAN          \n";
+            text += "========================================\n\n";
+            if (items.length === 0) {
+                text += "Belum ada alat terdaftar.\n";
+            } else {
+                items.forEach(i => {
+                    text += `Nama alat   : ${i.name}\n`;
+                    text += `Stok        : ${i.stock} pcs\n`;
+                    text += `Kelengkapan : ${getCompactAccessoryStatus(i)}\n`;
+                    text += "----------------------------------------\n";
+                });
             }
-            // edit item (compact)
-            else if (target.dataset.edit) {
-                const item = items.find(i => i.id === target.dataset.edit);
-                if (item) {
-                    const newName = prompt("Nama alat baru:", item.name);
-                    if (newName && newName.trim()) {
-                        const newStock = prompt("Stok baru:", item.stock);
-                        editItem(item.id, newName.trim(), parseInt(newStock) || 0);
+            copyToClipboard(text, "Rekap stok berhasil disalin!");
+        }
+
+        function copyActiveLoansOnly() {
+            let text = "📜 *PEMINJAMAN AKTIF*    \n";
+            text += "-----------------------------------------------\n";
+            const active = loans.filter(l => !l.returned);
+            if (active.length === 0) {
+                text += "Tidak ada peminjaman aktif.\n";
+            } else {
+                active.forEach((l, idx) => {
+                    const item = items.find(i => i.id === l.itemId);
+                    text += `\n${idx+1}. ${l.itemName}\n`;
+                    text += `   Teknisi     : ${l.technician}\n`;
+                    text += `   Jumlah      : ${l.quantity}\n`;
+                    text += `   Pinjam      : ${formatDateOnly(l.borrowDate)}\n`;
+                    if (item) {
+                        text += `   Kelengkapan : ${getCompactAccessoryStatusForActive(item)}\n`;
+                    } else {
+                        text += `   Kelengkapan : (data alat tidak tersedia)\n`;
                     }
-                }
+                    text += "----------------------------------------\n";
+                });
             }
-            // delete item
-            else if (target.dataset.delete) {
-                if (confirm("Yakin hapus alat ini?")) deleteItem(target.dataset.delete);
+            copyToClipboard(text, "Rekap peminjaman aktif berhasil disalin!");
+        }
+
+        function copyHistory() {
+            let text = "========================================\n";
+            text += "          RIWAYAT PENGEMBALIAN          \n";
+            text += "========================================\n\n";
+            const histories = loans.filter(l => l.returned);
+            if (histories.length === 0) {
+                text += "Belum ada riwayat pengembalian.\n";
+            } else {
+                histories.forEach((l, idx) => {
+                    const item = items.find(i => i.id === l.itemId);
+                    text += `${idx+1}. ${l.itemName}\n`;
+                    text += `   Teknisi        : ${l.technician}\n`;
+                    text += `   Jumlah         : ${l.quantity}\n`;
+                    text += `   Tanggal pinjam : ${formatDateOnly(l.borrowDate)}\n`;
+                    text += `   Tanggal kembali: ${formatDateOnly(l.returnDate)}\n`;
+                    if (item) {
+                        text += `   Kelengkapan alat: ${getCompactAccessoryStatus(item)}\n`;
+                    } else {
+                        text += `   Kelengkapan alat: (data alat tidak tersedia)\n`;
+                    }
+                    text += "----------------------------------------\n";
+                });
             }
-            // return loan
-            else if (target.dataset.return) {
-                if (confirm("Kembalikan alat?")) returnLoan(target.dataset.return);
+            copyToClipboard(text, "Rekap riwayat pengembalian berhasil disalin!");
+        }
+
+        // EVENT LISTENERS
+        document.body.addEventListener('click', (e) => {
+            const t = e.target.closest('button');
+            if(!t) return;
+            // Stock +/-
+            if(t.classList.contains('stock-btn') && t.dataset.id && t.dataset.d) {
+                if(inventoryHidden) { alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+                adjustStock(t.dataset.id, parseInt(t.dataset.d));
             }
-            // hapus riwayat
-            else if (target.dataset.delhist) {
-                if (confirm("Hapus catatan riwayat ini?")) deleteHistoryEntry(target.dataset.delhist);
+            else if(t.dataset.edit) { 
+                if(inventoryHidden) { alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+                const item=items.find(i=>i.id===t.dataset.edit); 
+                if(item){ let newName=prompt("Nama baru:",item.name); if(newName){ let newStock=prompt("Stok baru:",item.stock); editItem(item.id, newName, parseInt(newStock)||0); } } 
+            }
+            else if(t.dataset.delete) { 
+                if(inventoryHidden) { alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+                if(confirm("Hapus alat?")) deleteItem(t.dataset.delete); 
+            }
+            else if(t.dataset.return) { 
+                if(confirm("Kembalikan alat?")) returnLoan(t.dataset.return); 
+            }
+            else if(t.dataset.delhist) { 
+                if(confirm("Hapus riwayat?")) deleteHistoryEntry(t.dataset.delhist); 
+            }
+            else if(t.dataset.editactive) { 
+                showEditModal(true, t.dataset.editactive); 
+            }
+            else if(t.dataset.edithist) { 
+                showEditModal(false, t.dataset.edithist); 
+            }
+            else if(t.dataset.checklist) { 
+                openAccessoryModal(t.dataset.checklist); 
             }
         });
 
-        // BUTTON REF
-        document.getElementById('hideInventoryBtn')?.addEventListener('click', () => { inventoryHidden = true; renderCompactInventory(); });
-        document.getElementById('unhideInventoryBtn')?.addEventListener('click', () => {
+        function showEditModal(isActive, loanId) {
+            const loan = loans.find(l=>l.id===loanId);
+            if(!loan) return;
+            currentEditLoanId = loanId; currentEditIsActive = isActive;
+            document.getElementById('modalTitle').innerText = isActive ? "Edit Peminjaman Aktif" : "Edit Riwayat Pengembalian";
+            document.getElementById('modalItemSelect').innerHTML = items.map(i=>`<option value="${i.id}" ${i.id===loan.itemId?'selected':''}>${escapeHtml(i.name)} (stok:${i.stock})</option>`).join('');
+            document.getElementById('modalTechnicianSelect').innerHTML = TECHNICIANS.map(t=>`<option value="${t}" ${t===loan.technician?'selected':''}>${t}</option>`).join('');
+            document.getElementById('modalQty').value = loan.quantity;
+            document.getElementById('modalBorrowDate').value = loan.borrowDate.slice(0,16);
+            const returnField = document.getElementById('modalReturnField');
+            const returnDateInput = document.getElementById('modalReturnDate');
+            if(isActive){ returnField.style.display = 'none'; }
+            else{ returnField.style.display = 'block'; returnDateInput.value = loan.returnDate ? loan.returnDate.slice(0,16) : new Date().toISOString().slice(0,16); }
+            document.getElementById('editModal').classList.add('active');
+        }
+        document.getElementById('modalCancelBtn')?.addEventListener('click',()=>{ document.getElementById('editModal').classList.remove('active'); });
+        document.getElementById('modalSaveBtn')?.addEventListener('click', async () => {
+            if(!currentEditLoanId) return;
+            const newItemId = document.getElementById('modalItemSelect').value;
+            const newTech = document.getElementById('modalTechnicianSelect').value;
+            const newQty = parseInt(document.getElementById('modalQty').value);
+            const newBorrow = document.getElementById('modalBorrowDate').value;
+            if(!newItemId || !newTech || isNaN(newQty) || newQty<1 || !newBorrow){ alert("Isi semua field"); return; }
+            if(currentEditIsActive) await updateActiveLoan(currentEditLoanId, newItemId, newTech, newQty, newBorrow);
+            else{ let newReturn = document.getElementById('modalReturnDate').value; if(!newReturn) newReturn=new Date().toISOString(); await updateHistoryEntry(currentEditLoanId, newItemId, newTech, newQty, newBorrow, newReturn); }
+            document.getElementById('editModal').classList.remove('active');
+        });
+        document.getElementById('closeAccModal')?.addEventListener('click',()=>{ document.getElementById('accessoryModal').classList.remove('active'); });
+        document.getElementById('addAccBtn')?.addEventListener('click',()=>{ 
+            if(inventoryHidden){ alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+            const newName = document.getElementById('newAccName').value; 
+            if(currentAccessoryItemId && newName.trim()){ addAccessory(currentAccessoryItemId, newName); document.getElementById('newAccName').value=''; } 
+        });
+        document.getElementById('hideInventoryBtn')?.addEventListener('click',()=>{ 
+            if(inventoryHidden) { alert("Inventaris sudah terkunci."); return; }
+            inventoryHidden=true; 
+            renderCompactInventory(); 
+        });
+        document.getElementById('unhideInventoryBtn')?.addEventListener('click',()=>{ 
             const pw = prompt("Masukkan password admin:");
-            if (pw === PASSWORD) { inventoryHidden = false; renderCompactInventory(); }
-            else alert("Password salah!");
+            if(pw === PASSWORD){ 
+                inventoryHidden=false; 
+                renderCompactInventory(); 
+            } else alert("Password salah!"); 
         });
-        document.getElementById('addItemBtn')?.addEventListener('click', () => {
-            if (inventoryHidden) { alert("Unhide inventory terlebih dahulu."); return; }
-            const nama = prompt("Nama alat baru:");
-            if (nama) addItem(nama, parseInt(prompt("Stok awal:")) || 0);
+        document.getElementById('addItemBtn')?.addEventListener('click',()=>{ 
+            if(inventoryHidden){ alert("Inventaris terkunci! Buka dengan password terlebih dahulu."); return; }
+            let nama=prompt("Nama alat:"); 
+            if(nama) addItem(nama, parseInt(prompt("Stok awal:"))||0); 
         });
-        document.getElementById('borrowBtn')?.addEventListener('click', () => {
-            const itemId = document.getElementById('borrowItemSelect').value;
-            const tech = document.getElementById('borrowTechnicianSelect').value;
-            const qty = parseInt(document.getElementById('borrowQty').value);
-            if (itemId && tech && qty > 0) borrowItem(itemId, tech, qty);
-            else alert("Pilih alat dan teknisi dengan benar");
+        document.getElementById('borrowBtn')?.addEventListener('click',()=>{ 
+            let itemId=document.getElementById('borrowItemSelect').value, 
+                tech=document.getElementById('borrowTechnicianSelect').value, 
+                qty=parseInt(document.getElementById('borrowQty').value); 
+            if(itemId&&tech&&qty>0) borrowItem(itemId,tech,qty); 
+            else alert("Lengkapi data"); 
         });
-        document.getElementById('searchItemInput')?.addEventListener('input', () => renderCompactInventory());
-        document.getElementById('searchActiveLoan')?.addEventListener('input', () => renderActiveLoans());
-        document.getElementById('searchHistoryInput')?.addEventListener('input', () => renderHistory());
-        document.getElementById('clearHistoryBtn')?.addEventListener('click', clearHistory);
-
-        // Load teknisi dropdown
-        const techSelect = document.getElementById('borrowTechnicianSelect');
-        if (techSelect) techSelect.innerHTML = TECHNICIANS.map(t => `<option value="${t}">${t}</option>`).join('');
-
-        // Default state
+        document.getElementById('searchItemInput')?.addEventListener('input',()=>renderCompactInventory());
+        document.getElementById('searchActiveLoan')?.addEventListener('input',()=>renderActiveLoans());
+        document.getElementById('searchHistoryInput')?.addEventListener('input',()=>renderHistory());
+        document.getElementById('clearHistoryBtn')?.addEventListener('click',clearHistory);
+        
+        document.getElementById('copyStockBtn')?.addEventListener('click', copyStockOnly);
+        document.getElementById('copyActiveLoansBtn')?.addEventListener('click', copyActiveLoansOnly);
+        document.getElementById('copyHistoryBtn')?.addEventListener('click', copyHistory);
+        
+        document.getElementById('borrowTechnicianSelect').innerHTML = TECHNICIANS.map(t=>`<option value="${t}">${t}</option>`).join('');
         renderCompactInventory();
     })();
 </script>
