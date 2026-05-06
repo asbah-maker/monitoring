@@ -250,7 +250,7 @@
 
     <!-- RIWAYAT -->
     <div class="card">
-        <div class="card-header"><h2><i class="fas fa-history"></i> Riwayat Pengembalian</h2><div class="btn-group"><input type="text" id="searchHistoryInput" class="search-input" placeholder="Cari..."><button id="copyHistoryBtn" class="btn btn-outline"><i class="fas fa-copy"></i> Copy Riwayat</button><button id="clearHistoryBtn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Bersihkan</button></div></div>
+        <div class="card-header"><h2><i class="fas fa-history"></i> Riwayat Pengembalian</h2><div class="btn-group"><input type="text" id="searchHistoryInput" class="search-input" placeholder="Cari..."><button id="copyAllHistoryBtn" class="btn btn-outline"><i class="fas fa-copy"></i> Copy Semua</button><button id="copyTodayHistoryBtn" class="btn btn-outline"><i class="fas fa-copy"></i> Copy Hari Ini</button><button id="clearHistoryBtn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Bersihkan</button></div></div>
         <div class="card-body" style="overflow-x: auto;">
             <table style="min-width: 700px;">
                 <thead><tr><th>No</th><th>Alat</th><th>Teknisi</th><th>Jml</th><th>Pinjam</th><th>Kembali</th><th>Aksi</th></tr></thead>
@@ -359,6 +359,41 @@
                 return missing.join(" ");
             }
         }
+
+        // --- FUNGSI BARU UNTUK FORMAT RIWAYAT (tanpa kata "Kurang:") ---
+        function getHistoryCompletenessString(item) {
+            if (!item || !item.accessories || Object.keys(item.accessories).length === 0) {
+                return "Tidak ada aksesoris";
+            }
+            const entries = Object.entries(item.accessories);
+            const allChecked = entries.every(([_, v]) => v === true);
+            if (allChecked) return "Lengkap";
+            const missing = entries.filter(([_, v]) => !v).map(([name]) => name);
+            return missing.map(n => `-${n}`).join(" ");
+        }
+
+        function buildHistoryText(histories, title) {
+            let text = `${title}\n`;
+            text += "----------------------------------------------------------\n\n";
+            if (histories.length === 0) {
+                text += "Tidak ada riwayat pengembalian.\n";
+                return text;
+            }
+            histories.forEach((loan, idx) => {
+                const item = items.find(i => i.id === loan.itemId);
+                const itemName = item ? item.name : loan.itemName || "Alat tidak diketahui";
+                const kelengkapan = item ? getHistoryCompletenessString(item) : "Data alat tidak tersedia";
+                text += `${idx+1}. ${itemName}\n`;
+                text += `   Teknisi        : ${loan.technician}\n`;
+                text += `   Jumlah         : ${loan.quantity}\n`;
+                text += `   Tanggal pinjam : ${formatDateOnly(loan.borrowDate)}\n`;
+                text += `   Tanggal kembali: ${formatDateOnly(loan.returnDate)}\n`;
+                text += `   Kelengkapan alat: ${kelengkapan}\n`;
+                text += "----------------------------------------\n";
+            });
+            return text;
+        }
+        // ------------------------------------------
 
         function getCompletenessSummary(accessories) {
             if (!accessories || Object.keys(accessories).length === 0) return { total: 0, checked: 0 };
@@ -598,30 +633,18 @@
             copyToClipboard(text, "Rekap peminjaman aktif berhasil disalin!");
         }
 
+        // ===== FORMAT BARU UNTUK RIWAYAT PENGEMBALIAN =====
         function copyHistory() {
-            let text = "========================================\n";
-            text += "          RIWAYAT PENGEMBALIAN          \n";
-            text += "========================================\n\n";
-            const histories = loans.filter(l => l.returned);
-            if (histories.length === 0) {
-                text += "Belum ada riwayat pengembalian.\n";
-            } else {
-                histories.forEach((l, idx) => {
-                    const item = items.find(i => i.id === l.itemId);
-                    text += `${idx+1}. ${l.itemName}\n`;
-                    text += `   Teknisi        : ${l.technician}\n`;
-                    text += `   Jumlah         : ${l.quantity}\n`;
-                    text += `   Tanggal pinjam : ${formatDateOnly(l.borrowDate)}\n`;
-                    text += `   Tanggal kembali: ${formatDateOnly(l.returnDate)}\n`;
-                    if (item) {
-                        text += `   Kelengkapan alat: ${getCompactAccessoryStatus(item)}\n`;
-                    } else {
-                        text += `   Kelengkapan alat: (data alat tidak tersedia)\n`;
-                    }
-                    text += "----------------------------------------\n";
-                });
-            }
-            copyToClipboard(text, "Rekap riwayat pengembalian berhasil disalin!");
+            const allReturned = loans.filter(l => l.returned);
+            const text = buildHistoryText(allReturned, "📋RIWAYAT PENGEMBALIAN");
+            copyToClipboard(text, "Rekap semua riwayat berhasil disalin!");
+        }
+
+        function copyTodayHistory() {
+            const todayStr = new Date().toISOString().slice(0,10);
+            const todayHistories = loans.filter(l => l.returned && l.returnDate && l.returnDate.slice(0,10) === todayStr);
+            const text = buildHistoryText(todayHistories, "📋RIWAYAT PENGEMBALIAN HARI INI");
+            copyToClipboard(text, "Rekap riwayat hari ini berhasil disalin!");
         }
 
         // EVENT LISTENERS
@@ -721,9 +744,11 @@
         document.getElementById('searchHistoryInput')?.addEventListener('input',()=>renderHistory());
         document.getElementById('clearHistoryBtn')?.addEventListener('click',clearHistory);
         
+        // Tombol copy baru
         document.getElementById('copyStockBtn')?.addEventListener('click', copyStockOnly);
         document.getElementById('copyActiveLoansBtn')?.addEventListener('click', copyActiveLoansOnly);
-        document.getElementById('copyHistoryBtn')?.addEventListener('click', copyHistory);
+        document.getElementById('copyAllHistoryBtn')?.addEventListener('click', copyHistory);      // Semua riwayat
+        document.getElementById('copyTodayHistoryBtn')?.addEventListener('click', copyTodayHistory); // Hari ini
         
         document.getElementById('borrowTechnicianSelect').innerHTML = TECHNICIANS.map(t=>`<option value="${t}">${t}</option>`).join('');
         renderCompactInventory();
