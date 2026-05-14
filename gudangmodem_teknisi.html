@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Mode Teknisi | Auto Search + Oper ke Teknisi</title>
+    <title>Mode Teknisi | Auto Search + Oper ke Teknisi (IKR & Non IKR)</title>
     <!-- Firebase SDK Realtime Database -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -233,6 +233,16 @@
             background: #ffe2db;
         }
 
+        /* Gaya untuk tombol Non IKR */
+        .btn-oper-ikr {
+            background: #8b5cf6;
+            color: white;
+        }
+        .btn-oper-ikr:hover:not(:disabled) {
+            background: #7c3aed;
+            transform: translateY(-2px);
+        }
+
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -390,14 +400,14 @@
 <body>
 <div class="container">
     <div class="header-flex">
-        <h1>🔧 Mode Teknisi | Auto Search + Oper Tim</h1>
+        <h1>🔧 Gudang Modem (Mode Teknisi) |(IKR & Non IKR)</h1>
         <span class="badge-header"><span id="connectionStatusBadge" class="connection-badge">🔄 Sinkronisasi...</span></span>
     </div>
-    <div class="sub-info">⚡ Auto cari berdasarkan akhiran SN · Reset pencarian · Oper ke Teknisi (PENDING) — Modem di gudang utama tetap utuh, hanya duplikasi ke tim teknisi & gudang pusat.</div>
+    <div class="sub-info">⚡fast</div>
 
     <div class="stats-grid" id="statsSummary"></div>
 
-    <!-- Panel Pencarian + Tombol Aksi (hanya auto search, reset, oper) -->
+    <!-- Panel Pencarian + Tombol Aksi (auto search, reset, oper IKR, oper Non IKR) -->
     <div class="search-panel">
         <div class="search-title">🔍 Pencarian Akhiran SN (Auto Search)</div>
         <div class="search-desc">Ketik 1–5 karakter akhir SN. Pisahkan dengan spasi untuk mencari beberapa akhiran sekaligus. Mode AUTO akan langsung memfilter.</div>
@@ -410,7 +420,8 @@
             <div class="action-buttons">
                 <button id="autoSearchToggleBtn" class="secondary">⚙️ AUTO CARI: AKTIF</button>
                 <button id="clearSearchBtn" class="secondary">🗑 Reset Pencarian</button>
-                <button id="operToTeknisiBtn" class="primary" disabled>🚀 Oper ke Teknisi (Pending)</button>
+                <button id="operToTeknisiBtn" class="primary" disabled>🚀 Oper ke Teknisi IKR (Tim)</button>
+                <button id="operToTeknisiNonIkrBtn" class="primary btn-oper-ikr" disabled>👥 Oper ke Teknisi Non IKR</button>
             </div>
         </div>
     </div>
@@ -429,15 +440,28 @@
 </div>
 <div id="toastMsg" class="toast-msg"></div>
 
-<!-- Modal Pilih Tim Teknisi -->
+<!-- Modal Pilih Tim Teknisi IKR -->
 <div id="teamModal" class="modal">
     <div class="modal-content">
-        <h3>📡 Pilih Tim Teknisi Tujuan</h3>
+        <h3>📡 Pilih Tim Teknisi IKR Tujuan</h3>
         <p>Modem akan diduplikasi ke gudang pusat teknisi (status PENDING) dan ke inventory tim yang dipilih. <strong>Modem di gudang utama tetap utuh & tidak berkurang.</strong></p>
         <select id="teamSelect"></select>
         <div class="modal-buttons">
             <button id="cancelModalBtn" class="secondary">Batal</button>
-            <button id="confirmOperBtn" class="primary">🚀 Oper ke Teknisi (Pending)</button>
+            <button id="confirmOperBtn" class="primary">🚀 Oper ke Teknisi IKR (Pending)</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Pilih Teknisi Non IKR -->
+<div id="teknisiNonIkrModal" class="modal">
+    <div class="modal-content">
+        <h3>👤 Pilih Teknisi Non IKR Tujuan</h3>
+        <p>Modem akan diduplikasi ke node <strong>nonIkrRetrievals</strong> di database teknisi dengan status PENDING. Modem di gudang utama tetap utuh.</p>
+        <select id="teknisiNonIkrSelect"></select>
+        <div class="modal-buttons">
+            <button id="cancelNonIkrModalBtn" class="secondary">Batal</button>
+            <button id="confirmOperNonIkrBtn" class="primary btn-oper-ikr">👥 Oper ke Teknisi Non IKR</button>
         </div>
     </div>
 </div>
@@ -455,7 +479,7 @@
         appId: "1:612668865089:web:e2234f309691f6d85224c0"
     };
     
-    // Database Teknisi (untuk oper ke tim & gudang pusat teknisi)
+    // Database Teknisi (untuk oper ke tim IKR & gudang pusat teknisi, serta node nonIkrRetrievals)
     const teknisiFirebaseConfig = {
         apiKey: "AIzaSyBl7LE5qeMSjsh9lvl_G7OcmwBPSiUQfD8",
         authDomain: "monitoringteknisiversi1-8d5ad.firebaseapp.com",
@@ -475,12 +499,17 @@
     const databaseTeknisi = teknisiApp.database();
     const gudangTeknisiRef = databaseTeknisi.ref('gudang_master_stock_v2');
     const teamsTeknisiRef = databaseTeknisi.ref('monitoring_teams_master');
+    const nonIkrRef = databaseTeknisi.ref('nonIkrRetrievals');  // Referensi untuk Non IKR
     
     let allModems = [];           // Semua modem dari gudang utama
     let activeSearchResults = null;  // Array hasil pencarian (jika ada)
     let autoSearchActive = true;      // Auto search default AKTIF
     let isConnected = true;
-    let pendingOperData = null;
+    let pendingOperData = null;       // Untuk IKR
+    let pendingNonIkrData = null;     // Untuk Non IKR
+    
+    // Daftar teknisi non IKR (sesuai referensi)
+    const daftarTeknisiNonIkr = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Reno", "Kholis", "Rival", "Tangguh", "Daniel", "Hasan", "Irfan"];
     
     // Helper functions
     function formatDateTimeFromTimestamp(timestamp) {
@@ -568,6 +597,7 @@
         `;
         const hasSearchResults = (activeSearchResults !== null && activeSearchResults.length > 0);
         document.getElementById("operToTeknisiBtn").disabled = !hasSearchResults;
+        document.getElementById("operToTeknisiNonIkrBtn").disabled = !hasSearchResults;
     }
     
     function refreshDisplay() {
@@ -594,7 +624,7 @@
         refreshDisplay();
     }
     
-    // =============== OPER KE TEKNISI + TIM (PEMBAGIAN, TIDAK MENGHAPUS DARI GUDANG UTAMA) ===============
+    // =============== OPER KE TEKNISI IKR (TIM) ===============
     async function processOperToTeknisiWithTeam(modemsList, teamId) {
         const targetTeamIdx = parseInt(teamId, 10);
         try {
@@ -656,10 +686,10 @@
             }
             await teamsTeknisiRef.set(teamsData);
             
-            showToast(`✅ ${modemsList.length} modem dibagikan ke tim ${teamName} (status PENDING) & gudang pusat teknisi. Stok gudang utama tetap utuh.`);
+            showToast(`✅ ${modemsList.length} modem dibagikan ke tim IKR ${teamName} (status PENDING) & gudang pusat teknisi. Stok gudang utama tetap utuh.`);
         } catch (err) {
             console.error(err);
-            showToast("Gagal oper ke teknisi: " + err.message, true);
+            showToast("Gagal oper ke teknisi IKR: " + err.message, true);
         }
     }
     
@@ -669,10 +699,10 @@
         if (!Array.isArray(teamsData)) teamsData = [];
         const activeTeams = teamsData.filter((t, idx) => t && (t.teamName || t.members)).map((t, idx) => ({ id: idx, teamName: t.teamName || `Tim ${idx+1}`, members: t.members || [] }));
         const select = document.getElementById("teamSelect");
-        select.innerHTML = '<option value="">-- Pilih Tim --</option>';
+        select.innerHTML = '<option value="">-- Pilih Tim IKR --</option>';
         if (activeTeams.length === 0) {
             select.innerHTML = '<option disabled>Tidak ada tim dengan data valid</option>';
-            showToast("Tidak ada tim teknisi yang tersedia, hubungi admin untuk menambah tim", true);
+            showToast("Tidak ada tim teknisi IKR yang tersedia, hubungi admin untuk menambah tim", true);
             return;
         }
         activeTeams.forEach(team => {
@@ -683,6 +713,46 @@
         });
         pendingOperData = { modems: modemsList, mode: 'team' };
         document.getElementById("teamModal").style.display = "flex";
+    }
+    
+    // =============== OPER KE TEKNISI NON IKR (Node nonIkrRetrievals) ===============
+    async function processOperToTeknisiNonIkr(modemsList, teknisiName) {
+        try {
+            // Ambil data non IKR yang sudah ada
+            const snapshot = await nonIkrRef.once('value');
+            let nonIkrData = snapshot.val() || [];
+            if (!Array.isArray(nonIkrData)) nonIkrData = [];
+            
+            const nowTimestamp = Date.now(); // milidetik
+            for (const modem of modemsList) {
+                const newRetrieval = {
+                    sn: modem.sn,
+                    mac: modem.mac || '00:00:00:00:00:00',
+                    teknisi: teknisiName,
+                    catatan: `Diambil dari gudang utama pada ${new Date(nowTimestamp).toLocaleString('id-ID')}`,
+                    timestamp: nowTimestamp
+                };
+                nonIkrData.push(newRetrieval);
+            }
+            await nonIkrRef.set(nonIkrData);
+            showToast(`✅ ${modemsList.length} modem dibagikan ke teknisi non IKR: ${teknisiName}. Data tersimpan di node nonIkrRetrievals. Stok gudang utama tetap utuh.`);
+        } catch (err) {
+            console.error(err);
+            showToast("Gagal oper ke teknisi non IKR: " + err.message, true);
+        }
+    }
+    
+    function showTeknisiNonIkrSelection(modemsList) {
+        const select = document.getElementById("teknisiNonIkrSelect");
+        select.innerHTML = '<option value="">-- Pilih Teknisi Non IKR --</option>';
+        daftarTeknisiNonIkr.forEach(teknisi => {
+            const option = document.createElement("option");
+            option.value = teknisi;
+            option.textContent = teknisi;
+            select.appendChild(option);
+        });
+        pendingNonIkrData = { modems: modemsList };
+        document.getElementById("teknisiNonIkrModal").style.display = "flex";
     }
     
     // =============== REALTIME DATABASE LISTENER ===============
@@ -729,13 +799,22 @@
             refreshDisplay();
         });
         
-        // Oper ke Teknisi
+        // Oper ke Teknisi IKR (Tim)
         document.getElementById("operToTeknisiBtn").addEventListener("click", async () => {
             if (!activeSearchResults || activeSearchResults.length === 0) {
                 showToast("Tidak ada hasil pencarian untuk dioper", true);
                 return;
             }
             await showTeamSelectionForOper(activeSearchResults);
+        });
+        
+        // Oper ke Teknisi Non IKR
+        document.getElementById("operToTeknisiNonIkrBtn").addEventListener("click", async () => {
+            if (!activeSearchResults || activeSearchResults.length === 0) {
+                showToast("Tidak ada hasil pencarian untuk dioper", true);
+                return;
+            }
+            showTeknisiNonIkrSelection(activeSearchResults);
         });
         
         // Auto Search Toggle
@@ -766,7 +845,7 @@
             if (autoSearchActive) recomputeSearchAndRender();
         });
         
-        // Modal handlers
+        // Modal IKR handlers
         document.getElementById("cancelModalBtn").addEventListener("click", () => {
             document.getElementById("teamModal").style.display = "none";
             pendingOperData = null;
@@ -774,7 +853,7 @@
         document.getElementById("confirmOperBtn").addEventListener("click", async () => {
             const select = document.getElementById("teamSelect");
             const teamId = select.value;
-            if (!teamId) { showToast("Pilih tim terlebih dahulu", true); return; }
+            if (!teamId) { showToast("Pilih tim IKR terlebih dahulu", true); return; }
             if (pendingOperData && pendingOperData.mode === 'team') {
                 await processOperToTeknisiWithTeam(pendingOperData.modems, teamId);
                 pendingOperData = null;
@@ -783,17 +862,43 @@
                 document.getElementById("suffixSearchInput").value = "";
                 activeSearchResults = null;
                 refreshDisplay();
-                showToast("Operasi selesai, hasil pencarian telah direset.");
+                showToast("Operasi IKR selesai, hasil pencarian telah direset.");
             }
         });
+        
+        // Modal Non IKR handlers
+        document.getElementById("cancelNonIkrModalBtn").addEventListener("click", () => {
+            document.getElementById("teknisiNonIkrModal").style.display = "none";
+            pendingNonIkrData = null;
+        });
+        document.getElementById("confirmOperNonIkrBtn").addEventListener("click", async () => {
+            const select = document.getElementById("teknisiNonIkrSelect");
+            const teknisiName = select.value;
+            if (!teknisiName) { showToast("Pilih teknisi non IKR terlebih dahulu", true); return; }
+            if (pendingNonIkrData) {
+                await processOperToTeknisiNonIkr(pendingNonIkrData.modems, teknisiName);
+                pendingNonIkrData = null;
+                document.getElementById("teknisiNonIkrModal").style.display = "none";
+                // Reset pencarian setelah oper non IKR
+                document.getElementById("suffixSearchInput").value = "";
+                activeSearchResults = null;
+                refreshDisplay();
+                showToast("Operasi Non IKR selesai, hasil pencarian telah direset.");
+            }
+        });
+        
+        // Menutup modal jika klik di luar area modal
         window.onclick = function(event) {
             if (event.target === document.getElementById("teamModal")) {
                 document.getElementById("teamModal").style.display = "none";
                 pendingOperData = null;
+            }
+            if (event.target === document.getElementById("teknisiNonIkrModal")) {
+                document.getElementById("teknisiNonIkrModal").style.display = "none";
+                pendingNonIkrData = null;
             }
         };
     });
 </script>
 </body>
 </html>
-```
