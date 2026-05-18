@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Data Tools Gemini V2</title>
+    <title>Master Data Tools - PSB & Tiket (DeepSeek Ready)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -11,6 +11,8 @@
             --primary-hover: #4338ca;
             --secondary: #10b981;
             --secondary-hover: #059669;
+            --deepseek: #1e3a5f;
+            --deepseek-hover: #0f2b44;
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #1f2937;
@@ -33,7 +35,6 @@
             margin: 0 auto;
         }
 
-        /* Header */
         header {
             text-align: center;
             margin-bottom: 40px;
@@ -49,7 +50,6 @@
             margin-top: 8px;
         }
 
-        /* Card Styles */
         .card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -70,7 +70,6 @@
 
         h2 { font-size: 1.25rem; font-weight: 600; margin: 0; color: var(--text-main); }
 
-        /* Inputs */
         textarea {
             width: 100%;
             padding: 12px;
@@ -84,7 +83,6 @@
         }
         textarea:focus { outline: none; border-color: var(--primary); background-color: white; }
 
-        /* Buttons */
         button {
             border: none;
             padding: 12px 24px;
@@ -103,10 +101,12 @@
         .btn-success { background-color: var(--secondary); color: white; width: 100%; font-size: 1.1rem; padding: 16px; }
         .btn-success:hover { background-color: var(--secondary-hover); }
 
+        .btn-deepseek { background-color: var(--deepseek); color: white; width: 100%; font-size: 1.1rem; padding: 16px; }
+        .btn-deepseek:hover { background-color: var(--deepseek-hover); }
+
         .btn-back { background-color: #9ca3af; color: white; margin-bottom: 20px; width: auto; font-size: 0.9rem; padding: 8px 16px; }
         .btn-back:hover { background-color: #6b7280; }
 
-        /* Menu Selection Grid */
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -129,7 +129,6 @@
         .menu-card h3 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.5rem; }
         .menu-card p { margin: 0; color: var(--text-sub); }
 
-        /* Utility */
         .hidden { display: none; }
         .step-badge {
             background-color: var(--primary); color: white; width: 32px; height: 32px;
@@ -149,7 +148,6 @@
             font-weight: 500;
         }
 
-        /* Toast */
         #toast {
             visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
             border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; right: 30px; top: 30px;
@@ -167,7 +165,7 @@
 <div class="main-wrapper">
     <header>
         <h1>Master Data Tools</h1>
-        <p>Generator Prompt Otomatis untuk Gemini AI</p>
+        <p>Generator Prompt Otomatis untuk Gemini AI & DeepSeek</p>
     </header>
 
     <div id="mainMenu">
@@ -234,38 +232,38 @@
             <textarea id="ticketInput" style="height: 300px;" placeholder="Paste data tiket disini..."></textarea>
             
             <div style="margin-top: 25px;">
-                <button class="btn-success" onclick="processTicketAndOpen()">
-                    <span>Proses, Copy & Buka Gemini</span>
+                <button class="btn-deepseek" onclick="processTicketAndOpen()">
+                    <span>🚀 Proses, Copy & Buka DeepSeek</span>
                 </button>
             </div>
             <p style="text-align: center; margin-top: 15px; font-size: 0.85rem; color: #666;">
-                *Script otomatis menambahkan tanggal hari ini (<span id="previewDate"></span>) ke dalam prompt.
+                *Script otomatis menambahkan tanggal hari ini (<span id="previewDateTicket"></span>) ke dalam prompt. <br>
+                *Mengarahkan ke <strong>DeepSeek Chat</strong> untuk efisiensi.
             </p>
         </div>
     </div>
 
     <div style="text-align: center; margin-top: 40px; color: #9ca3af; font-size: 0.8rem;">
-        &copy; 2026 PSB & Ticket Automation
+        &copy; 2026 PSB & Ticket Automation | DeepSeek Ready
     </div>
 </div>
 
 <div id="toast">Pesan Notifikasi</div>
 
 <script>
-    // --- KONFIGURASI UMUM ---
+    // --- KONFIGURASI ---
     const GEMINI_URL = "https://gemini.google.com/app?hl=id";
+    const DEEPSEEK_URL = "https://chat.deepseek.com/";
 
-    // --- HELPER: TANGGAL INDONESIA ---
+    // Helper: Tanggal Indonesia
     function getIndonesianDate() {
         const date = new Date();
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
         return date.toLocaleDateString('id-ID', options).toUpperCase();
     }
-    
-    // Set preview date di UI
-    document.getElementById('previewDate').innerText = getIndonesianDate();
+    document.getElementById('previewDateTicket').innerText = getIndonesianDate();
 
-    // --- VIEW CONTROLLER ---
+    // --- VIEW SWITCH ---
     function switchView(viewName) {
         const menu = document.getElementById('mainMenu');
         const psb = document.getElementById('viewPSB');
@@ -280,9 +278,68 @@
         if (viewName === 'ticket') ticket.classList.remove('hidden');
     }
 
-    // ==========================================
-    // LOGIC 1: PSB DATA TOOLS (Updated)
-    // ==========================================
+    // ========== FUNGSI COPY YANG HANDAL (FALLBACK) ==========
+    async function copyToClipboard(text, successMessage = "Teks tersalin!") {
+        // Method 1: Clipboard API modern
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast(successMessage);
+                return true;
+            } catch (err) {
+                console.warn("Clipboard API gagal, mencoba fallback...", err);
+                // lanjut ke fallback
+            }
+        }
+
+        // Method 2: Fallback menggunakan textarea temporary
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            const success = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            if (success) {
+                showToast(successMessage);
+                return true;
+            } else {
+                throw new Error('execCommand copy gagal');
+            }
+        } catch (err) {
+            console.error("Fallback copy juga gagal: ", err);
+            showToast("Gagal menyalin otomatis. Silakan copy manual.");
+            // Tampilkan teks di alert untuk manual copy
+            alert("Teks yang harus dicopy:\n\n" + text);
+            return false;
+        }
+    }
+
+    // Fungsi copy dan buka Gemini (untuk PSB)
+    async function copyAndGoGemini(textToCopy) {
+        const success = await copyToClipboard(textToCopy, "✅ Data PSB tersalin! Membuka Gemini...");
+        if (success) {
+            setTimeout(() => {
+                window.open(GEMINI_URL, '_blank');
+            }, 1000);
+        }
+    }
+
+    // Fungsi copy dan buka DeepSeek (untuk Tiket)
+    async function copyAndGoDeepSeek(textToCopy) {
+        const success = await copyToClipboard(textToCopy, "🚀 Data tiket tersalin! Membuka DeepSeek...");
+        if (success) {
+            setTimeout(() => {
+                window.open(DEEPSEEK_URL, '_blank');
+            }, 1000);
+        }
+    }
+
+    // ========== PSB DATA TOOLS ==========
     const PSB_PROMPT_TEMPLATE = `berikan saya table dengan urutan nomor layanan yang angka awal, nama, kolom alamat harus sesuai dengan apa yang ada di kolom alamat dan jangan ada yang dihapus atau ubah, rt nanti didepannya tidak ada angka 0, rw nanti didepannya tidak ada angka 0, kodepos ambil 5 angka dari depan nomor layanan, nomor handphone, tanggal terdaftar, paket layanan, referensi.`;
 
     function generatePsbForms() {
@@ -295,10 +352,7 @@
 
         lines.forEach(line => {
             const cleanLine = line.trim();
-            // Regex untuk menangkap Nomor Layanan (angka diawal) dan Referensi (setelah text 'referensi:')
-            // Contoh: "1393006071 referensi: Tidak ada referensi"
             const match = cleanLine.match(/^(\d{7,})\s*referensi:\s*(.*)$/i);
-            
             let noLayanan = null;
             let referensi = "";
 
@@ -306,11 +360,10 @@
                 noLayanan = match[1];
                 referensi = match[2].trim();
             } else {
-                // Fallback jika tidak ada kata 'referensi:', cek apakah cuma angka
                 const simpleMatch = cleanLine.match(/^(\d{7,})/);
                 if (simpleMatch) {
                     noLayanan = simpleMatch[1];
-                    referensi = "-"; // Default jika tidak ada ref
+                    referensi = "-";
                 }
             }
 
@@ -318,10 +371,7 @@
                 validCount++;
                 const div = document.createElement('div');
                 div.className = 'form-item';
-                
-                // Tampilan UI dengan Badge Referensi
                 let refDisplay = referensi !== '-' ? `<span class="ref-tag">Ref: ${referensi}</span>` : '';
-
                 div.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                         <label style="font-weight:600; color:var(--primary)">
@@ -361,8 +411,6 @@
             let ref = ta.getAttribute('data-referensi');
             
             if (detailData) {
-                // Menggabungkan No Layanan, Referensi, dan Data Detail agar dibaca Gemini
-                // Format: No Layanan: XXX | Referensi: YYY | Data: ...
                 combinedData += `No Layanan: ${noLay}\nReferensi: ${ref}\nData Detail: ${detailData}\n\n----------------\n\n`;
                 filledCount++;
             }
@@ -371,12 +419,10 @@
         if (filledCount === 0) { showToast("Data PSB masih kosong."); return; }
 
         const finalString = `((\n${combinedData})) ${PSB_PROMPT_TEMPLATE}`;
-        copyAndGo(finalString);
+        copyAndGoGemini(finalString);
     }
 
-    // ==========================================
-    // LOGIC 2: FORMAT DATA TIKET
-    // ==========================================
+    // ========== TICKET FORMAT (DeepSeek) ==========
     function processTicketAndOpen() {
         const rawTickets = document.getElementById('ticketInput').value.trim();
         const currentDate = getIndonesianDate(); 
@@ -466,28 +512,17 @@ FOTO Depan Rumah :
 Status Rumah : Pribadi
 Setuju berlangganan minimal 1 tahun: YA) , jika pada format nama lengkap  di sebelah namanya ada catatan maka satukan saja dengan di kolom paket layanan.`;
 
-        copyAndGo(finalPrompt);
+        copyAndGoDeepSeek(finalPrompt);
     }
 
-    // --- FUNGSI COPY & REDIRECT ---
-    function copyAndGo(textToCopy) {
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            showToast("Data Tersalin! Membuka Gemini...");
-            setTimeout(() => {
-                window.open(GEMINI_URL, '_blank');
-            }, 1000);
-        }).catch(err => {
-            console.error('Gagal copy: ', err);
-            showToast("Gagal auto-copy. Cek console.");
-        });
-    }
-
-    // --- TOAST UI ---
+    // Toast notifikasi
     function showToast(message) {
-        var x = document.getElementById("toast");
-        x.innerText = message;
-        x.className = "show";
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.className = "show";
+        setTimeout(() => {
+            toast.className = toast.className.replace("show", "");
+        }, 3000);
     }
 </script>
 
