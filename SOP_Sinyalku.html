@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CS Hub RealTime · SOP, Payment, Troubleshoot + Dynamic Categories</title>
+    <!-- Google Fonts + Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 10% 30%, #f8fafc, #e9eef3);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .app-wrapper {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* header area */
+        .hero-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 1.2rem;
+            gap: 1rem;
+        }
+
+        .branding h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1E3A5F, #2B5F8A);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .branding h1 i {
+            background: none;
+            color: #2c7da0;
+            font-size: 2rem;
+        }
+
+        .branding p {
+            color: #2c3e50;
+            margin-top: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-left: 3px solid #2c7da0;
+            padding-left: 14px;
+            opacity: 0.85;
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
+            cursor: default;
+            white-space: nowrap;
+        }
+        .status-online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            box-shadow: 0 0 12px rgba(40, 167, 69, 0.15);
+        }
+        .status-online .pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 1.5s infinite;
+            display: inline-block;
+        }
+        .status-offline {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            box-shadow: 0 0 8px rgba(255, 193, 7, 0.2);
+        }
+        .status-offline .pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ffc107;
+            display: inline-block;
+            animation: pulse-offline 2s infinite;
+        }
+        .status-syncing {
+            background: #d6ecfb;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            box-shadow: 0 0 12px rgba(23, 162, 184, 0.2);
+        }
+        .status-syncing .pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #17a2b8;
+            display: inline-block;
+            animation: pulse 0.7s infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+            }
+        }
+        @keyframes pulse-offline {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .sync-queue-badge {
+            background: #ff6b6b;
+            color: #fff;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 6px;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 40px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+
+        .btn-primary {
+            background: #1e4668;
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 70, 104, 0.2);
+        }
+        .btn-primary:hover {
+            background: #0f3552;
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(2px);
+            border: 1px solid #cbd5e1;
+        }
+        .btn-outline:hover {
+            background: white;
+            border-color: #94a3b8;
+        }
+        .btn-reset {
+            background: #fff1e6;
+            color: #b45309;
+            border: 1px solid #fed7aa;
+        }
+        .btn-reset:hover {
+            background: #ffe4cc;
+        }
+        .btn-manage {
+            background: #eef2ff;
+            color: #1e3a5f;
+            border: 1px solid #cbdff2;
+        }
+        .btn-manage:hover {
+            background: #e0e9ff;
+        }
+        .btn-sync {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            animation: glow-sync 2s infinite;
+        }
+        @keyframes glow-sync {
+            0%,
+            100% {
+                box-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 18px rgba(255, 193, 7, 0.7);
+            }
+        }
+        .btn-sync:hover {
+            background: #ffe69c;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* filter panel modern */
+        .filter-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            padding: 6px 8px 6px 20px;
+            margin-bottom: 32px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-chip {
+            background: #f1f5f9;
+            border-radius: 40px;
+            padding: 6px 18px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #1e293b;
+        }
+        .filter-chip i {
+            margin-right: 6px;
+        }
+        .filter-chip.active {
+            background: #1e4668;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 40px;
+            padding: 5px 15px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+        .search-box i {
+            color: #7f8c8d;
+        }
+        #searchInput {
+            border: none;
+            background: transparent;
+            padding: 8px 8px 8px 10px;
+            width: 200px;
+            outline: none;
+            font-size: 0.85rem;
+        }
+
+        /* card grid */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 28px;
+            margin-top: 12px;
+        }
+
+        /* card elegan */
+        .note-card {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 18px 30px -12px rgba(0, 0, 0, 0.08);
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(203, 213, 225, 0.4);
+        }
+        .note-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 28px 36px -16px rgba(0, 0, 0, 0.15);
+            border-color: #cbd5e1;
+        }
+        .note-card.pending-sync {
+            border-left: 4px solid #ffc107;
+            position: relative;
+        }
+        .note-card.pending-sync::after {
+            content: '⏳';
+            position: absolute;
+            top: 12px;
+            right: 40px;
+            font-size: 0.9rem;
+            animation: bounce 1s infinite;
+        }
+
+        .card-header {
+            padding: 1.4rem 1.4rem 0.6rem 1.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .title-section-card {
+            flex: 1;
+        }
+        .note-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f2b3b;
+            line-height: 1.35;
+            word-break: break-word;
+        }
+        .cat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 40px;
+            margin-top: 10px;
+            background: #f1f5f9;
+            width: fit-content;
+        }
+        .badge-dynamic {
+            background: #eef2ff;
+            color: #1e3a5f;
+        }
+        .timestamp {
+            font-size: 0.68rem;
+            color: #6c86a3;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .card-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .icon-btn {
+            background: transparent;
+            border: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #6c86a3;
+            transition: 0.15s;
+            padding: 6px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+        }
+        .icon-btn:hover {
+            background: #eef2ff;
+            color: #1e4668;
+        }
+        .delete-btn:hover {
+            color: #e53e3e;
+            background: #fff0f0;
+        }
+        .note-body {
+            padding: 0.8rem 1.4rem 1.4rem 1.4rem;
+            border-top: 1px solid #edf2f7;
+            background: #fefefe;
+        }
+        .content-text {
+            max-height: 180px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 0.87rem;
+            line-height: 1.55;
+            color: #1f2f3e;
+            margin-bottom: 16px;
+            scrollbar-width: thin;
+        }
+
+        /* horizontal scroll gallery */
+        .image-strip {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 8px;
+            cursor: grab;
+        }
+        .image-strip:active {
+            cursor: grabbing;
+        }
+        .image-strip img {
+            width: 100px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+            flex-shrink: 0;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        .image-strip img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* lightbox modern */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .close-lightbox {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 40px;
+            color: white;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* modal form & category modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+        }
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 680px;
+            border-radius: 44px;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.2);
+            padding: 1.8rem;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .category-manager-card {
+            max-width: 580px;
+        }
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border-radius: 60px;
+            padding: 10px 18px;
+            margin-bottom: 10px;
+            border: 1px solid #e2edf7;
+        }
+        .category-name {
+            font-weight: 500;
+        }
+        .cat-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .form-group {
+            margin-bottom: 1.3rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 28px;
+            border: 1px solid #cfdfed;
+            background: #fff;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .preview-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 24px;
+            padding: 12px;
+        }
+        .preview-thumb {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .preview-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+        }
+        .remove-img {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 48px;
+            color: #5b6e8c;
+            grid-column: 1 / -1;
+        }
+
+        /* Offline banner */
+        .offline-banner {
+            text-align: center;
+            padding: 10px 20px;
+            background: #fff3cd;
+            border-radius: 30px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #856404;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #ffeeba;
+            animation: fadeInDown 0.4s ease;
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .offline-banner i {
+            font-size: 1.1rem;
+        }
+
+        footer {
+            margin-top: 48px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #5b6e8c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            .filter-panel {
+                border-radius: 32px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <div class="hero-section">
+            <div class="branding">
+                <h1>
+                    <i class="fas fa-people-arrows"></i> CS<span style="font-weight:400;">|</span>Hub
+                    <span style="font-size:0.9rem; background:#eef2ff; padding:2px 8px; border-radius:40px;">Realtime</span>
+                </h1>
+                <p><i class="fas fa-lightbulb"></i> Panduan cepat & solusi tim — sinkron langsung antar perangkat (Firebase)</p>
+            </div>
+            <div class="btn-group">
+                <span id="connectionStatus" class="status-indicator status-syncing">
+                    <span class="pulse-dot"></span> Menghubungkan...
+                </span>
+                <button id="syncNowBtn" class="btn btn-sync" style="display:none;" title="Sinkronkan perubahan offline">
+                    <i class="fas fa-sync-alt"></i> Sinkronkan <span id="queueCountBadge" class="sync-queue-badge" style="display:none;">0</span>
+                </button>
+                <button id="addNoteBtn" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Catatan baru</button>
+                <button id="manageCatBtn" class="btn btn-manage"><i class="fas fa-tags"></i> Kelola Kategori</button>
+                <button id="resetDefaultBtn" class="btn btn-reset"><i class="fas fa-arrow-rotate-left"></i> Reset contoh</button>
+            </div>
+        </div>
+
+        <!-- Offline Banner -->
+        <div id="offlineBanner" class="offline-banner" style="display:none;">
+            <i class="fas fa-wifi-slash"></i> Anda sedang offline. Perubahan disimpan lokal & akan disinkronkan saat online.
+        </div>
+
+        <div class="filter-panel">
+            <div class="filter-tabs" id="filterGroup"></div>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari judul / isi...">
+            </div>
+        </div>
+
+        <div id="notesContainer" class="notes-grid"></div>
+        <footer>
+            <span id="footerStatus"><i class="fas fa-cloud-upload-alt"></i> RealTime Database</span> | Maks 10 gambar per catatan | Geser galeri ↔️ | Klik 2x foto zoom | Perubahan langsung sinkron
+        </footer>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox">
+        <button class="close-lightbox" id="closeLightboxBtn">&times;</button>
+        <img id="lightboxImg" alt="preview besar">
+    </div>
+
+    <!-- MODAL NOTE FORM -->
+    <div id="noteModal" class="modal">
+        <div class="modal-card">
+            <h3 id="modalTitle" style="font-size: 1.6rem; margin-bottom: 1rem;">Tambah catatan</h3>
+            <form id="noteForm">
+                <div class="form-group">
+                    <label>📌 Judul</label>
+                    <input type="text" id="noteTitle" placeholder="Contoh: SOP refund customer" required>
+                </div>
+                <div class="form-group">
+                    <label>🏷️ Kategori</label>
+                    <select id="noteCategory" required></select>
+                </div>
+                <div class="form-group">
+                    <label>📝 Isi / langkah-langkah</label>
+                    <textarea id="noteContent" rows="4" placeholder="Tulis langkah SOP, cara pembayaran, atau troubleshooting..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-images"></i> Foto pendukung (maks 10, max 10MB per gambar)</label>
+                    <input type="file" id="noteImagesInput" accept="image/jpeg,image/png,image/webp" multiple>
+                    <div id="imagePreviewList" class="preview-grid"></div>
+                    <small style="color:#5b6e8c;">Pilih beberapa gambar (Ctrl+klik). Offline: gambar tetap tersimpan lokal.</small>
+                </div>
+                <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+                    <button type="button" id="closeModalBtn" class="btn btn-outline">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan catatan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL MANAGE CATEGORIES -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-card category-manager-card">
+            <h3 style="font-size: 1.5rem;"><i class="fas fa-tags"></i> Kelola Kategori (Realtime)</h3>
+            <p style="margin-bottom: 20px; font-size:0.8rem;">Edit, tambah, hapus kategori. Hapus akan memindahkan catatan ke kategori default pertama.</p>
+            <div id="categoryListContainer"></div>
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Nama kategori baru</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="newCategoryName" placeholder="Misal: Feedback Customer" style="flex:1">
+                    <button id="addCategoryBtn" class="btn btn-primary">Tambah</button>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                <button id="closeCategoryModalBtn" class="btn btn-outline">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== FIREBASE CONFIG ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyCY8J2weMvbgB6Ux90CDHhzwVijzpqE9S0",
+            authDomain: "todolist-6e854.firebaseapp.com",
+            databaseURL: "https://todolist-6e854-default-rtdb.firebaseio.com",
+            projectId: "todolist-6e854",
+            storageBucket: "todolist-6e854.firebasestorage.app",
+            messagingSenderId: "825203134419",
+            appId: "1:825203134419:web:4a831b25f4d4f8a7292926"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // ========== GLOBAL STATE ==========
+        let notesArray = []; // data aktif (dari Firebase saat online, dari localStorage saat offline)
+        let categories = []; // [{ id, name }]
+        let currentFilter = "all";
+        let searchQuery = "";
+        let currentImageList = [];
+        let currentEditId = null; // firebaseId atau localId
+        let isOnline = false; // status koneksi Firebase
+        let isSyncing = false; // sedang sinkronisasi
+        let pendingQueue = []; // antrian operasi offline: [{action, payload, timestamp}]
+        let firebaseNotesCache = {}; // cache data firebase terakhir (untuk sinkronisasi)
+
+        // Refs
+        const notesRef = database.ref('notes');
+        const categoriesRef = database.ref('categories');
+        const connectedRef = database.ref('.info/connected');
+
+        // DOM elements
+        const notesContainer = document.getElementById("notesContainer");
+        const modal = document.getElementById("noteModal");
+        const categoryModal = document.getElementById("categoryModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const noteTitle = document.getElementById("noteTitle");
+        const noteCategorySelect = document.getElementById("noteCategory");
+        const noteContent = document.getElementById("noteContent");
+        const noteImagesInput = document.getElementById("noteImagesInput");
+        const imagePreviewList = document.getElementById("imagePreviewList");
+        const searchInput = document.getElementById("searchInput");
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const filterGroup = document.getElementById("filterGroup");
+        const connectionStatusEl = document.getElementById("connectionStatus");
+        const offlineBanner = document.getElementById("offlineBanner");
+        const syncNowBtn = document.getElementById("syncNowBtn");
+        const queueCountBadge = document.getElementById("queueCountBadge");
+        const footerStatus = document.getElementById("footerStatus");
+
+        // ========== LOCAL STORAGE KEYS ==========
+        const LS_NOTES = 'cs_hub_notes';
+        const LS_CATEGORIES = 'cs_hub_categories';
+        const LS_PENDING_QUEUE = 'cs_hub_pending_queue';
+
+        // ========== LOCAL STORAGE HELPERS ==========
+        function loadFromLocalStorage(key, fallback = null) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : fallback;
+            } catch (e) {
+                console.warn('Gagal memuat localStorage:', key, e);
+                return fallback;
+            }
+        }
+
+        function saveToLocalStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+                return true;
+            } catch (e) {
+                console.error('Gagal menyimpan ke localStorage:', key, e);
+                if (e.name === 'QuotaExceededError') {
+                    alert('⚠️ Penyimpanan lokal penuh! Hapus beberapa gambar atau catatan untuk memberi ruang.');
+                }
+                return false;
+            }
+        }
+
+        function loadLocalNotes() {
+            return loadFromLocalStorage(LS_NOTES, []);
+        }
+
+        function saveLocalNotes(notes) {
+            // Hapus data gambar yang terlalu besar jika perlu (fallback safety)
+            const safeNotes = notes.map(n => ({
+                ...n,
+                images: (n.images || []).slice(0, 10) // max 10 images
+            }));
+            const success = saveToLocalStorage(LS_NOTES, safeNotes);
+            if (!success) {
+                // Coba simpan tanpa gambar
+                const notesWithoutImages = safeNotes.map(n => ({
+                    ...n,
+                    images: []
+                }));
+                saveToLocalStorage(LS_NOTES, notesWithoutImages);
+                alert('⚠️ Ruang penyimpanan hampir penuh. Beberapa gambar mungkin tidak tersimpan.');
+            }
+        }
+
+        function loadLocalCategories() {
+            return loadFromLocalStorage(LS_CATEGORIES, []);
+        }
+
+        function saveLocalCategories(cats) {
+            saveToLocalStorage(LS_CATEGORIES, cats);
+        }
+
+        function loadPendingQueue() {
+            pendingQueue = loadFromLocalStorage(LS_PENDING_QUEUE, []);
+            updateQueueBadge();
+        }
+
+        function savePendingQueue() {
+            saveToLocalStorage(LS_PENDING_QUEUE, pendingQueue);
+            updateQueueBadge();
+        }
+
+        function addToQueue(action, payload) {
+            pendingQueue.push({
+                action,
+                payload,
+                timestamp: new Date().toISOString()
+            });
+            savePendingQueue();
+        }
+
+        function clearQueue() {
+            pendingQueue = [];
+            savePendingQueue();
+        }
+
+        function updateQueueBadge() {
+            const count = pendingQueue.length;
+            if (count > 0) {
+                queueCountBadge.textContent = count;
+                queueCountBadge.style.display = 'inline';
+                syncNowBtn.style.display = 'inline-flex';
+            } else {
+                queueCountBadge.style.display = 'none';
+                syncNowBtn.style.display = 'none';
+            }
+        }
+
+        // ========== ONLINE/OFFLINE DETECTION ==========
+        function setOnlineStatus(online) {
+            const wasOffline = !isOnline;
+            isOnline = online;
+
+            if (online) {
+                connectionStatusEl.className = 'status-indicator status-online';
+                connectionStatusEl.innerHTML = '<span class="pulse-dot"></span> Online · Firebase';
+                offlineBanner.style.display = 'none';
+                footerStatus.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> RealTime Database (Online)';
+                // Jika sebelumnya offline, sinkronkan
+                if (wasOffline && pendingQueue.length > 0) {
+                    processPendingQueue();
+                }
+                // Refresh data dari Firebase
+                if (wasOffline) {
+                    // Listener akan otomatis update, tapi kita trigger refresh
+                    refreshFirebaseData();
+                }
+                syncNowBtn.style.display = pendingQueue.length > 0 ? 'inline-flex' : 'none';
+            } else {
+                connectionStatusEl.className = 'status-indicator status-offline';
+                connectionStatusEl.innerHTML = '<span class="pulse-dot"></span> Offline · Lokal';
+                offlineBanner.style.display = 'flex';
+                footerStatus.innerHTML = '<i class="fas fa-hdd"></i> Mode Offline (data lokal)';
+                syncNowBtn.style.display = pendingQueue.length > 0 ? 'inline-flex' : 'none';
+            }
+            updateQueueBadge();
+        }
+
+        function setSyncingStatus(syncing) {
+            isSyncing = syncing;
+            if (syncing) {
+                connectionStatusEl.className = 'status-indicator status-syncing';
+                connectionStatusEl.innerHTML = '<span class="pulse-dot"></span> Sinkronisasi...';
+                footerStatus.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Menyinkronkan data...';
+                syncNowBtn.disabled = true;
+            } else if (isOnline) {
+                setOnlineStatus(true);
+                syncNowBtn.disabled = false;
+            }
+        }
+
+        // ========== FIREBASE CONNECTION LISTENER ==========
+        function initConnectionListener() {
+            connectedRef.on('value', (snapshot) => {
+                const connected = snapshot.val() === true;
+                console.log('Firebase connected:', connected);
+                setOnlineStatus(connected);
+            });
+
+            // Juga dengarkan event online/offline browser
+            window.addEventListener('online', () => {
+                console.log('Browser online event');
+                // Firebase akan mendeteksi sendiri via .info/connected
+            });
+            window.addEventListener('offline', () => {
+                console.log('Browser offline event');
+                setOnlineStatus(false);
+            });
+
+            // Cek awal
+            if (!navigator.onLine) {
+                setOnlineStatus(false);
+            }
+        }
+
+        // ========== FIREBASE DATA LISTENERS ==========
+        function listenCategories() {
+            categoriesRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    categories = Object.entries(data).map(([id, cat]) => ({
+                        id,
+                        name: cat.name
+                    }));
+                } else {
+                    // Default categories jika kosong
+                    const defaultCats = [
+                        { name: "SOP Penjelasan Customer" },
+                        { name: "Pembayaran" },
+                        { name: "Penyelesaian Masalah" }
+                    ];
+                    categories = [];
+                    defaultCats.forEach(cat => {
+                        const newRef = categoriesRef.push();
+                        newRef.set({ name: cat.name });
+                    });
+                    saveLocalCategories(categories);
+                    rebuildCategoryUI();
+                    return;
+                }
+                // Simpan ke localStorage sebagai backup
+                saveLocalCategories(categories);
+                rebuildCategoryUI();
+            }, (error) => {
+                console.warn('Gagal mendengarkan categories dari Firebase:', error.message);
+                // Fallback ke localStorage
+                categories = loadLocalCategories();
+                if (categories.length === 0) {
+                    categories = [
+                        { id: 'local_default_1', name: "SOP Penjelasan Customer" },
+                        { id: 'local_default_2', name: "Pembayaran" },
+                        { id: 'local_default_3', name: "Penyelesaian Masalah" }
+                    ];
+                    saveLocalCategories(categories);
+                }
+                rebuildCategoryUI();
+                setOnlineStatus(false);
+            });
+        }
+
+        function listenNotes() {
+            notesRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const firebaseNotes = Object.entries(data).map(([id, note]) => ({
+                        firebaseId: id,
+                        id: note.id || id,
+                        title: note.title,
+                        category: note.category,
+                        content: note.content,
+                        images: note.images || [],
+                        updatedAt: note.updatedAt,
+                        source: 'firebase'
+                    }));
+                    firebaseNotesCache = {};
+                    firebaseNotes.forEach(n => { firebaseNotesCache[n.firebaseId] = n; });
+                    notesArray = [...firebaseNotes];
+                    // Simpan backup ke localStorage
+                    saveLocalNotes(notesArray);
+                } else {
+                    firebaseNotesCache = {};
+                    notesArray = [];
+                    saveLocalNotes([]);
+                }
+                // Urutkan berdasarkan updatedAt terbaru
+                notesArray.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+                renderNotes();
+            }, (error) => {
+                console.warn('Gagal mendengarkan notes dari Firebase:', error.message);
+                // Fallback ke localStorage
+                notesArray = loadLocalNotes();
+                if (notesArray.length === 0 && categories.length > 0) {
+                    // Buat default notes lokal jika belum ada
+                    notesArray = [
+                        { id: 'local_note_1', firebaseId: 'local_note_1', title: "📞 SOP Menjawab Keluhan Tagihan",
+                            category: categories[0]?.name || "SOP Penjelasan Customer",
+                            content: "1️⃣ Dengarkan keluhan tanpa interupsi\n2️⃣ Tunjukkan empati\n3️⃣ Cek data transaksi\n4️⃣ Berikan solusi",
+                            images: [], updatedAt: new Date().toISOString(), source: 'local' },
+                        { id: 'local_note_2', firebaseId: 'local_note_2', title: "💳 Panduan Pembayaran QRIS & VA",
+                            category: categories[1]?.name || "Pembayaran",
+                            content: "QRIS: scan kode QR → konfirmasi. Virtual Account: bayar via mbanking.", images: [],
+                            updatedAt: new Date().toISOString(), source: 'local' },
+                        { id: 'local_note_3', firebaseId: 'local_note_3', title: "⚠️ Gagal Login / Lupa Password",
+                            category: categories[2]?.name || "Penyelesaian Masalah",
+                            content: "Reset password via email, bersihkan cache, coba device lain.", images: [],
+                            updatedAt: new Date().toISOString(), source: 'local' },
+                    ];
+                    saveLocalNotes(notesArray);
+                }
+                notesArray.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+                renderNotes();
+                setOnlineStatus(false);
+            });
+        }
+
+        function refreshFirebaseData() {
+            // Paksa refresh dari Firebase
+            categoriesRef.once('value').then(snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    categories = Object.entries(data).map(([id, cat]) => ({ id, name: cat.name }));
+                    saveLocalCategories(categories);
+                    rebuildCategoryUI();
+                }
+            }).catch(() => {});
+            notesRef.once('value').then(snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    const fbNotes = Object.entries(data).map(([id, note]) => ({
+                        firebaseId: id,
+                        id: note.id || id,
+                        title: note.title,
+                        category: note.category,
+                        content: note.content,
+                        images: note.images || [],
+                        updatedAt: note.updatedAt,
+                        source: 'firebase'
+                    }));
+                    firebaseNotesCache = {};
+                    fbNotes.forEach(n => { firebaseNotesCache[n.firebaseId] = n; });
+                    notesArray = [...fbNotes];
+                    saveLocalNotes(notesArray);
+                    notesArray.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+                    renderNotes();
+                }
+            }).catch(() => {});
+        }
+
+        // ========== CATEGORY HELPERS ==========
+        function addCategory(name) {
+            if (!name.trim()) return false;
+            if (categories.some(c => c.name.toLowerCase() === name.trim().toLowerCase())) return false;
+            if (isOnline) {
+                categoriesRef.push({ name: name.trim() });
+            } else {
+                // Offline: buat ID lokal
+                const localId = 'local_cat_' + Date.now();
+                categories.push({ id: localId, name: name.trim() });
+                saveLocalCategories(categories);
+                addToQueue('addCategory', { localId, name: name.trim() });
+                rebuildCategoryUI();
+            }
+            return true;
+        }
+
+        function updateCategory(catId, newName) {
+            const cat = categories.find(c => c.id === catId);
+            if (!cat) return false;
+            if (categories.some(c => c.id !== catId && c.name.toLowerCase() === newName.toLowerCase())) return false;
+            const oldName = cat.name;
+            if (isOnline && !catId.startsWith('local_')) {
+                categoriesRef.child(catId).update({ name: newName.trim() });
+                // Update notes yang menggunakan kategori lama
+                notesArray.forEach(note => {
+                    if (note.category === oldName && note.firebaseId && !note.firebaseId.startsWith(
+                            'local_')) {
+                        notesRef.child(note.firebaseId).update({ category: newName.trim() });
+                    }
+                });
+            } else {
+                // Offline atau kategori lokal
+                cat.name = newName.trim();
+                saveLocalCategories(categories);
+                // Update notes lokal
+                notesArray.forEach(note => {
+                    if (note.category === oldName) {
+                        note.category = newName.trim();
+                    }
+                });
+                saveLocalNotes(notesArray);
+                addToQueue('updateCategory', { catId, oldName, newName: newName.trim() });
+                rebuildCategoryUI();
+                renderNotes();
+            }
+            return true;
+        }
+
+        function deleteCategory(catId) {
+            if (categories.length <= 1) { alert("Minimal satu kategori harus tersedia!");
+            return false; }
+            const catToDelete = categories.find(c => c.id === catId);
+            if (!catToDelete) return false;
+            const defaultCat = categories.find(c => c.id !== catId)?.name;
+            if (!defaultCat) return false;
+            const deletedCatName = catToDelete.name;
+
+            if (isOnline && !catId.startsWith('local_')) {
+                // Reassign notes di Firebase
+                notesArray.forEach(note => {
+                    if (note.category === deletedCatName && note.firebaseId && !note.firebaseId.startsWith(
+                            'local_')) {
+                        notesRef.child(note.firebaseId).update({ category: defaultCat });
+                    }
+                });
+                categoriesRef.child(catId).remove();
+            } else {
+                // Offline
+                categories = categories.filter(c => c.id !== catId);
+                saveLocalCategories(categories);
+                notesArray.forEach(note => {
+                    if (note.category === deletedCatName) {
+                        note.category = defaultCat;
+                    }
+                });
+                saveLocalNotes(notesArray);
+                addToQueue('deleteCategory', { catId, deletedCatName, defaultCat });
+                rebuildCategoryUI();
+                renderNotes();
+            }
+            if (currentFilter === deletedCatName) currentFilter = "all";
+            return true;
+        }
+
+        function rebuildCategoryUI() {
+            const currentSelected = noteCategorySelect.value;
+            noteCategorySelect.innerHTML = "";
+            categories.forEach(cat => {
+                const opt = document.createElement("option");
+                opt.value = cat.name;
+                opt.textContent = cat.name;
+                noteCategorySelect.appendChild(opt);
+            });
+            if (currentSelected && categories.some(c => c.name === currentSelected)) noteCategorySelect.value =
+                currentSelected;
+            else if (categories.length) noteCategorySelect.value = categories[0].name;
+
+            renderFilterChips();
+            renderNotes();
+            renderCategoryManagerList();
+        }
+
+        function renderFilterChips() {
+            let html =
+                `<span data-filter="all" class="filter-chip ${currentFilter === 'all' ? 'active' : ''}"><i class="fas fa-layer-group"></i> Semua</span>`;
+            categories.forEach(cat => {
+                const activeClass = currentFilter === cat.name ? 'active' : '';
+                html +=
+                    `<span data-filter="${escapeAttr(cat.name)}" class="filter-chip ${activeClass}"><i class="fas fa-tag"></i> ${escapeHtml(cat.name)}</span>`;
+            });
+            filterGroup.innerHTML = html;
+            document.querySelectorAll(".filter-chip").forEach(chip => {
+                chip.addEventListener("click", () => {
+                    const val = chip.getAttribute("data-filter");
+                    currentFilter = val === "all" ? "all" : val;
+                    renderFilterChips();
+                    renderNotes();
+                });
+            });
+        }
+
+        function renderCategoryManagerList() {
+            const container = document.getElementById("categoryListContainer");
+            if (!container) return;
+            if (categories.length === 0) { container.innerHTML =
+            "<p>Memuat kategori...</p>"; return; }
+            let html = "";
+            categories.forEach(cat => {
+                html += `
+                    <div class="category-item">
+                        <span class="category-name"><i class="fas fa-folder-open"></i> ${escapeHtml(cat.name)} ${cat.id.startsWith('local_') ? ' <small style="color:#ffc107;">(lokal)</small>' : ''}</span>
+                        <div class="cat-actions">
+                            <button class="icon-btn edit-cat-btn" data-id="${cat.id}" data-name="${escapeAttr(cat.name)}" title="Edit Nama"><i class="fas fa-edit"></i></button>
+                            <button class="icon-btn delete-cat-btn" data-id="${cat.id}" title="Hapus Kategori"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            document.querySelectorAll(".edit-cat-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    const oldName = btn.getAttribute("data-name");
+                    const newName = prompt("Edit nama kategori:", oldName);
+                    if (newName && newName.trim() !== oldName) {
+                        if (!updateCategory(id, newName.trim())) {
+                            alert("Nama kategori sudah ada atau tidak valid.");
+                        }
+                    }
+                });
+            });
+            document.querySelectorAll(".delete-cat-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    if (confirm(
+                            "Hapus kategori? Semua catatan akan dipindah ke kategori pertama yang tersedia.")) {
+                        deleteCategory(btn.getAttribute("data-id"));
+                    }
+                });
+            });
+        }
+
+        // ========== NOTES CRUD ==========
+        function addOrUpdateNote(payload, editId = null) {
+            const nowISO = new Date().toISOString();
+            const finalPayload = {
+                ...payload,
+                updatedAt: nowISO,
+                images: [...currentImageList]
+            };
+
+            if (editId) {
+                // Update existing
+                if (isOnline && !editId.startsWith('local_')) {
+                    // Update ke Firebase
+                    notesRef.child(editId).update(finalPayload);
+                } else {
+                    // Offline atau note lokal
+                    const idx = notesArray.findIndex(n => n.firebaseId === editId || n.id === editId);
+                    if (idx >= 0) {
+                        notesArray[idx] = {
+                            ...notesArray[idx],
+                            ...finalPayload,
+                            firebaseId: notesArray[idx].firebaseId || editId,
+                            id: notesArray[idx].id || editId,
+                            source: notesArray[idx].source || 'local'
+                        };
+                        saveLocalNotes(notesArray);
+                        addToQueue('updateNote', { firebaseId: editId, payload: finalPayload });
+                        renderNotes();
+                    }
+                }
+            } else {
+                // Create new
+                if (isOnline) {
+                    const newRef = notesRef.push();
+                    finalPayload.id = newRef.key;
+                    newRef.set(finalPayload);
+                } else {
+                    // Offline: buat ID lokal
+                    const localId = 'local_note_' + Date.now();
+                    const localNote = {
+                        ...finalPayload,
+                        firebaseId: localId,
+                        id: localId,
+                        source: 'local'
+                    };
+                    notesArray.unshift(localNote);
+                    saveLocalNotes(notesArray);
+                    addToQueue('addNote', { localId, payload: finalPayload });
+                    renderNotes();
+                }
+            }
+        }
+
+        function deleteNote(idToDelete) {
+            if (!confirm("Hapus catatan?")) return;
+            if (isOnline && !idToDelete.startsWith('local_')) {
+                notesRef.child(idToDelete).remove();
+            } else {
+                // Offline atau note lokal
+                notesArray = notesArray.filter(n => n.firebaseId !== idToDelete && n.id !== idToDelete);
+                saveLocalNotes(notesArray);
+                addToQueue('deleteNote', { firebaseId: idToDelete });
+                renderNotes();
+            }
+        }
+
+        function resetDefault() {
+            if (confirm("Reset ke contoh awal? Data saat ini akan hilang.")) {
+                if (isOnline) {
+                    notesRef.remove().then(() => {
+                        categoriesRef.remove().then(() => {
+                            const defaultCats = [
+                                "SOP Penjelasan Customer",
+                                "Pembayaran",
+                                "Penyelesaian Masalah"
+                            ];
+                            const catPromises = defaultCats.map(name => categoriesRef.push({ name }));
+                            Promise.all(catPromises).then(() => {
+                                setTimeout(() => {
+                                    const defaultNotes = [
+                                        { title: "📞 SOP Menjawab Keluhan Tagihan",
+                                            category: "SOP Penjelasan Customer",
+                                            content: "1️⃣ Dengarkan keluhan tanpa interupsi\n2️⃣ Tunjukkan empati\n3️⃣ Cek data transaksi\n4️⃣ Berikan solusi",
+                                            images: [] },
+                                        { title: "💳 Panduan Pembayaran QRIS & VA",
+                                            category: "Pembayaran",
+                                            content: "QRIS: scan kode QR → konfirmasi. Virtual Account: bayar via mbanking.",
+                                            images: [] },
+                                        { title: "⚠️ Gagal Login / Lupa Password",
+                                            category: "Penyelesaian Masalah",
+                                            content: "Reset password via email, bersihkan cache, coba device lain.",
+                                            images: [] },
+                                    ];
+                                    defaultNotes.forEach(n => {
+                                        const newRef = notesRef.push();
+                                        newRef.set({
+                                            ...n,
+                                            updatedAt: new Date().toISOString(),
+                                            id: newRef.key,
+                                            images: []
+                                        });
+                                    });
+                                    currentFilter = "all";
+                                    searchInput.value = "";
+                                    searchQuery = "";
+                                    clearQueue();
+                                }, 300);
+                            });
+                        });
+                    }).catch(err => alert("Gagal reset: " + err.message));
+                } else {
+                    // Offline reset
+                    categories = [
+                        { id: 'local_default_1', name: "SOP Penjelasan Customer" },
+                        { id: 'local_default_2', name: "Pembayaran" },
+                        { id: 'local_default_3', name: "Penyelesaian Masalah" },
+                    ];
+                    saveLocalCategories(categories);
+                    notesArray = [
+                        { id: 'local_note_1', firebaseId: 'local_note_1', title: "📞 SOP Menjawab Keluhan Tagihan",
+                            category: "SOP Penjelasan Customer",
+                            content: "1️⃣ Dengarkan keluhan tanpa interupsi\n2️⃣ Tunjukkan empati\n3️⃣ Cek data transaksi\n4️⃣ Berikan solusi",
+                            images: [], updatedAt: new Date().toISOString(), source: 'local' },
+                        { id: 'local_note_2', firebaseId: 'local_note_2', title: "💳 Panduan Pembayaran QRIS & VA",
+                            category: "Pembayaran",
+                            content: "QRIS: scan kode QR → konfirmasi. Virtual Account: bayar via mbanking.", images: [],
+                            updatedAt: new Date().toISOString(), source: 'local' },
+                        { id: 'local_note_3', firebaseId: 'local_note_3', title: "⚠️ Gagal Login / Lupa Password",
+                            category: "Penyelesaian Masalah",
+                            content: "Reset password via email, bersihkan cache, coba device lain.", images: [],
+                            updatedAt: new Date().toISOString(), source: 'local' },
+                    ];
+                    saveLocalNotes(notesArray);
+                    clearQueue();
+                    currentFilter = "all";
+                    searchInput.value = "";
+                    searchQuery = "";
+                    rebuildCategoryUI();
+                    renderNotes();
+                }
+            }
+        }
+
+        // ========== SYNC PENDING QUEUE ==========
+        async function processPendingQueue() {
+            if (!isOnline || pendingQueue.length === 0) return;
+            if (isSyncing) return;
+
+            setSyncingStatus(true);
+            const queueCopy = [...pendingQueue];
+            const failedItems = [];
+            let successCount = 0;
+
+            for (const item of queueCopy) {
+                try {
+                    switch (item.action) {
+                        case 'addNote': {
+                            const newRef = notesRef.push();
+                            const payloadWithId = { ...item.payload.payload, id: newRef.key };
+                            await newRef.set(payloadWithId);
+                            // Update local note dengan firebaseId baru
+                            const localIdx = notesArray.findIndex(n => n.firebaseId === item.payload.localId || n
+                                .id === item.payload.localId);
+                            if (localIdx >= 0) {
+                                notesArray[localIdx].firebaseId = newRef.key;
+                                notesArray[localIdx].id = newRef.key;
+                                notesArray[localIdx].source = 'firebase';
+                            }
+                            successCount++;
+                            break;
+                        }
+                        case 'updateNote': {
+                            const fbId = item.payload.firebaseId;
+                            if (fbId && !fbId.startsWith('local_')) {
+                                await notesRef.child(fbId).update(item.payload.payload);
+                                successCount++;
+                            } else if (fbId && fbId.startsWith('local_')) {
+                                // Note lokal yang belum punya firebaseId, buat baru
+                                const newRef = notesRef.push();
+                                const payloadWithId = { ...item.payload.payload, id: newRef.key };
+                                await newRef.set(payloadWithId);
+                                const localIdx = notesArray.findIndex(n => n.firebaseId === fbId || n.id === fbId);
+                                if (localIdx >= 0) {
+                                    notesArray[localIdx].firebaseId = newRef.key;
+                                    notesArray[localIdx].id = newRef.key;
+                                    notesArray[localIdx].source = 'firebase';
+                                }
+                                successCount++;
+                            }
+                            break;
+                        }
+                        case 'deleteNote': {
+                            const fbId = item.payload.firebaseId;
+                            if (fbId && !fbId.startsWith('local_')) {
+                                await notesRef.child(fbId).remove();
+                                successCount++;
+                            }
+                            // Jika local, abaikan saja
+                            break;
+                        }
+                        case 'addCategory': {
+                            const newRef = categoriesRef.push();
+                            await newRef.set({ name: item.payload.name });
+                            // Update local category id
+                            const catIdx = categories.findIndex(c => c.id === item.payload.localId);
+                            if (catIdx >= 0) {
+                                categories[catIdx].id = newRef.key;
+                            }
+                            successCount++;
+                            break;
+                        }
+                        case 'updateCategory': {
+                            const catId = item.payload.catId;
+                            if (catId && !catId.startsWith('local_')) {
+                                await categoriesRef.child(catId).update({ name: item.payload.newName });
+                                // Update notes yang pakai oldName
+                                const notesToUpdate = notesArray.filter(n => n.category === item.payload.oldName && n
+                                    .firebaseId && !n.firebaseId.startsWith('local_'));
+                                for (const n of notesToUpdate) {
+                                    await notesRef.child(n.firebaseId).update({ category: item.payload.newName });
+                                }
+                                successCount++;
+                            }
+                            break;
+                        }
+                        case 'deleteCategory': {
+                            const catId = item.payload.catId;
+                            if (catId && !catId.startsWith('local_')) {
+                                // Update notes dulu
+                                const notesToUpdate = notesArray.filter(n => n.category === item.payload
+                                    .deletedCatName && n.firebaseId && !n.firebaseId.startsWith('local_'));
+                                for (const n of notesToUpdate) {
+                                    await notesRef.child(n.firebaseId).update({ category: item.payload.defaultCat });
+                                }
+                                await categoriesRef.child(catId).remove();
+                                successCount++;
+                            }
+                            break;
+                        }
+                        default:
+                            console.warn('Unknown queue action:', item.action);
+                    }
+                } catch (err) {
+                    console.error('Gagal sinkronisasi item:', item, err);
+                    failedItems.push(item);
+                }
+            }
+
+            // Update queue dengan yang gagal saja
+            pendingQueue = failedItems;
+            savePendingQueue();
+            saveLocalNotes(notesArray);
+            saveLocalCategories(categories);
+
+            // Refresh dari Firebase untuk dapat data terbaru
+            await refreshFirebaseData();
+            rebuildCategoryUI();
+            renderNotes();
+
+            setSyncingStatus(false);
+            setOnlineStatus(true);
+
+            if (failedItems.length > 0) {
+                alert(
+                    `⚠️ ${successCount} item berhasil disinkronkan, ${failedItems.length} item gagal. Akan dicoba lagi nanti.`);
+            } else if (successCount > 0) {
+                console.log(`✅ ${successCount} item berhasil disinkronkan.`);
+            }
+        }
+
+        function manualSync() {
+            if (!isOnline) {
+                alert('📡 Tidak dapat sinkronisasi. Anda sedang offline.');
+                return;
+            }
+            if (pendingQueue.length === 0) {
+                alert('✅ Tidak ada perubahan yang perlu disinkronkan.');
+                return;
+            }
+            processPendingQueue();
+        }
+
+        // ========== UI RENDER & HELPERS ==========
+        function getFilteredNotes() {
+            let filtered = [...notesArray];
+            if (currentFilter !== "all") filtered = filtered.filter(n => n.category === currentFilter);
+            if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase();
+                filtered = filtered.filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(
+                    q));
+            }
+            return filtered;
+        }
+
+        function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[
+            m])); }
+
+        function escapeAttr(str) { return str.replace(/"/g, '&quot;'); }
+
+        function renderGallery(images) {
+            if (!images || images.length === 0) return '';
+            let html = `<div class="image-strip">`;
+            images.forEach(img => html +=
+                `<img src="${img}" class="gallery-img" data-img-src="${img}" loading="lazy">`);
+            html += `</div>`;
+            return html;
+        }
+
+        function attachGalleryEvents() {
+            document.querySelectorAll('.gallery-img').forEach(img => {
+                img.removeEventListener('dblclick', galleryDoubleClick);
+                img.addEventListener('dblclick', galleryDoubleClick);
+            });
+        }
+
+        function galleryDoubleClick(e) { openLightbox(e.currentTarget.getAttribute('data-img-src')); }
+
+        function openLightbox(src) { lightboxImg.src = src;
+            lightbox.classList.add('active'); }
+
+        function closeLightbox() { lightbox.classList.remove('active');
+            lightboxImg.src = ''; }
+
+        function formatDate(iso) {
+            if (!iso) return "baru";
+            const d = new Date(iso);
+            return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderNotes() {
+            const filtered = getFilteredNotes();
+            if (filtered.length === 0) {
+                notesContainer.innerHTML =
+                    `<div class="empty-state"><i class="fas fa-folder-open" style="font-size: 3rem;"></i><p>Belum ada catatan, klik "Catatan baru" ✨</p></div>`;
+                return;
+            }
+            notesContainer.innerHTML = filtered.map(note => {
+                const galleryHtml = renderGallery(note.images || []);
+                const isLocal = note.source === 'local' || (note.firebaseId && note.firebaseId.startsWith(
+                    'local_'));
+                const pendingClass = isLocal && !isOnline ? 'pending-sync' : '';
+                const localBadge = isLocal && !isOnline ?
+                    ' <span style="font-size:0.65rem;color:#ffc107;">(lokal)</span>' : '';
+                return `
+                    <div class="note-card ${pendingClass}" data-firebase-id="${note.firebaseId || note.id}" data-id="${note.id || note.firebaseId}">
+                        <div class="card-header">
+                            <div class="title-section-card">
+                                <div class="note-title">${escapeHtml(note.title)}${localBadge}</div>
+                                <div class="cat-badge badge-dynamic"><i class="fas fa-tag"></i> ${escapeHtml(note.category)}</div>
+                                <div class="timestamp"><i class="far fa-clock"></i> ${formatDate(note.updatedAt)}</div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="icon-btn edit-note" data-firebase-id="${note.firebaseId || note.id}" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="icon-btn delete-btn" data-firebase-id="${note.firebaseId || note.id}" title="Hapus"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                        <div class="note-body">
+                            <div class="content-text">${escapeHtml(note.content).replace(/\n/g, '<br>')}</div>
+                            ${galleryHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            attachGalleryEvents();
+        }
+
+        // Image handling modal
+        function updatePreviewList() {
+            imagePreviewList.innerHTML = '';
+            currentImageList.forEach((base64, idx) => {
+                const div = document.createElement('div');
+                div.className = 'preview-thumb';
+                const img = document.createElement('img');
+                img.src = base64;
+                const btn = document.createElement('button');
+                btn.innerText = '✕';
+                btn.className = 'remove-img';
+                btn.onclick = (e) => { e.preventDefault();
+                    currentImageList.splice(idx, 1);
+                    updatePreviewList(); };
+                div.appendChild(img);
+                div.appendChild(btn);
+                imagePreviewList.appendChild(div);
+            });
+        }
+
+        async function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                if (file.size > 10 * 1024 * 1024) reject(`Gambar ${file.name} >10MB`);
+                const fr = new FileReader();
+                fr.onload = e => resolve(e.target.result);
+                fr.onerror = reject;
+                fr.readAsDataURL(file);
+            });
+        }
+
+        async function handleMultipleFiles(files) {
+            for (let file of files) {
+                if (currentImageList.length >= 10) { alert("Maksimal 10 gambar"); break; }
+                try {
+                    const b64 = await fileToBase64(file);
+                    currentImageList.push(b64);
+                } catch (err) { alert(err); }
+            }
+            updatePreviewList();
+            noteImagesInput.value = '';
+        }
+
+        function openModal(editMode = false, noteData = null) {
+            currentImageList = [];
+            updatePreviewList();
+            currentEditId = null;
+            if (editMode && noteData) {
+                modalTitle.innerText = "✏️ Edit Catatan";
+                noteTitle.value = noteData.title;
+                noteCategorySelect.value = noteData.category;
+                noteContent.value = noteData.content;
+                currentEditId = noteData.firebaseId || noteData.id;
+                currentImageList = noteData.images ? [...noteData.images] : [];
+                updatePreviewList();
+            } else {
+                modalTitle.innerText = "📝 Tambah Catatan Baru";
+                noteTitle.value = '';
+                if (categories.length) noteCategorySelect.value = categories[0].name;
+                noteContent.value = '';
+            }
+            modal.style.display = "flex";
+        }
+
+        function closeModal() { modal.style.display = "none";
+            resetModalState(); }
+
+        function resetModalState() { currentImageList = [];
+            updatePreviewList();
+            noteImagesInput.value = '';
+            currentEditId = null; }
+
+        // ========== EVENT LISTENERS ==========
+        function init() {
+            // Load data lokal dulu untuk tampilan awal
+            categories = loadLocalCategories();
+            notesArray = loadLocalNotes();
+            loadPendingQueue();
+            rebuildCategoryUI();
+            renderNotes();
+
+            // Mulai listener Firebase
+            initConnectionListener();
+            listenCategories();
+            listenNotes();
+
+            searchInput.addEventListener("input", (e) => { searchQuery = e.target.value;
+                renderNotes(); });
+            document.getElementById("addNoteBtn").addEventListener("click", () => openModal(false));
+            document.getElementById("resetDefaultBtn").addEventListener("click", resetDefault);
+            document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+            document.getElementById("closeLightboxBtn").addEventListener("click", closeLightbox);
+            lightbox.addEventListener("click", (e) => { if (e.target === lightbox) closeLightbox(); });
+            window.addEventListener("click", (e) => { if (e.target === modal) closeModal(); if (e.target ===
+                    categoryModal) closeCategoryModal(); });
+
+            document.getElementById("noteForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const title = noteTitle.value.trim(),
+                    category = noteCategorySelect.value,
+                    content = noteContent.value.trim();
+                if (!title || !content) return alert("Judul dan isi wajib diisi");
+                addOrUpdateNote({ title, category, content }, currentEditId);
+                closeModal();
+            });
+
+            noteImagesInput.addEventListener('change', (e) => { if (e.target.files.length) handleMultipleFiles(Array
+                    .from(e.target.files)); });
+
+            notesContainer.addEventListener("click", (e) => {
+                const editBtn = e.target.closest(".edit-note");
+                if (editBtn && editBtn.dataset.firebaseId) {
+                    const fid = editBtn.dataset.firebaseId;
+                    const note = notesArray.find(n => n.firebaseId === fid || n.id === fid);
+                    if (note) openModal(true, note);
+                    return;
+                }
+                const delBtn = e.target.closest(".delete-btn");
+                if (delBtn && delBtn.dataset.firebaseId) deleteNote(delBtn.dataset.firebaseId);
+            });
+
+            document.getElementById("manageCatBtn").addEventListener("click", () => { renderCategoryManagerList();
+                categoryModal.style.display = "flex"; });
+            document.getElementById("closeCategoryModalBtn").addEventListener("click", closeCategoryModal);
+            document.getElementById("addCategoryBtn").addEventListener("click", () => {
+                const newName = document.getElementById("newCategoryName").value.trim();
+                if (newName && addCategory(newName)) { document.getElementById("newCategoryName").value = ""; } else
+                    alert("Nama kategori tidak boleh kosong atau duplikat.");
+            });
+
+            syncNowBtn.addEventListener("click", manualSync);
+
+            function closeCategoryModal() { categoryModal.style.display = "none"; }
+
+            // Update queue badge awal
+            updateQueueBadge();
+        }
+
+        init();
+    </script>
+</body>
+</html>
