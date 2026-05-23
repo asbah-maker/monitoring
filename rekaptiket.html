@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Data Tiket + Statistik Teknisi • Sinyalku</title>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f4f7fc;
+            padding: 20px;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1440px;
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f4c75, #3282b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.2rem;
+        }
+
+        .subtitle {
+            color: #5a6e7c;
+            font-weight: 500;
+            border-bottom: 2px solid #e2e8f0;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.75rem;
+            font-size: 0.9rem;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .connection-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .online {
+            background: #e6f7ee;
+            color: #1b7a42;
+            border-left: 3px solid #22c55e;
+        }
+
+        .offline {
+            background: #fee9e6;
+            color: #b13e2a;
+            border-left: 3px solid #ef4444;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+            margin: 28px 0 20px;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            color: #1e293b;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-primary {
+            background: #0ea5e9;
+            color: white;
+            box-shadow: 0 6px 14px rgba(14, 165, 233, 0.3);
+        }
+        .btn-primary:hover {
+            background: #0284c7;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 6px 14px rgba(16, 185, 129, 0.3);
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+            box-shadow: 0 6px 14px rgba(245, 158, 11, 0.3);
+        }
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-secondary {
+            background: #6366f1;
+            color: white;
+            box-shadow: 0 6px 14px rgba(99, 102, 241, 0.3);
+        }
+        .btn-secondary:hover {
+            background: #4f46e5;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            transform: translateY(-2px);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 12px 20px;
+            border-radius: 60px;
+            margin: 24px 0 20px;
+        }
+
+        .select-all-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 5px 18px;
+            border-radius: 32px;
+            font-weight: 500;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            background: white;
+            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.15s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .history-item:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+        }
+
+        .history-check {
+            width: 36px;
+        }
+
+        .history-check input {
+            width: 20px;
+            height: 20px;
+            accent-color: #0ea5e9;
+            cursor: pointer;
+        }
+
+        .history-info {
+            flex: 2;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: baseline;
+        }
+
+        .history-date {
+            font-weight: 700;
+            background: #f1f5f9;
+            padding: 5px 16px;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .edit-date-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0 6px;
+            border-radius: 20px;
+            color: #64748b;
+        }
+        .edit-date-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .history-count {
+            background: #e9f0f5;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .history-actions button {
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.8rem;
+        }
+
+        .history-actions button:hover {
+            background: #f8fafc;
+            transform: scale(0.97);
+            border-color: #94a3b8;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 1.25rem;
+            border: 1px solid #eef2f6;
+            background: white;
+            margin: 20px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #ecf3f9;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #f9fbfd;
+            font-weight: 700;
+            color: #1e4765;
+            border-bottom: 2px solid #dce7f2;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .summary-table th, .summary-table td,
+        .tech-stats-table th, .tech-stats-table td {
+            text-align: center;
+        }
+
+        #individual-tech-table th, #individual-tech-table td {
+            text-align: center;
+        }
+        #individual-tech-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .detail-table td.kategori-cell,
+        .detail-table td.status-cell {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .detail-table td.kategori-cell,
+            .detail-table td.status-cell {
+                white-space: normal;
+            }
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+
+        .status-selesai {
+            background: #e0f5e9;
+            color: #147c47;
+        }
+
+        .status-gagal {
+            background: #ffe6e2;
+            color: #bc4e2c;
+        }
+
+        .psb-cell {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        .kunj-cell {
+            background-color: #fef3c7;
+            color: #92400e;
+            font-weight: 600;
+        }
+        .isolir-cell {
+            background-color: #fee2e2;
+            color: #991b1b;
+            font-weight: 600;
+        }
+        .total-row-category {
+            background-color: #edf2f7;
+            font-weight: 800;
+            border-top: 2px solid #cbd5e1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(15, 23, 42, 0.5);
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 2rem;
+            margin: 1rem auto;
+            max-width: 1300px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem 1.8rem;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+
+        .modal.small .modal-content {
+            max-width: 480px;
+        }
+
+        .close-modal {
+            position: sticky;
+            top: 0;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            background: white;
+            padding: 0 10px;
+            border-radius: 50%;
+            line-height: 1;
+            z-index: 10;
+            color: #475569;
+        }
+        .close-modal:hover {
+            color: #0f172a;
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .stats-summary {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f8fbfe;
+            border-radius: 1.5rem;
+            padding: 1rem 1.5rem;
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-card .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #5f7d9c;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e4a6e;
+        }
+
+        .grouped-date-title {
+            background: #f1f5f9;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin: 20px 0 15px;
+            display: inline-block;
+            color: #0f4c75;
+        }
+
+        .team-group-container {
+            margin-bottom: 30px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            background: #ffffff;
+            border-radius: 2rem;
+            color: #6a85a0;
+            font-style: italic;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            z-index: 2000;
+            animation: fadeUp 0.2s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #0ea5e9;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .edit-tech-icon {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #0ea5e9;
+            margin-left: 6px;
+        }
+        .edit-tech-icon:hover {
+            color: #0284c7;
+        }
+
+        .upload-area {
+            position: relative;
+            display: inline-block;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .detail-stats-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1e3a5f;
+            margin-bottom: 10px;
+            padding: 8px 16px;
+            background: #f0f6fc;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        .note {
+            font-size: 0.75rem;
+            color: #8a6d3b;
+            margin-top: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="status-bar">
+            <div id="connectionStatus" class="connection-badge offline">🔴 Menentukan koneksi...</div>
+            <span id="offlineWarning" style="font-size:0.7rem;"></span>
+        </div>
+        <div style="text-align: center;">
+            <h1>📋 Data Tiket & Statistik Teknisi</h1>
+            <div class="subtitle">SINYALKU</div>
+        </div>
+
+        <div class="action-buttons">
+            <div class="upload-area">
+                <button class="btn btn-primary" id="uploadBtn">📂 Upload JSON (Baru)</button>
+                <input type="file" id="jsonUploadInput" accept=".json" onchange="handleJsonUpload(event)">
+            </div>
+            <button class="btn btn-success" onclick="showTeamAnalysis()">📊 Database Analisa Tim Teknisi</button>
+            <button class="btn btn-warning" onclick="showIndividualTechDatabase()">👤 Database Analisa Per Teknisi</button>
+            <button class="btn btn-secondary" id="searchBtn" onclick="openSearchModal()">🔍 Cari No Layanan</button>
+            <button class="btn btn-primary" id="refreshAllBtn" onclick="refreshAllRecaps()">🔄 Refresh Semua Data</button>
+        </div>
+
+        <div class="history-header">
+            <div class="select-all-area">
+                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                <label for="selectAllCheckbox">Pilih Semua History</label>
+            </div>
+            <button class="btn btn-outline" onclick="downloadSelectedExcel()">📥 Download Excel Terpilih</button>
+        </div>
+
+        <div id="history-list" class="history-list"><div class="empty-state">Memuat data history...</div></div>
+    </div>
+
+    <!-- MODAL DETAIL -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDetailModal()">&times;</span>
+            <h2 id="detail-title">Detail Tiket & Statistik Tim</h2>
+            <div id="detail-stats-area" class="detail-stats-container"></div>
+            <div class="table-container">
+                <table id="detail-table" class="detail-table">
+                    <thead>
+                        <tr><th>No</th><th>No Layanan</th><th>Nama Pelanggan</th><th>Tiket</th><th>Kategori</th><th>Status</th><th>Telpon</th><th>Tgl Selesai</th><th>Teknisi</th><th>Alamat</th><th>RT</th><th>RW</th><th>Kode Pos</th><th>SN</th><th>Catatan</th></tr>
+                    </thead>
+                    <tbody id="detail-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SEARCH -->
+    <div id="search-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeSearchModal()">&times;</span>
+            <h2>🔎 Cari Berdasarkan No Layanan</h2>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
+                <input type="text" id="searchInputField" placeholder="Masukkan No Layanan" style="flex:1; padding:12px; border-radius:60px; border:1px solid #cbdde9;">
+                <button class="btn btn-primary" id="modalSearchBtn">Cari</button>
+                <button class="btn btn-outline" id="resetSearchModalBtn">Reset</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="copySearchResults()">📋 Copy Hasil</button>
+                <button class="btn btn-success" onclick="downloadSearchResultsExcel()">📊 Excel</button>
+            </div>
+            <div id="searchResultSummary"></div>
+            <div class="table-container">
+                <table id="search-result-table">
+                    <thead>
+                        <tr><th>Tanggal Rekap</th><th>No</th><th>No Layanan</th><th>Pelanggan</th><th>Tiket</th><th>Kategori</th><th>Status</th><th>Teknisi</th><th>Alamat</th><th>Kode Pos</th><th>Catatan</th></tr>
+                    </thead>
+                    <tbody id="search-result-body"><tr><td colspan="11">Masukkan No Layanan</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT TANGGAL -->
+    <div id="edit-date-modal" class="modal small">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEditDateModal()">&times;</span>
+            <h2>✏️ Edit Tanggal Rekap</h2>
+            <p>Pilih tanggal baru untuk memindahkan data ini</p>
+            <input type="date" id="newRecapDateInput" style="width:100%; padding:12px; border-radius:60px; margin:15px 0;">
+            <button class="btn btn-primary" id="confirmEditDateBtn" style="width:100%">Simpan & Pindahkan</button>
+            <p class="note">⚠️ Data akan dipindah, tanggal lama dihapus.</p>
+        </div>
+    </div>
+
+    <!-- MODAL ANALISIS TIM -->
+    <div id="team-analysis-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeTeamAnalysisModal()">&times;</span>
+            <h2>📊 Database Analisa Tim Teknisi</h2>
+            <p style="margin-bottom: 8px;">Statistik per tim & per hari rekap – Dilengkapi total keseluruhan PSB / Kunjungan / Isolir</p>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="downloadTeamAnalysisExcel()">📎 Excel</button>
+            </div>
+            <div id="team-grouped-container" style="max-height: 65vh; overflow-y: auto; padding-right: 6px;"></div>
+        </div>
+    </div>
+
+    <!-- MODAL INDIVIDU -->
+    <div id="individual-tech-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeIndividualTechModal()">&times;</span>
+            <h2>👤 Database Analisa Per Teknisi</h2>
+            <p>Rekap seluruh tiket dari semua tanggal rekap</p>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="downloadIndividualTechExcel()">📊 Excel</button>
+            </div>
+            <div id="individual-summary"></div>
+            <div class="table-container">
+                <table id="individual-tech-table" style="min-width:700px;">
+                    <thead>
+                        <tr><th rowspan="2">Nama Teknisi</th><th rowspan="2">Total Tiket</th><th colspan="3">PSB</th><th colspan="3">Kunjungan</th><th colspan="3">Isolir</th><th rowspan="2">Overall Sukses</th></tr>
+                        <tr><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th></tr>
+                    </thead>
+                    <tbody id="individual-tech-body"><tr><td colspan="12"><div class="loading-spinner"></div> Memuat...</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL JSON OPTIONS -->
+    <div id="json-options-modal" class="modal small">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeJsonOptionsModal()">&times;</span>
+            <h2>📁 Opsi JSON</h2>
+            <div style="display: flex; gap: 16px; justify-content: center; margin: 20px 0;">
+                <button class="btn btn-primary" id="uploadJsonForRecapBtn">📂 Upload JSON (Ganti Data)</button>
+                <button class="btn btn-success" id="downloadJsonForRecapBtn">⬇️ Download JSON</button>
+            </div>
+            <p style="font-size: 0.8rem; text-align: center;">berikan saya data json untuk alamat lengkap tolong di perbaiki seperti rt rw nya.<br>Download & Upload data JSON.</p>
+        </div>
+    </div>
+
+    <div id="notification-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOULi4h6qVwu2UI_anC1ZC8JgE69RjqDM",
+            authDomain: "rekaptiketmonitoring.firebaseapp.com",
+            projectId: "rekaptiketmonitoring",
+            storageBucket: "rekaptiketmonitoring.firebasestorage.app",
+            messagingSenderId: "841047650718",
+            appId: "1:841047650718:web:323a82435e41048fa4268f",
+            measurementId: "G-TVN9Y64LJD"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const historyRef = ref(db, 'history_recaps');
+        let currentEditKey = null;
+        let currentJsonKey = null;
+        let lastSearchResults = [];
+        let isOnline = true;
+
+        const DELETE_PIN = "0789";
+
+        const connectedRef = ref(db, '.info/connected');
+        onValue(connectedRef, (snap) => {
+            isOnline = snap.val() === true;
+            const statusDiv = document.getElementById('connectionStatus');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const searchBtn = document.getElementById('searchBtn');
+            if (isOnline) {
+                statusDiv.innerHTML = '🟢 ONLINE ·';
+                statusDiv.className = 'connection-badge online';
+                document.getElementById('offlineWarning').innerHTML = '';
+                if (uploadBtn) uploadBtn.disabled = false;
+                if (searchBtn) searchBtn.disabled = false;
+            } else {
+                statusDiv.innerHTML = '🔴 OFFLINE · Hanya baca cache';
+                statusDiv.className = 'connection-badge offline';
+                document.getElementById('offlineWarning').innerHTML = '⚠️ Mode offline, upload & refresh nonaktif.';
+                if (uploadBtn) uploadBtn.disabled = true;
+                if (searchBtn) searchBtn.disabled = true;
+            }
+        });
+
+        function checkOnline(action) {
+            if (!isOnline) {
+                showNotification(`${action} gagal: sedang offline.`);
+                return false;
+            }
+            return true;
+        }
+
+        function showNotification(msg) {
+            const c = document.getElementById('notification-container');
+            const n = document.createElement('div');
+            n.className = 'notification';
+            n.textContent = msg;
+            c.appendChild(n);
+            setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 500); }, 2800);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+
+        async function copyText(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showNotification('✅ Disalin');
+            } catch (e) { alert('Salin manual'); }
+        }
+
+        function cleanTechnicianName(raw) {
+            if (!raw) return 'Teknisi';
+            let cleaned = raw.replace(/^(Tim\s*\d*\s*:*\s*|Teknisi\s*:*\s*|Team\s*\d*\s*:*\s*)/i, '');
+            cleaned = cleaned.trim();
+            return cleaned || 'Teknisi';
+        }
+
+        function extractKodePos(noLayanan) {
+            if (!noLayanan) return '-';
+            const digits = String(noLayanan).replace(/[^0-9]/g, '');
+            if (digits.startsWith('1') && digits.length >= 5) return digits.substring(0, 5);
+            return '-';
+        }
+
+        function formatTanggalIndo(dateInput) {
+            if (!dateInput || dateInput === '-') return '-';
+            let d;
+            if (typeof dateInput === 'string' && dateInput.match(/^\d{4}-\d{2}-\d{2}/)) d = new Date(dateInput);
+            else d = new Date(dateInput);
+            if (isNaN(d.getTime())) return '-';
+            const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            return `${d.getDate()} ${bulan[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
+        }
+
+        function parseAddress(addr) {
+            let rtMatch = addr.match(/RT\s*[\.\:\-\/]?\s*0?(\d+)/i);
+            let rwMatch = addr.match(/RW\s*[\.\:\-\/]?\s*0?(\d+)/i);
+            return { rt: rtMatch ? rtMatch[1] : '-', rw: rwMatch ? rwMatch[1] : '-' };
+        }
+
+        function buildCatatan(job, statusPengerjaan, details, kategori, noLayanan) {
+            if (kategori === 'PSB') {
+                if (statusPengerjaan === 'Selesai') {
+                    return `done dengan nolay status aktif: ${noLayanan}`;
+                } else if (statusPengerjaan === 'Gagal Kunjungan') {
+                    const alasan = job.failureNote && job.failureNote.trim() ? job.failureNote : 'tidak ada keterangan';
+                    return `fail psb: ${alasan}`;
+                }
+            }
+            if (statusPengerjaan === 'Selesai') {
+                if (job.completionNote && job.completionNote.trim()) return `SOLUSI: ${job.completionNote}`;
+                const existing = details['Catatan'] || details['Keterangan'] || '';
+                if (existing && existing.trim()) return existing;
+                return '-';
+            } else if (statusPengerjaan === 'Gagal Kunjungan') {
+                if (job.failureNote && job.failureNote.trim()) return `GAGAL: ${job.failureNote}`;
+                return 'GAGAL: Tidak ada keterangan';
+            }
+            return details['Catatan'] || details['Keterangan'] || '-';
+        }
+
+        function getNoLayananFinal(details, kategori) {
+            let no = details['No Layanan'] || '';
+            if ((kategori === 'KUNJUNGAN' || kategori === 'ISOLIR') && (!no || no === '')) {
+                no = details['Layanan'] || details['Paket'] || '';
+            }
+            return no && no.trim() !== '' ? no : '-';
+        }
+
+        function buildTiketDisplay(job, kategori) {
+            if (kategori === 'PSB') {
+                const paket = job.details?.['Paket'] || 'Paket';
+                return `PSB (${paket})`;
+            } else {
+                let kunjungan = job.tag || '';
+                if (!kunjungan || kunjungan === '') kunjungan = job.details?.['Kunjungan'] || 'Kunjungan';
+                return kunjungan;
+            }
+        }
+
+        function convertTeamsToRecapItems(teams, rekapTimestamp) {
+            const recapItems = [];
+            let no = 1;
+            const rekapDateFormatted = formatTanggalIndo(new Date(rekapTimestamp));
+            for (const team of teams) {
+                if (!team.jobs) continue;
+                let cleanedName = cleanTechnicianName(team.teamName || 'Teknisi');
+                for (const job of team.jobs) {
+                    const d = job.details || {};
+                    const tagRaw = job.tag || '';
+                    let kategori = (() => {
+                        const tagUp = tagRaw.toUpperCase();
+                        if (tagUp.includes('PSB')) return 'PSB';
+                        if (tagUp.includes('ISOLIR')) return 'ISOLIR';
+                        const jenis = (d['Jenis Pekerjaan'] || d['Tipe'] || '').toUpperCase();
+                        if (jenis.includes('PSB')) return 'PSB';
+                        if (jenis.includes('ISOLIR')) return 'ISOLIR';
+                        return 'KUNJUNGAN';
+                    })();
+                    const noLayanan = getNoLayananFinal(d, kategori);
+                    const kodePos = extractKodePos(noLayanan);
+                    const tiketDisplay = buildTiketDisplay(job, kategori);
+                    const isSuccess = (job.status === 'completed' || (job.completed && !job.status));
+                    let statusPengerjaan = 'Pending';
+                    if (isSuccess) statusPengerjaan = 'Selesai';
+                    else if (job.status === 'failed') statusPengerjaan = 'Gagal Kunjungan';
+
+                    let tglSelesaiFormatted = '-';
+                    if (statusPengerjaan === 'Selesai') {
+                        tglSelesaiFormatted = rekapDateFormatted;
+                    }
+
+                    const nomorTelpon = d['No WA'] || d['No Telp'] || d['No. Wa'] || '-';
+                    const alamatLengkap = job.address || '-';
+                    const { rt, rw } = parseAddress(alamatLengkap);
+                    const sn = job.technical?.sn || '-';
+                    const catatan = buildCatatan(job, statusPengerjaan, d, kategori, noLayanan);
+
+                    recapItems.push({
+                        no: no++,
+                        noLayanan: noLayanan,
+                        namaPelanggan: job.name || '-',
+                        tiket: tiketDisplay,
+                        kategori: kategori,
+                        statusPengerjaan: statusPengerjaan,
+                        nomorTelpon: nomorTelpon,
+                        tanggalSelesaiKunjungan: tglSelesaiFormatted,
+                        namaTeknisi: cleanedName,
+                        alamatLengkap: alamatLengkap,
+                        rt: rt,
+                        rw: rw,
+                        kodePos: kodePos,
+                        sn: sn,
+                        catatan: catatan
+                    });
+                }
+            }
+            return recapItems;
+        }
+
+        function convertRecapItemsToTeams(recapItems, recapTimestamp) {
+            const teamsMap = new Map();
+            for (const item of recapItems) {
+                let techName = item.namaTeknisi || 'Teknisi';
+                if (!teamsMap.has(techName)) teamsMap.set(techName, []);
+                const job = {
+                    name: item.namaPelanggan,
+                    address: item.alamatLengkap,
+                    details: {
+                        'No Layanan': item.noLayanan,
+                        'Paket': item.tiket.includes('PSB') ? item.tiket.replace('PSB (', '').replace(')', '') : (item.tiket !== 'Kunjungan' ? item.tiket : ''),
+                        'No WA': item.nomorTelpon,
+                        'Catatan': item.catatan
+                    },
+                    status: item.statusPengerjaan === 'Selesai' ? 'completed' : (item.statusPengerjaan === 'Gagal Kunjungan' ? 'failed' : 'pending'),
+                    tag: item.kategori === 'PSB' ? 'PSB' : (item.kategori === 'ISOLIR' ? 'ISOLIR' : 'KUNJUNGAN'),
+                    completionNote: (item.statusPengerjaan === 'Selesai' && item.catatan && !item.catatan.startsWith('GAGAL')) ? item.catatan : undefined,
+                    failureNote: (item.statusPengerjaan === 'Gagal Kunjungan' && item.catatan) ? item.catatan.replace(/^GAGAL:\s*/i, '') : undefined,
+                    technical: { sn: item.sn }
+                };
+                if (!job.completionNote) delete job.completionNote;
+                if (!job.failureNote) delete job.failureNote;
+                teamsMap.get(techName).push(job);
+            }
+            const teams = [];
+            for (const [teamName, jobs] of teamsMap.entries()) {
+                teams.push({ teamName: teamName, jobs: jobs });
+            }
+            return teams;
+        }
+
+        window.handleJsonUpload = async function(event) {
+            if (!checkOnline('Upload JSON')) return;
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const originalJsonStr = e.target.result;
+                    let jsonData = JSON.parse(originalJsonStr);
+                    let teams = null;
+                    if (Array.isArray(jsonData)) teams = jsonData;
+                    else if (jsonData.teams && Array.isArray(jsonData.teams)) teams = jsonData.teams;
+                    else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master)) teams = jsonData.monitoring_teams_master;
+                    else throw new Error('Format JSON tidak dikenali.');
+                    if (!teams.length) throw new Error('Tidak ada data tim');
+                    const timestamp = Date.now();
+                    const recapItems = convertTeamsToRecapItems(teams, timestamp);
+                    await set(ref(db, 'history_recaps/' + timestamp), {
+                        data: recapItems,
+                        generatedAt: new Date().toISOString(),
+                        originalJson: originalJsonStr
+                    });
+                    showNotification(`✅ Upload berhasil! ${recapItems.length} tiket tersimpan.`);
+                    event.target.value = '';
+                } catch (err) {
+                    showNotification('❌ Gagal: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        async function refreshRecap(key) {
+            const snap = await get(ref(db, 'history_recaps/' + key));
+            if (!snap.exists()) return false;
+            const entry = snap.val();
+            const originalJsonStr = entry.originalJson;
+            if (!originalJsonStr) return false;
+            try {
+                let jsonData = JSON.parse(originalJsonStr);
+                let teams = null;
+                if (Array.isArray(jsonData)) teams = jsonData;
+                else if (jsonData.teams && Array.isArray(jsonData.teams)) teams = jsonData.teams;
+                else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master)) teams = jsonData.monitoring_teams_master;
+                else throw new Error('Format JSON tidak dikenali');
+                if (!teams.length) throw new Error('Tidak ada data tim');
+                const recapItems = convertTeamsToRecapItems(teams, parseInt(key));
+                await set(ref(db, 'history_recaps/' + key), {
+                    data: recapItems,
+                    generatedAt: new Date().toISOString(),
+                    originalJson: originalJsonStr
+                });
+                return true;
+            } catch (err) {
+                return false;
+            }
+        }
+
+        window.refreshAllRecaps = async function() {
+            if (!checkOnline('Refresh semua data')) return;
+            const snapshot = await get(historyRef);
+            const data = snapshot.val() || {};
+            const keys = Object.keys(data);
+            if (!keys.length) {
+                showNotification('Tidak ada data untuk di-refresh.');
+                return;
+            }
+            showNotification(`Memulai refresh ${keys.length} rekap...`);
+            let successCount = 0;
+            for (const key of keys) {
+                const ok = await refreshRecap(key);
+                if (ok) successCount++;
+            }
+            showNotification(`✅ Selesai refresh. Berhasil: ${successCount} dari ${keys.length} rekap.`);
+        };
+
+        async function uploadJsonForRecap(key) {
+            return new Promise((resolve, reject) => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return resolve();
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        try {
+                            const originalJsonStr = ev.target.result;
+                            let jsonData = JSON.parse(originalJsonStr);
+                            let teams = null;
+                            if (Array.isArray(jsonData)) teams = jsonData;
+                            else if (jsonData.teams && Array.isArray(jsonData.teams)) teams = jsonData.teams;
+                            else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master)) teams = jsonData.monitoring_teams_master;
+                            else throw new Error('Format JSON tidak dikenali.');
+                            if (!teams.length) throw new Error('Tidak ada data tim');
+                            const recapItems = convertTeamsToRecapItems(teams, parseInt(key));
+                            await set(ref(db, 'history_recaps/' + key), {
+                                data: recapItems,
+                                generatedAt: new Date().toISOString(),
+                                originalJson: originalJsonStr
+                            });
+                            showNotification(`✅ Rekap diperbarui dengan JSON baru.`);
+                            resolve();
+                        } catch (err) {
+                            showNotification('❌ Gagal upload JSON: ' + err.message);
+                            reject(err);
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            });
+        }
+
+        async function downloadJsonForRecap(key) {
+            const snap = await get(ref(db, 'history_recaps/' + key));
+            if (!snap.exists()) {
+                showNotification('Data tidak ditemukan');
+                return;
+            }
+            const entry = snap.val();
+            const recapItems = entry.data;
+            if (!recapItems || !recapItems.length) {
+                showNotification('Tidak ada tiket untuk diekspor');
+                return;
+            }
+            const teams = convertRecapItemsToTeams(recapItems, parseInt(key));
+            const jsonStr = JSON.stringify(teams, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rekap_${new Date(parseInt(key)).toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification('✅ Download JSON selesai');
+        }
+
+        window.openJsonOptions = function(key) {
+            if (!checkOnline('Opsi JSON')) return;
+            currentJsonKey = key;
+            document.getElementById('json-options-modal').style.display = 'block';
+        };
+        window.closeJsonOptionsModal = function() {
+            document.getElementById('json-options-modal').style.display = 'none';
+            currentJsonKey = null;
+        };
+        document.getElementById('uploadJsonForRecapBtn').addEventListener('click', async () => {
+            if (currentJsonKey) {
+                await uploadJsonForRecap(currentJsonKey);
+                closeJsonOptionsModal();
+            }
+        });
+        document.getElementById('downloadJsonForRecapBtn').addEventListener('click', async () => {
+            if (currentJsonKey) {
+                await downloadJsonForRecap(currentJsonKey);
+                closeJsonOptionsModal();
+            }
+        });
+
+        function getKategoriFromTicket(ticket) {
+            if (ticket.kategori) return ticket.kategori;
+            if (ticket.noLayanan && ticket.noLayanan.toUpperCase().includes('PSB')) return 'PSB';
+            if (ticket.tiket && ticket.tiket.toUpperCase().includes('PSB')) return 'PSB';
+            if (ticket.catatan && ticket.catatan.toUpperCase().includes('ISOLIR')) return 'ISOLIR';
+            if (ticket.tiket && ticket.tiket.toUpperCase().includes('ISOLIR')) return 'ISOLIR';
+            return 'KUNJUNGAN';
+        }
+
+        async function getTeamStatsForRecap(tickets) {
+            const teamMap = new Map();
+            let overallCategory = { psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 };
+            for (const ticket of tickets) {
+                const techName = ticket.namaTeknisi || 'Teknisi';
+                let category = getKategoriFromTicket(ticket);
+                const isSuccess = (ticket.statusPengerjaan === 'Selesai');
+                if (!teamMap.has(techName)) teamMap.set(techName, { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
+                const stat = teamMap.get(techName);
+                stat.total++;
+                if (category === 'PSB') { stat.psbTotal++; if (isSuccess) stat.psbSuccess++; overallCategory.psbTotal++; if (isSuccess) overallCategory.psbSuccess++; }
+                else if (category === 'ISOLIR') { stat.isolirTotal++; if (isSuccess) stat.isolirSuccess++; overallCategory.isolirTotal++; if (isSuccess) overallCategory.isolirSuccess++; }
+                else { stat.kunjTotal++; if (isSuccess) stat.kunjSuccess++; overallCategory.kunjTotal++; if (isSuccess) overallCategory.kunjSuccess++; }
+            }
+            const teamsStats = [];
+            let overallTotalSuccess = 0, overallTotalTickets = 0;
+            for (const [team, s] of teamMap.entries()) {
+                const overallSuccess = s.total > 0 ? ((s.psbSuccess + s.kunjSuccess + s.isolirSuccess) / s.total * 100).toFixed(1) : 0;
+                teamsStats.push({
+                    tim: team,
+                    total: s.total,
+                    psb: { total: s.psbTotal, success: s.psbSuccess, percent: s.psbTotal > 0 ? (s.psbSuccess / s.psbTotal * 100).toFixed(1) : 0 },
+                    kunj: { total: s.kunjTotal, success: s.kunjSuccess, percent: s.kunjTotal > 0 ? (s.kunjSuccess / s.kunjTotal * 100).toFixed(1) : 0 },
+                    isolir: { total: s.isolirTotal, success: s.isolirSuccess, percent: s.isolirTotal > 0 ? (s.isolirSuccess / s.isolirTotal * 100).toFixed(1) : 0 },
+                    overallSuccess
+                });
+                overallTotalSuccess += (s.psbSuccess + s.kunjSuccess + s.isolirSuccess);
+                overallTotalTickets += s.total;
+            }
+            const overallPercent = overallTotalTickets > 0 ? ((overallTotalSuccess / overallTotalTickets) * 100).toFixed(1) : 0;
+            return { teamsStats, overallTotalSuccess, overallTotalTickets, overallPercent, overallCategory };
+        }
+
+        window.viewDetail = async function(historyKey) {
+            if (!checkOnline('Lihat detail')) return;
+            const snap = await get(ref(db, 'history_recaps/' + historyKey));
+            const entry = snap.val();
+            if (!entry?.data) return;
+            const tickets = entry.data;
+            const { teamsStats, overallTotalSuccess, overallTotalTickets, overallPercent, overallCategory } = await getTeamStatsForRecap(tickets);
+            let summaryHtml = `<div class="detail-stats-title">📊 RINGKASAN STATISTIK TIM - ${new Date(parseInt(historyKey)).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }).toUpperCase()}</div>`;
+            summaryHtml += `<div class="table-container"><table class="summary-table" style="min-width:800px;"><thead>
+            <tr><th rowspan="2">Nama Tim / Teknisi</th><th rowspan="2">Total Tiket</th><th colspan="3">PSB</th><th colspan="3">Kunjungan</th><th colspan="3">Isolir</th><th rowspan="2">Overall Sukses</th></tr>
+            <tr><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th></tr>
+            </thead><tbody>`;
+            for (const t of teamsStats) {
+                summaryHtml += `<tr>
+                    <td><strong>${escapeHtml(t.tim)}</strong></td>
+                    <td>${t.total}</td>
+                    <td class="psb-cell">${t.psb.total}</td><td class="psb-cell">${t.psb.success}</td><td class="psb-cell">${t.psb.percent}%</td>
+                    <td class="kunj-cell">${t.kunj.total}</td><td class="kunj-cell">${t.kunj.success}</td><td class="kunj-cell">${t.kunj.percent}%</td>
+                    <td class="isolir-cell">${t.isolir.total}</td><td class="isolir-cell">${t.isolir.success}</td><td class="isolir-cell">${t.isolir.percent}%</td>
+                    <td><strong>${t.overallSuccess}%</strong></td>
+                </tr>`;
+            }
+            const totalPsbPercent = overallCategory.psbTotal > 0 ? ((overallCategory.psbSuccess / overallCategory.psbTotal) * 100).toFixed(1) : 0;
+            const totalKunjPercent = overallCategory.kunjTotal > 0 ? ((overallCategory.kunjSuccess / overallCategory.kunjTotal) * 100).toFixed(1) : 0;
+            const totalIsolirPercent = overallCategory.isolirTotal > 0 ? ((overallCategory.isolirSuccess / overallCategory.isolirTotal) * 100).toFixed(1) : 0;
+            summaryHtml += `<tr class="total-row-category"><td><strong>TOTAL SEMUA TIM</strong></td>
+                <td><strong>${overallTotalTickets}</strong></td>
+                <td class="psb-cell"><strong>${overallCategory.psbTotal}</strong></td><td class="psb-cell"><strong>${overallCategory.psbSuccess}</strong></td><td class="psb-cell"><strong>${totalPsbPercent}%</strong></td>
+                <td class="kunj-cell"><strong>${overallCategory.kunjTotal}</strong></td><td class="kunj-cell"><strong>${overallCategory.kunjSuccess}</strong></td><td class="kunj-cell"><strong>${totalKunjPercent}%</strong></td>
+                <td class="isolir-cell"><strong>${overallCategory.isolirTotal}</strong></td><td class="isolir-cell"><strong>${overallCategory.isolirSuccess}</strong></td><td class="isolir-cell"><strong>${totalIsolirPercent}%</strong></td>
+                <td><strong>${overallPercent}%</strong></td>
+            </tr>`;
+            summaryHtml += `</tbody></table></div>`;
+            document.getElementById('detail-stats-area').innerHTML = summaryHtml;
+
+            const tbody = document.getElementById('detail-body');
+            tbody.innerHTML = '';
+            for (let idx = 0; idx < tickets.length; idx++) {
+                const item = tickets[idx];
+                const kategori = getKategoriFromTicket(item);
+                let kategoriClass = '';
+                if (kategori === 'PSB') kategoriClass = 'psb-cell';
+                else if (kategori === 'KUNJUNGAN') kategoriClass = 'kunj-cell';
+                else if (kategori === 'ISOLIR') kategoriClass = 'isolir-cell';
+                const statusClass = item.statusPengerjaan === 'Selesai' ? 'status-selesai' : (item.statusPengerjaan === 'Gagal Kunjungan' ? 'status-gagal' : '');
+                const escapedName = escapeHtml(item.namaTeknisi).replace(/'/g, "\\'");
+                tbody.innerHTML += `<tr>
+                    <td>${item.no}</td>
+                    <td>${escapeHtml(item.noLayanan)}</td>
+                    <td>${escapeHtml(item.namaPelanggan)}</td>
+                    <td>${escapeHtml(item.tiket)}</td>
+                    <td class="kategori-cell ${kategoriClass}"><strong>${escapeHtml(kategori)}</strong></td>
+                    <td class="status-cell"><span class="badge-status ${statusClass}">${escapeHtml(item.statusPengerjaan)}</span></td>
+                    <td>${escapeHtml(item.nomorTelpon)}</td>
+                    <td>${escapeHtml(item.tanggalSelesaiKunjungan)}</td>
+                    <td>${escapeHtml(item.namaTeknisi)} <button class="edit-tech-icon" onclick="editTechnicianName('${historyKey}', ${idx}, '${escapedName}')">✏️</button></td>
+                    <td>${escapeHtml(item.alamatLengkap)}</td>
+                    <td>${escapeHtml(item.rt)}</td>
+                    <td>${escapeHtml(item.rw)}</td>
+                    <td><strong>${escapeHtml(item.kodePos)}</strong></td>
+                    <td>${escapeHtml(item.sn)}</td>
+                    <td>${escapeHtml(item.catatan)}</td>
+                </tr>`;
+            }
+            document.getElementById('detail-title').innerHTML = `📋 Data Tiket + Statistik Tim - ${new Date(parseInt(historyKey)).toLocaleDateString('id-ID')}`;
+            document.getElementById('detail-modal').style.display = 'block';
+        };
+
+        window.editTechnicianName = async function(historyKey, index, currentName) {
+            if (!checkOnline('Edit nama teknisi')) return;
+            const newName = prompt("Edit nama teknisi:", currentName);
+            if (!newName || newName === currentName) return;
+            try {
+                const snap = await get(ref(db, `history_recaps/${historyKey}`));
+                const entry = snap.val();
+                if (!entry || !entry.data) {
+                    showNotification("❌ Data tidak ditemukan");
+                    return;
+                }
+                entry.data[index].namaTeknisi = newName;
+                const updatedTeams = convertRecapItemsToTeams(entry.data, parseInt(historyKey));
+                const updatedJsonStr = JSON.stringify(updatedTeams, null, 2);
+                await set(ref(db, `history_recaps/${historyKey}`), {
+                    data: entry.data,
+                    generatedAt: entry.generatedAt || new Date().toISOString(),
+                    originalJson: updatedJsonStr
+                });
+                showNotification("✅ Nama teknisi berhasil diupdate & JSON tersinkronisasi");
+                if (document.getElementById('detail-modal').style.display === 'block') {
+                    await window.viewDetail(historyKey);
+                }
+            } catch (e) {
+                showNotification("Gagal update: " + e.message);
+            }
+        };
+        window.closeDetailModal = () => document.getElementById('detail-modal').style.display = 'none';
+
+        async function getTeamStatsGroupedByDate() {
+            const snapshot = await get(historyRef);
+            const data = snapshot.val() || {};
+            const groups = [];
+            const keys = Object.keys(data).sort().reverse();
+            for (const key of keys) {
+                const entry = data[key];
+                if (!entry?.data) continue;
+                const recapTimestamp = parseInt(key);
+                const dateLabel = new Date(recapTimestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+                const teamMap = new Map();
+                let overallCategory = { psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 };
+                for (const ticket of entry.data) {
+                    const techName = ticket.namaTeknisi || 'Teknisi';
+                    let category = getKategoriFromTicket(ticket);
+                    const isSuccess = (ticket.statusPengerjaan === 'Selesai');
+                    if (!teamMap.has(techName)) teamMap.set(techName, { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
+                    const stat = teamMap.get(techName);
+                    stat.total++;
+                    if (category === 'PSB') { stat.psbTotal++; if (isSuccess) stat.psbSuccess++; overallCategory.psbTotal++; if (isSuccess) overallCategory.psbSuccess++; }
+                    else if (category === 'ISOLIR') { stat.isolirTotal++; if (isSuccess) stat.isolirSuccess++; overallCategory.isolirTotal++; if (isSuccess) overallCategory.isolirSuccess++; }
+                    else { stat.kunjTotal++; if (isSuccess) stat.kunjSuccess++; overallCategory.kunjTotal++; if (isSuccess) overallCategory.kunjSuccess++; }
+                }
+                const teamsStats = [];
+                for (const [team, s] of teamMap.entries()) {
+                    const overallSuccess = s.total > 0 ? ((s.psbSuccess + s.kunjSuccess + s.isolirSuccess) / s.total * 100).toFixed(1) : 0;
+                    teamsStats.push({
+                        tim: team,
+                        total: s.total,
+                        psb: { total: s.psbTotal, success: s.psbSuccess, percent: s.psbTotal > 0 ? (s.psbSuccess / s.psbTotal * 100).toFixed(1) : 0 },
+                        kunj: { total: s.kunjTotal, success: s.kunjSuccess, percent: s.kunjTotal > 0 ? (s.kunjSuccess / s.kunjTotal * 100).toFixed(1) : 0 },
+                        isolir: { total: s.isolirTotal, success: s.isolirSuccess, percent: s.isolirTotal > 0 ? (s.isolirSuccess / s.isolirTotal * 100).toFixed(1) : 0 },
+                        overallSuccess
+                    });
+                }
+                teamsStats.sort((a, b) => b.total - a.total);
+                groups.push({ dateLabel, recapTimestamp, teamsStats, overallCategory });
+            }
+            return groups;
+        }
+        
+        window.showTeamAnalysis = async function() {
+            if (!checkOnline('Analisa tim')) return;
+            const modal = document.getElementById('team-analysis-modal');
+            modal.style.display = 'block';
+            const container = document.getElementById('team-grouped-container');
+            container.innerHTML = '<div><span class="loading-spinner"></span> Memuat statistik per tanggal...</div>';
+            try {
+                const groups = await getTeamStatsGroupedByDate();
+                if (!groups.length) {
+                    container.innerHTML = '<div class="empty-state">Belum ada data history. Upload JSON terlebih dahulu.</div>';
+                    return;
+                }
+                let html = '';
+                for (const group of groups) {
+                    const totalPsbPercent = group.overallCategory.psbTotal > 0 ? ((group.overallCategory.psbSuccess / group.overallCategory.psbTotal) * 100).toFixed(1) : 0;
+                    const totalKunjPercent = group.overallCategory.kunjTotal > 0 ? ((group.overallCategory.kunjSuccess / group.overallCategory.kunjTotal) * 100).toFixed(1) : 0;
+                    const totalIsolirPercent = group.overallCategory.isolirTotal > 0 ? ((group.overallCategory.isolirSuccess / group.overallCategory.isolirTotal) * 100).toFixed(1) : 0;
+                    
+                    // Hitung Overall Sukses untuk TOTAL KESELURUHAN
+                    const groupTotalSuccess = group.overallCategory.psbSuccess + group.overallCategory.kunjSuccess + group.overallCategory.isolirSuccess;
+                    const groupTotalTickets = group.overallCategory.psbTotal + group.overallCategory.kunjTotal + group.overallCategory.isolirTotal;
+                    const groupOverallPercent = groupTotalTickets > 0 ? ((groupTotalSuccess / groupTotalTickets) * 100).toFixed(1) : 0;
+                    
+                    html += `<div class="team-group-container"><div class="grouped-date-title">📅 ${group.dateLabel}</div><div class="table-container"><table class="tech-stats-table" style="min-width:800px"><thead>
+                    <tr><th rowspan="2">Nama Tim / Teknisi</th><th rowspan="2">Total Tiket</th><th colspan="3">PSB</th><th colspan="3">Kunjungan</th><th colspan="3">Isolir</th><th rowspan="2">Overall Sukses</th></tr>
+                    <tr><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th></tr>
+                    </thead><tbody>`;
+                    for (const t of group.teamsStats) {
+                        html += `<tr>
+                            <td><strong>${escapeHtml(t.tim)}</strong></td>
+                            <td>${t.total}</td>
+                            <td class="psb-cell">${t.psb.total}</td><td class="psb-cell">${t.psb.success}</td><td class="psb-cell">${t.psb.percent}%</td>
+                            <td class="kunj-cell">${t.kunj.total}</td><td class="kunj-cell">${t.kunj.success}</td><td class="kunj-cell">${t.kunj.percent}%</td>
+                            <td class="isolir-cell">${t.isolir.total}</td><td class="isolir-cell">${t.isolir.success}</td><td class="isolir-cell">${t.isolir.percent}%</td>
+                            <td><strong>${t.overallSuccess}%</strong></td>
+                        </tr>`;
+                    }
+                    html += `<tr class="total-row-category"><td><strong>TOTAL KESELURUHAN</strong></td>
+                        <td><strong>${group.teamsStats.reduce((acc,cur)=>acc+cur.total,0)}</strong></td>
+                        <td class="psb-cell"><strong>${group.overallCategory.psbTotal}</strong></td><td class="psb-cell"><strong>${group.overallCategory.psbSuccess}</strong></td><td class="psb-cell"><strong>${totalPsbPercent}%</strong></td>
+                        <td class="kunj-cell"><strong>${group.overallCategory.kunjTotal}</strong></td><td class="kunj-cell"><strong>${group.overallCategory.kunjSuccess}</strong></td><td class="kunj-cell"><strong>${totalKunjPercent}%</strong></td>
+                        <td class="isolir-cell"><strong>${group.overallCategory.isolirTotal}</strong></td><td class="isolir-cell"><strong>${group.overallCategory.isolirSuccess}</strong></td><td class="isolir-cell"><strong>${totalIsolirPercent}%</strong></td>
+                        <td><strong>${groupOverallPercent}%</strong></td>
+                    </tr>`;
+                    html += `</tbody></table></div></div>`;
+                }
+                container.innerHTML = html;
+            } catch (e) { container.innerHTML = '<div class="empty-state">Gagal memuat data</div>'; }
+        };
+        window.closeTeamAnalysisModal = () => document.getElementById('team-analysis-modal').style.display = 'none';
+
+        window.downloadTeamAnalysisExcel = async function() {
+            const groups = await getTeamStatsGroupedByDate();
+            if (!groups.length) return;
+            const flatRows = [];
+            groups.forEach(g => {
+                // Hitung Overall Sukses untuk TOTAL KESELURUHAN per grup
+                const groupTotalSuccess = g.overallCategory.psbSuccess + g.overallCategory.kunjSuccess + g.overallCategory.isolirSuccess;
+                const groupTotalTickets = g.overallCategory.psbTotal + g.overallCategory.kunjTotal + g.overallCategory.isolirTotal;
+                const groupOverallPercent = groupTotalTickets > 0 ? ((groupTotalSuccess / groupTotalTickets) * 100).toFixed(1) : 0;
+                
+                g.teamsStats.forEach(t => {
+                    flatRows.push({
+                        'Tanggal Rekap': g.dateLabel,
+                        'Nama Tim': t.tim,
+                        'Total Tiket': t.total,
+                        'PSB Total': t.psb.total,
+                        'PSB Berhasil': t.psb.success,
+                        'PSB %': t.psb.percent,
+                        'Kunjungan Total': t.kunj.total,
+                        'Kunjungan Berhasil': t.kunj.success,
+                        'Kunjungan %': t.kunj.percent,
+                        'Isolir Total': t.isolir.total,
+                        'Isolir Berhasil': t.isolir.success,
+                        'Isolir %': t.isolir.percent,
+                        'Overall Sukses %': t.overallSuccess
+                    });
+                });
+                flatRows.push({
+                    'Tanggal Rekap': g.dateLabel,
+                    'Nama Tim': 'TOTAL KESELURUHAN (KATEGORI)',
+                    'Total Tiket': g.teamsStats.reduce((a, b) => a + b.total, 0),
+                    'PSB Total': g.overallCategory.psbTotal,
+                    'PSB Berhasil': g.overallCategory.psbSuccess,
+                    'PSB %': g.overallCategory.psbTotal > 0 ? ((g.overallCategory.psbSuccess / g.overallCategory.psbTotal) * 100).toFixed(1) : 0,
+                    'Kunjungan Total': g.overallCategory.kunjTotal,
+                    'Kunjungan Berhasil': g.overallCategory.kunjSuccess,
+                    'Kunjungan %': g.overallCategory.kunjTotal > 0 ? ((g.overallCategory.kunjSuccess / g.overallCategory.kunjTotal) * 100).toFixed(1) : 0,
+                    'Isolir Total': g.overallCategory.isolirTotal,
+                    'Isolir Berhasil': g.overallCategory.isolirSuccess,
+                    'Isolir %': g.overallCategory.isolirTotal > 0 ? ((g.overallCategory.isolirSuccess / g.overallCategory.isolirTotal) * 100).toFixed(1) : 0,
+                    'Overall Sukses %': groupOverallPercent
+                });
+            });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(flatRows), 'Analisa_Tim');
+            XLSX.writeFile(wb, `Analisa_Tim_PerTanggal_${Date.now()}.xlsx`);
+        };
+
+        async function getIndividualStatsFromAllHistory() {
+            const snapshot = await get(historyRef);
+            const data = snapshot.val() || {};
+            const indivMap = new Map();
+            for (const key of Object.keys(data)) {
+                const entry = data[key];
+                if (!entry?.data) continue;
+                for (const ticket of entry.data) {
+                    let rawTech = ticket.namaTeknisi || 'Teknisi';
+                    let category = getKategoriFromTicket(ticket);
+                    const isSuccess = (ticket.statusPengerjaan === 'Selesai');
+                    if (rawTech.includes('&')) {
+                        let names = rawTech.split('&').map(n => cleanTechnicianName(n.trim())).filter(n => n.length > 0);
+                        if (names.length === 0) names = [cleanTechnicianName(rawTech)];
+                        for (const indivName of names) {
+                            if (!indivMap.has(indivName)) indivMap.set(indivName, { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
+                            const st = indivMap.get(indivName);
+                            st.total++;
+                            if (category === 'PSB') { st.psbTotal++; if (isSuccess) st.psbSuccess++; }
+                            else if (category === 'ISOLIR') { st.isolirTotal++; if (isSuccess) st.isolirSuccess++; }
+                            else { st.kunjTotal++; if (isSuccess) st.kunjSuccess++; }
+                        }
+                    } else {
+                        const cleanName = cleanTechnicianName(rawTech);
+                        if (!indivMap.has(cleanName)) indivMap.set(cleanName, { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
+                        const st = indivMap.get(cleanName);
+                        st.total++;
+                        if (category === 'PSB') { st.psbTotal++; if (isSuccess) st.psbSuccess++; }
+                        else if (category === 'ISOLIR') { st.isolirTotal++; if (isSuccess) st.isolirSuccess++; }
+                        else { st.kunjTotal++; if (isSuccess) st.kunjSuccess++; }
+                    }
+                }
+            }
+            const result = [];
+            for (const [name, s] of indivMap.entries()) {
+                const overallSuccess = s.total > 0 ? ((s.psbSuccess + s.kunjSuccess + s.isolirSuccess) / s.total * 100).toFixed(1) : 0;
+                result.push({
+                    teknisi: name,
+                    total: s.total,
+                    psb: { total: s.psbTotal, success: s.psbSuccess, percent: s.psbTotal > 0 ? (s.psbSuccess / s.psbTotal * 100).toFixed(1) : 0 },
+                    kunj: { total: s.kunjTotal, success: s.kunjSuccess, percent: s.kunjTotal > 0 ? (s.kunjSuccess / s.kunjTotal * 100).toFixed(1) : 0 },
+                    isolir: { total: s.isolirTotal, success: s.isolirSuccess, percent: s.isolirTotal > 0 ? (s.isolirSuccess / s.isolirTotal * 100).toFixed(1) : 0 },
+                    overallSuccess
+                });
+            }
+            result.sort((a, b) => b.total - a.total);
+            return result;
+        }
+        
+        window.showIndividualTechDatabase = async function() {
+            if (!checkOnline('Analisa individu')) return;
+            const modal = document.getElementById('individual-tech-modal');
+            modal.style.display = 'block';
+            const tbody = document.getElementById('individual-tech-body');
+            const summaryDiv = document.getElementById('individual-summary');
+            summaryDiv.innerHTML = '<div><span class="loading-spinner"></span> Memproses data individu...</div>';
+            try {
+                const indiv = await getIndividualStatsFromAllHistory();
+                if (!indiv.length) {
+                    summaryDiv.innerHTML = '<div class="empty-state">Belum ada data.</div>';
+                    tbody.innerHTML = '<tr><td colspan="12">-</td></tr>';
+                    return;
+                }
+                let totalAll = indiv.reduce((a, b) => a + b.total, 0);
+                let avgOverall = indiv.reduce((a, b) => a + (parseFloat(b.overallSuccess) * b.total / 100), 0);
+                avgOverall = (avgOverall / totalAll * 100).toFixed(1);
+                summaryDiv.innerHTML = `<div class="stats-summary"><div class="stat-card"><div class="label">Total Tiket (Individu)</div><div class="value">${totalAll}</div></div><div class="stat-card"><div class="label">Rata Sukses Individu</div><div class="value">${avgOverall}%</div></div></div>`;
+                let rows = '';
+                for (let i of indiv) rows += `<tr>
+                    <td><strong>${escapeHtml(i.teknisi)}</strong></td>
+                    <td>${i.total}</td>
+                    <td class="psb-cell">${i.psb.total}</td><td class="psb-cell">${i.psb.success}</td><td class="psb-cell">${i.psb.percent}%</td>
+                    <td class="kunj-cell">${i.kunj.total}</td><td class="kunj-cell">${i.kunj.success}</td><td class="kunj-cell">${i.kunj.percent}%</td>
+                    <td class="isolir-cell">${i.isolir.total}</td><td class="isolir-cell">${i.isolir.success}</td><td class="isolir-cell">${i.isolir.percent}%</td>
+                    <td><strong>${i.overallSuccess}%</strong></td>
+                </tr>`;
+                tbody.innerHTML = rows;
+            } catch (e) { summaryDiv.innerHTML = '<div>Gagal memuat</div>'; }
+        };
+        window.closeIndividualTechModal = () => document.getElementById('individual-tech-modal').style.display = 'none';
+
+        window.downloadIndividualTechExcel = async function() {
+            const stats = await getIndividualStatsFromAllHistory();
+            const ws = XLSX.utils.json_to_sheet(stats.map(i => ({
+                'Nama Teknisi': i.teknisi,
+                'Total Tiket': i.total,
+                'PSB Total': i.psb.total,
+                'PSB Berhasil': i.psb.success,
+                'PSB %': i.psb.percent,
+                'Kunjungan Total': i.kunj.total,
+                'Kunjungan Berhasil': i.kunj.success,
+                'Kunjungan %': i.kunj.percent,
+                'Isolir Total': i.isolir.total,
+                'Isolir Berhasil': i.isolir.success,
+                'Isolir %': i.isolir.percent,
+                'Overall Sukses %': i.overallSuccess
+            })));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Analisa_Individu');
+            XLSX.writeFile(wb, `Analisa_Individu_${Date.now()}.xlsx`);
+        };
+
+        window.deleteRecap = async function(key) {
+            if (!checkOnline('Hapus data')) return;
+            const pin = prompt("Masukkan PIN untuk menghapus data ini:");
+            if (pin !== DELETE_PIN) {
+                showNotification("❌ PIN salah. Penghapusan dibatalkan.");
+                return;
+            }
+            if (confirm(`Hapus history tanggal ${new Date(parseInt(key)).toLocaleDateString('id-ID')} secara permanen?`)) {
+                await set(ref(db, 'history_recaps/' + key), null);
+                showNotification("✅ Data berhasil dihapus.");
+            }
+        };
+
+        function loadHistoryList() {
+            onValue(historyRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                const keys = Object.keys(data).sort().reverse();
+                const container = document.getElementById('history-list');
+                if (keys.length === 0) {
+                    container.innerHTML = '<div class="empty-state">✨ Belum ada data tiket. Silakan upload file JSON.</div>';
+                    return;
+                }
+                let html = '';
+                keys.forEach(key => {
+                    const entry = data[key];
+                    const dateOnly = new Date(parseInt(key)).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const count = entry.data ? entry.data.length : 0;
+                    html += `<div class="history-item">
+                            <div class="history-check"><input type="checkbox" class="history-checkbox" value="${key}" onchange="updateSelectAllState()"></div>
+                            <div class="history-info"><span class="history-date">📅 ${dateOnly}<button class="edit-date-btn" onclick="openEditDateModal('${key}')">✏️</button></span><span class="history-count">${count} tiket</span></div>
+                            <div class="history-actions">
+                                <button class="btn btn-outline" onclick="viewDetail('${key}')">🔍 Lihat</button>
+                                <button class="btn btn-outline" onclick="downloadRecapExcel('${key}')">📊 Excel</button>
+                                <button class="btn btn-outline" onclick="openJsonOptions('${key}')">📁 JSON</button>
+                                <button class="btn btn-outline" onclick="deleteRecap('${key}')">🗑️ Hapus</button>
+                            </div>
+                          </div>`;
+                });
+                container.innerHTML = html;
+                document.getElementById('selectAllCheckbox').checked = false;
+            });
+        }
+
+        window.toggleSelectAll = function() {
+            const cbs = document.querySelectorAll('.history-checkbox');
+            const ck = document.getElementById('selectAllCheckbox').checked;
+            cbs.forEach(cb => cb.checked = ck);
+        };
+        window.updateSelectAllState = function() {
+            const cbs = document.querySelectorAll('.history-checkbox');
+            const all = cbs.length > 0 && Array.from(cbs).every(cb => cb.checked);
+            document.getElementById('selectAllCheckbox').checked = all;
+        };
+        window.downloadSelectedExcel = async function() {
+            const sel = document.querySelectorAll('.history-checkbox:checked');
+            if (!sel.length) { showNotification('Pilih history'); return; }
+            let combined = [];
+            for (const cb of sel) {
+                const snap = await get(ref(db, 'history_recaps/' + cb.value));
+                if (snap.exists()) {
+                    const recap = snap.val();
+                    const dateLabel = new Date(parseInt(cb.value)).toLocaleDateString('id-ID');
+                    const items = recap.data.map(it => {
+                        const kategori = getKategoriFromTicket(it);
+                        return { ...it, 'Sumber Tanggal Rekap': dateLabel, Kategori: kategori };
+                    });
+                    combined.push(...items);
+                }
+            }
+            if (!combined.length) { showNotification('Tidak ada data'); return; }
+            const ws = XLSX.utils.json_to_sheet(combined.map(i => ({
+                'Sumber Rekap': i['Sumber Tanggal Rekap'],
+                No: i.no,
+                'No Layanan': i.noLayanan,
+                'Nama Pelanggan': i.namaPelanggan,
+                'Tiket': i.tiket,
+                'Kategori Tiket': i.Kategori,
+                'Status Pengerjaan': i.statusPengerjaan,
+                'Nomor Telpon': i.nomorTelpon,
+                'Tanggal Selesai Kunjungan': i.tanggalSelesaiKunjungan,
+                'Nama Teknisi': i.namaTeknisi,
+                'Alamat Lengkap': i.alamatLengkap,
+                RT: i.rt,
+                RW: i.rw,
+                'Kode Pos': i.kodePos,
+                SN: i.sn,
+                Catatan: i.catatan
+            })));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Data_Tiket_Terpilih');
+            XLSX.writeFile(wb, `Data_Tiket_${Date.now()}.xlsx`);
+            showNotification(`✅ Export ${combined.length} tiket`);
+        };
+        window.downloadRecapExcel = async function(key) {
+            const snap = await get(ref(db, 'history_recaps/' + key));
+            if (snap.exists()) {
+                const dataTiket = snap.val().data;
+                const wsData = dataTiket.map(i => {
+                    const kategori = getKategoriFromTicket(i);
+                    return {
+                        No: i.no,
+                        'No Layanan': i.noLayanan,
+                        'Nama Pelanggan': i.namaPelanggan,
+                        'Tiket': i.tiket,
+                        'Kategori Tiket': kategori,
+                        'Status Pengerjaan': i.statusPengerjaan,
+                        'Nomor Telpon': i.nomorTelpon,
+                        'Tanggal Selesai Kunjungan': i.tanggalSelesaiKunjungan,
+                        'Nama Teknisi': i.namaTeknisi,
+                        'Alamat Lengkap': i.alamatLengkap,
+                        RT: i.rt,
+                        RW: i.rw,
+                        'Kode Pos': i.kodePos,
+                        SN: i.sn,
+                        Catatan: i.catatan
+                    };
+                });
+                const ws = XLSX.utils.json_to_sheet(wsData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Data_Tiket');
+                XLSX.writeFile(wb, `Data_Tiket_${new Date(parseInt(key)).toISOString().slice(0,10)}.xlsx`);
+            }
+        };
+
+        async function searchByNoLayanan(term) {
+            const snapshot = await get(historyRef);
+            const data = snapshot.val() || {};
+            const results = [];
+            const lowTerm = term.trim().toLowerCase();
+            for (const key of Object.keys(data)) {
+                const entry = data[key];
+                if (!entry.data) continue;
+                const rekapDate = new Date(parseInt(key)).toLocaleDateString('id-ID');
+                for (const item of entry.data) {
+                    if ((item.noLayanan || '').toLowerCase().includes(lowTerm)) {
+                        const kategori = getKategoriFromTicket(item);
+                        results.push({ rekapDate, ...item, kategori });
+                    }
+                }
+            }
+            return results;
+        }
+        window.openSearchModal = function() {
+            if (!checkOnline('Pencarian')) return;
+            document.getElementById('search-modal').style.display = 'block';
+            document.getElementById('searchInputField').value = '';
+            document.getElementById('search-result-body').innerHTML = '<tr><td colspan="11">Masukkan No Layanan</td></tr>';
+            lastSearchResults = [];
+        };
+        window.closeSearchModal = () => document.getElementById('search-modal').style.display = 'none';
+        window.copySearchResults = function() {
+            if (!lastSearchResults.length) return;
+            let text = `HASIL PENCARIAN (${lastSearchResults.length})\n`;
+            lastSearchResults.forEach(r => {
+                text += `${r.rekapDate} | ${r.noLayanan} | ${r.namaPelanggan} | ${r.tiket} | ${r.kategori} | ${r.statusPengerjaan}\n`;
+            });
+            copyText(text);
+        };
+        window.downloadSearchResultsExcel = function() {
+            if (!lastSearchResults.length) return;
+            const ws = XLSX.utils.json_to_sheet(lastSearchResults.map(r => ({
+                'Tanggal Rekap': r.rekapDate,
+                'No Layanan': r.noLayanan,
+                'Nama': r.namaPelanggan,
+                'Tiket': r.tiket,
+                'Kategori Tiket': r.kategori,
+                'Status': r.statusPengerjaan,
+                'Teknisi': r.namaTeknisi,
+                'Kode Pos': r.kodePos,
+                'Catatan': r.catatan
+            })));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Hasil_Carian');
+            XLSX.writeFile(wb, `Search_${Date.now()}.xlsx`);
+            showNotification('✅ Excel selesai');
+        };
+        window.openEditDateModal = function(key) {
+            currentEditKey = key;
+            const modal = document.getElementById('edit-date-modal');
+            const dateInput = document.getElementById('newRecapDateInput');
+            const currentDate = new Date(parseInt(key));
+            dateInput.value = `${currentDate.getFullYear()}-${String(currentDate.getMonth()+1).padStart(2,'0')}-${String(currentDate.getDate()).padStart(2,'0')}`;
+            modal.style.display = 'block';
+        };
+        window.closeEditDateModal = () => document.getElementById('edit-date-modal').style.display = 'none';
+        async function saveEditedDate() {
+            if (!checkOnline('Edit tanggal')) return;
+            if (!currentEditKey) return;
+            const newDateStr = document.getElementById('newRecapDateInput').value;
+            if (!newDateStr) { showNotification('Pilih tanggal'); return; }
+            const newTimestamp = new Date(newDateStr).setHours(12, 0, 0, 0);
+            if (isNaN(newTimestamp)) { showNotification('Tanggal tidak valid'); return; }
+            if (newTimestamp.toString() === currentEditKey) { showNotification('Tanggal sama'); closeEditDateModal(); return; }
+            const checkSnap = await get(ref(db, 'history_recaps/' + newTimestamp));
+            if (checkSnap.exists()) { showNotification('❌ Tanggal sudah ada rekap'); return; }
+            try {
+                const oldSnap = await get(ref(db, 'history_recaps/' + currentEditKey));
+                if (!oldSnap.exists()) { showNotification('Data tidak ditemukan'); closeEditDateModal(); return; }
+                await set(ref(db, 'history_recaps/' + newTimestamp), oldSnap.val());
+                await remove(ref(db, 'history_recaps/' + currentEditKey));
+                showNotification(`✅ Tanggal diubah menjadi ${newDateStr}`);
+                closeEditDateModal();
+            } catch (e) { showNotification('Gagal: ' + e.message); }
+        }
+        window.onclick = (e) => {
+            if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+        };
+        document.getElementById('modalSearchBtn')?.addEventListener('click', async () => {
+            if (!checkOnline('Pencarian')) return;
+            const term = document.getElementById('searchInputField').value.trim();
+            if (!term) return;
+            const res = await searchByNoLayanan(term);
+            lastSearchResults = res;
+            const tbody = document.getElementById('search-result-body');
+            const summaryDiv = document.getElementById('searchResultSummary');
+            if (!res.length) {
+                tbody.innerHTML = '<tr><td colspan="11">Tidak ditemukan</td></tr>';
+                summaryDiv.innerHTML = '0 tiket';
+                return;
+            }
+            summaryDiv.innerHTML = `✅ Ditemukan ${res.length} tiket`;
+            tbody.innerHTML = res.map(r => {
+                let kategoriClass = '';
+                if (r.kategori === 'PSB') kategoriClass = 'psb-cell';
+                else if (r.kategori === 'KUNJUNGAN') kategoriClass = 'kunj-cell';
+                else if (r.kategori === 'ISOLIR') kategoriClass = 'isolir-cell';
+                return `<tr>
+                    <td>${escapeHtml(r.rekapDate)}</td>
+                    <td>${r.no}</td>
+                    <td><strong>${escapeHtml(r.noLayanan)}</strong></td>
+                    <td>${escapeHtml(r.namaPelanggan)}</td>
+                    <td>${escapeHtml(r.tiket)}</td>
+                    <td class="${kategoriClass}"><strong>${escapeHtml(r.kategori)}</strong></td>
+                    <td><span class="badge-status ${r.statusPengerjaan==='Selesai'?'status-selesai':'status-gagal'}">${escapeHtml(r.statusPengerjaan)}</span></td>
+                    <td>${escapeHtml(r.namaTeknisi)}</td>
+                    <td>${escapeHtml(r.alamatLengkap)}</td>
+                    <td><strong>${escapeHtml(r.kodePos)}</strong></td>
+                    <td>${escapeHtml(r.catatan)}</td>
+                </tr>`;
+            }).join('');
+        });
+        document.getElementById('resetSearchModalBtn')?.addEventListener('click', () => {
+            document.getElementById('searchInputField').value = '';
+            document.getElementById('search-result-body').innerHTML = '<tr><td colspan="11">Masukkan No Layanan</td></tr>';
+            document.getElementById('searchResultSummary').innerHTML = '';
+            lastSearchResults = [];
+        });
+        document.getElementById('confirmEditDateBtn')?.addEventListener('click', saveEditedDate);
+        loadHistoryList();
+    </script>
+</body>
+</html>
