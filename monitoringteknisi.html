@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Monitoring Teknisi Sinyalku - Inventory Pro V7.4 (OLT Select)</title>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js">
-    </script>
-
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -1330,7 +1328,7 @@
             <div style="overflow-x: auto;">
                 <table class="table-stock">
                     <thead>
-                        <tr><th>No</th><th>Nama Teknisi</th><th>Kode SN</th><th>Kategori</th><th>Catatan</th><th>Aksi</th></tr>
+                        <tr><th>No</th><th>Nama Teknisi</th><th>Kode SN</th><th>Kategori</th><th>Status</th><th>Catatan</th><th>Aksi</th></tr>
                     </thead>
                     <tbody id="nonIkrTableBody"></tbody>
                 </table>
@@ -1398,8 +1396,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, update, onValue, get, onDisconnect } from
-            "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, update, onValue, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBl7LE5qeMSjsh9lvl_G7OcmwBPSiUQfD8",
@@ -1461,6 +1458,13 @@
         function showSyncNotification(message, type = 'saving', autoClose = true, duration = 3000) {
             const container = document.getElementById('sync-notification-container');
             if (syncNotificationTimeout) clearTimeout(syncNotificationTimeout);
+            
+            // For success notifications, remove any existing success notification to keep only one
+            if (type === 'success') {
+                const existingSuccess = container.querySelectorAll('.sync-notification.success');
+                existingSuccess.forEach(el => el.remove());
+            }
+            
             const notification = document.createElement('div');
             notification.className = `sync-notification ${type}`;
             notification.id = `sync-notification-${Date.now()}`;
@@ -1472,8 +1476,9 @@
             notification.innerHTML =
                 `<span class="sync-icon">${icon}</span><span class="sync-message">${message}</span><button class="sync-close" onclick="closeSyncNotification('${notification.id}')">×</button>`;
             container.appendChild(notification);
+            
             let finalDuration = duration;
-            if (type === 'success') finalDuration = 1000;
+            if (type === 'success') finalDuration = 1000; // 1 detik untuk notif berhasil
             if (autoClose && type !== 'saving') {
                 syncNotificationTimeout = setTimeout(() => { closeSyncNotification(notification.id); },
                 finalDuration);
@@ -1492,15 +1497,11 @@
             const el = document.getElementById('connection-status');
             let sc = 'connecting',
                 txt = message;
-            if (status === 'connected') { sc = 'connected'; if (!message) txt =
-                '✅ Terhubung Online (Data Tersimpan)'; } else if (status === 'disconnected') { sc = 'disconnected'; if (
-                !message) txt = '❌ Terputus dari Server'; } else if (status === 'connecting') { sc = 'connecting'; if (
-                !message) txt = '🔄 Menghubungkan...'; }
+            if (status === 'connected') { sc = 'connected'; if (!message) txt = '✅ Terhubung Online (Data Tersimpan)'; } else if (status === 'disconnected') { sc = 'disconnected'; if (!message) txt = '❌ Terputus dari Server'; } else if (status === 'connecting') { sc = 'connecting'; if (!message) txt = '🔄 Menghubungkan...'; }
             el.innerHTML = `<span class="connection-status ${sc}"><span class="status-dot"></span> ${txt}</span>`;
             isFirebaseConnected = (status === 'connected');
             isOnline = navigator.onLine;
-            if (status === 'disconnected' && appMode !== 'landing') showSyncNotification(
-                'Koneksi terputus. Perubahan disimpan lokal.', 'warning', true, 5000);
+            if (status === 'disconnected' && appMode !== 'landing') showSyncNotification('Koneksi terputus. Perubahan disimpan lokal.', 'warning', true, 5000);
             if (status === 'connected' && pendingSyncOperations.length > 0) {
                 showSyncNotification('Koneksi pulih. Menyinkronkan data...', 'saving');
                 setTimeout(() => retryPendingSyncOperations(), 1000);
@@ -1518,10 +1519,8 @@
                 } catch (error) { console.error(`Gagal sinkron operasi ${index}:`, error); }
             });
             pendingSyncOperations = pendingSyncOperations.filter((_, index) => !successfulOps.includes(index));
-            if (successfulOps.length > 0) showSyncNotification(`Berhasil sinkron ${successfulOps.length} operasi`,
-                'success');
-            if (pendingSyncOperations.length > 0) showSyncNotification(
-                `Masih ada ${pendingSyncOperations.length} operasi tertunda`, 'warning');
+            if (successfulOps.length > 0) showSyncNotification(`Berhasil sinkron ${successfulOps.length} operasi`, 'success');
+            if (pendingSyncOperations.length > 0) showSyncNotification(`Masih ada ${pendingSyncOperations.length} operasi tertunda`, 'warning');
         }
 
         function addPendingSyncOperation(type) {
@@ -1537,8 +1536,7 @@
                     pendingSyncOperations = JSON.parse(saved);
                     const oneHourAgo = Date.now() - (60 * 60 * 1000);
                     pendingSyncOperations = pendingSyncOperations.filter(op => op.timestamp > oneHourAgo);
-                    if (pendingSyncOperations.length > 0 && isFirebaseConnected) setTimeout(() =>
-                        retryPendingSyncOperations(), 2000);
+                    if (pendingSyncOperations.length > 0 && isFirebaseConnected) setTimeout(() => retryPendingSyncOperations(), 2000);
                 }
             } catch (e) {}
         }
@@ -1555,8 +1553,7 @@
                 showSyncNotification('Gagal sinkron data tim! Disimpan lokal.', 'error');
                 closeSyncNotification(nid);
                 addPendingSyncOperation('teams');
-                try { localStorage.setItem('teams_backup', JSON.stringify({ data: teams, timestamp: Date
-                        .now() })); } catch (e) {}
+                try { localStorage.setItem('teams_backup', JSON.stringify({ data: teams, timestamp: Date.now() })); } catch (e) {}
             });
         }
 
@@ -1565,9 +1562,7 @@
         function loadBackupData() {
             try {
                 const tb = localStorage.getItem('teams_backup');
-                if (tb) { const b = JSON.parse(tb); if (Date.now() - b.timestamp < 24 * 60 * 60 * 1000) { teams = b
-                        .data; if (appMode !== 'landing') showSyncNotification(
-                        'Data lokal dimuat dari backup', 'warning'); } }
+                if (tb) { const b = JSON.parse(tb); if (Date.now() - b.timestamp < 24 * 60 * 60 * 1000) { teams = b.data; if (appMode !== 'landing') showSyncNotification('Data lokal dimuat dari backup', 'warning'); } }
             } catch (e) {}
         }
 
@@ -1624,11 +1619,9 @@
             updateConnectionStatus('connecting', 'Menghubungkan ke Firebase...');
             loadBackupData();
             loadPendingSyncOperations();
-            window.addEventListener('online', () => { updateConnectionStatus('connecting',
-                    'Koneksi pulih, menyinkronkan...');
+            window.addEventListener('online', () => { updateConnectionStatus('connecting', 'Koneksi pulih, menyinkronkan...');
                 setTimeout(() => { if (isFirebaseConnected) updateConnectionStatus('connected'); }, 1000); });
-            window.addEventListener('offline', () => { updateConnectionStatus('disconnected',
-                    'Koneksi internet terputus');
+            window.addEventListener('offline', () => { updateConnectionStatus('disconnected', 'Koneksi internet terputus');
                 showSyncNotification('Anda sedang offline. Perubahan akan disimpan lokal.', 'warning', true, 5000); });
             const connectedRef = ref(db, ".info/connected");
             onValue(connectedRef, (snap) => {
@@ -1642,10 +1635,8 @@
                             teams = data;
                             teams.forEach(t => {
                                 if (!t.inventory) t.inventory = [];
-                                t.inventory = t.inventory.map(item => { if (!item.status) item
-                                        .status = 'pending'; return item; });
-                                if (t.jobs) t.jobs.forEach(job => { if (job.oltType === undefined) job
-                                        .oltType = 'unknown'; });
+                                t.inventory = t.inventory.map(item => { if (!item.status) item.status = 'pending'; return item; });
+                                if (t.jobs) t.jobs.forEach(job => { if (job.oltType === undefined) job.oltType = 'unknown'; });
                             });
                         } else { teams = JSON.parse(JSON.stringify(defaultTeams)); }
                         renderLandingTeams();
@@ -1654,9 +1645,7 @@
                     });
                     onValue(nonIkrRef, (snap) => {
                         if (snap.val()) { nonIkrRetrievals = snap.val(); } else { nonIkrRetrievals = []; }
-                        if (document.getElementById('modalNonIkrList').style.display === 'block') {
-                            renderNonIkrList();
-                        }
+                        if (document.getElementById('modalNonIkrList').style.display === 'block') { renderNonIkrList(); }
                     });
                 } else {
                     isFirebaseConnected = false;
@@ -1671,20 +1660,16 @@
                 renderLandingTeams(); });
         }
 
-        function getPendingInventory(teamIndex) { const team = teams[teamIndex]; if (!team || !team.inventory) return []; return team
-                .inventory.filter(item => item.status === 'pending'); }
+        function getPendingInventory(teamIndex) { const team = teams[teamIndex]; if (!team || !team.inventory) return []; return team.inventory.filter(item => item.status === 'pending'); }
 
-        function checkForDuplicateModems(teamIndex) { const team = teams[teamIndex]; if (!team || !team.inventory) return false;
-            const seen = new Set(); for (const item of team.inventory) { if (seen.has(item.sn)) return true;
-                seen.add(item.sn); } return false; }
+        function checkForDuplicateModems(teamIndex) { const team = teams[teamIndex]; if (!team || !team.inventory) return false; const seen = new Set(); for (const item of team.inventory) { if (seen.has(item.sn)) return true; seen.add(item.sn); } return false; }
 
         function calculateGlobalStats() {
             let psb = 0,
                 mt = 0,
                 isolir = 0;
             teams.forEach(team => { if (!team.jobs) return;
-                team.jobs.forEach(job => { const tag = job.tag.toUpperCase(); if (tag.includes('PSB')) psb++; else if (
-                        tag.includes('ISOLIR')) isolir++; else mt++; }); });
+                team.jobs.forEach(job => { const tag = job.tag.toUpperCase(); if (tag.includes('PSB')) psb++; else if (tag.includes('ISOLIR')) isolir++; else mt++; }); });
             return { psb, mt, isolir };
         }
 
@@ -1702,9 +1687,7 @@
             const job = teams[teamIdx].jobs[jobIdx];
             const currentName = job.name || '';
             const newName = prompt("✏️ Edit Nama Pelanggan / Tiket:", currentName);
-            if (newName !== null && newName.trim() !== '') { job.name = newName.trim();
-                saveDataToFirebase();
-                renderJobs(); } else if (newName !== null && newName.trim() === '') { alert("Nama tidak boleh kosong!"); }
+            if (newName !== null && newName.trim() !== '') { job.name = newName.trim(); saveDataToFirebase(); renderJobs(); } else if (newName !== null && newName.trim() === '') { alert("Nama tidak boleh kosong!"); }
         };
 
         window.editJobAddress = function(teamIdx, jobIdx) {
@@ -1712,10 +1695,7 @@
             const job = teams[teamIdx].jobs[jobIdx];
             const currentAddress = job.address || '';
             const newAddress = prompt("✏️ Edit Alamat Lengkap:", currentAddress);
-            if (newAddress !== null && newAddress.trim() !== '') { job.address = newAddress.trim();
-                saveDataToFirebase();
-                renderJobs(); } else if (newAddress !== null && newAddress.trim() === '') { alert(
-                "Alamat tidak boleh kosong!"); }
+            if (newAddress !== null && newAddress.trim() !== '') { job.address = newAddress.trim(); saveDataToFirebase(); renderJobs(); } else if (newAddress !== null && newAddress.trim() === '') { alert("Alamat tidak boleh kosong!"); }
         };
 
         window.updateJobOltType = function(teamIdx, jobIdx, value) {
@@ -1728,8 +1708,7 @@
             const container = document.getElementById('teams-container');
             container.innerHTML = '';
             if (!Array.isArray(teams)) teams = [];
-            teams.sort((a, b) => { const getNum = (str) => { const m = str.match(/Tim\s+(\d+)/i); return m ? parseInt(m[
-                    1]) : 99999; }; return getNum(a.teamName) - getNum(b.teamName); });
+            teams.sort((a, b) => { const getNum = (str) => { const m = str.match(/Tim\s+(\d+)/i); return m ? parseInt(m[1]) : 99999; }; return getNum(a.teamName) - getNum(b.teamName); });
             let visibleTeamsCount = 0;
             teams.forEach((team, tIndex) => {
                 if (appMode === 'tech' && tIndex !== selectedTechIndex) return;
@@ -1746,16 +1725,13 @@
                     `<div class="team-header ${team.colorClass}"><div style="display:flex; flex-direction:column; align-items:flex-start;"><span>${team.teamName}</span><span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok Pending: ${stockCount} pcs</span></div><div style="display:flex; align-items:center; gap:5px;"><button class="btn-copy-team" onclick="copyTeamSummary(${tIndex}, this)">📑 Rekap</button><button class="btn-view-stock" onclick="openStockListModal(${tIndex})">MODEM</button><span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">0/0</span></div></div><div class="progress-container"><div class="progress-bar" id="progress-${team.id}"></div></div><ul class="job-list" id="list-${team.id}"></ul>`;
                 container.appendChild(teamDiv);
                 const listContainer = document.getElementById(`list-${team.id}`);
-                let modemOptions =
-                    `<option value="">-- Pilih Modem dari Stok (${team.inventory.length}) --</option>`;
+                let modemOptions = `<option value="">-- Pilih Modem dari Stok (${team.inventory.length}) --</option>`;
                 team.inventory.forEach(inv => {
                     const cat = getModemCategory(inv.sn);
                     if (inv.status === 'pending') {
-                        modemOptions +=
-                            `<option value="${inv.sn}|${inv.mac}">📦 ${inv.sn} (${cat})</option>`;
+                        modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${inv.sn} (${cat})</option>`;
                     } else {
-                        modemOptions +=
-                            `<option value="${inv.sn}|${inv.mac}" disabled style="text-decoration: line-through; color: #dc3545;">📦 ${inv.sn} (${cat}) - Terpasang</option>`;
+                        modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="text-decoration: line-through; color: #dc3545;">📦 ${inv.sn} (${cat}) - Terpasang</option>`;
                     }
                 });
                 team.jobs.forEach((job, index) => {
@@ -1770,63 +1746,44 @@
                     const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none";
                     let detailHTML = '';
                     if (isPSB) {
-                        detailHTML +=
-                            `<div class="detail-item"><span class="detail-label">Paket</span>${renderEditableValue(tIndex, index, 'package', job.details['Paket'] || '-')}</div><div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(tIndex, index, 'time', job.time || 'FLEXIBEL')}</div><div class="detail-item"><span class="detail-label">No Layanan (Nolay)</span>${renderEditableValue(tIndex, index, 'serviceNumber', job.details['No Layanan'] || job.details['Layanan'] || '-')}</div>`;
-                        detailHTML +=
-                            `<div class="detail-item"><span class="detail-label">Tipe OLT</span><span class="detail-value"><select class="olt-select" onchange="updateJobOltType(${tIndex}, ${index}, this.value)" ${appMode === 'tech' && selectedTechIndex !== tIndex ? 'disabled' : ''}><option value="unknown" ${job.oltType === 'unknown' ? 'selected' : ''}>BELUM DIKETAHUI</option><option value="zt" ${job.oltType === 'zt' ? 'selected' : ''}>GPON ZTE</option><option value="hsgq" ${job.oltType === 'hsgq' ? 'selected' : ''}>GPON HSGQ</option><option value="epon" ${job.oltType === 'epon' ? 'selected' : ''}>EPON</option></select></span></div>`;
+                        detailHTML += `<div class="detail-item"><span class="detail-label">Paket</span>${renderEditableValue(tIndex, index, 'package', job.details['Paket'] || '-')}</div><div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(tIndex, index, 'time', job.time || 'FLEXIBEL')}</div><div class="detail-item"><span class="detail-label">No Layanan (Nolay)</span>${renderEditableValue(tIndex, index, 'serviceNumber', job.details['No Layanan'] || job.details['Layanan'] || '-')}</div>`;
+                        detailHTML += `<div class="detail-item"><span class="detail-label">Tipe OLT</span><span class="detail-value"><select class="olt-select" onchange="updateJobOltType(${tIndex}, ${index}, this.value)" ${appMode === 'tech' && selectedTechIndex !== tIndex ? 'disabled' : ''}><option value="unknown" ${job.oltType === 'unknown' ? 'selected' : ''}>BELUM DIKETAHUI</option><option value="zt" ${job.oltType === 'zt' ? 'selected' : ''}>GPON ZTE</option><option value="hsgq" ${job.oltType === 'hsgq' ? 'selected' : ''}>GPON HSGQ</option><option value="epon" ${job.oltType === 'epon' ? 'selected' : ''}>EPON</option></select></span></div>`;
                     } else {
-                        detailHTML +=
-                            `<div class="detail-item"><span class="detail-label">Kunjungan</span>${renderEditableValue(tIndex, index, 'Kunjungan', job.tag)}</div><div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(tIndex, index, 'time', job.time || 'FLEXIBEL')}</div><div class="detail-item"><span class="detail-label">Layanan</span>${renderEditableValue(tIndex, index, 'layanan', job.details['Layanan'] || '-')}</div>`;
+                        detailHTML += `<div class="detail-item"><span class="detail-label">Kunjungan</span>${renderEditableValue(tIndex, index, 'Kunjungan', job.tag)}</div><div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(tIndex, index, 'time', job.time || 'FLEXIBEL')}</div><div class="detail-item"><span class="detail-label">Layanan</span>${renderEditableValue(tIndex, index, 'layanan', job.details['Layanan'] || '-')}</div>`;
                     }
-                    const hiddenFields = ["User PPPOE_RADIUS", "Pemakaian Bulan Ini (GB)", "ODC", "ODP",
-                        "Port ODP", "OLT SN/MAC", "Last DBM", "Last DBM Time", "Nama WiFi (SSID)",
-                        "Sandi WiFi", "Keterangan"
-                    ];
-                    for (const [key, value] of Object.entries(job.details)) { if ((isPSB && ['Paket',
-                                'No Layanan', 'Layanan'
-                            ].includes(key)) || (!isPSB && ['Layanan'].includes(key))) continue;
-                        const valStr = (value || "").toString().trim(); if (hiddenFields.includes(key) && (
-                            valStr === "" || valStr === "-")) continue;
-                        detailHTML +=
-                            `<div class="detail-item"><span class="detail-label">${key}</span><span class="detail-value">${escapeHtml(valStr)}</span></div>`; }
+                    const hiddenFields = ["User PPPOE_RADIUS", "Pemakaian Bulan Ini (GB)", "ODC", "ODP", "Port ODP", "OLT SN/MAC", "Last DBM", "Last DBM Time", "Nama WiFi (SSID)", "Sandi WiFi", "Keterangan"];
+                    for (const [key, value] of Object.entries(job.details)) { if ((isPSB && ['Paket', 'No Layanan', 'Layanan'].includes(key)) || (!isPSB && ['Layanan'].includes(key))) continue;
+                        const valStr = (value || "").toString().trim(); if (hiddenFields.includes(key) && (valStr === "" || valStr === "-")) continue;
+                        detailHTML += `<div class="detail-item"><span class="detail-label">${key}</span><span class="detail-value">${escapeHtml(valStr)}</span></div>`; }
                     let formHTML = '';
                     const hasSn = tech.sn && tech.sn.trim() !== "";
                     if (isPSB) {
-                        formHTML =
-                            `<div class="manual-input-section"><h4 style="margin:0 0 10px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4><div style="margin:10px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})" style="flex:1;">${modemOptions}</select><button class="btn-back-modem" id="btn-back-${tIndex}-${index}" data-team="${tIndex}" data-job="${index}" onclick="resetModemData(${tIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button></div><div class="input-grid"><div class="input-group"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${tIndex}-${index}" class="realtime-input" data-key="kabel" data-team="${tIndex}" data-job="${index}" value="${tech.kabel || ''}" placeholder="150m"></div><div class="input-group"><label>Port</label><input type="text" id="port-${tIndex}-${index}" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div><div class="input-group"><label>Id ODP</label><input type="text" id="odp-${tIndex}-${index}" class="realtime-input" data-key="odp" data-team="${tIndex}" data-job="${index}" value="${tech.odp || ''}" placeholder="ODP-.."></div><div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${tIndex}-${index}" class="realtime-input" data-key="redaman" data-team="${tIndex}" data-job="${index}" value="${tech.redaman || ''}" placeholder="-18 dBm"></div><div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..." ${appMode === 'tech' ? 'readonly' : ''}></div></div></div>`;
+                        formHTML = `<div class="manual-input-section"><h4 style="margin:0 0 10px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4><div style="margin:10px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})" style="flex:1;">${modemOptions}</select><button class="btn-back-modem" id="btn-back-${tIndex}-${index}" data-team="${tIndex}" data-job="${index}" onclick="resetModemData(${tIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button></div><div class="input-grid"><div class="input-group"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${tIndex}-${index}" class="realtime-input" data-key="kabel" data-team="${tIndex}" data-job="${index}" value="${tech.kabel || ''}" placeholder="150m"></div><div class="input-group"><label>Port</label><input type="text" id="port-${tIndex}-${index}" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div><div class="input-group"><label>Id ODP</label><input type="text" id="odp-${tIndex}-${index}" class="realtime-input" data-key="odp" data-team="${tIndex}" data-job="${index}" value="${tech.odp || ''}" placeholder="ODP-.."></div><div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${tIndex}-${index}" class="realtime-input" data-key="redaman" data-team="${tIndex}" data-job="${index}" value="${tech.redaman || ''}" placeholder="-18 dBm"></div><div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..." ${appMode === 'tech' ? 'readonly' : ''}></div></div></div>`;
                     } else {
                         const replaceStatus = job.replaceModem || 'no';
                         const displayMtTech = replaceStatus === 'yes' ? 'block' : 'none';
-                        formHTML =
-                            `<div class="manual-input-section"><div style="margin:10px 0;"><label style="font-weight:bold; color:#d35400;">🔧 Opsi Perangkat:</label><select style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-weight:bold;" onchange="toggleMtModemInput(${tIndex}, ${index}, this.value)"><option value="no" ${replaceStatus === 'no' ? 'selected' : ''}>❌ Tidak Ganti Modem</option><option value="yes" ${replaceStatus === 'yes' ? 'selected' : ''}>✅ Ganti Modem Baru</option></select></div><div id="mt-tech-${tIndex}-${index}" style="display: ${displayMtTech}; border-top:1px dashed #ccc; padding-top:10px;"><div style="margin:10px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})" style="flex:1;">${modemOptions}</select><button class="btn-back-modem" id="btn-back-${tIndex}-${index}" data-team="${tIndex}" data-job="${index}" onclick="resetModemData(${tIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button></div><div class="input-grid"><div class="input-group" style="grid-column: 1/-1;"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div><div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..." ${appMode === 'tech' ? 'readonly' : ''}></div></div></div></div>`;
+                        formHTML = `<div class="manual-input-section"><div style="margin:10px 0;"><label style="font-weight:bold; color:#d35400;">🔧 Opsi Perangkat:</label><select style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-weight:bold;" onchange="toggleMtModemInput(${tIndex}, ${index}, this.value)"><option value="no" ${replaceStatus === 'no' ? 'selected' : ''}>❌ Tidak Ganti Modem</option><option value="yes" ${replaceStatus === 'yes' ? 'selected' : ''}>✅ Ganti Modem Baru</option></select></div><div id="mt-tech-${tIndex}-${index}" style="display: ${displayMtTech}; border-top:1px dashed #ccc; padding-top:10px;"><div style="margin:10px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})" style="flex:1;">${modemOptions}</select><button class="btn-back-modem" id="btn-back-${tIndex}-${index}" data-team="${tIndex}" data-job="${index}" onclick="resetModemData(${tIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button></div><div class="input-grid"><div class="input-group" style="grid-column: 1/-1;"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div><div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..." ${appMode === 'tech' ? 'readonly' : ''}></div></div></div></div>`;
                     }
                     const layID = job.details['No Layanan'] || job.details['Layanan'] || '';
-                    const failureNote = job.failureNote ?
-                        `<div class="fail-reason-box">⛔ ${escapeHtml(job.failureNote)}</div>` : '';
-                    const successNote = (job.status === 'completed' && job.completionNote) ?
-                        `<div class="success-note-box">📝 ${escapeHtml(job.completionNote)}</div>` : '';
+                    const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${escapeHtml(job.failureNote)}</div>` : '';
+                    const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${escapeHtml(job.completionNote)}</div>` : '';
                     let delButton = '';
-                    if (appMode === 'admin') delButton =
-                        `<button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>`;
+                    if (appMode === 'admin') delButton = `<button class="btn-delete" onclick="deleteTicket(${tIndex}, ${index})">❌ Hapus</button>`;
                     let nameEditIcon = '';
                     if (appMode === 'admin') {
-                        nameEditIcon =
-                            `<button class="edit-name-icon" onclick="editTicketName(${tIndex}, ${index})" title="Edit Nama Tiket">✏️</button>`;
+                        nameEditIcon = `<button class="edit-name-icon" onclick="editTicketName(${tIndex}, ${index})" title="Edit Nama Tiket">✏️</button>`;
                     }
                     let scButton = '';
                     if (job.linkSC) {
                         if (appMode === 'admin') {
-                            scButton =
-                                `<div class="sc-dropdown"><button class="btn-sc">📊 SC</button><div class="sc-dropdown-content"><div class="sc-dropdown-item open" onclick="window.open('${job.linkSC}', '_blank')">🔗 Buka Link</div><div class="sc-dropdown-item edit" onclick="editLinkSC(${tIndex}, ${index})">✏️ Edit Link</div></div></div>`;
+                            scButton = `<div class="sc-dropdown"><button class="btn-sc">📊 SC</button><div class="sc-dropdown-content"><div class="sc-dropdown-item open" onclick="window.open('${job.linkSC}', '_blank')">🔗 Buka Link</div><div class="sc-dropdown-item edit" onclick="editLinkSC(${tIndex}, ${index})">✏️ Edit Link</div></div></div>`;
                         } else {
-                            scButton =
-                                `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')" title="Buka Link Speedtest">📊 SC</button>`;
+                            scButton = `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')" title="Buka Link Speedtest">📊 SC</button>`;
                         }
                     }
                     let addressHtml = `<p>📍 ${escapeHtml(job.address)}`;
                     if (appMode === 'admin') {
-                        addressHtml +=
-                            `<button class="edit-name-icon" onclick="editJobAddress(${tIndex}, ${index})" title="Edit Alamat">✏️</button>`;
+                        addressHtml += `<button class="edit-name-icon" onclick="editJobAddress(${tIndex}, ${index})" title="Edit Alamat">✏️</button>`;
                     }
                     addressHtml += `</p>`;
                     li.innerHTML =
@@ -1837,11 +1794,9 @@
                         input.addEventListener('change', (e) => {
                             const key = e.target.getAttribute('data-key');
                             if (key) {
-                                if (key === 'linkSC') teams[tIndex].jobs[index][key] = e.target
-                                    .value;
+                                if (key === 'linkSC') teams[tIndex].jobs[index][key] = e.target.value;
                                 else {
-                                    if (!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[
-                                        index].technical = {};
+                                    if (!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {};
                                     teams[tIndex].jobs[index].technical[key] = e.target.value;
                                 }
                                 saveDataToFirebase();
@@ -1851,96 +1806,30 @@
                 });
                 updateProgressUI(team.id, team.jobs);
             });
-            if (visibleTeamsCount === 0) container.innerHTML =
-                '<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif.<br>Silakan buat tiket baru untuk memunculkan Tim.</div>';
+            if (visibleTeamsCount === 0) container.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif.<br>Silakan buat tiket baru untuk memunculkan Tim.</div>';
             updateGlobalStatsDisplay();
         }
 
-        function timeToMinutes(timeStr) { if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999; const lower =
-                timeStr.toLowerCase(); if (lower.includes("pagi")) return 480; if (lower.includes("siang")) return 780; if (
-                lower.includes("sore")) return 960; if (lower.includes("malam")) return 1140; const match = timeStr.match(
-                /(\d{1,2})[:.]?(\d{2})?/); if (match) { let hour = parseInt(match[1]); const minute = match[2] ? parseInt(
-                    match[2]) : 0; if (hour === 12 && lower.includes('siang')) hour = 12; else if (hour === 12 && lower
-                .includes('malam')) hour = 0; else if (hour < 12 && lower.includes('sore')) hour += 12; else if (hour < 12 &&
-                lower.includes('malam')) hour += 12; else if (hour < 5 && lower.includes('siang')) hour += 12; return hour *
-                60 + minute; } return 99999; }
+        function timeToMinutes(timeStr) { if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999; const lower = timeStr.toLowerCase(); if (lower.includes("pagi")) return 480; if (lower.includes("siang")) return 780; if (lower.includes("sore")) return 960; if (lower.includes("malam")) return 1140; const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/); if (match) { let hour = parseInt(match[1]); const minute = match[2] ? parseInt(match[2]) : 0; if (hour === 12 && lower.includes('siang')) hour = 12; else if (hour === 12 && lower.includes('malam')) hour = 0; else if (hour < 12 && lower.includes('sore')) hour += 12; else if (hour < 12 && lower.includes('malam')) hour += 12; else if (hour < 5 && lower.includes('siang')) hour += 12; return hour * 60 + minute; } return 99999; }
 
-        function updateProgressUI(teamId, jobs) { const total = jobs.length; const completed = jobs.filter(j => j.status ===
-                'completed' || j.completed === true).length; const percent = (total === 0) ? 0 : (completed / total) * 100;
-            const bar = document.getElementById(`progress-${teamId}`); const txt = document.getElementById(
-            `count-${teamId}`); if (bar) bar.style.width = percent + '%'; if (txt) txt.innerText =
-                `${completed}/${total} Selesai`; }
+        function updateProgressUI(teamId, jobs) { const total = jobs.length; const completed = jobs.filter(j => j.status === 'completed' || j.completed === true).length; const percent = (total === 0) ? 0 : (completed / total) * 100; const bar = document.getElementById(`progress-${teamId}`); const txt = document.getElementById(`count-${teamId}`); if (bar) bar.style.width = percent + '%'; if (txt) txt.innerText = `${completed}/${total} Selesai`; }
 
         function renderEditableValue(teamIdx, jobIdx, fieldType, value) { if (appMode === 'admin') return `<span class="detail-value">${escapeHtml(value)}<button class="edit-icon" onclick="editField(${teamIdx}, ${jobIdx}, '${fieldType}')" title="Edit">✏️</button></span>`; else return `<span class="detail-value">${escapeHtml(value)}</span>`; }
 
-        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return
-                '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }).replace(
-            /[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) { return c; }); }
-        window.editField = function(teamIdx, jobIdx, fieldType) { if (appMode !== 'admin') return; const job = teams[teamIdx]
-                .jobs[jobIdx]; let currentValue = '',
-                promptMessage = '', newValue = ''; if (fieldType === 'time') { currentValue = job.time || 'FLEXIBEL';
-                promptMessage = 'Edit Jadwal Kunjungan:'; } else if (fieldType === 'package') { currentValue = job.details[
-                    'Paket'] || '-';
-                promptMessage = 'Edit Paket Layanan:'; } else if (fieldType === 'serviceNumber') { currentValue = job.details[
-                    'No Layanan'] || job.details['Layanan'] || '-';
-                promptMessage = 'Edit No Layanan:'; } else if (fieldType === 'Kunjungan') { currentValue = job.tag;
-                promptMessage = 'Edit Kunjungan:'; } else if (fieldType === 'layanan') { currentValue = job.details[
-                    'Layanan'] || '-';
-                promptMessage = 'Edit Layanan:'; }
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) { return c; }); }
+        window.editField = function(teamIdx, jobIdx, fieldType) { if (appMode !== 'admin') return; const job = teams[teamIdx].jobs[jobIdx]; let currentValue = '', promptMessage = '', newValue = ''; if (fieldType === 'time') { currentValue = job.time || 'FLEXIBEL'; promptMessage = 'Edit Jadwal Kunjungan:'; } else if (fieldType === 'package') { currentValue = job.details['Paket'] || '-'; promptMessage = 'Edit Paket Layanan:'; } else if (fieldType === 'serviceNumber') { currentValue = job.details['No Layanan'] || job.details['Layanan'] || '-'; promptMessage = 'Edit No Layanan:'; } else if (fieldType === 'Kunjungan') { currentValue = job.tag; promptMessage = 'Edit Kunjungan:'; } else if (fieldType === 'layanan') { currentValue = job.details['Layanan'] || '-'; promptMessage = 'Edit Layanan:'; }
             newValue = prompt(promptMessage, currentValue); if (newValue === null) return;
             newValue = newValue.trim(); if (newValue === '') newValue = '-'; if (fieldType === 'time') job.time = newValue;
-            else if (fieldType === 'package') { job.details['Paket'] = newValue; if (job.tag.toUpperCase().includes('PSB')) job
-                    .tag = `PSB (${newValue})`; } else if (fieldType === 'serviceNumber') job.details['No Layanan'] =
-                newValue; else if (fieldType === 'Kunjungan') job.tag = newValue; else if (fieldType === 'layanan') job.details[
-                    'Layanan'] = newValue;
-            saveDataToFirebase();
-            renderJobs(); };
-        window.toggleJobStatus = function(tIndex, jobIndex, newStatus) { const job = teams[tIndex].jobs[jobIndex];
-            const oldStatus = job.status || (job.completed ? 'completed' : 'pending'); const isPSB = job.tag.toUpperCase()
-                .includes("PSB"); if (oldStatus === newStatus) { job.status = 'pending';
-                job.completed = false;
-                job.completedAt = null; if (oldStatus === 'failed') job.failureNote = null; if (oldStatus === 'completed') job
-                    .completionNote = null; } else { if (newStatus === 'completed') { if (isPSB) { let currentNo = job.details[
-                            'No Layanan'] || ""; if (!currentNo || currentNo.trim() === "") { let inputLayanan = prompt(
-                            "⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", ""); if (inputLayanan ===
-                            null) return;
-                        inputLayanan = inputLayanan.trim(); if (!/^\d+$/.test(inputLayanan)) { alert(
-                                "❌ Error: No Layanan harus format angka!"); return; }
-                        job.details['No Layanan'] = inputLayanan; } } else { let note = prompt(
-                            "✅ TIKET SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):", job.completionNote ||
-                            ""); if (note === null) return;
-                        job.completionNote = note; }
-                    job.status = 'completed';
-                    job.completed = true;
-                    job.completedAt = new Date().toLocaleString('id-ID');
-                    job.failureNote = null; } else if (newStatus === 'failed') { let note = prompt(
-                            "⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || ""); if (
-                            note === null) return; if (note.trim() === "") { alert("❌ Catatan Gagal wajib diisi!"); return; }
-                    job.status = 'failed';
-                    job.completed = false;
-                    job.completedAt = null;
-                    job.failureNote = note;
-                    job.completionNote = null; } }
-            saveDataToFirebase();
-            updateProgressUI(teams[tIndex].id, teams[tIndex].jobs);
-            renderJobs(); };
-        window.toggleDetails = function(id) { const el = document.getElementById(id); if (el.style.display === "block") { el.style
-                .display = "none";
-                openDetailIds.delete(id); } else { el.style.display = "block";
-                openDetailIds.add(id); } };
-        window.deleteTicket = function(teamIndex, jobIndex) { let pin = prompt("🔐 Masukkan PIN untuk menghapus tiket:"); if (
-                !checkPin(pin)) { alert("❌ PIN SALAH! Akses ditolak."); return; }
-            teams[teamIndex].jobs.splice(jobIndex, 1);
-            saveDataToFirebase(); };
-        window.editLinkSC = function(teamIndex, jobIndex) { const job = teams[teamIndex].jobs[jobIndex]; const currentLink = job
-                .linkSC || ''; const newLink = prompt('Edit Link SC (Speedtest):', currentLink); if (newLink !== null) { job
-                    .linkSC = newLink.trim();
-                saveDataToFirebase();
-                renderJobs(); } };
+            else if (fieldType === 'package') { job.details['Paket'] = newValue; if (job.tag.toUpperCase().includes('PSB')) job.tag = `PSB (${newValue})`; } else if (fieldType === 'serviceNumber') job.details['No Layanan'] = newValue; else if (fieldType === 'Kunjungan') job.tag = newValue; else if (fieldType === 'layanan') job.details['Layanan'] = newValue;
+            saveDataToFirebase(); renderJobs(); };
+        window.toggleJobStatus = function(tIndex, jobIndex, newStatus) { const job = teams[tIndex].jobs[jobIndex]; const oldStatus = job.status || (job.completed ? 'completed' : 'pending'); const isPSB = job.tag.toUpperCase().includes("PSB"); if (oldStatus === newStatus) { job.status = 'pending'; job.completed = false; job.completedAt = null; if (oldStatus === 'failed') job.failureNote = null; if (oldStatus === 'completed') job.completionNote = null; } else { if (newStatus === 'completed') { if (isPSB) { let currentNo = job.details['No Layanan'] || ""; if (!currentNo || currentNo.trim() === "") { let inputLayanan = prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", ""); if (inputLayanan === null) return; inputLayanan = inputLayanan.trim(); if (!/^\d+$/.test(inputLayanan)) { alert("❌ Error: No Layanan harus format angka!"); return; } job.details['No Layanan'] = inputLayanan; } } else { let note = prompt("✅ TIKET SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):", job.completionNote || ""); if (note === null) return; job.completionNote = note; }
+                    job.status = 'completed'; job.completed = true; job.completedAt = new Date().toLocaleString('id-ID'); job.failureNote = null; } else if (newStatus === 'failed') { let note = prompt("⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || ""); if (note === null) return; if (note.trim() === "") { alert("❌ Catatan Gagal wajib diisi!"); return; } job.status = 'failed'; job.completed = false; job.completedAt = null; job.failureNote = note; job.completionNote = null; } }
+            saveDataToFirebase(); updateProgressUI(teams[tIndex].id, teams[tIndex].jobs); renderJobs(); };
+        window.toggleDetails = function(id) { const el = document.getElementById(id); if (el.style.display === "block") { el.style.display = "none"; openDetailIds.delete(id); } else { el.style.display = "block"; openDetailIds.add(id); } };
+        window.deleteTicket = function(teamIndex, jobIndex) { let pin = prompt("🔐 Masukkan PIN untuk menghapus tiket:"); if (!checkPin(pin)) { alert("❌ PIN SALAH! Akses ditolak."); return; } teams[teamIndex].jobs.splice(jobIndex, 1); saveDataToFirebase(); };
+        window.editLinkSC = function(teamIndex, jobIndex) { const job = teams[teamIndex].jobs[jobIndex]; const currentLink = job.linkSC || ''; const newLink = prompt('Edit Link SC (Speedtest):', currentLink); if (newLink !== null) { job.linkSC = newLink.trim(); saveDataToFirebase(); renderJobs(); } };
 
-        function updateInventoryStatus(teamIdx, sn, newStatus) { const team = teams[teamIdx]; if (!team || !team.inventory)
-            return false; const item = team.inventory.find(inv => inv.sn === sn); if (item) { item.status = newStatus; return true; }
-            return false; }
+        function updateInventoryStatus(teamIdx, sn, newStatus) { const team = teams[teamIdx]; if (!team || !team.inventory) return false; const item = team.inventory.find(inv => inv.sn === sn); if (item) { item.status = newStatus; return true; } return false; }
 
         window.fillModemData = function(selectEl, teamIdx, jobIdx) {
             const val = selectEl.value;
@@ -1973,9 +1862,7 @@
             teams[teamIdx].jobs[jobIdx].technical['sn'] = sn;
             teams[teamIdx].jobs[jobIdx].technical['mac'] = mac;
             teams[teamIdx].jobs[jobIdx].technical['vlan'] = vlanMac;
-            if (updateInventoryStatus(teamIdx, sn, 'installed')) {
-                showSyncNotification(`Modem ${sn} ditandai Terpasang`, 'success');
-            }
+            if (updateInventoryStatus(teamIdx, sn, 'installed')) { showSyncNotification(`Modem ${sn} ditandai Terpasang`, 'success'); }
             saveDataToFirebase();
             const backBtn = document.getElementById(`btn-back-${teamIdx}-${jobIdx}`);
             if (backBtn) backBtn.disabled = false;
@@ -1987,22 +1874,12 @@
             const tech = job.technical || {};
             const sn = tech.sn;
             if (!sn) return;
-            if (updateInventoryStatus(teamIdx, sn, 'pending')) {
-                showSyncNotification(`Modem ${sn} dikembalikan ke stok (pending)`, 'success');
-            }
-            if (job.technical) {
-                job.technical.sn = '';
-                job.technical.mac = '';
-                job.technical.vlan = '';
-            }
-            saveDataToFirebase();
-            renderJobs();
+            if (updateInventoryStatus(teamIdx, sn, 'pending')) { showSyncNotification(`Modem ${sn} dikembalikan ke stok (pending)`, 'success'); }
+            if (job.technical) { job.technical.sn = ''; job.technical.mac = ''; job.technical.vlan = ''; }
+            saveDataToFirebase(); renderJobs();
         };
 
-        window.toggleMtModemInput = function(tIndex, jIndex, val) { teams[tIndex].jobs[jIndex].replaceModem = val; if (val ===
-                'no') { if (teams[tIndex].jobs[jIndex].technical) teams[tIndex].jobs[jIndex].technical = {}; }
-            saveDataToFirebase();
-            renderJobs(); };
+        window.toggleMtModemInput = function(tIndex, jIndex, val) { teams[tIndex].jobs[jIndex].replaceModem = val; if (val === 'no') { if (teams[tIndex].jobs[jIndex].technical) teams[tIndex].jobs[jIndex].technical = {}; } saveDataToFirebase(); renderJobs(); };
 
         window.openStockListModal = function(teamIndex) {
             const team = teams[teamIndex];
@@ -2016,16 +1893,11 @@
             const inventory = team.inventory || [];
             const pendingCount = inventory.filter(i => i.status === 'pending').length;
             const installedCount = inventory.filter(i => i.status === 'installed').length;
-            document.getElementById('stock-stats').innerHTML =
-                `<span>⏳ Pending: ${pendingCount}</span> <span style="text-decoration:line-through; color:#dc3545;">✅ Terpasang: ${installedCount}</span>`;
+            document.getElementById('stock-stats').innerHTML = `<span>⏳ Pending: ${pendingCount}</span> <span style="text-decoration:line-through; color:#dc3545;">✅ Terpasang: ${installedCount}</span>`;
             const hasDuplicates = checkForDuplicateModems(teamIndex);
             const isAdmin = (appMode === 'admin');
             const isTech = (appMode === 'tech');
-            if (hasDuplicates) { duplicateWarning.style.display = 'block';
-                cleanDuplicatesBtn.style.display = 'block';
-                cleanDuplicatesBtn.setAttribute('data-team-index', teamIndex); } else { duplicateWarning.style.display =
-                'none';
-                cleanDuplicatesBtn.style.display = 'none'; }
+            if (hasDuplicates) { duplicateWarning.style.display = 'block'; cleanDuplicatesBtn.style.display = 'block'; cleanDuplicatesBtn.setAttribute('data-team-index', teamIndex); } else { duplicateWarning.style.display = 'none'; cleanDuplicatesBtn.style.display = 'none'; }
             if (!inventory || inventory.length === 0) { emptyMsg.style.display = 'block'; } else {
                 emptyMsg.style.display = 'none';
                 inventory.forEach((item, idx) => {
@@ -2035,19 +1907,11 @@
                     const statusClass = item.status === 'pending' ? 'st-pending' : 'st-installed';
                     let actionBtns = '';
                     if (!isTech) {
-                        if (item.status === 'installed') {
-                            actionBtns +=
-                                `<button class="btn-icon-return" onclick="returnModemToPending(${teamIndex}, '${item.sn}')" title="Kembalikan ke Pending">↩️ Back</button>`;
-                        }
-                        actionBtns +=
-                            `<button class="btn-icon-oper" onclick="prepareOperModem(${teamIndex}, '${item.sn}')" title="Oper ke Tim Lain">🔄 Oper</button>`;
+                        if (item.status === 'installed') { actionBtns += `<button class="btn-icon-return" onclick="returnModemToPending(${teamIndex}, '${item.sn}')" title="Kembalikan ke Pending">↩️ Back</button>`; }
+                        actionBtns += `<button class="btn-icon-oper" onclick="prepareOperModem(${teamIndex}, '${item.sn}')" title="Oper ke Tim Lain">🔄 Oper</button>`;
                     }
-                    if (isAdmin) {
-                        actionBtns +=
-                            `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, '${item.sn}')">🗑️</button>`;
-                    }
-                    tr.innerHTML =
-                        `<td>${idx+1}</td><td>${item.sn}</td><td>${item.mac}</td><td>${category}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionBtns}</td>`;
+                    if (isAdmin) { actionBtns += `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, '${item.sn}')">🗑️</button>`; }
+                    tr.innerHTML = `<tr>${idx+1}</tr><td>${item.sn}</td><td>${item.mac}</td><td>${category}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionBtns}</td>`;
                     tbody.appendChild(tr);
                 });
             }
@@ -2056,53 +1920,69 @@
         };
         window.closeStockListModal = function() { document.getElementById('modalStockList').style.display = "none"; };
 
-        window.returnModemToPending = function(teamIdx, sn) { if (updateInventoryStatus(teamIdx, sn, 'pending')) {
-                saveDataToFirebase();
-                openStockListModal(teamIdx);
-                showSyncNotification(`Modem ${sn} dikembalikan ke Pending`, 'success'); } };
+        window.returnModemToPending = function(teamIdx, sn) { if (updateInventoryStatus(teamIdx, sn, 'pending')) { saveDataToFirebase(); openStockListModal(teamIdx); showSyncNotification(`Modem ${sn} dikembalikan ke Pending`, 'success'); } };
 
-        window.prepareOperModem = function(teamIdx, sn) { currentOperSN = sn;
-            currentOperTeamIndex = teamIdx; const select = document.getElementById('oper-target-team-select');
-            select.innerHTML = '';
+        window.prepareOperModem = function(teamIdx, sn) { currentOperSN = sn; currentOperTeamIndex = teamIdx; const select = document.getElementById('oper-target-team-select'); select.innerHTML = '';
+            const pendingOption = document.createElement('option');
+            pendingOption.value = 'non_ikr_pending';
+            pendingOption.textContent = '📋 Pending (Non IKR)';
+            select.appendChild(pendingOption);
             teams.forEach((t, i) => { if (i !== teamIdx) { select.add(new Option(t.teamName, i)); } });
             document.getElementById('oper-modem-panel').style.display = 'block'; };
-        window.executeOperModem = function() { const targetIdx = document.getElementById('oper-target-team-select').value; if (
-                targetIdx === '') { alert('Pilih tim tujuan'); return; }
-            const sourceTeam = teams[currentOperTeamIndex];
-            const targetTeam = teams[targetIdx];
-            const itemIndex = sourceTeam.inventory.findIndex(inv => inv.sn === currentOperSN); if (itemIndex === -1) { alert(
-                    'Modem tidak ditemukan'); return; }
-            const [item] = sourceTeam.inventory.splice(itemIndex, 1);
-            targetTeam.inventory.push(item);
-            saveDataToFirebase();
-            showSyncNotification(`Modem ${currentOperSN} dipindahkan ke ${targetTeam.teamName}`, 'success');
-            closeStockListModal();
-            currentOperSN = null; };
-        window.cancelOperModem = function() { document.getElementById('oper-modem-panel').style.display = 'none';
-            currentOperSN = null; };
-
-        window.deleteStock = function(teamIndex, sn) { if (appMode !== 'admin') return; let pin = prompt(
-                "🔒 Masukkan PIN untuk Hapus Stok Modem:"); if (!checkPin(pin)) { alert("❌ PIN SALAH! Akses ditolak."); return; }
-            const team = teams[teamIndex];
-            const initialLength = team.inventory.length;
-            team.inventory = team.inventory.filter(inv => inv.sn !== sn); if (initialLength !== team.inventory.length) {
+        window.executeOperModem = async function() {
+            const targetVal = document.getElementById('oper-target-team-select').value;
+            if (targetVal === '') { alert('Pilih tujuan'); return; }
+            if (targetVal === 'non_ikr_pending') {
+                const sourceTeam = teams[currentOperTeamIndex];
+                const itemIndex = sourceTeam.inventory.findIndex(inv => inv.sn === currentOperSN);
+                if (itemIndex === -1) { alert('Modem tidak ditemukan'); return; }
+                const [item] = sourceTeam.inventory.splice(itemIndex, 1);
+                let catatan = prompt("Masukkan catatan (opsional):", "Dipending dari " + sourceTeam.teamName);
+                if (catatan === null) {
+                    sourceTeam.inventory.push(item);
+                    saveDataToFirebase();
+                    cancelOperModem();
+                    return;
+                }
+                nonIkrRetrievals.push({
+                    teknisi: sourceTeam.teamName,
+                    sn: item.sn,
+                    mac: item.mac,
+                    catatan: catatan || "Dipending dari " + sourceTeam.teamName,
+                    status: 'pending',
+                    timestamp: new Date().toISOString()
+                });
+                await saveNonIkrToFirebase();
+                await saveDataToFirebase();
+                showSyncNotification(`Modem ${currentOperSN} dipindahkan ke daftar Non IKR Pending`, 'success');
+                closeStockListModal();
+                currentOperSN = null;
+                renderJobs();
+                if (document.getElementById('modalNonIkrList').style.display === 'block') renderNonIkrList();
+            } else {
+                const targetIdx = parseInt(targetVal);
+                if (isNaN(targetIdx)) { alert('Pilihan tidak valid'); return; }
+                const sourceTeam = teams[currentOperTeamIndex];
+                const targetTeam = teams[targetIdx];
+                const itemIndex = sourceTeam.inventory.findIndex(inv => inv.sn === currentOperSN);
+                if (itemIndex === -1) { alert('Modem tidak ditemukan'); return; }
+                const [item] = sourceTeam.inventory.splice(itemIndex, 1);
+                targetTeam.inventory.push(item);
                 saveDataToFirebase();
-                openStockListModal(teamIndex); } };
-        window.cleanDuplicateModems = function() { if (appMode !== 'admin') return; const teamIndex = document.getElementById(
-                'btn-clean-duplicates').getAttribute('data-team-index'); if (teamIndex === null) return; let pin = prompt(
-                "🔒 Masukkan PIN untuk membersihkan duplikat modem:"); if (!checkPin(pin)) { alert(
-                "❌ PIN SALAH! Akses ditolak."); return; }
-            const team = teams[teamIndex]; if (!team || !team.inventory) return; const seen = new Set();
-            const uniqueInventory = []; for (const item of team.inventory) { if (!seen.has(item.sn)) { seen.add(item.sn);
-                    uniqueInventory.push(item); } }
-            team.inventory = uniqueInventory;
-            saveDataToFirebase();
-            openStockListModal(parseInt(teamIndex)); };
+                showSyncNotification(`Modem ${currentOperSN} dipindahkan ke ${targetTeam.teamName}`, 'success');
+                closeStockListModal();
+                currentOperSN = null;
+                renderJobs();
+            }
+            cancelOperModem();
+        };
+        window.cancelOperModem = function() { document.getElementById('oper-modem-panel').style.display = 'none'; currentOperSN = null; };
 
-        window.openModemRecapOption = function() { document.getElementById('modalModemRecapOption').style.display =
-            'block'; };
-        window.closeModemRecapOption = function() { document.getElementById('modalModemRecapOption').style.display =
-            'none'; };
+        window.deleteStock = function(teamIndex, sn) { if (appMode !== 'admin') return; let pin = prompt("🔒 Masukkan PIN untuk Hapus Stok Modem:"); if (!checkPin(pin)) { alert("❌ PIN SALAH! Akses ditolak."); return; } const team = teams[teamIndex]; const initialLength = team.inventory.length; team.inventory = team.inventory.filter(inv => inv.sn !== sn); if (initialLength !== team.inventory.length) { saveDataToFirebase(); openStockListModal(teamIndex); } };
+        window.cleanDuplicateModems = function() { if (appMode !== 'admin') return; const teamIndex = document.getElementById('btn-clean-duplicates').getAttribute('data-team-index'); if (teamIndex === null) return; let pin = prompt("🔒 Masukkan PIN untuk membersihkan duplikat modem:"); if (!checkPin(pin)) { alert("❌ PIN SALAH! Akses ditolak."); return; } const team = teams[teamIndex]; if (!team || !team.inventory) return; const seen = new Set(); const uniqueInventory = []; for (const item of team.inventory) { if (!seen.has(item.sn)) { seen.add(item.sn); uniqueInventory.push(item); } } team.inventory = uniqueInventory; saveDataToFirebase(); openStockListModal(parseInt(teamIndex)); };
+
+        window.openModemRecapOption = function() { document.getElementById('modalModemRecapOption').style.display = 'block'; };
+        window.closeModemRecapOption = function() { document.getElementById('modalModemRecapOption').style.display = 'none'; };
 
         window.copyModemRecap = function(filter) {
             const today = new Date();
@@ -2119,638 +1999,132 @@
                 if (!team.inventory || team.inventory.length === 0) return;
                 let filtered = team.inventory;
                 if (filter === 'pending') filtered = team.inventory.filter(m => m.status === 'pending');
-                else if (filter === 'installed') filtered = team.inventory.filter(m => m.status ===
-                    'installed');
+                else if (filter === 'installed') filtered = team.inventory.filter(m => m.status === 'installed');
                 if (filtered.length === 0) return;
                 hasAny = true;
                 let teamNameDisplay = team.teamName.toUpperCase();
                 if (team.members && team.members.length) {
                     let membersStr = team.members.map(m => m.toUpperCase()).join(' & ');
                     const timMatch = teamNameDisplay.match(/TIM\s+(\d+)/i);
-                    if (timMatch) { teamNameDisplay = `TIM ${timMatch[1]}: ${membersStr}`; } else {
-                        teamNameDisplay = `${teamNameDisplay} (${membersStr})`; }
+                    if (timMatch) { teamNameDisplay = `TIM ${timMatch[1]}: ${membersStr}`; } else { teamNameDisplay = `${teamNameDisplay} (${membersStr})`; }
                 }
                 allText += `👤 *${teamNameDisplay}* (${filtered.length} unit)\n`;
                 filtered.forEach((modem, i) => {
                     const category = getModemCategory(modem.sn);
                     let statusLabel = modem.status === 'pending' ? 'PENDING' : 'TERPASANG';
-                    allText +=
-                        `${i+1}. ${modem.sn} [${category}] [${statusLabel}]\n`;
+                    allText += `${i+1}. ${modem.sn} [${category}] [${statusLabel}]\n`;
                 });
                 allText += `--------------------\n`;
             });
-            if (!hasAny) { allText += "Tidak ada data modem sesuai filter.\n"; } else { allText = allText.replace(
-                    /\n--------------------\n$/, '\n'); }
+            if (!hasAny) { allText += "Tidak ada data modem sesuai filter.\n"; } else { allText = allText.replace(/\n--------------------\n$/, '\n'); }
             copyToClipboard(allText, null, "✅ Rekap Modem tersalin!");
         };
 
-        window.openNonIkrListModal = function() { renderNonIkrList();
-            document.getElementById('modalNonIkrList').style.display = 'block'; };
+        window.openNonIkrListModal = function() { renderNonIkrList(); document.getElementById('modalNonIkrList').style.display = 'block'; };
         window.closeNonIkrListModal = function() { document.getElementById('modalNonIkrList').style.display = 'none'; };
 
-        function renderNonIkrList() { const tbody = document.getElementById('nonIkrTableBody');
-            const emptyMsg = document.getElementById('nonIkrEmptyMsg');
-            tbody.innerHTML = ''; if (!nonIkrRetrievals.length) { emptyMsg.style.display = 'block'; return; }
-            emptyMsg.style.display = 'none';
-            nonIkrRetrievals.forEach((item, idx) => { const tr = document.createElement('tr');
-                const category = getModemCategory(item.sn);
-                let catatanHtml = escapeHtml(item.catatan || '-'); if (appMode === 'admin') { catatanHtml +=
-                        `<button class="edit-name-icon" onclick="editNonIkrNote(${idx})" title="Edit Catatan">✏️</button>`; }
-                tr.innerHTML =
-                    `<td>${idx+1}</td><td>${escapeHtml(item.teknisi)}</td><td>${escapeHtml(item.sn)}</td><td>${category}</td><td id="nonikr-catatan-${idx}">${catatanHtml}</td><td><button class="btn-icon-del" onclick="deleteNonIkrRetrieval(${idx})">🗑️ Hapus</button></td>`;
-                tbody.appendChild(tr); }); }
+        function renderNonIkrList() { const tbody = document.getElementById('nonIkrTableBody'); const emptyMsg = document.getElementById('nonIkrEmptyMsg'); tbody.innerHTML = ''; if (!nonIkrRetrievals.length) { emptyMsg.style.display = 'block'; return; } emptyMsg.style.display = 'none'; nonIkrRetrievals.forEach((item, idx) => { const tr = document.createElement('tr'); const category = getModemCategory(item.sn); const status = item.status || 'pending'; const statusBadge = status === 'pending' ? '<span class="status-badge st-pending">Pending</span>' : '<span class="status-badge st-installed">Selesai</span>'; let catatanHtml = escapeHtml(item.catatan || '-'); if (appMode === 'admin') { catatanHtml += `<button class="edit-name-icon" onclick="editNonIkrNote(${idx})" title="Edit Catatan">✏️</button>`; } tr.innerHTML = `<td>${idx+1}</td><td>${escapeHtml(item.teknisi)}</td><td>${escapeHtml(item.sn)}</td><td>${category}</td><td>${statusBadge}<tr><td id="nonikr-catatan-${idx}">${catatanHtml}</td><td><button class="btn-icon-del" onclick="deleteNonIkrRetrieval(${idx})">🗑️ Hapus</button></td>`; tbody.appendChild(tr); }); }
 
-        window.editNonIkrNote = async function(index) { if (appMode !== 'admin') return;
-            const currentNote = nonIkrRetrievals[index].catatan || '';
-            const newNote = prompt("Edit catatan pengambilan modem:", currentNote); if (newNote !== null) {
-                nonIkrRetrievals[index].catatan = newNote.trim(); await saveNonIkrToFirebase();
-                showSyncNotification("Catatan berhasil diupdate", "success");
-                renderNonIkrList(); } };
+        window.editNonIkrNote = async function(index) { if (appMode !== 'admin') return; const currentNote = nonIkrRetrievals[index].catatan || ''; const newNote = prompt("Edit catatan pengambilan modem:", currentNote); if (newNote !== null) { nonIkrRetrievals[index].catatan = newNote.trim(); await saveNonIkrToFirebase(); showSyncNotification("Catatan berhasil diupdate", "success"); renderNonIkrList(); } };
 
-        window.copyNonIkrRecap = function() { if (!nonIkrRetrievals.length) { alert(
-                    "Tidak ada data untuk direkap."); return; }
-            const today = new Date();
-            const formattedDate = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
-            let recapText = `📋 *REKAP PENGAMBILAN MODEM NON IKR*\n📅 ${formattedDate}\n\n`;
-            nonIkrRetrievals.forEach((item, idx) => { const category = getModemCategory(item.sn);
-                recapText += `${idx+1}. SN: ${item.sn} [${category}]\n`;
-                recapText += `   Teknisi: ${item.teknisi}\n`;
-                recapText += `   Catatan: ${item.catatan || '-'}\n`;
-                recapText += `-------------------\n`; });
-            copyToClipboard(recapText, null, "✅ Rekap Non IKR tersalin!"); };
+        window.copyNonIkrRecap = function() { if (!nonIkrRetrievals.length) { alert("Tidak ada data untuk direkap."); return; } const today = new Date(); const formattedDate = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`; let recapText = `📋 *REKAP PENGAMBILAN MODEM NON IKR*\n📅 ${formattedDate}\n\n`; nonIkrRetrievals.forEach((item, idx) => { const category = getModemCategory(item.sn); const status = item.status || 'pending'; const statusText = status === 'pending' ? 'Pending' : 'Selesai'; recapText += `${idx+1}. SN: ${item.sn} [${category}] - Status: ${statusText}\n`; recapText += `   Teknisi: ${item.teknisi}\n`; recapText += `   Catatan: ${item.catatan || '-'}\n`; recapText += `-------------------\n`; }); copyToClipboard(recapText, null, "✅ Rekap Non IKR tersalin!"); };
 
-        window.deleteNonIkrRetrieval = async function(index) { if (!confirm("Hapus data pengambilan modem ini?")) return;
-            nonIkrRetrievals.splice(index, 1); await saveNonIkrToFirebase();
-            showSyncNotification("Data berhasil dihapus", "success");
-            renderNonIkrList(); };
+        window.deleteNonIkrRetrieval = async function(index) { if (!confirm("Hapus data pengambilan modem ini?")) return; nonIkrRetrievals.splice(index, 1); await saveNonIkrToFirebase(); showSyncNotification("Data berhasil dihapus", "success"); renderNonIkrList(); };
 
-        async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") { let success = false; if (navigator
-                .clipboard && navigator.clipboard.writeText) { try { await navigator.clipboard.writeText(text);
-                    success = true; } catch (err) {} } if (!success) { try { const textArea = document.createElement(
-                        "textarea");
-                    textArea.value = text;
-                    textArea.style.position = "fixed";
-                    textArea.style.left = "-9999px";
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    const successful = document.execCommand('copy');
-                    document.body.removeChild(textArea); if (successful) success = true; } catch (err) {} } if (success &&
-                btnElement) { const originalText = btnElement.innerHTML;
-                const originalBg = btnElement.style.backgroundColor;
-                btnElement.innerHTML = successMsg;
-                btnElement.style.backgroundColor = "#28a745";
-                setTimeout(() => { btnElement.innerHTML = originalText;
-                    btnElement.style.backgroundColor = originalBg; }, 2000); } else if (success) alert(successMsg); }
+        async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") { 
+            let success = false; 
+            if (navigator.clipboard && navigator.clipboard.writeText) { 
+                try { await navigator.clipboard.writeText(text); success = true; } catch (err) {} 
+            } 
+            if (!success) { 
+                try { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); if (successful) success = true; } catch (err) {} 
+            } 
+            if (success) {
+                // Gunakan notifikasi toast untuk semua keberhasilan copy, bukan alert
+                showSyncNotification(successMsg, 'success');
+            } else {
+                alert("Gagal menyalin ke clipboard");
+            }
+        }
 
-        window.copyData = async function(teamIndex, jobIndex, btn) { const team = teams[teamIndex];
-            const job = teams[teamIndex].jobs[jobIndex];
-            const d = job.details;
-            const tech = job.technical || {};
-            const isPSB = job.tag.toUpperCase().includes("PSB");
-            let textToCopy = "";
-            const checkVal = (val) => val && val.toString().trim() !== "" && val.toString().trim() !== "-";
-            const oltText = `OLT : ${mapOltType(job.oltType || 'unknown')}`; if (isPSB) { const snVal = tech.sn || '-';
-                const macVal = formatMacForCopy(tech.mac);
-                const vlanVal = formatMacForCopy(tech.vlan);
-                const kabelVal = tech.kabel || '-';
-                const portVal = tech.port || '-';
-                const odpVal = tech.odp || '-';
-                const redamanVal = tech.redaman || '-';
-                const noLayanan = d['No Layanan'] || d['Layanan'];
-                const isCompleted = job.status === 'completed' || (job.completed && !job.status);
-                let header =
-                    `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n${oltText}\n--------------------------------`;
-                let layananLine = ''; if (noLayanan && !isCompleted) layananLine =
-                    `Nolay Pra-Regist: ${noLayanan}\n`;
-                let body =
-                    `Jam: ${job.time}\nNama Lengkap : ${job.name}\nAlamat Lengkap : ${job.address}\nEmail Aktif: ${d['Email'] || '-'}\nNo. Wa: ${d['No WA'] || d['No Telp'] || '-'}\nPaket Layanan : ${d['Paket'] || '-'}\nReferensi: ${d['Referensi'] || '-'}\nNo KTP : ${d['No KTP'] || '-'}\nTanggal pemasangan: ${d['Tgl Pasang'] || '-'}\nFOTO Depan Rumah : \nStatus Rumah : ${d['Status Rumah'] || '-'}\nSetuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || '-'}\n\n--- DATA TEKNIS ---\nkode SN : ${snVal}\nMac : ${macVal}\nMac vlan : ${vlanVal}\nPanjang kabel : ${kabelVal}\nPort : ${portVal}\nId ODP : ${odpVal}\nRedaman : ${redamanVal}`;
-                textToCopy = header + '\n' + layananLine + body; } else { textToCopy =
-                    `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n--------------------------------\nJam: ${job.time}\nKunjungan: ${job.tag}\nNama Pelanggan: ${job.name}`;
-                if (d['Layanan']) textToCopy += `\nNo Layanan: ${d['Layanan']}`; if (d['Masa Aktif s/d'])
-                    textToCopy += `\nMasa Aktif s/d: ${d['Masa Aktif s/d']}`; if (d['No Telp']) textToCopy +=
-                    `\nNo Telp.: ${d['No Telp']}`; if (d['Tgl Daftar']) textToCopy +=
-                    `\nTanggal Daftar: ${d['Tgl Daftar']}`; if (d['Coverage']) textToCopy +=
-                    `\nCoverage: ${d['Coverage']}`; if (job.address) textToCopy += `\nAlamat: ${job.address}`; if (
-                    checkVal(d['User PPPOE_RADIUS'])) textToCopy +=
-                    `\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS']}`; if (checkVal(d['Pemakaian Bulan Ini (GB)']))
-                    textToCopy += `\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)']}`; if (checkVal(d[
-                        'ODC'])) textToCopy += `\nODC: ${d['ODC']}`; if (checkVal(d['ODP'])) textToCopy +=
-                    `\nODP: ${d['ODP']}`; if (checkVal(d['Port ODP'])) textToCopy += `\nPort ODP: ${d['Port ODP']}`;
-                if (checkVal(d['OLT SN/MAC'])) textToCopy += `\nOLT SN/MAC: ${d['OLT SN/MAC']}`; if (checkVal(d[
-                    'Last DBM'])) textToCopy += `\nLast DBM: ${d['Last DBM']}`; if (checkVal(d['Last DBM Time']))
-                    textToCopy += `\nLast DBM Time: ${d['Last DBM Time']}`; if (checkVal(d['Nama WiFi (SSID)']))
-                    textToCopy += `\nNama WiFi (SSID): ${d['Nama WiFi (SSID)']}`; if (checkVal(d['Sandi WiFi']))
-                    textToCopy += `\nSandi WiFi: ${d['Sandi WiFi']}`; if (checkVal(d['Keterangan'])) textToCopy +=
-                    `\nKeterangan: ${d['Keterangan']}`; if (d['Router']) textToCopy += `\nRouter: ${d['Router']}`; if (
-                    job.replaceModem === 'yes' && tech.sn) { const macVal = formatMacForCopy(tech.mac);
-                    const vlanVal = formatMacForCopy(tech.vlan);
-                    textToCopy +=
-                        `\n\n--- GANTI MODEM BARU ---\nSN : ${tech.sn}\nMAC : ${macVal}\nVLAN : ${vlanVal}`; } }
-            copyToClipboard(textToCopy, btn); };
+        window.copyData = async function(teamIndex, jobIndex, btn) { const team = teams[teamIndex]; const job = teams[teamIndex].jobs[jobIndex]; const d = job.details; const tech = job.technical || {}; const isPSB = job.tag.toUpperCase().includes("PSB"); let textToCopy = ""; const checkVal = (val) => val && val.toString().trim() !== "" && val.toString().trim() !== "-"; const oltText = `OLT : ${mapOltType(job.oltType || 'unknown')}`; if (isPSB) { const snVal = tech.sn || '-'; const macVal = formatMacForCopy(tech.mac); const vlanVal = formatMacForCopy(tech.vlan); const kabelVal = tech.kabel || '-'; const portVal = tech.port || '-'; const odpVal = tech.odp || '-'; const redamanVal = tech.redaman || '-'; const noLayanan = d['No Layanan'] || d['Layanan']; const isCompleted = job.status === 'completed' || (job.completed && !job.status); let header = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n${oltText}\n--------------------------------`; let layananLine = ''; if (noLayanan && !isCompleted) layananLine = `Nolay Pra-Regist: ${noLayanan}\n`; let body = `Jam: ${job.time}\nNama Lengkap : ${job.name}\nAlamat Lengkap : ${job.address}\nEmail Aktif: ${d['Email'] || '-'}\nNo. Wa: ${d['No WA'] || d['No Telp'] || '-'}\nPaket Layanan : ${d['Paket'] || '-'}\nReferensi: ${d['Referensi'] || '-'}\nNo KTP : ${d['No KTP'] || '-'}\nTanggal pemasangan: ${d['Tgl Pasang'] || '-'}\nFOTO Depan Rumah : \nStatus Rumah : ${d['Status Rumah'] || '-'}\nSetuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || '-'}\n\n--- DATA TEKNIS ---\nkode SN : ${snVal}\nMac : ${macVal}\nMac vlan : ${vlanVal}\nPanjang kabel : ${kabelVal}\nPort : ${portVal}\nId ODP : ${odpVal}\nRedaman : ${redamanVal}`; textToCopy = header + '\n' + layananLine + body; } else { textToCopy = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n--------------------------------\nJam: ${job.time}\nKunjungan: ${job.tag}\nNama Pelanggan: ${job.name}`; if (d['Layanan']) textToCopy += `\nNo Layanan: ${d['Layanan']}`; if (d['Masa Aktif s/d']) textToCopy += `\nMasa Aktif s/d: ${d['Masa Aktif s/d']}`; if (d['No Telp']) textToCopy += `\nNo Telp.: ${d['No Telp']}`; if (d['Tgl Daftar']) textToCopy += `\nTanggal Daftar: ${d['Tgl Daftar']}`; if (d['Coverage']) textToCopy += `\nCoverage: ${d['Coverage']}`; if (job.address) textToCopy += `\nAlamat: ${job.address}`; if (checkVal(d['User PPPOE_RADIUS'])) textToCopy += `\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS']}`; if (checkVal(d['Pemakaian Bulan Ini (GB)'])) textToCopy += `\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)']}`; if (checkVal(d['ODC'])) textToCopy += `\nODC: ${d['ODC']}`; if (checkVal(d['ODP'])) textToCopy += `\nODP: ${d['ODP']}`; if (checkVal(d['Port ODP'])) textToCopy += `\nPort ODP: ${d['Port ODP']}`; if (checkVal(d['OLT SN/MAC'])) textToCopy += `\nOLT SN/MAC: ${d['OLT SN/MAC']}`; if (checkVal(d['Last DBM'])) textToCopy += `\nLast DBM: ${d['Last DBM']}`; if (checkVal(d['Last DBM Time'])) textToCopy += `\nLast DBM Time: ${d['Last DBM Time']}`; if (checkVal(d['Nama WiFi (SSID)'])) textToCopy += `\nNama WiFi (SSID): ${d['Nama WiFi (SSID)']}`; if (checkVal(d['Sandi WiFi'])) textToCopy += `\nSandi WiFi: ${d['Sandi WiFi']}`; if (checkVal(d['Keterangan'])) textToCopy += `\nKeterangan: ${d['Keterangan']}`; if (d['Router']) textToCopy += `\nRouter: ${d['Router']}`; if (job.replaceModem === 'yes' && tech.sn) { const macVal = formatMacForCopy(tech.mac); const vlanVal = formatMacForCopy(tech.vlan); textToCopy += `\n\n--- GANTI MODEM BARU ---\nSN : ${tech.sn}\nMAC : ${macVal}\nVLAN : ${vlanVal}`; } } copyToClipboard(textToCopy, btn); };
 
-        function formatMacForCopy(input) { if (!input || input === '-' || input.trim() === "") return '-';
-            let clean = input.replace(/[^a-fA-F0-9]/g, "").toUpperCase(); if (clean.length > 2) return clean.match(/.{1,2}/g)
-                .join(':'); return clean; }
+        function formatMacForCopy(input) { if (!input || input === '-' || input.trim() === "") return '-'; let clean = input.replace(/[^a-fA-F0-9]/g, "").toUpperCase(); if (clean.length > 2) return clean.match(/.{1,2}/g).join(':'); return clean; }
 
-        window.copyTeamSummary = function(tIndex, btn) { const team = teams[tIndex];
-            let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
-            team.jobs.forEach((job, index) => { const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
-                const time = job.time || 'FLEXIBEL';
-                const numIcon = getNumberEmoji(index + 1);
-                let statusLine = "",
-                    failureLine = "",
-                    noteSuffix = ""; if (job.status === 'completed' || (job.completed && !job.status)) { if (job
-                        .completionNote) noteSuffix = ` (${job.completionNote})`;
-                    statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if (job.status === 'failed') { statusLine =
-                        `⛔ STATUS: GAGAL KUNJUNGAN`; if (job.failureNote) failureLine =
-                    `\n📝 Ket: ${job.failureNote}`; } else statusLine = `⏳ STATUS: PENDING`;
-                text +=
-                    `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`;
-            });
-            copyToClipboard(text, btn, "✅ Disalin!"); };
+        window.copyTeamSummary = function(tIndex, btn) { const team = teams[tIndex]; let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`; team.jobs.forEach((job, index) => { const layID = job.details['No Layanan'] || job.details['Layanan'] || '-'; const time = job.time || 'FLEXIBEL'; const numIcon = getNumberEmoji(index + 1); let statusLine = "", failureLine = "", noteSuffix = ""; if (job.status === 'completed' || (job.completed && !job.status)) { if (job.completionNote) noteSuffix = ` (${job.completionNote})`; statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if (job.status === 'failed') { statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`; if (job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`; } else statusLine = `⏳ STATUS: PENDING`; text += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`; }); copyToClipboard(text, btn, "✅ Disalin!"); };
 
-        window.copyAllSummary = function() { let summaryText =
-                `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
-            teams.forEach(team => { summaryText += `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
-                team.jobs.forEach((job, index) => { const layID = job.details['No Layanan'] || job.details['Layanan'] ||
-                        '-';
-                    const time = job.time || 'FLEXIBEL';
-                    const numIcon = getNumberEmoji(index + 1);
-                    let statusLine = "",
-                        failureLine = "",
-                        noteSuffix = ""; if (job.status === 'completed' || (job.completed && !job.status)) { if (job
-                            .completionNote) noteSuffix = ` (${job.completionNote})`;
-                        statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if (job.status === 'failed') { statusLine =
-                            `⛔ STATUS: GAGAL KUNJUNGAN`; if (job.failureNote) failureLine =
-                        `\n📝 Ket: ${job.failureNote}`; } else statusLine = `⏳ STATUS: PENDING`;
-                    summaryText +=
-                        `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`;
-                });
-                summaryText += `\n`; });
-            copyToClipboard(summaryText, null, "✅ Rekap Semua Tiket Tersalin!"); };
+        window.copyAllSummary = function() { let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`; teams.forEach(team => { summaryText += `📋 REKAP ${team.teamName.toUpperCase()}\n\n`; team.jobs.forEach((job, index) => { const layID = job.details['No Layanan'] || job.details['Layanan'] || '-'; const time = job.time || 'FLEXIBEL'; const numIcon = getNumberEmoji(index + 1); let statusLine = "", failureLine = "", noteSuffix = ""; if (job.status === 'completed' || (job.completed && !job.status)) { if (job.completionNote) noteSuffix = ` (${job.completionNote})`; statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if (job.status === 'failed') { statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`; if (job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`; } else statusLine = `⏳ STATUS: PENDING`; summaryText += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`; }); summaryText += `\n`; }); copyToClipboard(summaryText, null, "✅ Rekap Semua Tiket Tersalin!"); };
 
-        window.copyPSBSummary = function() { let text =
-                `📋 *REKAP PSB BERHASIL*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
-            let count = 0;
-            teams.forEach(team => { team.jobs.forEach(job => { const isPSB = job.tag.toUpperCase().includes("PSB");
-                    const isCompleted = job.status === 'completed' || (job.completed && !job.status); if (isPSB &&
-                        isCompleted) { const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '-';
-                        const referensi = job.details['Referensi'] || '-'; if (noLayanan !== '-') { text +=
-                                `${noLayanan} referensi: ${referensi}\n`;
-                            count++; } } }); }); if (count === 0) text += "Tidak ada data PSB berhasil.\n";
-            copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!"); };
+        window.copyPSBSummary = function() { let text = `📋 *REKAP PSB BERHASIL*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`; let count = 0; teams.forEach(team => { team.jobs.forEach(job => { const isPSB = job.tag.toUpperCase().includes("PSB"); const isCompleted = job.status === 'completed' || (job.completed && !job.status); if (isPSB && isCompleted) { const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '-'; const referensi = job.details['Referensi'] || '-'; if (noLayanan !== '-') { text += `${noLayanan} referensi: ${referensi}\n`; count++; } } }); }); if (count === 0) text += "Tidak ada data PSB berhasil.\n"; copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!"); };
 
-        window.copyAllSummaryV2 = function() { let text =
-                `📋 *REKAP STATUS TIKET*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
-            teams.forEach((team, tIndex) => { if (!team.jobs || team.jobs.length === 0) return;
-                text += `TEKNISI : ${team.teamName}\n\n`;
-                team.jobs.forEach((job, jIndex) => { const isPSB = job.tag.toUpperCase().includes("PSB");
-                    const isCompleted = (job.status === 'completed' || job.completed === true);
-                    const isFailed = (job.status === 'failed');
-                    const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '';
-                    let statusLine = ""; if (isPSB) { if (isCompleted) { if (noLayanan && noLayanan !== '-') {
-                                statusLine = `*done dengan nolay status aktif: ${noLayanan}*`; } else {
-                                statusLine = "*done*"; } } else if (isFailed) { const reason = job.failureNote && job
-                                .failureNote.trim() !== "" ? job.failureNote : "alasan tidak diketahui";
-                            statusLine = `*fail (${reason})*`; } else { statusLine = "*Pending*"; } } else { if (
-                            isCompleted) { if (job.completionNote && job.completionNote.trim() !== "") {
-                                statusLine = `*done (${job.completionNote})*`; } else { statusLine = "*done*"; } } else if (
-                            isFailed) { if (job.failureNote && job.failureNote.trim() !== "") { statusLine =
-                                    `*fail (${job.failureNote})*`; } else { statusLine = "*fail*"; } } else { statusLine =
-                                "*Pending*"; } }
-                    text += `status: \n${statusLine}\n`; if (isPSB && !isCompleted && noLayanan && noLayanan !==
-                        '-') { text += `Nolay Pra-Regist: ${noLayanan}\n`; } if (isPSB) { text +=
-                            `OLT : ${mapOltType(job.oltType || 'unknown')}\n`; }
-                    const d = job.details;
-                    const tech = job.technical || {}; if (isPSB) { text +=
-                            `Jam: ${job.time || '-'}\nNama Lengkap : ${job.name}\nAlamat Lengkap : ${job.address}\nEmail Aktif: ${d['Email'] || d['Email Aktif'] || '-'}\nNo. Wa: ${d['No WA'] || d['No Wa'] || '-'}\nPaket Layanan : ${d['Paket'] || d['Paket Layanan'] || '-'}\nReferensi: ${d['Referensi'] || '-'}\nNo KTP : ${d['No KTP'] || '-'}\nTanggal pemasangan: ${d['Tanggal pemasangan'] || d['Tgl Pasang'] || '-'}\nFOTO Depan Rumah : \nStatus Rumah : ${d['Status Rumah'] || '-'}\nSetuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || '-'}\n`; } else { text +=
-                            `Jam: ${job.time || '-'}\nKunjungan: ${job.tag}\nNama Pelanggan: ${job.name}\nNo Layanan: ${d['No Layanan'] || d['Layanan'] || '-'}\nNo Telp.: ${d['No Telp.'] || d['No Telp'] || '-'}\nTanggal Daftar: ${d['Tanggal Daftar'] || '-'}\nCoverage: ${d['Coverage'] || '-'}\nAlamat: ${job.address}\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS'] || '-'}\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)'] || '-'}\nODC: ${d['ODC'] || '-'}\nODP: ${d['ODP'] || '-'}\nPort ODP: ${d['Port ODP'] || '-'}\nRouter: ${d['Router'] || '-'}\n`; }
-                    text += "\n"; });
-                text += "\n"; });
-            copyToClipboard(text, null, "✅ Rekap V2 Tersalin!"); };
+        window.copyAllSummaryV2 = function() { let text = `📋 *REKAP STATUS TIKET*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`; teams.forEach((team, tIndex) => { if (!team.jobs || team.jobs.length === 0) return; text += `TEKNISI : ${team.teamName}\n\n`; team.jobs.forEach((job, jIndex) => { const isPSB = job.tag.toUpperCase().includes("PSB"); const isCompleted = (job.status === 'completed' || job.completed === true); const isFailed = (job.status === 'failed'); const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || ''; let statusLine = ""; if (isPSB) { if (isCompleted) { if (noLayanan && noLayanan !== '-') { statusLine = `*done dengan nolay status aktif: ${noLayanan}*`; } else { statusLine = "*done*"; } } else if (isFailed) { const reason = job.failureNote && job.failureNote.trim() !== "" ? job.failureNote : "alasan tidak diketahui"; statusLine = `*fail (${reason})*`; } else { statusLine = "*Pending*"; } } else { if (isCompleted) { if (job.completionNote && job.completionNote.trim() !== "") { statusLine = `*done (${job.completionNote})*`; } else { statusLine = "*done*"; } } else if (isFailed) { if (job.failureNote && job.failureNote.trim() !== "") { statusLine = `*fail (${job.failureNote})*`; } else { statusLine = "*fail*"; } } else { statusLine = "*Pending*"; } } text += `status: \n${statusLine}\n`; if (isPSB && !isCompleted && noLayanan && noLayanan !== '-') { text += `Nolay Pra-Regist: ${noLayanan}\n`; } if (isPSB) { text += `OLT : ${mapOltType(job.oltType || 'unknown')}\n`; } const d = job.details; const tech = job.technical || {}; if (isPSB) { text += `Jam: ${job.time || '-'}\nNama Lengkap : ${job.name}\nAlamat Lengkap : ${job.address}\nEmail Aktif: ${d['Email'] || d['Email Aktif'] || '-'}\nNo. Wa: ${d['No WA'] || d['No Wa'] || '-'}\nPaket Layanan : ${d['Paket'] || d['Paket Layanan'] || '-'}\nReferensi: ${d['Referensi'] || '-'}\nNo KTP : ${d['No KTP'] || '-'}\nTanggal pemasangan: ${d['Tanggal pemasangan'] || d['Tgl Pasang'] || '-'}\nFOTO Depan Rumah : \nStatus Rumah : ${d['Status Rumah'] || '-'}\nSetuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || '-'}\n`; } else { text += `Jam: ${job.time || '-'}\nKunjungan: ${job.tag}\nNama Pelanggan: ${job.name}\nNo Layanan: ${d['No Layanan'] || d['Layanan'] || '-'}\nNo Telp.: ${d['No Telp.'] || d['No Telp'] || '-'}\nTanggal Daftar: ${d['Tanggal Daftar'] || '-'}\nCoverage: ${d['Coverage'] || '-'}\nAlamat: ${job.address}\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS'] || '-'}\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)'] || '-'}\nODC: ${d['ODC'] || '-'}\nODP: ${d['ODP'] || '-'}\nPort ODP: ${d['Port ODP'] || '-'}\nRouter: ${d['Router'] || '-'}\n`; } text += "\n"; }); text += "\n"; }); copyToClipboard(text, null, "✅ Rekap V2 Tersalin!"); };
 
         window.openCopyOption = function() { document.getElementById('modalCopyOption').style.display = 'block'; };
         window.closeCopyOption = function() { document.getElementById('modalCopyOption').style.display = 'none'; };
         window.openExcelOption = function() { document.getElementById('modalExcelOption').style.display = 'block'; };
         window.closeExcelOption = function() { document.getElementById('modalExcelOption').style.display = 'none'; };
 
-        function formatDateIndo(dateStr) { if (!dateStr || dateStr === '-' || dateStr === "") return "-";
-            const rawDate = dateStr.split(',')[0].trim();
-            const parts = rawDate.split('/'); if (parts.length === 3) { const months = ["JANUARI", "FEBRUARI", "MARET",
-                    "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
-                ];
-                const day = parts[0];
-                const monthIdx = parseInt(parts[1]) - 1;
-                const year = parts[2]; if (months[monthIdx]) return `${day} ${months[monthIdx]} ${year}`; } return rawDate; }
-        window.downloadExcel = function(mode) { let dataToExport = [];
-            const todayRaw = new Date().toLocaleString('id-ID');
-            let rowNumber = 1;
-            teams.forEach(team => { const rawTechName = team.teamName.split(':')[1]?.trim() || team.teamName;
-                team.jobs.forEach((job) => { const isPSB = job.tag.toUpperCase().includes("PSB"); if (mode === 'psb' &&
-                        !isPSB) return; if (mode === 'non_psb' && isPSB) return;
-                    const d = job.details;
-                    const tech = job.technical || {};
-                    const addressParts = parseAddress(job.address);
-                    let rawDate = job.status === 'completed' ? (job.completedAt || todayRaw) : "-"; if (isPSB &&
-                        rawDate === "-") rawDate = d['Tgl Pasang'] || d['Tanggal Pemasangan'] || "-";
-                    const finalDate = formatDateIndo(rawDate); if (mode === 'psb') { dataToExport.push({ "No": rowNumber++,
-                            "No layanan": d['No Layanan'] || d['Layanan'] || "-", "Nama": job.name,
-                            "Alamat": job.address, "RT": addressParts.rt, "RW": addressParts.rw, "Kode Pos": "-",
-                            "No Handphone": d['No WA'] || d['No Telp'] || "-", "Tanggal pemasangan": finalDate,
-                            "Paket Layanan": d['Paket'] || "-", "Tipe OLT": mapOltType(job.oltType || 'unknown') }); } else {
-                        let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel; if (kelurahan === '-') { if (
-                                job.address.includes("Jatinegara")) kelurahan = "Jatinegara"; if (job.address.includes(
-                                    "Cipinang")) kelurahan = "Cipinang"; }
-                        let statusExcel = "Pending"; if (job.status === 'completed' || (job.completed && !job.status))
-                            statusExcel = "Selesai"; else if (job.status === 'failed') statusExcel = "Gagal Kunjungan";
-                        let catatanFull = d['Catatan'] || "-"; if (job.status === 'failed' && job.failureNote) { if (
-                                catatanFull === "-") catatanFull = `GAGAL: ${job.failureNote}`;
-                            else catatanFull += ` | GAGAL: ${job.failureNote}`; } if (job.status === 'completed' && job
-                                .completionNote) { if (catatanFull === "-") catatanFull =
-                                    `SOLUSI: ${job.completionNote}`;
-                            else catatanFull += ` | SOLUSI: ${job.completionNote}`; }
-                        dataToExport.push({ "No": rowNumber++, "No Layanan": d['No Layanan'] || d['Layanan'] || "-",
-                            "Nama Pelanggan": job.name, "Status Pengerjaan": statusExcel, "Nomor Telpon": d[
-                                'No WA'] || d['No Telp'] || "-", "Tanggal Selesai Kunjungan": finalDate,
-                            "Nama Teknisi": rawTechName, "Alamat Lengkap": job.address, "RT": addressParts.rt,
-                            "RW": addressParts.rw, "Area Kelurahan": kelurahan, "SN": tech.sn || "-",
-                            "Catatan": catatanFull }); } }); }); if (dataToExport.length === 0) { alert(
-                    "⚠️ Tidak ada data untuk kategori ini.");
-                closeExcelOption(); return; }
-            const ws = XLSX.utils.json_to_sheet(dataToExport); if (mode === 'psb') ws['!cols'] = [{ wch: 5 }, { wch: 20 },
-                { wch: 30 }, { wch: 40 }, { wch: 5 }, { wch: 5 }, { wch: 10 }, { wch: 15 }, { wch: 25 }, { wch: 20 },
-                { wch: 15 }
-            ];
-            else ws['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 20 },
-                { wch: 40 }, { wch: 5 }, { wch: 5 }, { wch: 15 }, { wch: 20 }, { wch: 30 }
-            ];
-            const wb = XLSX.utils.book_new();
-            let fileName = "Laporan_Teknisi.xlsx",
-                sheetName = "Data"; if (mode === 'psb') { fileName = "Laporan_PSB_New.xlsx";
-                sheetName = "PSB"; } else if (mode === 'non_psb') { fileName = "Laporan_Maintenance_Isolir.xlsx";
-                sheetName = "MT_ISO"; } else { fileName = "Laporan_Semua_Data.xlsx";
-                sheetName = "All_Data"; }
-            XLSX.utils.book_append_sheet(wb, ws, sheetName);
-            XLSX.writeFile(wb, fileName);
-            closeExcelOption(); };
+        function formatDateIndo(dateStr) { if (!dateStr || dateStr === '-' || dateStr === "") return "-"; const rawDate = dateStr.split(',')[0].trim(); const parts = rawDate.split('/'); if (parts.length === 3) { const months = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"]; const day = parts[0]; const monthIdx = parseInt(parts[1]) - 1; const year = parts[2]; if (months[monthIdx]) return `${day} ${months[monthIdx]} ${year}`; } return rawDate; }
+        window.downloadExcel = function(mode) { let dataToExport = []; const todayRaw = new Date().toLocaleString('id-ID'); let rowNumber = 1; teams.forEach(team => { const rawTechName = team.teamName.split(':')[1]?.trim() || team.teamName; team.jobs.forEach((job) => { const isPSB = job.tag.toUpperCase().includes("PSB"); if (mode === 'psb' && !isPSB) return; if (mode === 'non_psb' && isPSB) return; const d = job.details; const tech = job.technical || {}; const addressParts = parseAddress(job.address); let rawDate = job.status === 'completed' ? (job.completedAt || todayRaw) : "-"; if (isPSB && rawDate === "-") rawDate = d['Tgl Pasang'] || d['Tanggal Pemasangan'] || "-"; const finalDate = formatDateIndo(rawDate); if (mode === 'psb') { dataToExport.push({ "No": rowNumber++, "No layanan": d['No Layanan'] || d['Layanan'] || "-", "Nama": job.name, "Alamat": job.address, "RT": addressParts.rt, "RW": addressParts.rw, "Kode Pos": "-", "No Handphone": d['No WA'] || d['No Telp'] || "-", "Tanggal pemasangan": finalDate, "Paket Layanan": d['Paket'] || "-", "Tipe OLT": mapOltType(job.oltType || 'unknown') }); } else { let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel; if (kelurahan === '-') { if (job.address.includes("Jatinegara")) kelurahan = "Jatinegara"; if (job.address.includes("Cipinang")) kelurahan = "Cipinang"; } let statusExcel = "Pending"; if (job.status === 'completed' || (job.completed && !job.status)) statusExcel = "Selesai"; else if (job.status === 'failed') statusExcel = "Gagal Kunjungan"; let catatanFull = d['Catatan'] || "-"; if (job.status === 'failed' && job.failureNote) { if (catatanFull === "-") catatanFull = `GAGAL: ${job.failureNote}`; else catatanFull += ` | GAGAL: ${job.failureNote}`; } if (job.status === 'completed' && job.completionNote) { if (catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`; else catatanFull += ` | SOLUSI: ${job.completionNote}`; } dataToExport.push({ "No": rowNumber++, "No Layanan": d['No Layanan'] || d['Layanan'] || "-", "Nama Pelanggan": job.name, "Status Pengerjaan": statusExcel, "Nomor Telpon": d['No WA'] || d['No Telp'] || "-", "Tanggal Selesai Kunjungan": finalDate, "Nama Teknisi": rawTechName, "Alamat Lengkap": job.address, "RT": addressParts.rt, "RW": addressParts.rw, "Area Kelurahan": kelurahan, "SN": tech.sn || "-", "Catatan": catatanFull }); } }); }); if (dataToExport.length === 0) { alert("⚠️ Tidak ada data untuk kategori ini."); closeExcelOption(); return; } const ws = XLSX.utils.json_to_sheet(dataToExport); if (mode === 'psb') ws['!cols'] = [{ wch: 5 }, { wch: 20 }, { wch: 30 }, { wch: 40 }, { wch: 5 }, { wch: 5 }, { wch: 10 }, { wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 15 }]; else ws['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 40 }, { wch: 5 }, { wch: 5 }, { wch: 15 }, { wch: 20 }, { wch: 30 }]; const wb = XLSX.utils.book_new(); let fileName = "Laporan_Teknisi.xlsx", sheetName = "Data"; if (mode === 'psb') { fileName = "Laporan_PSB_New.xlsx"; sheetName = "PSB"; } else if (mode === 'non_psb') { fileName = "Laporan_Maintenance_Isolir.xlsx"; sheetName = "MT_ISO"; } else { fileName = "Laporan_Semua_Data.xlsx"; sheetName = "All_Data"; } XLSX.utils.book_append_sheet(wb, ws, sheetName); XLSX.writeFile(wb, fileName); closeExcelOption(); };
 
-        function parseAddress(addr) { const rtMatch = addr.match(/RT\s*[\.\:\-\/]?\s*0?(\d+)/i);
-            const rwMatch = addr.match(/RW\s*[\.\:\-\/]?\s*0?(\d+)/i);
-            const kelMatch = addr.match(/Kel\.?\s*([A-Za-z\s]+)/i); return { rt: rtMatch ? rtMatch[1] : '-', rw: rwMatch ?
-                    rwMatch[1] : '-', kel: kelMatch ? kelMatch[1] : '-' }; }
+        function parseAddress(addr) { const rtMatch = addr.match(/RT\s*[\.\:\-\/]?\s*0?(\d+)/i); const rwMatch = addr.match(/RW\s*[\.\:\-\/]?\s*0?(\d+)/i); const kelMatch = addr.match(/Kel\.?\s*([A-Za-z\s]+)/i); return { rt: rtMatch ? rtMatch[1] : '-', rw: rwMatch ? rwMatch[1] : '-', kel: kelMatch ? kelMatch[1] : '-' }; }
 
-        function getNumberEmoji(n) { const emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-            return emojis[n] || `${n}.`; }
-        window.resetDatabase = function() { let pin = prompt("🔐 Masukkan PIN untuk reset:"); if (!checkPin(pin)) { if (pin) alert(
-                    "❌ PIN SALAH!"); return; } if (confirm(
-                    "⚠️ Yakin ingin mereset SEMUA TIKET, TIM, dan STOK MODEM TEKNISI? Data akan hilang permanen!")) {
+        function getNumberEmoji(n) { const emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']; return emojis[n] || `${n}.`; }
+        
+        // MODIFIED RESET FUNCTION: Only resets teams (tickets & modem stock), preserves nonIkrRetrievals
+        window.resetDatabase = function() { 
+            let pin = prompt("🔐 Masukkan PIN untuk reset:"); 
+            if (!checkPin(pin)) { 
+                if (pin) alert("❌ PIN SALAH!"); 
+                return; 
+            } 
+            if (confirm("⚠️ Yakin ingin mereset SEMUA TIKET, TIM, dan STOK MODEM TEKNISI? Data akan hilang permanen! (Data List Modem Non IKR TIDAK akan terhapus)")) {
                 const nid = showSyncNotification('Meriset tiket dan stok tim...', 'saving', false);
-                set(dbRef, []).then(() => { set(nonIkrRef, []).then(() => { showSyncNotification(
-                                '✅ Tiket, tim, dan stok modem teknisi berhasil di-reset!', 'success');
-                        closeSyncNotification(nid);
-                        location.reload(); }).catch(err => { showSyncNotification(
-                            '❌ Gagal mereset data non IKR!', 'error'); }); }).catch((err) => { showSyncNotification(
-                        '❌ Gagal mereset tiket!', 'error');
+                set(dbRef, []).then(() => { 
+                    showSyncNotification('✅ Tiket, tim, dan stok modem teknisi berhasil di-reset! (Data Non IKR tetap aman)', 'success');
                     closeSyncNotification(nid);
-                    alert("Gagal mereset tiket: " + err); }); } };
-        window.downloadBackup = function() { const backupData = { teams: teams, nonIkrRetrievals: nonIkrRetrievals,
-                timestamp: new Date().toISOString() };
-            const jsonStr = JSON.stringify(backupData, null, 2);
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `backup_sinyalku_${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showSyncNotification('✅ Backup JSON berhasil diunduh!', 'success'); };
-        window.uploadBackup = function(event) { const file = event.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) { try { const backupData = JSON.parse(e.target.result); if (!backupData.teams || !
-                        Array.isArray(backupData.teams)) throw new Error(
-                        "Format file tidak valid: 'teams' tidak ditemukan atau bukan array."); if (confirm(
-                            "⚠️ Yakin ingin merestore data dari file ini? Data yang ada sekarang akan ditimpa!")) {
-                        teams = backupData.teams;
-                        nonIkrRetrievals = backupData.nonIkrRetrievals || [];
-                        saveDataToFirebaseDirect().then(() => saveNonIkrToFirebase()).then(() => { showSyncNotification(
-                                '✅ Restore data berhasil!', 'success');
-                            renderJobs();
-                            renderLandingTeams(); }).catch((err) => { showSyncNotification(
-                                '❌ Gagal menyimpan ke Firebase!', 'error');
-                            console.error(err); }); } } catch (error) { alert("❌ Gagal membaca file JSON: " + error
-                        .message); } finally { event.target.value = ''; } };
-            reader.readAsText(file); };
+                    location.reload();
+                }).catch((err) => { 
+                    showSyncNotification('❌ Gagal mereset tiket!', 'error');
+                    closeSyncNotification(nid);
+                    alert("Gagal mereset tiket: " + err);
+                }); 
+            } 
+        };
+        
+        window.downloadBackup = function() { const backupData = { teams: teams, nonIkrRetrievals: nonIkrRetrievals, timestamp: new Date().toISOString() }; const jsonStr = JSON.stringify(backupData, null, 2); const blob = new Blob([jsonStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup_sinyalku_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showSyncNotification('✅ Backup JSON berhasil diunduh!', 'success'); };
+        window.uploadBackup = function(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const backupData = JSON.parse(e.target.result); if (!backupData.teams || !Array.isArray(backupData.teams)) throw new Error("Format file tidak valid: 'teams' tidak ditemukan atau bukan array."); if (confirm("⚠️ Yakin ingin merestore data dari file ini? Data yang ada sekarang akan ditimpa!")) { teams = backupData.teams; nonIkrRetrievals = backupData.nonIkrRetrievals || []; saveDataToFirebaseDirect().then(() => saveNonIkrToFirebase()).then(() => { showSyncNotification('✅ Restore data berhasil!', 'success'); renderJobs(); renderLandingTeams(); }).catch((err) => { showSyncNotification('❌ Gagal menyimpan ke Firebase!', 'error'); console.error(err); }); } } catch (error) { alert("❌ Gagal membaca file JSON: " + error.message); } finally { event.target.value = ''; } }; reader.readAsText(file); };
         window.openTicketOption = function() { document.getElementById('modalTicketSelection').style.display = "block"; };
         window.closeTicketOption = function() { document.getElementById('modalTicketSelection').style.display = "none"; };
-        window.openCreateTicketModal = function() { closeTicketOption();
-            populateTechSelect('tech-1', 'tech-2');
-            const teamSelect = document.getElementById('select-existing-team');
-            teamSelect.innerHTML = '<option value="">-- Pilih Tim (Langsung) --</option>';
-            teams.forEach((team, idx) => { teamSelect.add(new Option(`${team.teamName} (${team.jobs.length} tiket)`, idx)); });
-            document.getElementById("modalTicket").style.display = "block"; };
-        window.closeCreateTicketModal = function() { document.getElementById("modalTicket").style.display = "none";
-            document.getElementById('preview-container').innerHTML =
-                '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
-            document.getElementById('bulk-input-text').value = ''; };
-        window.openEditTechModal = function() { closeTicketOption();
-            const select = document.getElementById('edit-tech-team-select');
-            select.innerHTML = '<option value="">-- Pilih Tim --</option>';
-            teams.forEach((t, index) => { select.add(new Option(t.teamName, index)); });
-            document.getElementById('edit-team-name').value = '';
-            populateTechSelect('edit-tech-1', 'edit-tech-2');
-            document.getElementById('modalEditTech').style.display = 'block'; };
+        window.openCreateTicketModal = function() { closeTicketOption(); populateTechSelect('tech-1', 'tech-2'); const teamSelect = document.getElementById('select-existing-team'); teamSelect.innerHTML = '<option value="">-- Pilih Tim (Langsung) --</option>'; teams.forEach((team, idx) => { teamSelect.add(new Option(`${team.teamName} (${team.jobs.length} tiket)`, idx)); }); document.getElementById("modalTicket").style.display = "block"; };
+        window.closeCreateTicketModal = function() { document.getElementById("modalTicket").style.display = "none"; document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>'; document.getElementById('bulk-input-text').value = ''; };
+        window.openEditTechModal = function() { closeTicketOption(); const select = document.getElementById('edit-tech-team-select'); select.innerHTML = '<option value="">-- Pilih Tim --</option>'; teams.forEach((t, index) => { select.add(new Option(t.teamName, index)); }); document.getElementById('edit-team-name').value = ''; populateTechSelect('edit-tech-1', 'edit-tech-2'); document.getElementById('modalEditTech').style.display = 'block'; };
         window.closeEditTechModal = function() { document.getElementById('modalEditTech').style.display = 'none'; };
-        window.loadTeamMembersForEdit = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; if (
-                teamIdx === "") return;
-            const team = teams[teamIdx];
-            document.getElementById('edit-team-name').value = team.teamName;
-            const t1Select = document.getElementById('edit-tech-1');
-            const t2Select = document.getElementById('edit-tech-2'); if (team.members && team.members.length > 0) { const
-                matchOption = (sel, val) => { for (let i = 0; i < sel.options.length; i++) { if (sel.options[i].value
-                        .toLowerCase() === val.toLowerCase()) { sel.selectedIndex = i; return; } } };
-                matchOption(t1Select, team.members[0]); if (team.members.length > 1) matchOption(t2Select, team.members[1]);
-                else t2Select.value = ""; } };
-        window.saveEditTech = function() { const teamIdx = document.getElementById('edit-tech-team-select').value;
-            const t1 = document.getElementById('edit-tech-1').value;
-            const t2 = document.getElementById('edit-tech-2').value; if (teamIdx === "") { alert("Pilih tim dulu!"); return; } if (
-                !t1) { alert("Teknisi 1 wajib diisi!"); return; }
-            let newMembers = [t1.toLowerCase()]; if (t2 && t2 !== "") newMembers.push(t2.toLowerCase());
-            newMembers.sort();
-            const oldMembers = teams[teamIdx].members;
-            teams[teamIdx].members = newMembers;
-            const currentTeamName = teams[teamIdx].teamName;
-            const match = currentTeamName.match(/Tim\s+(\d+):/i); if (match) { const prefix = match[0];
-                const newTeamName = `${prefix} ${t1}${t2 ? ' & '+t2 : ''}`;
-                teams[teamIdx].teamName = newTeamName; }
-            saveDataToFirebase();
-            alert(`✅ Personil tim berhasil diubah!`);
-            closeEditTechModal();
-            renderJobs(); };
-        window.updateTeamName = function() { const teamIdx = document.getElementById('edit-tech-team-select').value;
-            const newName = document.getElementById('edit-team-name').value.trim(); if (teamIdx === "") { alert(
-                "Pilih tim dulu!"); return; } if (newName === "") { alert("Nama tim tidak boleh kosong!"); return; }
-            teams[teamIdx].teamName = newName;
-            saveDataToFirebase();
-            alert("✅ Nama tim berhasil diubah!");
-            closeEditTechModal();
-            renderJobs(); };
-        window.deleteTeam = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; if (teamIdx ===
-                "") { alert("Pilih tim dulu!"); return; }
-            const teamName = teams[teamIdx].teamName;
-            let pin = prompt("🔒 Masukkan PIN Admin untuk menghapus tim ini:"); if (!checkPin(pin)) { alert(
-                    "❌ PIN SALAH! Penghapusan dibatalkan."); return; } if (confirm(
-                    `⚠️ Yakin ingin menghapus tim "${teamName}" beserta semua tiket dan stok modem-nya?`)) { teams.splice(
-                    teamIdx, 1);
-                saveDataToFirebase();
-                alert("✅ Tim berhasil dihapus.");
-                closeEditTechModal();
-                renderJobs();
-                renderLandingTeams(); } };
-        window.openTransferModal = function() { closeTicketOption();
-            const sourceSel = document.getElementById('transfer-source-team');
-            sourceSel.innerHTML = '<option value="">-- Pilih Tim Asal --</option>';
-            teams.forEach((t, index) => { if (t.jobs && t.jobs.length > 0) sourceSel.add(new Option(
-                    `${t.teamName} (${t.jobs.length} Tiket)`, index)); });
-            document.getElementById('transfer-job-section').style.display = 'none';
-            document.getElementById('modalTransferTicket').style.display = 'block'; };
+        window.loadTeamMembersForEdit = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; if (teamIdx === "") return; const team = teams[teamIdx]; document.getElementById('edit-team-name').value = team.teamName; const t1Select = document.getElementById('edit-tech-1'); const t2Select = document.getElementById('edit-tech-2'); if (team.members && team.members.length > 0) { const matchOption = (sel, val) => { for (let i = 0; i < sel.options.length; i++) { if (sel.options[i].value.toLowerCase() === val.toLowerCase()) { sel.selectedIndex = i; return; } } }; matchOption(t1Select, team.members[0]); if (team.members.length > 1) matchOption(t2Select, team.members[1]); else t2Select.value = ""; } };
+        window.saveEditTech = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; const t1 = document.getElementById('edit-tech-1').value; const t2 = document.getElementById('edit-tech-2').value; if (teamIdx === "") { alert("Pilih tim dulu!"); return; } if (!t1) { alert("Teknisi 1 wajib diisi!"); return; } let newMembers = [t1.toLowerCase()]; if (t2 && t2 !== "") newMembers.push(t2.toLowerCase()); newMembers.sort(); const oldMembers = teams[teamIdx].members; teams[teamIdx].members = newMembers; const currentTeamName = teams[teamIdx].teamName; const match = currentTeamName.match(/Tim\s+(\d+):/i); if (match) { const prefix = match[0]; const newTeamName = `${prefix} ${t1}${t2 ? ' & '+t2 : ''}`; teams[teamIdx].teamName = newTeamName; } saveDataToFirebase(); alert(`✅ Personil tim berhasil diubah!`); closeEditTechModal(); renderJobs(); };
+        window.updateTeamName = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; const newName = document.getElementById('edit-team-name').value.trim(); if (teamIdx === "") { alert("Pilih tim dulu!"); return; } if (newName === "") { alert("Nama tim tidak boleh kosong!"); return; } teams[teamIdx].teamName = newName; saveDataToFirebase(); alert("✅ Nama tim berhasil diubah!"); closeEditTechModal(); renderJobs(); };
+        window.deleteTeam = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; if (teamIdx === "") { alert("Pilih tim dulu!"); return; } const teamName = teams[teamIdx].teamName; let pin = prompt("🔒 Masukkan PIN Admin untuk menghapus tim ini:"); if (!checkPin(pin)) { alert("❌ PIN SALAH! Penghapusan dibatalkan."); return; } if (confirm(`⚠️ Yakin ingin menghapus tim "${teamName}" beserta semua tiket dan stok modem-nya?`)) { teams.splice(teamIdx, 1); saveDataToFirebase(); alert("✅ Tim berhasil dihapus."); closeEditTechModal(); renderJobs(); renderLandingTeams(); } };
+        window.openTransferModal = function() { closeTicketOption(); const sourceSel = document.getElementById('transfer-source-team'); sourceSel.innerHTML = '<option value="">-- Pilih Tim Asal --</option>'; teams.forEach((t, index) => { if (t.jobs && t.jobs.length > 0) sourceSel.add(new Option(`${t.teamName} (${t.jobs.length} Tiket)`, index)); }); document.getElementById('transfer-job-section').style.display = 'none'; document.getElementById('modalTransferTicket').style.display = 'block'; };
         window.closeTransferModal = function() { document.getElementById('modalTransferTicket').style.display = 'none'; };
-        window.renderTransferJobs = function() { const teamIdx = document.getElementById('transfer-source-team').value;
-            const container = document.getElementById('transfer-job-list');
-            const targetSel = document.getElementById('transfer-target-team');
-            container.innerHTML = '';
-            targetSel.innerHTML =
-                '<option value="">-- Pilih Tujuan --</option><option value="new_team">➕ BUAT TIM BARU</option>'; if (
-                teamIdx === "") { document.getElementById('transfer-job-section').style.display = 'none'; return; }
-            teams[teamIdx].jobs.forEach((job, idx) => { const div = document.createElement('div');
-                div.className = 'transfer-item';
-                div.innerHTML =
-                    `<input type="checkbox" class="job-transfer-cb" value="${idx}" id="cb-trans-${idx}"><label for="cb-trans-${idx}"><strong>${job.name}</strong> (${job.tag})<br><span style="font-size:0.8em; color:#666;">${job.address.substr(0,40)}...</span></label>`;
-                container.appendChild(div); });
-            teams.forEach((t, index) => { if (index != teamIdx) targetSel.add(new Option(t.teamName, index)); });
-            document.getElementById('transfer-job-section').style.display = 'block'; };
-        window.checkNewTeamOption = function() { const val = document.getElementById('transfer-target-team').value;
-            const newTeamDiv = document.getElementById('new-team-input-section'); if (val === 'new_team') { newTeamDiv.style
-                    .display = 'block';
-                populateTechSelect('transfer-new-tech-1', 'transfer-new-tech-2'); } else newTeamDiv.style.display = 'none'; };
-        window.processTransfer = function() { const sourceIdx = document.getElementById('transfer-source-team').value;
-            const targetVal = document.getElementById('transfer-target-team').value; if (sourceIdx === "" || targetVal === "") {
-                alert("Lengkapi pilihan tim!"); return; }
-            const cbs = document.querySelectorAll('.job-transfer-cb:checked'); if (cbs.length === 0) { alert(
-                    "Pilih minimal 1 tiket untuk dilempar!"); return; }
-            let jobIndices = Array.from(cbs).map(cb => parseInt(cb.value)).sort((a, b) => b - a);
-            let jobsToMove = [];
-            jobIndices.forEach(idx => jobsToMove.push(teams[sourceIdx].jobs[idx]));
-            let targetTeamIdx; if (targetVal === 'new_team') { const t1 = document.getElementById('transfer-new-tech-1').value;
-                const t2 = document.getElementById('transfer-new-tech-2').value; if (!t1) { alert(
-                        "Pilih teknisi untuk tim baru!"); return; }
-                let selectedMembers = [t1.toLowerCase()]; if (t2) selectedMembers.push(t2.toLowerCase());
-                selectedMembers.sort();
-                const newId = Date.now();
-                const colorIndex = (teams.length) % extraColors.length;
-                const usedNumbers = teams.map(t => { const match = t.teamName.match(/Tim\s+(\d+)/i); return match ? parseInt(
-                        match[1]) : 0; });
-                let nextNum = 1; while (usedNumbers.includes(nextNum)) nextNum++;
-                const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`;
-                const newTeamObj = { id: newId, teamName: teamNameStr, colorClass: extraColors[colorIndex] || "bg-dark",
-                    members: selectedMembers, jobs: [], inventory: [] };
-                teams.push(newTeamObj);
-                targetTeamIdx = teams.length - 1; } else targetTeamIdx = parseInt(targetVal);
-            jobsToMove.forEach(j => teams[targetTeamIdx].jobs.push(j));
-            jobIndices.forEach(idx => teams[sourceIdx].jobs.splice(idx, 1));
-            saveDataToFirebase();
-            alert(`✅ Berhasil melempar ${jobsToMove.length} tiket ke ${teams[targetTeamIdx].teamName}!`);
-            closeTransferModal(); };
+        window.renderTransferJobs = function() { const teamIdx = document.getElementById('transfer-source-team').value; const container = document.getElementById('transfer-job-list'); const targetSel = document.getElementById('transfer-target-team'); container.innerHTML = ''; targetSel.innerHTML = '<option value="">-- Pilih Tujuan --</option><option value="new_team">➕ BUAT TIM BARU</option>'; if (teamIdx === "") { document.getElementById('transfer-job-section').style.display = 'none'; return; } teams[teamIdx].jobs.forEach((job, idx) => { const div = document.createElement('div'); div.className = 'transfer-item'; div.innerHTML = `<input type="checkbox" class="job-transfer-cb" value="${idx}" id="cb-trans-${idx}"><label for="cb-trans-${idx}"><strong>${job.name}</strong> (${job.tag})<br><span style="font-size:0.8em; color:#666;">${job.address.substr(0,40)}...</span></label>`; container.appendChild(div); }); teams.forEach((t, index) => { if (index != teamIdx) targetSel.add(new Option(t.teamName, index)); }); document.getElementById('transfer-job-section').style.display = 'block'; };
+        window.checkNewTeamOption = function() { const val = document.getElementById('transfer-target-team').value; const newTeamDiv = document.getElementById('new-team-input-section'); if (val === 'new_team') { newTeamDiv.style.display = 'block'; populateTechSelect('transfer-new-tech-1', 'transfer-new-tech-2'); } else newTeamDiv.style.display = 'none'; };
+        window.processTransfer = function() { const sourceIdx = document.getElementById('transfer-source-team').value; const targetVal = document.getElementById('transfer-target-team').value; if (sourceIdx === "" || targetVal === "") { alert("Lengkapi pilihan tim!"); return; } const cbs = document.querySelectorAll('.job-transfer-cb:checked'); if (cbs.length === 0) { alert("Pilih minimal 1 tiket untuk dilempar!"); return; } let jobIndices = Array.from(cbs).map(cb => parseInt(cb.value)).sort((a, b) => b - a); let jobsToMove = []; jobIndices.forEach(idx => jobsToMove.push(teams[sourceIdx].jobs[idx])); let targetTeamIdx; if (targetVal === 'new_team') { const t1 = document.getElementById('transfer-new-tech-1').value; const t2 = document.getElementById('transfer-new-tech-2').value; if (!t1) { alert("Pilih teknisi untuk tim baru!"); return; } let selectedMembers = [t1.toLowerCase()]; if (t2) selectedMembers.push(t2.toLowerCase()); selectedMembers.sort(); const newId = Date.now(); const colorIndex = (teams.length) % extraColors.length; const usedNumbers = teams.map(t => { const match = t.teamName.match(/Tim\s+(\d+)/i); return match ? parseInt(match[1]) : 0; }); let nextNum = 1; while (usedNumbers.includes(nextNum)) nextNum++; const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`; const newTeamObj = { id: newId, teamName: teamNameStr, colorClass: extraColors[colorIndex] || "bg-dark", members: selectedMembers, jobs: [], inventory: [] }; teams.push(newTeamObj); targetTeamIdx = teams.length - 1; } else targetTeamIdx = parseInt(targetVal); jobsToMove.forEach(j => teams[targetTeamIdx].jobs.push(j)); jobIndices.forEach(idx => teams[sourceIdx].jobs.splice(idx, 1)); saveDataToFirebase(); alert(`✅ Berhasil melempar ${jobsToMove.length} tiket ke ${teams[targetTeamIdx].teamName}!`); closeTransferModal(); };
 
-        function populateTechSelect(id1, id2) { const s1 = document.getElementById(id1);
-            const s2 = document.getElementById(id2);
-            s1.innerHTML = '';
-            s2.innerHTML = '<option value="">-- Kosong --</option>';
-            techList.forEach(name => { s1.add(new Option(name, name));
-                s2.add(new Option(name, name)); });
-            s1.selectedIndex = 0;
-            s2.value = ""; }
+        function populateTechSelect(id1, id2) { const s1 = document.getElementById(id1); const s2 = document.getElementById(id2); s1.innerHTML = ''; s2.innerHTML = '<option value="">-- Kosong --</option>'; techList.forEach(name => { s1.add(new Option(name, name)); s2.add(new Option(name, name)); }); s1.selectedIndex = 0; s2.value = ""; }
 
-        window.generatePreview = function() { const raw = document.getElementById('bulk-input-text').value;
-            const container = document.getElementById('preview-container'); if (!raw.trim()) { alert("Paste data dulu!"); return; }
-            container.innerHTML = '';
-            const tickets = raw.split(/\n\s*\n/);
-            let psbCount = 0,
-                mtCount = 0,
-                isolirCount = 0;
-            tickets.forEach((ticketText, index) => { ticketText = ticketText.trim(); if (!ticketText) return;
-                const hasNamaLengkap = ticketText.toLowerCase().includes('nama lengkap :'); if (hasNamaLengkap) {
-                    createPSBCard(ticketText, index, container);
-                    psbCount++; } else { const kunjunganLine = ticketText.split('\n').find(line => line.toLowerCase()
-                        .startsWith('kunjungan:')); if (kunjunganLine) { const kunjunganValue = kunjunganLine.split(
-                        ':')[1]?.trim().toLowerCase() || ''; if (kunjunganValue.includes('isolir')) { isolirCount++; } else {
-                        mtCount++; } } else { mtCount++; }
-                    createMTCard(ticketText, index, container); } });
-            document.getElementById('preview-psb-count').textContent = psbCount;
-            document.getElementById('preview-mt-count').textContent = mtCount;
-            document.getElementById('preview-isolir-count').textContent = isolirCount;
-            document.getElementById('modalPreviewStats').style.display = 'block'; };
+        window.generatePreview = function() { const raw = document.getElementById('bulk-input-text').value; const container = document.getElementById('preview-container'); if (!raw.trim()) { alert("Paste data dulu!"); return; } container.innerHTML = ''; const tickets = raw.split(/\n\s*\n/); let psbCount = 0, mtCount = 0, isolirCount = 0; tickets.forEach((ticketText, index) => { ticketText = ticketText.trim(); if (!ticketText) return; const hasNamaLengkap = ticketText.toLowerCase().includes('nama lengkap :'); if (hasNamaLengkap) { createPSBCard(ticketText, index, container); psbCount++; } else { const kunjunganLine = ticketText.split('\n').find(line => line.toLowerCase().startsWith('kunjungan:')); if (kunjunganLine) { const kunjunganValue = kunjunganLine.split(':')[1]?.trim().toLowerCase() || ''; if (kunjunganValue.includes('isolir')) { isolirCount++; } else { mtCount++; } } else { mtCount++; } createMTCard(ticketText, index, container); } }); document.getElementById('preview-psb-count').textContent = psbCount; document.getElementById('preview-mt-count').textContent = mtCount; document.getElementById('preview-isolir-count').textContent = isolirCount; document.getElementById('modalPreviewStats').style.display = 'block'; };
 
         window.closePreviewStatsModal = function() { document.getElementById('modalPreviewStats').style.display = 'none'; };
 
-        function getFieldValue(text, fieldName) { const lines = text.split('\n'); for (let line of lines) { line = line.trim(); if (
-                line.toLowerCase().startsWith(fieldName.toLowerCase())) { const separatorIndex = line.indexOf(':'); if (
-                    separatorIndex !== -1) { let value = line.substring(separatorIndex + 1).trim(); return value === "" ? "-" :
-                    value; } } } return "-"; }
+        function getFieldValue(text, fieldName) { const lines = text.split('\n'); for (let line of lines) { line = line.trim(); if (line.toLowerCase().startsWith(fieldName.toLowerCase())) { const separatorIndex = line.indexOf(':'); if (separatorIndex !== -1) { let value = line.substring(separatorIndex + 1).trim(); return value === "" ? "-" : value; } } } return "-"; }
 
-        function createPSBCard(text, index, container) { const jam = getFieldValue(text, 'Jam');
-            const nama = getFieldValue(text, 'Nama Lengkap');
-            const alamat = getFieldValue(text, 'Alamat Lengkap');
-            const email = getFieldValue(text, 'Email Aktif');
-            const wa = getFieldValue(text, 'No. Wa') || getFieldValue(text, 'No. WA');
-            const paket = getFieldValue(text, 'Paket Layanan');
-            const referensi = getFieldValue(text, 'Referensi');
-            const ktp = getFieldValue(text, 'No KTP');
-            const tgl = getFieldValue(text, 'Tanggal pemasangan');
-            const statusRumah = getFieldValue(text, 'Status Rumah');
-            const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun');
-            const card = document.createElement('div');
-            card.className = 'preview-card preview-psb';
-            card.innerHTML =
-                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:#007bff;">Ticket PSB #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="PSB"><div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${alamat}"></div><div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${email}"></div><div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${wa}"></div><div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${paket}"></div><div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${referensi}"></div><div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div><div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div><div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div><div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setuju}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`;
-            container.appendChild(card); }
+        function createPSBCard(text, index, container) { const jam = getFieldValue(text, 'Jam'); const nama = getFieldValue(text, 'Nama Lengkap'); const alamat = getFieldValue(text, 'Alamat Lengkap'); const email = getFieldValue(text, 'Email Aktif'); const wa = getFieldValue(text, 'No. Wa') || getFieldValue(text, 'No. WA'); const paket = getFieldValue(text, 'Paket Layanan'); const referensi = getFieldValue(text, 'Referensi'); const ktp = getFieldValue(text, 'No KTP'); const tgl = getFieldValue(text, 'Tanggal pemasangan'); const statusRumah = getFieldValue(text, 'Status Rumah'); const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun'); const card = document.createElement('div'); card.className = 'preview-card preview-psb'; card.innerHTML = `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:#007bff;">Ticket PSB #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="PSB"><div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${alamat}"></div><div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${email}"></div><div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${wa}"></div><div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${paket}"></div><div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${referensi}"></div><div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div><div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div><div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div><div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setuju}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`; container.appendChild(card); }
 
-        function createMTCard(text, index, container) { const jam = getFieldValue(text, 'Jam');
-            const Kunjungan = getFieldValue(text, 'Kunjungan');
-            const nama = getFieldValue(text, 'Nama Pelanggan');
-            const noLayanan = getFieldValue(text, 'No Layanan');
-            const masaAktif = getFieldValue(text, 'Masa Aktif s/d');
-            const noTelp = getFieldValue(text, 'No Telp.');
-            const tglDaftar = getFieldValue(text, 'Tanggal Daftar');
-            const coverage = getFieldValue(text, 'Coverage');
-            const alamat = getFieldValue(text, 'Alamat');
-            const pppoe = getFieldValue(text, 'User PPPOE_RADIUS');
-            const pemakaian = getFieldValue(text, 'Pemakaian Bulan Ini (GB)');
-            const odc = getFieldValue(text, 'ODC');
-            const odp = getFieldValue(text, 'ODP');
-            const portOdp = getFieldValue(text, 'Port ODP');
-            const oltSn = getFieldValue(text, 'OLT SN/MAC');
-            const lastDBM = getFieldValue(text, 'Last DBM');
-            const lastDBMTime = getFieldValue(text, 'Last DBM Time');
-            const ssid = getFieldValue(text, 'Nama WiFi (SSID)');
-            const sandiWifi = getFieldValue(text, 'Sandi WiFi');
-            const keterangan = getFieldValue(text, 'Keterangan');
-            const router = getFieldValue(text, 'Router');
-            const isIsolir = Kunjungan.toLowerCase().includes('isolir');
-            const card = document.createElement('div');
-            card.className = isIsolir ? 'preview-card preview-isolir' : 'preview-card preview-mt';
-            card.innerHTML =
-                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Lain)'} #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="MT"><div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${Kunjungan}" required></div><div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${noLayanan}"></div><div class="input-group"><label>Masa Aktif s/d</label><input type="text" class="bulk-masa-aktif" value="${masaAktif}"></div><div class="input-group"><label>No Telp.</label><input type="text" class="bulk-telp" value="${noTelp}"></div><div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${tglDaftar}"></div><div class="input-group"><label>Coverage</label><input type="text" class="bulk-coverage" value="${coverage}"></div><div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div><div class="input-group"><label>User PPPOE_RADIUS</label><input type="text" class="bulk-pppoe" value="${pppoe}"></div><div class="input-group"><label>Pemakaian Bulan Ini (GB)</label><input type="text" class="bulk-pemakaian" value="${pemakaian}"></div><div class="input-group"><label>ODC</label><input type="text" class="bulk-odc" value="${odc}"></div><div class="input-group"><label>ODP</label><input type="text" class="bulk-odp" value="${odp}"></div><div class="input-group"><label>Port ODP</label><input type="text" class="bulk-port-odp" value="${portOdp}"></div><div class="input-group"><label>OLT SN/MAC</label><input type="text" class="bulk-olt-sn" value="${oltSn}"></div><div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${lastDBM}"></div><div class="input-group"><label>Last DBM Time</label><input type="text" class="bulk-last-dbm-time" value="${lastDBMTime}"></div><div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${ssid}"></div><div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div><div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div><div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`;
-            container.appendChild(card); }
+        function createMTCard(text, index, container) { const jam = getFieldValue(text, 'Jam'); const Kunjungan = getFieldValue(text, 'Kunjungan'); const nama = getFieldValue(text, 'Nama Pelanggan'); const noLayanan = getFieldValue(text, 'No Layanan'); const masaAktif = getFieldValue(text, 'Masa Aktif s/d'); const noTelp = getFieldValue(text, 'No Telp.'); const tglDaftar = getFieldValue(text, 'Tanggal Daftar'); const coverage = getFieldValue(text, 'Coverage'); const alamat = getFieldValue(text, 'Alamat'); const pppoe = getFieldValue(text, 'User PPPOE_RADIUS'); const pemakaian = getFieldValue(text, 'Pemakaian Bulan Ini (GB)'); const odc = getFieldValue(text, 'ODC'); const odp = getFieldValue(text, 'ODP'); const portOdp = getFieldValue(text, 'Port ODP'); const oltSn = getFieldValue(text, 'OLT SN/MAC'); const lastDBM = getFieldValue(text, 'Last DBM'); const lastDBMTime = getFieldValue(text, 'Last DBM Time'); const ssid = getFieldValue(text, 'Nama WiFi (SSID)'); const sandiWifi = getFieldValue(text, 'Sandi WiFi'); const keterangan = getFieldValue(text, 'Keterangan'); const router = getFieldValue(text, 'Router'); const isIsolir = Kunjungan.toLowerCase().includes('isolir'); const card = document.createElement('div'); card.className = isIsolir ? 'preview-card preview-isolir' : 'preview-card preview-mt'; card.innerHTML = `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Lain)'} #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="MT"><div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${Kunjungan}" required></div><div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${noLayanan}"></div><div class="input-group"><label>Masa Aktif s/d</label><input type="text" class="bulk-masa-aktif" value="${masaAktif}"></div><div class="input-group"><label>No Telp.</label><input type="text" class="bulk-telp" value="${noTelp}"></div><div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${tglDaftar}"></div><div class="input-group"><label>Coverage</label><input type="text" class="bulk-coverage" value="${coverage}"></div><div class="input-group"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div><div class="input-group"><label>User PPPOE_RADIUS</label><input type="text" class="bulk-pppoe" value="${pppoe}"></div><div class="input-group"><label>Pemakaian Bulan Ini (GB)</label><input type="text" class="bulk-pemakaian" value="${pemakaian}"></div><div class="input-group"><label>ODC</label><input type="text" class="bulk-odc" value="${odc}"></div><div class="input-group"><label>ODP</label><input type="text" class="bulk-odp" value="${odp}"></div><div class="input-group"><label>Port ODP</label><input type="text" class="bulk-port-odp" value="${portOdp}"></div><div class="input-group"><label>OLT SN/MAC</label><input type="text" class="bulk-olt-sn" value="${oltSn}"></div><div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${lastDBM}"></div><div class="input-group"><label>Last DBM Time</label><input type="text" class="bulk-last-dbm-time" value="${lastDBMTime}"></div><div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${ssid}"></div><div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div><div class="input-group"><label>Keterangan</label><input type="text" class="bulk-keterangan" value="${keterangan}"></div><div class="input-group"><label>Router</label><input type="text" class="bulk-router" value="${router}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`; container.appendChild(card); }
 
-        window.saveBulkTickets = function() { if (!teams || !Array.isArray(teams)) teams = [];
-            const previewCards = document.querySelectorAll('.preview-card'); if (previewCards.length === 0) { alert(
-                    "⚠️ Generate preview dulu sebelum menyimpan!"); return; }
-            const selectedTeamVal = document.getElementById('select-existing-team').value;
-            let targetTeamIndex = null; if (selectedTeamVal !== "") { targetTeamIndex = parseInt(selectedTeamVal); if (isNaN(
-                    targetTeamIndex) || targetTeamIndex < 0 || targetTeamIndex >= teams.length) { alert(
-                        "Tim yang dipilih tidak valid."); return; } } else { const t1 = document.getElementById('tech-1')
-                    .value;
-                const t2 = document.getElementById('tech-2').value; if (!t1) { alert("⚠️ Pilih minimal Teknisi 1!"); return; }
-                let selectedMembers = [t1.toLowerCase()]; if (t2 && t2 !== "") selectedMembers.push(t2.toLowerCase());
-                selectedMembers.sort();
-                targetTeamIndex = teams.findIndex(team => { const members = team.members ? team.members : []; return JSON
-                        .stringify(members.sort()) === JSON.stringify(selectedMembers); }); if (targetTeamIndex === -1) {
-                    const newId = Date.now();
-                    const colorIndex = (teams.length) % extraColors.length;
-                    const usedNumbers = teams.map(t => { const match = (t.teamName || "").match(/Tim\s+(\d+)/i); return match ?
-                            parseInt(match[1]) : 0; });
-                    let nextNum = 1; while (usedNumbers.includes(nextNum)) nextNum++;
-                    const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`;
-                    const newTeamObj = { id: newId, teamName: teamNameStr, colorClass: extraColors[colorIndex] || "bg-dark",
-                        members: selectedMembers, jobs: [], inventory: [] };
-                    teams.push(newTeamObj);
-                    targetTeamIndex = teams.length - 1; } } if (targetTeamIndex === null) throw new Error(
-                "Gagal menentukan tim tujuan."); if (!teams[targetTeamIndex]) throw new Error(
-                "Gagal mengakses index tim. Silakan refresh halaman."); if (!teams[targetTeamIndex].jobs || !Array.isArray(
-                    teams[targetTeamIndex].jobs)) teams[targetTeamIndex].jobs = [];
-            const nid = showSyncNotification('Menyimpan tiket baru...', 'saving', false);
-            try { let count = 0;
-                previewCards.forEach((card, cardIndex) => { const type = card.querySelector('.bulk-type').value;
-                    const jamInput = card.querySelector('.bulk-input-jam');
-                    const jam = jamInput ? jamInput.value.trim() : "FLEXIBEL";
-                    const getValue = (selector) => { const el = card.querySelector(selector); return el ? el.value.trim() :
-                        ''; };
-                    const nama = getValue('.bulk-nama');
-                    const alamat = getValue('.bulk-alamat');
-                    let newJob = {}; if (type === 'PSB') { const email = getValue('.bulk-email');
-                        const wa = getValue('.bulk-wa');
-                        const paket = getValue('.bulk-paket');
-                        const referensi = getValue('.bulk-referensi');
-                        const ktp = getValue('.bulk-ktp');
-                        const tgl = getValue('.bulk-tgl');
-                        const statusRumah = getValue('.bulk-status-rumah');
-                        const setuju = getValue('.bulk-setuju');
-                        newJob = { completed: false, status: 'pending', completedAt: null, technical: {}, linkSC: '',
-                            oltType: 'unknown', name: nama || '-', tag: `PSB (${paket || '150rb'})`,
-                            tagClass: "badge-psb", time: jam || "FLEXIBEL", address: alamat || '-', details: { "Paket": paket ||
-                                    '-', "Email": email || '-', "No WA": wa || '-', "Referensi": referensi || '-',
-                                "No KTP": ktp || '-', "Status Rumah": statusRumah || '-', "Setuju Berlangganan": setuju ||
-                                    '-', "Tgl Pasang": tgl || '-' } }; } else { const Kunjungan = getValue(
-                                '.bulk-Kunjungan');
-                        const layanan = getValue('.bulk-layanan');
-                        const masaAktif = getValue('.bulk-masa-aktif');
-                        const telp = getValue('.bulk-telp');
-                        const tglDaftar = getValue('.bulk-tgl-daftar');
-                        const coverage = getValue('.bulk-coverage');
-                        const pppoe = getValue('.bulk-pppoe');
-                        const pemakaian = getValue('.bulk-pemakaian');
-                        const odc = getValue('.bulk-odc');
-                        const odp = getValue('.bulk-odp');
-                        const portOdp = getValue('.bulk-port-odp');
-                        const oltSn = getValue('.bulk-olt-sn');
-                        const lastDBM = getValue('.bulk-last-dbm');
-                        const lastDBMTime = getValue('.bulk-last-dbm-time');
-                        const ssid = getValue('.bulk-ssid');
-                        const sandiWifi = getValue('.bulk-sandi-wifi');
-                        const keterangan = getValue('.bulk-keterangan');
-                        const router = getValue('.bulk-router');
-                        let details = {};
-                        details["Kunjungan"] = Kunjungan || '-'; if (layanan) details["Layanan"] = layanan; if (masaAktif)
-                            details["Masa Aktif"] = masaAktif; if (telp) details["No Telp"] = telp; if (tglDaftar) details[
-                                "Tgl Daftar"] = tglDaftar; if (coverage) details["Coverage"] = coverage; if (pppoe) details[
-                                "User PPPOE_RADIUS"] = pppoe; if (pemakaian) details["Pemakaian Bulan Ini (GB)"] =
-                            pemakaian; if (odc) details["ODC"] = odc; if (odp) details["ODP"] = odp; if (portOdp) details[
-                                "Port ODP"] = portOdp; if (oltSn) details["OLT SN-MAC"] = oltSn; if (lastDBM) details[
-                                "Last DBM"] = lastDBM; if (lastDBMTime) details["Last DBM Time"] = lastDBMTime; if (ssid)
-                            details["Nama WiFi (SSID)"] = ssid; if (sandiWifi) details["Sandi WiFi"] = sandiWifi; if (
-                            keterangan) details["Keterangan"] = keterangan; if (router) details["Router"] = router;
-                        newJob = { completed: false, status: 'pending', completedAt: null, technical: {}, linkSC: '',
-                            oltType: 'unknown', name: nama || '-', tag: Kunjungan || 'MT (Lain)', tagClass: (Kunjungan &&
-                                Kunjungan.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt", time: jam ||
-                                "FLEXIBEL", address: alamat || '-', details: details }; }
-                    teams[targetTeamIndex].jobs.push(newJob);
-                    count++; }); if (count > 0) { saveDataToFirebase();
-                    closeCreateTicketModal();
-                    showSyncNotification(`✅ Berhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}!`,
-                        'success');
-                    closeSyncNotification(nid);
-                    document.getElementById('bulk-input-text').value = '';
-                    document.getElementById('preview-container').innerHTML =
-                        '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
-                    renderJobs();
-                    renderLandingTeams(); } else { closeSyncNotification(nid);
-                    alert("⚠️ Gagal memproses tiket. Data input mungkin tidak valid."); } } catch (error) {
-                closeSyncNotification(nid);
-                console.error("CRITICAL ERROR:", error);
-                alert("❌ TERJADI ERROR SYSTEM:\n" + error.message + "\n\nCoba refresh halaman dan coba lagi."); } };
+        window.saveBulkTickets = function() { if (!teams || !Array.isArray(teams)) teams = []; const previewCards = document.querySelectorAll('.preview-card'); if (previewCards.length === 0) { alert("⚠️ Generate preview dulu sebelum menyimpan!"); return; } const selectedTeamVal = document.getElementById('select-existing-team').value; let targetTeamIndex = null; if (selectedTeamVal !== "") { targetTeamIndex = parseInt(selectedTeamVal); if (isNaN(targetTeamIndex) || targetTeamIndex < 0 || targetTeamIndex >= teams.length) { alert("Tim yang dipilih tidak valid."); return; } } else { const t1 = document.getElementById('tech-1').value; const t2 = document.getElementById('tech-2').value; if (!t1) { alert("⚠️ Pilih minimal Teknisi 1!"); return; } let selectedMembers = [t1.toLowerCase()]; if (t2 && t2 !== "") selectedMembers.push(t2.toLowerCase()); selectedMembers.sort(); targetTeamIndex = teams.findIndex(team => { const members = team.members ? team.members : []; return JSON.stringify(members.sort()) === JSON.stringify(selectedMembers); }); if (targetTeamIndex === -1) { const newId = Date.now(); const colorIndex = (teams.length) % extraColors.length; const usedNumbers = teams.map(t => { const match = (t.teamName || "").match(/Tim\s+(\d+)/i); return match ? parseInt(match[1]) : 0; }); let nextNum = 1; while (usedNumbers.includes(nextNum)) nextNum++; const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`; const newTeamObj = { id: newId, teamName: teamNameStr, colorClass: extraColors[colorIndex] || "bg-dark", members: selectedMembers, jobs: [], inventory: [] }; teams.push(newTeamObj); targetTeamIndex = teams.length - 1; } } if (targetTeamIndex === null) throw new Error("Gagal menentukan tim tujuan."); if (!teams[targetTeamIndex]) throw new Error("Gagal mengakses index tim. Silakan refresh halaman."); if (!teams[targetTeamIndex].jobs || !Array.isArray(teams[targetTeamIndex].jobs)) teams[targetTeamIndex].jobs = []; const nid = showSyncNotification('Menyimpan tiket baru...', 'saving', false); try { let count = 0; previewCards.forEach((card, cardIndex) => { const type = card.querySelector('.bulk-type').value; const jamInput = card.querySelector('.bulk-input-jam'); const jam = jamInput ? jamInput.value.trim() : "FLEXIBEL"; const getValue = (selector) => { const el = card.querySelector(selector); return el ? el.value.trim() : ''; }; const nama = getValue('.bulk-nama'); const alamat = getValue('.bulk-alamat'); let newJob = {}; if (type === 'PSB') { const email = getValue('.bulk-email'); const wa = getValue('.bulk-wa'); const paket = getValue('.bulk-paket'); const referensi = getValue('.bulk-referensi'); const ktp = getValue('.bulk-ktp'); const tgl = getValue('.bulk-tgl'); const statusRumah = getValue('.bulk-status-rumah'); const setuju = getValue('.bulk-setuju'); newJob = { completed: false, status: 'pending', completedAt: null, technical: {}, linkSC: '', oltType: 'unknown', name: nama || '-', tag: `PSB (${paket || '150rb'})`, tagClass: "badge-psb", time: jam || "FLEXIBEL", address: alamat || '-', details: { "Paket": paket || '-', "Email": email || '-', "No WA": wa || '-', "Referensi": referensi || '-', "No KTP": ktp || '-', "Status Rumah": statusRumah || '-', "Setuju Berlangganan": setuju || '-', "Tgl Pasang": tgl || '-' } }; } else { const Kunjungan = getValue('.bulk-Kunjungan'); const layanan = getValue('.bulk-layanan'); const masaAktif = getValue('.bulk-masa-aktif'); const telp = getValue('.bulk-telp'); const tglDaftar = getValue('.bulk-tgl-daftar'); const coverage = getValue('.bulk-coverage'); const pppoe = getValue('.bulk-pppoe'); const pemakaian = getValue('.bulk-pemakaian'); const odc = getValue('.bulk-odc'); const odp = getValue('.bulk-odp'); const portOdp = getValue('.bulk-port-odp'); const oltSn = getValue('.bulk-olt-sn'); const lastDBM = getValue('.bulk-last-dbm'); const lastDBMTime = getValue('.bulk-last-dbm-time'); const ssid = getValue('.bulk-ssid'); const sandiWifi = getValue('.bulk-sandi-wifi'); const keterangan = getValue('.bulk-keterangan'); const router = getValue('.bulk-router'); let details = {}; details["Kunjungan"] = Kunjungan || '-'; if (layanan) details["Layanan"] = layanan; if (masaAktif) details["Masa Aktif"] = masaAktif; if (telp) details["No Telp"] = telp; if (tglDaftar) details["Tgl Daftar"] = tglDaftar; if (coverage) details["Coverage"] = coverage; if (pppoe) details["User PPPOE_RADIUS"] = pppoe; if (pemakaian) details["Pemakaian Bulan Ini (GB)"] = pemakaian; if (odc) details["ODC"] = odc; if (odp) details["ODP"] = odp; if (portOdp) details["Port ODP"] = portOdp; if (oltSn) details["OLT SN-MAC"] = oltSn; if (lastDBM) details["Last DBM"] = lastDBM; if (lastDBMTime) details["Last DBM Time"] = lastDBMTime; if (ssid) details["Nama WiFi (SSID)"] = ssid; if (sandiWifi) details["Sandi WiFi"] = sandiWifi; if (keterangan) details["Keterangan"] = keterangan; if (router) details["Router"] = router; newJob = { completed: false, status: 'pending', completedAt: null, technical: {}, linkSC: '', oltType: 'unknown', name: nama || '-', tag: Kunjungan || 'MT (Lain)', tagClass: (Kunjungan && Kunjungan.toLowerCase().includes("isolir")) ? "badge-isolir" : "badge-mt", time: jam || "FLEXIBEL", address: alamat || '-', details: details }; } teams[targetTeamIndex].jobs.push(newJob); count++; }); if (count > 0) { saveDataToFirebase(); closeCreateTicketModal(); showSyncNotification(`✅ Berhasil menambahkan ${count} tiket ke ${teams[targetTeamIndex].teamName}!`, 'success'); closeSyncNotification(nid); document.getElementById('bulk-input-text').value = ''; document.getElementById('preview-container').innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>'; renderJobs(); renderLandingTeams(); } else { closeSyncNotification(nid); alert("⚠️ Gagal memproses tiket. Data input mungkin tidak valid."); } } catch (error) { closeSyncNotification(nid); console.error("CRITICAL ERROR:", error); alert("❌ TERJADI ERROR SYSTEM:\n" + error.message + "\n\nCoba refresh halaman dan coba lagi."); } };
 
-        window.onclick = function(event) { if (event.target == document.getElementById("modalTicket"))
-            closeCreateTicketModal(); if (event.target == document.getElementById("modalTicketSelection"))
-            closeTicketOption(); if (event.target == document.getElementById("modalEditTech")) closeEditTechModal(); if (event
-                .target == document.getElementById("modalTransferTicket")) closeTransferModal(); if (event.target == document
-                .getElementById("modalStockList")) closeStockListModal(); if (event.target == document.getElementById(
-                    "modalExcelOption")) closeExcelOption(); if (event.target == document.getElementById("modalCopyOption"))
-                closeCopyOption(); if (event.target == document.getElementById("modalModemRecapOption"))
-            closeModemRecapOption(); if (event.target == document.getElementById("modalPreviewStats"))
-            closePreviewStatsModal(); if (event.target == document.getElementById("modalNonIkrList"))
-            closeNonIkrListModal(); }
+        window.onclick = function(event) { if (event.target == document.getElementById("modalTicket")) closeCreateTicketModal(); if (event.target == document.getElementById("modalTicketSelection")) closeTicketOption(); if (event.target == document.getElementById("modalEditTech")) closeEditTechModal(); if (event.target == document.getElementById("modalTransferTicket")) closeTransferModal(); if (event.target == document.getElementById("modalStockList")) closeStockListModal(); if (event.target == document.getElementById("modalExcelOption")) closeExcelOption(); if (event.target == document.getElementById("modalCopyOption")) closeCopyOption(); if (event.target == document.getElementById("modalModemRecapOption")) closeModemRecapOption(); if (event.target == document.getElementById("modalPreviewStats")) closePreviewStatsModal(); if (event.target == document.getElementById("modalNonIkrList")) closeNonIkrListModal(); }
 
         loadFirebaseData();
     </script>
