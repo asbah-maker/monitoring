@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Master Data Tools - PSB & Tiket (DeepSeek Ready | Excel Mode)</title>
+    <title>Master Data Tools - PSB & Tiket (Gemini Mode)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -17,8 +17,6 @@
             --primary-hover: #4338ca;
             --secondary: #10b981;
             --secondary-hover: #059669;
-            --deepseek: #1e3a5f;
-            --deepseek-hover: #0f2b44;
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #1f2937;
@@ -122,9 +120,6 @@
         .btn-success { background: var(--secondary); color: white; width: 100%; font-size: 1rem; padding: 14px; border-radius: 40px; }
         .btn-success:hover { background: var(--secondary-hover); transform: translateY(-1px); }
 
-        .btn-deepseek { background: var(--deepseek); color: white; width: 100%; font-size: 1rem; padding: 14px; border-radius: 40px; }
-        .btn-deepseek:hover { background: var(--deepseek-hover); transform: translateY(-1px); }
-
         .btn-outline { background: white; border: 2px solid var(--border); color: var(--text-main); }
         .btn-outline:hover { border-color: var(--primary); background: #f8fafc; }
 
@@ -221,7 +216,7 @@
 <div class="main-wrapper">
     <header>
         <h1>📋 Master Data Tools</h1>
-        <p>⚡ Generator PSB + Tiket | Excel Mode siap pakai untuk Gemini & DeepSeek</p>
+        <p>⚡ Generator PSB + Tiket | Excel Mode siap pakai untuk Gemini</p>
     </header>
 
     <div id="mainMenu">
@@ -232,7 +227,7 @@
             </div>
             <div class="menu-card" onclick="switchView('ticket')">
                 <h3>🎟️ Format Data Tiket</h3>
-                <p>Auto gabung & rapi • Copy ke DeepSeek</p>
+                <p>Auto gabung & rapi • Copy ke Gemini</p>
             </div>
         </div>
     </div>
@@ -297,7 +292,7 @@
         </div>
     </div>
 
-    <!-- PANEL TIKET (DEEPSEEK) -->
+    <!-- PANEL TIKET (GEMINI) -->
     <div id="viewTicket" class="hidden">
         <button class="btn-back" onclick="switchView('menu')">← Kembali ke Menu</button>
         <div class="card">
@@ -307,8 +302,8 @@
             <p style="font-size:0.9rem;">Paste data tiket (Nama Pelanggan / Nama Lengkap) secara acak disini.</p>
             <textarea id="ticketInput" style="height: 280px;" placeholder="Contoh:&#10;Jam: 10:00 Kunjungan: MODEM MATOT Nama Pelanggan: BUDI&#10;Nama Lengkap : Andi Wijaya Alamat : Jl. Merdeka"></textarea>
             <div style="margin-top: 28px;">
-                <button class="btn-deepseek" onclick="processTicketAndOpen()">
-                    🧠 Proses, Copy & Buka DeepSeek Chat
+                <button class="btn-primary" style="width: 100%; font-size: 1rem; padding: 14px; border-radius: 40px;" onclick="processTicketAndOpen()">
+                    🧠 Proses, Copy & Buka Gemini
                 </button>
             </div>
             <p style="text-align: center; margin-top: 18px; font-size: 0.8rem; color: #5b6e8c;">
@@ -318,7 +313,7 @@
     </div>
 
     <div style="text-align: center; margin-top: 40px; color: #9ca3af; font-size: 0.75rem;">
-        PSB + Tiket Automation • Support Gemini & DeepSeek
+        PSB + Tiket Automation • Support Gemini
     </div>
 </div>
 
@@ -326,8 +321,7 @@
 
 <script>
     // ---------- KONFIGURASI ----------
-    const GEMINI_URL = "https://gemini.google.com/app?hl=id";
-    const DEEPSEEK_URL = "https://chat.deepseek.com/";
+    const GEMINI_URL = "https://gemini.google.com/app";
     const PSB_INSTRUCTION = `berikan saya table dengan urutan nomor layanan yang angka awal, nama, kolom alamat harus sesuai dengan apa yang ada di kolom alamat dan jangan ada yang dihapus atau ubah, rt nanti didepannya tidak ada angka 0, rw nanti didepannya tidak ada angka 0, kodepos ambil 5 angka dari depan nomor layanan, nomor handphone, tanggal terdaftar, paket layanan, referensi.`;
 
     // Helper tanggal Indonesia
@@ -377,9 +371,9 @@
         const ok = await copyToClipboard(text, "✅ Data PSB tersalin! Membuka Gemini...");
         if (ok) setTimeout(() => window.open(GEMINI_URL, '_blank'), 1000);
     }
-    async function copyAndGoDeepSeek(text) {
-        const ok = await copyToClipboard(text, "🚀 Data Tiket tersalin! Membuka DeepSeek...");
-        if (ok) setTimeout(() => window.open(DEEPSEEK_URL, '_blank'), 1000);
+    async function copyAndGoGeminiTicket(text) {
+        const ok = await copyToClipboard(text, "🚀 Data Tiket tersalin! Membuka Gemini...");
+        if (ok) setTimeout(() => window.open(GEMINI_URL, '_blank'), 1000);
     }
 
     // ----- UTILITY RESET PSB MODE -----
@@ -463,9 +457,6 @@
             if (detail) {
                 combinedData += `No Layanan: ${noLay}\nReferensi: ${ref}\nData Detail: ${detail}\n\n----------------\n\n`;
                 filled++;
-            } else {
-                // jika kosong tetap diabaikan tapi bisa diinformasikan? kami skip
-                // tapi lebih baik tidak dimasukkan. opsional
             }
         });
         if (filled === 0) {
@@ -477,7 +468,7 @@
     }
 
     // ---------- GENERATE DENGAN EXCEL (Prompt langsung dengan placeholder) ----------
-    let currentExcelEntries = []; // simpan untuk tombol copy
+    let currentExcelEntries = [];
 
     function generateWithExcel() {
         resetPsbContainers();
@@ -531,7 +522,7 @@
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
     function escapeAttr(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
-    // ----- TICKET PROCESS (DeepSeek) -----
+    // ----- TICKET PROCESS (Gemini) -----
     function processTicketAndOpen() {
         const rawTickets = document.getElementById('ticketInput').value.trim();
         const currentDate = getIndonesianDate();
@@ -618,7 +609,7 @@ Tanggal pemasangan: ${currentDate}
 FOTO Depan Rumah :
 Status Rumah : Pribadi
 Setuju berlangganan minimal 1 tahun: YA) , jika pada format nama lengkap  di sebelah namanya ada catatan maka satukan saja dengan di kolom paket layanan.`;
-        copyAndGoDeepSeek(finalPrompt);
+        copyAndGoGeminiTicket(finalPrompt);
     }
 
     // ----- SWITCH VIEW -----
@@ -639,7 +630,6 @@ Setuju berlangganan minimal 1 tahun: YA) , jika pada format nama lengkap  di seb
     document.getElementById('btnWithExcel').addEventListener('click', generateWithExcel);
     document.getElementById('copyExcelFinalBtn').addEventListener('click', copyExcelFinalPrompt);
     
-    // Initialize default date
     window.onload = () => {
         // preload
     };
