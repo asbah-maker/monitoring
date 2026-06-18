@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <title>Master Data Tools - PSB & Tiket (Gemini Mode)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
+        /* ===== RESET & VARIABLES ===== */
         * {
             margin: 0;
             padding: 0;
@@ -22,7 +23,7 @@
             --text-main: #1f2937;
             --text-sub: #6b7280;
             --border: #e5e7eb;
-            --shadow: 0 8px 20px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.05);
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.05);
             --radius: 20px;
         }
 
@@ -40,6 +41,7 @@
             margin: 0 auto;
         }
 
+        /* ===== HEADER ===== */
         header {
             text-align: center;
             margin-bottom: 40px;
@@ -59,13 +61,14 @@
             font-weight: 500;
         }
 
+        /* ===== CARDS ===== */
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             padding: 28px 30px;
             margin-bottom: 28px;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             transition: all 0.2s;
         }
 
@@ -78,8 +81,14 @@
             padding-bottom: 14px;
         }
 
-        h2 { font-size: 1.35rem; font-weight: 700; margin: 0; letter-spacing: -0.2px; }
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.2px;
+        }
 
+        /* ===== TEXTAREA ===== */
         textarea {
             width: 100%;
             padding: 14px;
@@ -92,8 +101,14 @@
             resize: vertical;
             transition: 0.2s;
         }
-        textarea:focus { outline: none; border-color: var(--primary); background-color: white; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
 
+        /* ===== BUTTONS ===== */
         .btn-group {
             display: flex;
             gap: 16px;
@@ -114,18 +129,53 @@
             gap: 8px;
             font-size: 0.9rem;
         }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 6px rgba(79,70,229,0.2); }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        
-        .btn-success { background: var(--secondary); color: white; width: 100%; font-size: 1rem; padding: 14px; border-radius: 40px; }
-        .btn-success:hover { background: var(--secondary-hover); transform: translateY(-1px); }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+        }
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
 
-        .btn-outline { background: white; border: 2px solid var(--border); color: var(--text-main); }
-        .btn-outline:hover { border-color: var(--primary); background: #f8fafc; }
+        .btn-success {
+            background: var(--secondary);
+            color: white;
+            width: 100%;
+            font-size: 1rem;
+            padding: 14px;
+            border-radius: 40px;
+        }
+        .btn-success:hover {
+            background: var(--secondary-hover);
+            transform: translateY(-1px);
+        }
 
-        .btn-back { background: #e2e8f0; color: #1e293b; width: auto; padding: 8px 20px; border-radius: 40px; margin-bottom: 20px; font-weight: 500; }
-        .btn-back:hover { background: #cbd5e1; }
+        .btn-outline {
+            background: white;
+            border: 2px solid var(--border);
+            color: var(--text-main);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
 
+        .btn-back {
+            background: #e2e8f0;
+            color: #1e293b;
+            width: auto;
+            padding: 8px 20px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .btn-back:hover {
+            background: #cbd5e1;
+        }
+
+        /* ===== MENU GRID ===== */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -139,25 +189,55 @@
             cursor: pointer;
             border: 1px solid var(--border);
             transition: all 0.25s;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.03);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
         }
         .menu-card:hover {
             border-color: var(--primary);
             transform: translateY(-6px);
-            box-shadow: 0 20px 30px -12px rgba(79,70,229,0.2);
+            box-shadow: 0 20px 30px -12px rgba(79, 70, 229, 0.2);
         }
-        .menu-card h3 { margin: 0 0 12px 0; color: var(--primary); font-size: 1.7rem; font-weight: 800; }
-        .menu-card p { margin: 0; color: var(--text-sub); }
+        .menu-card h3 {
+            margin: 0 0 12px 0;
+            color: var(--primary);
+            font-size: 1.7rem;
+            font-weight: 800;
+        }
+        .menu-card p {
+            margin: 0;
+            color: var(--text-sub);
+        }
 
-        .hidden { display: none; }
+        /* ===== UTILITY ===== */
+        .hidden {
+            display: none !important;
+        }
         .step-badge {
-            background: var(--primary); color: white; width: 34px; height: 34px;
-            display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 14px;
-            font-weight: 800; font-size: 1rem;
+            background: var(--primary);
+            color: white;
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 14px;
+            font-weight: 800;
+            font-size: 1rem;
         }
 
-        .form-grid { display: flex; flex-direction: column; gap: 24px; margin-top: 20px; }
-        .form-item { background: #ffffff; border: 1px solid var(--border); border-radius: 20px; padding: 20px; transition: 0.1s; }
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .form-item {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            transition: 0.1s;
+        }
 
         .ref-tag {
             background: #e0e7ff;
@@ -169,6 +249,7 @@
             margin-left: 12px;
         }
 
+        /* ===== EXCEL TABLE ===== */
         .excel-table {
             width: 100%;
             border-collapse: collapse;
@@ -176,7 +257,8 @@
             border-radius: 16px;
             overflow: hidden;
         }
-        .excel-table th, .excel-table td {
+        .excel-table th,
+        .excel-table td {
             padding: 12px 16px;
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
@@ -187,20 +269,32 @@
             color: #0f172a;
         }
 
+        /* ===== TOAST ===== */
         #toast {
-            visibility: hidden; min-width: 280px; background: #1e293b; color: white; text-align: center;
-            border-radius: 60px; padding: 14px 24px; position: fixed; z-index: 1100; right: 24px; top: 30px;
-            font-weight: 500; letter-spacing: 0.3px;
-            opacity: 0; transition: opacity 0.25s, top 0.25s;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            visibility: hidden;
+            min-width: 280px;
+            background: #1e293b;
+            color: white;
+            text-align: center;
+            border-radius: 60px;
+            padding: 14px 24px;
+            position: fixed;
+            z-index: 1100;
+            right: 24px;
+            top: 30px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            opacity: 0;
+            transition: opacity 0.25s, top 0.25s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
-        #toast.show { visibility: visible; opacity: 1; top: 30px; }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            top: 30px;
+        }
 
-        @media (max-width: 640px) {
-            .menu-grid { grid-template-columns: 1fr; }
-            .card { padding: 20px; }
-            .btn-group { flex-direction: column; }
-        }
+        /* ===== INFO NOTE ===== */
         .info-note {
             font-size: 0.75rem;
             color: #5b6e8c;
@@ -209,348 +303,393 @@
             padding: 8px 14px;
             border-radius: 12px;
         }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 20px;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="main-wrapper">
-    <header>
-        <h1>📋 Master Data Tools</h1>
-        <p>⚡ Generator PSB + Tiket | Excel Mode siap pakai untuk Gemini</p>
-    </header>
+    <div class="main-wrapper">
+        <!-- HEADER -->
+        <header>
+            <h1>📋 Master Data Tools</h1>
+            <p>⚡ Generator PSB + Tiket | Excel Mode siap pakai untuk Gemini</p>
+        </header>
 
-    <div id="mainMenu">
-        <div class="menu-grid">
-            <div class="menu-card" onclick="switchView('psb')">
-                <h3>📡 PSB Data Tools</h3>
-                <p>Generator data PSB massal • Excel Mode • Form Detail</p>
+        <!-- ===== MAIN MENU ===== -->
+        <div id="mainMenu">
+            <div class="menu-grid">
+                <div class="menu-card" onclick="switchView('psb')">
+                    <h3>📡 PSB Data Tools</h3>
+                    <p>Generator data PSB massal • Excel Mode • Form Detail</p>
+                </div>
+                <div class="menu-card" onclick="switchView('ticket')">
+                    <h3>🎟️ Format Data Tiket</h3>
+                    <p>Auto gabung & rapi • Copy ke Gemini</p>
+                </div>
             </div>
-            <div class="menu-card" onclick="switchView('ticket')">
-                <h3>🎟️ Format Data Tiket</h3>
-                <p>Auto gabung & rapi • Copy ke Gemini</p>
+        </div>
+
+        <!-- ===== PANEL PSB ===== -->
+        <div id="viewPSB" class="hidden">
+            <button class="btn-back" onclick="switchView('menu')">← Kembali ke Menu</button>
+
+            <div class="card">
+                <div class="card-header">
+                    <div style="display:flex; align-items:center;">
+                        <div class="step-badge">1</div>
+                        <h2>📋 Paste Rekap PSB</h2>
+                    </div>
+                </div>
+                <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 12px;">
+                    Format: <code>1393006071 referensi: Tidak ada referensi</code> atau <code>1392007330 referensi: tetangga</code>
+                </p>
+                <textarea id="psbInputList" style="height: 150px;" placeholder="1393006071 referensi: Tidak ada referensi&#10;1347006068 referensi: bima&#10;1392007330 referensi: tetangga"></textarea>
+
+                <div class="btn-group">
+                    <button class="btn-primary" id="btnWithoutExcel" style="flex:1;">📝 Generate Tanpa Excel (Form Detail)</button>
+                    <button class="btn-primary" id="btnWithExcel" style="flex:1; background:#2c3e66;">📊 Generate Dengan Excel (Prompt Langsung)</button>
+                </div>
             </div>
+
+            <!-- Step 2 : Form detail (tanpa excel) -->
+            <div id="psbStep2" class="card hidden">
+                <div class="card-header">
+                    <div style="display:flex; align-items:center;">
+                        <div class="step-badge">2</div>
+                        <h2>✏️ Lengkapi Detail Data per No Layanan</h2>
+                    </div>
+                </div>
+                <p style="font-size: 0.85rem; color: #666;">Paste detail lengkap (Nama, Alamat, dll) pada setiap kolom dibawah.</p>
+                <div id="psbFormsContainer" class="form-grid"></div>
+            </div>
+
+            <!-- Step 3 : Finalisasi (mode detail) -->
+            <div id="psbStep3" class="card hidden" style="border-left: 4px solid var(--secondary);">
+                <div class="card-header">
+                    <div style="display:flex; align-items:center;">
+                        <div class="step-badge" style="background: var(--secondary);">3</div>
+                        <h2>🚀 Finalisasi (Mode Detail)</h2>
+                    </div>
+                </div>
+                <button class="btn-success" onclick="processPsbAndOpen()">✨ Gabungkan, Copy & Buka Gemini</button>
+            </div>
+
+            <!-- Excel Preview -->
+            <div id="excelPreviewContainer" class="card hidden">
+                <div class="card-header">
+                    <div style="display:flex; align-items:center;">
+                        <div class="step-badge" style="background:#2c3e66;">📊</div>
+                        <h2>Rekap P (Mode Excel)</h2>
+                    </div>
+                </div>
+                <div id="excelPreviewList"></div>
+                <button class="btn-success" id="copyExcelFinalBtn" style="margin-top: 24px;">📋 Gabungkan, Copy & Buka Gemini (Excel Ready)</button>
+                <div class="info-note">
+                    💡 Setiap Data Detail otomatis berisi: <strong>"diambil dari file excel dengan no layanan X"</strong> sesuai permintaan.
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL TIKET ===== -->
+        <div id="viewTicket" class="hidden">
+            <button class="btn-back" onclick="switchView('menu')">← Kembali ke Menu</button>
+            <div class="card">
+                <div class="card-header">
+                    <h2>🎫 Paste Semua Tiket</h2>
+                </div>
+                <p style="font-size:0.9rem;">Paste data tiket (Nama Pelanggan / Nama Lengkap) secara acak disini.</p>
+                <textarea id="ticketInput" style="height: 280px;" placeholder="Contoh:&#10;Jam: 10:00 Kunjungan: MODEM MATOT Nama Pelanggan: BUDI&#10;Nama Lengkap : Andi Wijaya Alamat : Jl. Merdeka"></textarea>
+                <div style="margin-top: 28px;">
+                    <button class="btn-primary" style="width: 100%; font-size: 1rem; padding: 14px; border-radius: 40px;" onclick="processTicketAndOpen()">
+                        🧠 Proses, Copy & Buka Gemini
+                    </button>
+                </div>
+                <p style="text-align: center; margin-top: 18px; font-size: 0.8rem; color: #5b6e8c;">
+                    📅 Tanggal otomatis: <strong id="previewDateTicket"></strong> — Format rapi & tanpa bold.
+                </p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; color: #9ca3af; font-size: 0.75rem;">
+            PSB + Tiket Automation • Support Gemini
         </div>
     </div>
 
-    <!-- PANEL PSB -->
-    <div id="viewPSB" class="hidden">
-        <button class="btn-back" onclick="switchView('menu')">← Kembali ke Menu</button>
-        
-        <div class="card">
-            <div class="card-header">
-                <div style="display:flex; align-items:center;">
-                    <div class="step-badge">1</div>
-                    <h2>📋 Paste Rekap PSB</h2>
-                </div>
-            </div>
-            <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 12px;">
-                Format: <code>1393006071 referensi: Tidak ada referensi</code> atau <code>1392007330 referensi: tetangga</code>
-            </p>
-            <textarea id="psbInputList" style="height: 150px;" placeholder="1393006071 referensi: Tidak ada referensi&#10;1347006068 referensi: bima&#10;1392007330 referensi: tetangga"></textarea>
-            
-            <div class="btn-group">
-                <button class="btn-primary" id="btnWithoutExcel" style="flex:1;">📝 Generate Tanpa Excel (Form Detail)</button>
-                <button class="btn-primary" id="btnWithExcel" style="flex:1; background:#2c3e66;">📊 Generate Dengan Excel (Prompt Langsung)</button>
-            </div>
-        </div>
+    <!-- ===== TOAST ===== -->
+    <div id="toast">✨ Notifikasi</div>
 
-        <!-- Tempat form detail (tanpa excel) -->
-        <div id="psbStep2" class="card hidden">
-            <div class="card-header">
-                <div style="display:flex; align-items:center;">
-                    <div class="step-badge">2</div>
-                    <h2>✏️ Lengkapi Detail Data per No Layanan</h2>
-                </div>
-            </div>
-            <p style="font-size: 0.85rem; color: #666;">Paste detail lengkap (Nama, Alamat, dll) pada setiap kolom dibawah.</p>
-            <div id="psbFormsContainer" class="form-grid"></div>
-        </div>
+    <script>
+        // ================================================================
+        //  KONFIGURASI
+        // ================================================================
+        const GEMINI_URL = "https://gemini.google.com/app";
+        const PSB_INSTRUCTION =
+            `berikan saya table dengan urutan nomor layanan yang angka awal, nama, kolom alamat harus sesuai dengan apa yang ada di kolom alamat dan jangan ada yang dihapus atau ubah, rt nanti didepannya tidak ada angka 0, rw nanti didepannya tidak ada angka 0, kodepos ambil 5 angka dari depan nomor layanan, nomor handphone, tanggal terdaftar, paket layanan, referensi.`;
 
-        <div id="psbStep3" class="card hidden" style="border-left: 4px solid var(--secondary);">
-            <div class="card-header">
-                <div style="display:flex; align-items:center;">
-                    <div class="step-badge" style="background: var(--secondary);">3</div>
-                    <h2>🚀 Finalisasi (Mode Detail)</h2>
-                </div>
-            </div>
-            <button class="btn-success" onclick="processPsbAndOpen()">✨ Gabungkan, Copy & Buka Gemini</button>
-        </div>
+        // ================================================================
+        //  HELPER : Tanggal Indonesia
+        // ================================================================
+        function getIndonesianDate() {
+            const date = new Date();
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+        }
+        document.getElementById('previewDateTicket').innerText = getIndonesianDate();
 
-        <!-- Container preview untuk mode Excel -->
-        <div id="excelPreviewContainer" class="card hidden">
-            <div class="card-header">
-                <div style="display:flex; align-items:center;">
-                    <div class="step-badge" style="background:#2c3e66;">📊</div>
-                    <h2>Rekap P (Mode Excel)</h2>
-                </div>
-            </div>
-            <div id="excelPreviewList"></div>
-            <button class="btn-success" id="copyExcelFinalBtn" style="margin-top: 24px;">📋 Gabungkan, Copy & Buka Gemini (Excel Ready)</button>
-            <div class="info-note">
-                💡 Setiap Data Detail otomatis berisi: <strong>"diambil dari file excel dengan no layanan X"</strong> sesuai permintaan.
-            </div>
-        </div>
-    </div>
+        // ================================================================
+        //  TOAST
+        // ================================================================
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.style.background = isError ? "#b91c1c" : "#1e293b";
+            toast.className = "show";
+            setTimeout(() => toast.className = toast.className.replace("show", ""), 2800);
+            setTimeout(() => { toast.style.background = "#1e293b"; }, 3000);
+        }
 
-    <!-- PANEL TIKET (GEMINI) -->
-    <div id="viewTicket" class="hidden">
-        <button class="btn-back" onclick="switchView('menu')">← Kembali ke Menu</button>
-        <div class="card">
-            <div class="card-header">
-                <h2>🎫 Paste Semua Tiket</h2>
-            </div>
-            <p style="font-size:0.9rem;">Paste data tiket (Nama Pelanggan / Nama Lengkap) secara acak disini.</p>
-            <textarea id="ticketInput" style="height: 280px;" placeholder="Contoh:&#10;Jam: 10:00 Kunjungan: MODEM MATOT Nama Pelanggan: BUDI&#10;Nama Lengkap : Andi Wijaya Alamat : Jl. Merdeka"></textarea>
-            <div style="margin-top: 28px;">
-                <button class="btn-primary" style="width: 100%; font-size: 1rem; padding: 14px; border-radius: 40px;" onclick="processTicketAndOpen()">
-                    🧠 Proses, Copy & Buka Gemini
-                </button>
-            </div>
-            <p style="text-align: center; margin-top: 18px; font-size: 0.8rem; color: #5b6e8c;">
-                📅 Tanggal otomatis: <strong id="previewDateTicket"></strong> — Format rapi & tanpa bold.
-            </p>
-        </div>
-    </div>
-
-    <div style="text-align: center; margin-top: 40px; color: #9ca3af; font-size: 0.75rem;">
-        PSB + Tiket Automation • Support Gemini
-    </div>
-</div>
-
-<div id="toast">✨ Notifikasi</div>
-
-<script>
-    // ---------- KONFIGURASI ----------
-    const GEMINI_URL = "https://gemini.google.com/app";
-    const PSB_INSTRUCTION = `berikan saya table dengan urutan nomor layanan yang angka awal, nama, kolom alamat harus sesuai dengan apa yang ada di kolom alamat dan jangan ada yang dihapus atau ubah, rt nanti didepannya tidak ada angka 0, rw nanti didepannya tidak ada angka 0, kodepos ambil 5 angka dari depan nomor layanan, nomor handphone, tanggal terdaftar, paket layanan, referensi.`;
-
-    // Helper tanggal Indonesia
-    function getIndonesianDate() {
-        const date = new Date();
-        return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
-    }
-    document.getElementById('previewDateTicket').innerText = getIndonesianDate();
-
-    // Toast modern
-    function showToast(msg, isError = false) {
-        const toast = document.getElementById("toast");
-        toast.innerText = msg;
-        toast.style.background = isError ? "#b91c1c" : "#1e293b";
-        toast.className = "show";
-        setTimeout(() => toast.className = toast.className.replace("show", ""), 2800);
-        setTimeout(() => { toast.style.background = "#1e293b"; }, 3000);
-    }
-
-    // Universal copy (dengan fallback)
-    async function copyToClipboard(text, successMsg = "✅ Tersalin!") {
-        if (navigator.clipboard && window.isSecureContext) {
+        // ================================================================
+        //  CLIPBOARD + GEMINI
+        // ================================================================
+        async function copyToClipboard(text, successMsg = "✅ Tersalin!") {
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    showToast(successMsg);
+                    return true;
+                } catch (_) { /* fallback */ }
+            }
             try {
-                await navigator.clipboard.writeText(text);
-                showToast(successMsg);
-                return true;
-            } catch (err) { console.warn(err); }
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                if (ok) { showToast(successMsg); return true; }
+                throw new Error('execCommand gagal');
+            } catch (_) {
+                showToast("Gagal copy otomatis, silahkan copy manual", true);
+                alert("📋 Copy manual:\n\n" + text.slice(0, 1500) + (text.length > 1500 ? "\n...(teks panjang)" : ""));
+                return false;
+            }
         }
-        try {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed'; ta.style.opacity = '0';
-            document.body.appendChild(ta);
-            ta.select();
-            const ok = document.execCommand('copy');
-            document.body.removeChild(ta);
-            if (ok) { showToast(successMsg); return true; }
-            throw new Error('execCommand gagal');
-        } catch (e) {
-            showToast("Gagal copy otomatis, silahkan copy manual", true);
-            alert("📋 Copy manual:\n\n" + text.slice(0, 1500) + (text.length > 1500 ? "\n...(teks panjang)" : ""));
-            return false;
+
+        async function copyAndGoGemini(text) {
+            const ok = await copyToClipboard(text, "✅ Data PSB tersalin! Membuka Gemini...");
+            if (ok) setTimeout(() => window.open(GEMINI_URL, '_blank'), 1000);
         }
-    }
 
-    async function copyAndGoGemini(text) {
-        const ok = await copyToClipboard(text, "✅ Data PSB tersalin! Membuka Gemini...");
-        if (ok) setTimeout(() => window.open(GEMINI_URL, '_blank'), 1000);
-    }
-    async function copyAndGoGeminiTicket(text) {
-        const ok = await copyToClipboard(text, "🚀 Data Tiket tersalin! Membuka Gemini...");
-        if (ok) setTimeout(() => window.open(GEMINI_URL, '_blank'), 1000);
-    }
+        async function copyAndGoGeminiTicket(text) {
+            const ok = await copyToClipboard(text, "🚀 Data Tiket tersalin! Membuka Gemini...");
+            if (ok) setTimeout(() => window.open(GEMINI_URL, '_blank'), 1000);
+        }
 
-    // ----- UTILITY RESET PSB MODE -----
-    function resetPsbContainers() {
-        document.getElementById('psbStep2').classList.add('hidden');
-        document.getElementById('psbStep3').classList.add('hidden');
-        document.getElementById('excelPreviewContainer').classList.add('hidden');
-        document.getElementById('psbFormsContainer').innerHTML = '';
-    }
+        // ================================================================
+        //  UTILITY PSB
+        // ================================================================
+        function resetPsbContainers() {
+            document.getElementById('psbStep2').classList.add('hidden');
+            document.getElementById('psbStep3').classList.add('hidden');
+            document.getElementById('excelPreviewContainer').classList.add('hidden');
+            document.getElementById('psbFormsContainer').innerHTML = '';
+        }
 
-    // ----- PARSING REKAP PSB (No Layanan & Referensi) -----
-    function parsePsbEntries(rawText) {
-        const lines = rawText.split(/\r?\n/);
-        const entries = [];
-        for (let line of lines) {
-            line = line.trim();
-            if (!line) continue;
-            let noLayanan = null;
-            let referensi = "Tidak ada referensi";
-            // cek pola "nomor referensi: xxxx"
-            const matchRef = line.match(/^(\d{7,})\s*referensi:\s*(.*)$/i);
-            if (matchRef) {
-                noLayanan = matchRef[1];
-                let refRaw = matchRef[2].trim();
-                referensi = refRaw === "" ? "Tidak ada referensi" : refRaw;
-            } else {
-                const simpleMatch = line.match(/^(\d{7,})/);
-                if (simpleMatch) {
-                    noLayanan = simpleMatch[1];
-                    referensi = "Tidak ada referensi";
+        function parsePsbEntries(rawText) {
+            const lines = rawText.split(/\r?\n/);
+            const entries = [];
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+                let noLayanan = null;
+                let referensi = "Tidak ada referensi";
+
+                const matchRef = line.match(/^(\d{7,})\s*referensi:\s*(.*)$/i);
+                if (matchRef) {
+                    noLayanan = matchRef[1];
+                    let refRaw = matchRef[2].trim();
+                    referensi = refRaw === "" ? "Tidak ada referensi" : refRaw;
+                } else {
+                    const simpleMatch = line.match(/^(\d{7,})/);
+                    if (simpleMatch) {
+                        noLayanan = simpleMatch[1];
+                        referensi = "Tidak ada referensi";
+                    }
+                }
+                if (noLayanan) {
+                    entries.push({ noLayanan, referensi });
                 }
             }
-            if (noLayanan) {
-                entries.push({ noLayanan, referensi });
-            }
+            return entries;
         }
-        return entries;
-    }
 
-    // ---------- GENERATE TANPA EXCEL (Form Detail) ----------
-    function generatePsbForms() {
-        resetPsbContainers();
-        const raw = document.getElementById('psbInputList').value;
-        const entries = parsePsbEntries(raw);
-        if (entries.length === 0) {
-            showToast("❌ Tidak ada nomor layanan valid ditemukan!", true);
-            return;
+        // ================================================================
+        //  GENERATE TANPA EXCEL (Form Detail)
+        // ================================================================
+        function generatePsbForms() {
+            resetPsbContainers();
+            const raw = document.getElementById('psbInputList').value;
+            const entries = parsePsbEntries(raw);
+            if (entries.length === 0) {
+                showToast("❌ Tidak ada nomor layanan valid ditemukan!", true);
+                return;
+            }
+            const container = document.getElementById('psbFormsContainer');
+            container.innerHTML = '';
+            for (let entry of entries) {
+                const div = document.createElement('div');
+                div.className = 'form-item';
+                const refHtml = entry.referensi !== "Tidak ada referensi" ?
+                    `<span class="ref-tag">Ref: ${escapeHtml(entry.referensi)}</span>` :
+                    '';
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <label style="font-weight:700; color:var(--primary);">
+                            🆔 No. Layanan: <span style="color:#111;font-size:1rem">${entry.noLayanan}</span>
+                            ${refHtml}
+                        </label>
+                    </div>
+                    <textarea id="data_${entry.noLayanan}" data-nolayanan="${entry.noLayanan}" data-referensi="${escapeAttr(entry.referensi)}"
+                        placeholder="Paste detail data PSB untuk ${entry.noLayanan} (Nama, Alamat, dll) ..." style="height:110px;"></textarea>
+                `;
+                container.appendChild(div);
+            }
+            document.getElementById('psbStep2').classList.remove('hidden');
+            document.getElementById('psbStep3').classList.remove('hidden');
+            showToast(`✅ ${entries.length} nomor layanan siap diisi detail.`);
         }
-        const container = document.getElementById('psbFormsContainer');
-        container.innerHTML = '';
-        for (let entry of entries) {
-            const div = document.createElement('div');
-            div.className = 'form-item';
-            const refHtml = entry.referensi !== "Tidak ada referensi" ? `<span class="ref-tag">Ref: ${escapeHtml(entry.referensi)}</span>` : '';
-            div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <label style="font-weight:700; color:var(--primary);">
-                        🆔 No. Layanan: <span style="color:#111;font-size:1rem">${entry.noLayanan}</span>
-                        ${refHtml}
-                    </label>
+
+        function processPsbAndOpen() {
+            const textareas = document.querySelectorAll('#psbFormsContainer textarea');
+            let combinedData = "";
+            let filled = 0;
+            textareas.forEach(ta => {
+                let detail = ta.value.trim();
+                let noLay = ta.getAttribute('data-nolayanan');
+                let ref = ta.getAttribute('data-referensi') || "Tidak ada referensi";
+                if (detail) {
+                    combinedData += `No Layanan: ${noLay}\nReferensi: ${ref}\nData Detail: ${detail}\n\n----------------\n\n`;
+                    filled++;
+                }
+            });
+            if (filled === 0) {
+                showToast("⚠️ Tidak ada data detail yang diisi. Lengkapi form terlebih dahulu.", true);
+                return;
+            }
+            const finalPrompt = `((\n${combinedData})) ${PSB_INSTRUCTION}`;
+            copyAndGoGemini(finalPrompt);
+        }
+
+        // ================================================================
+        //  GENERATE DENGAN EXCEL
+        // ================================================================
+        let currentExcelEntries = [];
+
+        function generateWithExcel() {
+            resetPsbContainers();
+            const raw = document.getElementById('psbInputList').value;
+            const entries = parsePsbEntries(raw);
+            if (entries.length === 0) {
+                showToast("❌ Tidak ada nomor layanan untuk mode Excel.", true);
+                return;
+            }
+            currentExcelEntries = entries;
+            const previewDiv = document.getElementById('excelPreviewList');
+            previewDiv.innerHTML = `
+                <table class="excel-table">
+                    <thead><tr><th>No. Layanan</th><th>Referensi</th></tr></thead>
+                    <tbody>
+                        ${entries.map(ent => `<tr><td style="font-weight:500;">${ent.noLayanan}</td><td>${escapeHtml(ent.referensi)}</td></tr>`).join('')}
+                    </tbody>
+                </table>
+                <div class="info-note" style="margin-top: 16px;">
+                    📌 Mode Excel: Setiap entri akan menyertakan <strong>"Data Detail: diambil dari file excel dengan no layanan X"</strong>
                 </div>
-                <textarea id="data_${entry.noLayanan}" data-nolayanan="${entry.noLayanan}" data-referensi="${escapeAttr(entry.referensi)}"
-                    placeholder="Paste detail data PSB untuk ${entry.noLayanan} (Nama, Alamat, dll) ..." style="height:110px;"></textarea>
             `;
-            container.appendChild(div);
+            document.getElementById('excelPreviewContainer').classList.remove('hidden');
+            showToast(`📊 Mode Excel Aktif (${entries.length} nomor layanan)`);
         }
-        document.getElementById('psbStep2').classList.remove('hidden');
-        document.getElementById('psbStep3').classList.remove('hidden');
-        showToast(`✅ ${entries.length} nomor layanan siap diisi detail.`);
-    }
 
-    // Proses final mode tanpa excel -> gabungkan semua detail + prompt
-    function processPsbAndOpen() {
-        const textareas = document.querySelectorAll('#psbFormsContainer textarea');
-        let combinedData = "";
-        let filled = 0;
-        textareas.forEach(ta => {
-            let detail = ta.value.trim();
-            let noLay = ta.getAttribute('data-nolayanan');
-            let ref = ta.getAttribute('data-referensi') || "Tidak ada referensi";
-            if (detail) {
-                combinedData += `No Layanan: ${noLay}\nReferensi: ${ref}\nData Detail: ${detail}\n\n----------------\n\n`;
-                filled++;
+        function buildExcelFinalPrompt() {
+            if (!currentExcelEntries.length) return "";
+            const blocks = [];
+            for (let ent of currentExcelEntries) {
+                blocks.push(
+                    `No Layanan: ${ent.noLayanan}\nReferensi: ${ent.referensi}\nData Detail: diambil dari file excel dengan no layanan ${ent.noLayanan}`
+                    );
             }
-        });
-        if (filled === 0) {
-            showToast("⚠️ Tidak ada data detail yang diisi. Lengkapi form terlebih dahulu.", true);
-            return;
+            const dataPart = `((\n${blocks.join('\n\n----------------\n\n')}\n\n))`;
+            return `${dataPart} ${PSB_INSTRUCTION}`;
         }
-        const finalPrompt = `((\n${combinedData})) ${PSB_INSTRUCTION}`;
-        copyAndGoGemini(finalPrompt);
-    }
 
-    // ---------- GENERATE DENGAN EXCEL (Prompt langsung dengan placeholder) ----------
-    let currentExcelEntries = [];
-
-    function generateWithExcel() {
-        resetPsbContainers();
-        const raw = document.getElementById('psbInputList').value;
-        const entries = parsePsbEntries(raw);
-        if (entries.length === 0) {
-            showToast("❌ Tidak ada nomor layanan untuk mode Excel.", true);
-            return;
+        async function copyExcelFinalPrompt() {
+            if (!currentExcelEntries.length) {
+                showToast("Tidak ada data excel, generate ulang terlebih dahulu.", true);
+                return;
+            }
+            const final = buildExcelFinalPrompt();
+            if (!final) return;
+            await copyAndGoGemini(final);
         }
-        currentExcelEntries = entries;
-        const previewDiv = document.getElementById('excelPreviewList');
-        previewDiv.innerHTML = `
-            <table class="excel-table">
-                <thead><tr><th>No. Layanan</th><th>Referensi</th></tr>
-                </thead>
-                <tbody>
-                    ${entries.map(ent => `<tr><td style="font-weight:500;">${ent.noLayanan}</td><td>${escapeHtml(ent.referensi)}</td></tr>`).join('')}
-                </tbody>
-            </table>
-            <div class="info-note" style="margin-top: 16px;">
-                📌 Mode Excel: Setiap entri akan menyertakan <strong>"Data Detail: diambil dari file excel dengan no layanan X"</strong>
-            </div>
-        `;
-        document.getElementById('excelPreviewContainer').classList.remove('hidden');
-        showToast(`📊 Mode Excel Aktif (${entries.length} nomor layanan)`);
-    }
 
-    // build final prompt untuk excel mode
-    function buildExcelFinalPrompt() {
-        if (!currentExcelEntries.length) return "";
-        const blocks = [];
-        for (let ent of currentExcelEntries) {
-            const block = `No Layanan: ${ent.noLayanan}\nReferensi: ${ent.referensi}\nData Detail: diambil dari file excel dengan no layanan ${ent.noLayanan}`;
-            blocks.push(block);
+        // ================================================================
+        //  ESCAPE HELPERS
+        // ================================================================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
-        const dataPart = `((\n${blocks.join('\n\n----------------\n\n')}\n\n))`;
-        return `${dataPart} ${PSB_INSTRUCTION}`;
-    }
 
-    async function copyExcelFinalPrompt() {
-        if (!currentExcelEntries.length) {
-            showToast("Tidak ada data excel, generate ulang terlebih dahulu.", true);
-            return;
+        function escapeAttr(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
         }
-        const final = buildExcelFinalPrompt();
-        if (!final) return;
-        await copyAndGoGemini(final);
-    }
 
-    // helper escape HTML
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-    function escapeAttr(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
-
-    // ----- TICKET PROCESS (Gemini) -----
-    function processTicketAndOpen() {
-        const rawTickets = document.getElementById('ticketInput').value.trim();
-        const currentDate = getIndonesianDate();
-        if (!rawTickets) {
-            showToast("Kolom tiket masih kosong!", true);
-            return;
-        }
-        const finalPrompt = `(( ${rawTickets} )) berikan saya datanya jika di tiketnya nama pelanggan maka tulis dengan format: (Jam:
-Kunjungan:
-Nama Pelanggan:
-No Layanan:
-Masa Aktif s/d:
-No Telp.: 
+        // ================================================================
+        //  TICKET PROCESS
+        // ================================================================
+        function processTicketAndOpen() {
+            const rawTickets = document.getElementById('ticketInput').value.trim();
+            const currentDate = getIndonesianDate();
+            if (!rawTickets) {
+                showToast("Kolom tiket masih kosong!", true);
+                return;
+            }
+            const finalPrompt =
+                `(( ${rawTickets} )) berikan saya datanya jika di tiketnya nama pelanggan maka tulis dengan format: (Jam: 
+Kunjungan: 
+Nama Pelanggan: 
+No Layanan & paket layanan: 
+Masa Aktif s-d: 
+No Telp: 
 Tanggal Daftar: 
-Coverage: 
-Alamat:
-User PPPOE_RADIUS:
-Pemakaian Bulan Ini (GB):
-ODC: 
-ODP:
-Port ODP:
-OLT SN/MAC:
-Last DBM:
-Last DBM Time:
-Nama WiFi (SSID):
+Alamat: 
+Nama WiFi (SSID): 
 Sandi WiFi: 
-Keterangan:
-Router: ) , jika di tiketnya nama lengkap maka tulis dengan format: (Jam:
+Last DBM: 
+OLT SN-MAC: 
+Link Lokasi: 
+Link ODP: 
+Port ID: 
+Link foto rumah pelanggan: ) , jika di tiketnya nama lengkap maka tulis dengan format: (Nolay Pra-Regist:
+Jam:
 Nama Lengkap : 
 Alamat Lengkap : 
 Email Aktif: 
@@ -562,7 +701,7 @@ Tanggal pemasangan:
 FOTO Depan Rumah :
 Status Rumah : Pribadi/Sewa
 Setuju berlangganan minimal 1 tahun:ya /tdk
-) nah untuk jamnya formatnya adalah angka ya jika ada maka tulis yang sudah ada, jika tidak ada maka tulis FLEKSIBEL, lalu untuk tanggal pemasangan yang berformat nama lengkap di isi dengan tanggal sekarang ya atau hari ini contoh formatnya menggunakan: ${currentDate}. jika ada referensi di tiket yang berformat nama lengkap maka isi nama referensinya dan jika tidak ada maka diisi tidak ada referensi. hilangkan bold pada hasilnya yang kamu berikan agar ketika di copy tidak ada bintang *. hilangkan tag @ nomor whatssapp. berikan saya hasil sesuai formatnya saja, lalu urutkan sesuai tiket diatas ya. agar bisa langsung dicopy tiket nya. untuk format nama lengkap di status rumah langsung di gabungkan saja dengan alamatnya dan hasilnya akan seperti ini: (Jam: 10:00
+) nah untuk Nolay Pra-Regist nantinya adalah nomor layanan yang biasanya formatnya adalah hanya angka dan terdiri dari 6 angka lebih dan jangan diambil dari nomor handphone,untuk jamnya formatnya adalah angka ya jika ada maka tulis yang sudah ada, jika tidak ada maka tulis FLEKSIBEL, lalu untuk tanggal pemasangan yang berformat nama lengkap di isi dengan tanggal sekarang ya atau hari ini contoh formatnya menggunakan: ${currentDate}. jika ada referensi di tiket yang berformat nama lengkap maka isi nama referensinya dan jika tidak ada maka diisi tidak ada referensi. hilangkan bold pada hasilnya yang kamu berikan agar ketika di copy tidak ada bintang *. hilangkan tag @ nomor whatssapp. berikan saya hasil sesuai formatnya saja, lalu urutkan sesuai tiket diatas ya. agar bisa langsung dicopy tiket nya. untuk format nama lengkap di status rumah langsung di gabungkan saja dengan alamatnya dan hasilnya akan seperti ini: (Jam: 10:00
 Kunjungan: MODEM MATOT
 Nama Pelanggan: MOH. SUMAJI
 No Layanan: 1394003759||INETHOME__175
@@ -609,30 +748,32 @@ Tanggal pemasangan: ${currentDate}
 FOTO Depan Rumah :
 Status Rumah : Pribadi
 Setuju berlangganan minimal 1 tahun: YA) , jika pada format nama lengkap  di sebelah namanya ada catatan maka satukan saja dengan di kolom paket layanan.`;
-        copyAndGoGeminiTicket(finalPrompt);
-    }
+            copyAndGoGeminiTicket(finalPrompt);
+        }
 
-    // ----- SWITCH VIEW -----
-    function switchView(viewName) {
-        const menu = document.getElementById('mainMenu');
-        const psb = document.getElementById('viewPSB');
-        const ticket = document.getElementById('viewTicket');
-        menu.classList.add('hidden');
-        psb.classList.add('hidden');
-        ticket.classList.add('hidden');
-        if (viewName === 'menu') menu.classList.remove('hidden');
-        if (viewName === 'psb') { psb.classList.remove('hidden'); resetPsbContainers(); }
-        if (viewName === 'ticket') ticket.classList.remove('hidden');
-    }
+        // ================================================================
+        //  SWITCH VIEW
+        // ================================================================
+        function switchView(viewName) {
+            const menu = document.getElementById('mainMenu');
+            const psb = document.getElementById('viewPSB');
+            const ticket = document.getElementById('viewTicket');
+            menu.classList.add('hidden');
+            psb.classList.add('hidden');
+            ticket.classList.add('hidden');
+            if (viewName === 'menu') menu.classList.remove('hidden');
+            if (viewName === 'psb') { psb.classList.remove('hidden');
+                resetPsbContainers(); }
+            if (viewName === 'ticket') ticket.classList.remove('hidden');
+        }
 
-    // Event binding
-    document.getElementById('btnWithoutExcel').addEventListener('click', generatePsbForms);
-    document.getElementById('btnWithExcel').addEventListener('click', generateWithExcel);
-    document.getElementById('copyExcelFinalBtn').addEventListener('click', copyExcelFinalPrompt);
-    
-    window.onload = () => {
-        // preload
-    };
-</script>
+        // ================================================================
+        //  EVENT BINDING
+        // ================================================================
+        document.getElementById('btnWithoutExcel').addEventListener('click', generatePsbForms);
+        document.getElementById('btnWithExcel').addEventListener('click', generateWithExcel);
+        document.getElementById('copyExcelFinalBtn').addEventListener('click', copyExcelFinalPrompt);
+    </script>
+
 </body>
 </html>
