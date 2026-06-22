@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
     <title>Data Tiket + Statistik Teknisi • Sinyalku</title>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js">
+    </script>
     <style>
         * {
             box-sizing: border-box;
@@ -162,6 +163,71 @@
             transform: translateY(-2px);
         }
 
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 6px 14px rgba(239, 68, 68, 0.3);
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            padding: 14px 20px;
+            border-radius: 60px;
+            margin: 16px 0 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-bar .filter-label {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .filter-bar input[type="date"] {
+            padding: 8px 14px;
+            border-radius: 40px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.8rem;
+            background: white;
+            color: #1e293b;
+            min-width: 140px;
+        }
+
+        .filter-bar input[type="date"]:focus {
+            outline: 2px solid #0ea5e9;
+            border-color: transparent;
+        }
+
+        .filter-status {
+            font-size: 0.75rem;
+            color: #0f4c75;
+            font-weight: 600;
+            background: #e0edf9;
+            padding: 4px 14px;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+
+        .filter-status .clear-filter-btn {
+            background: none;
+            border: none;
+            color: #dc2626;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 6px;
+        }
+
         .history-header {
             display: flex;
             justify-content: space-between;
@@ -200,12 +266,12 @@
             gap: 15px;
             border: 1px solid #e2e8f0;
             transition: all 0.15s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
         .history-item:hover {
             border-color: #cbd5e1;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
         }
 
         .history-check {
@@ -290,7 +356,7 @@
             border: 1px solid #eef2f6;
             background: white;
             margin: 20px 0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
         }
 
         table {
@@ -299,7 +365,8 @@
             font-size: 0.8rem;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px 10px;
             border-bottom: 1px solid #ecf3f9;
             text-align: left;
@@ -316,17 +383,54 @@
             letter-spacing: 0.3px;
         }
 
-        .summary-table th, .summary-table td,
-        .tech-stats-table th, .tech-stats-table td {
+        .summary-table th,
+        .summary-table td,
+        .tech-stats-table th,
+        .tech-stats-table td {
             text-align: center;
         }
 
-        #individual-tech-table th, #individual-tech-table td {
+        #individual-tech-table th,
+        #individual-tech-table td {
             text-align: center;
         }
+
         #individual-tech-table td:first-child {
             text-align: left;
             font-weight: 600;
+        }
+
+        .sub-row-individu td:first-child {
+            padding-left: 28px !important;
+            font-weight: 500;
+            color: #0b5e8a;
+        }
+        .sub-row-individu td:first-child::before {
+            content: "▸ ";
+            font-weight: 700;
+        }
+        .sub-row-tim td:first-child {
+            padding-left: 28px !important;
+            font-weight: 500;
+            color: #8a5a0b;
+        }
+        .sub-row-tim td:first-child::before {
+            content: "▸ ";
+            font-weight: 700;
+        }
+
+        .tech-name-header td {
+            background: #f0f6fc;
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: #0f2c45;
+            border-bottom: 2px solid #cbdde9;
+            padding-top: 14px;
+            padding-bottom: 10px;
+        }
+
+        .tech-name-header td:first-child {
+            border-radius: 0;
         }
 
         .detail-table td.kategori-cell,
@@ -344,6 +448,17 @@
             }
             .container {
                 padding: 1rem;
+            }
+            .filter-bar {
+                border-radius: 20px;
+                padding: 14px 16px;
+            }
+            .filter-bar input[type="date"] {
+                min-width: 100px;
+                width: 100%;
+            }
+            .filter-bar .filter-label {
+                width: 100%;
             }
         }
 
@@ -410,7 +525,7 @@
             overflow-y: auto;
             padding: 1.5rem 1.8rem;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
         .modal.small .modal-content {
@@ -479,6 +594,73 @@
             color: #1e4a6e;
         }
 
+        .summary-cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 16px 0 24px 0;
+            justify-content: center;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            border-radius: 1.5rem;
+            padding: 1.2rem 1.8rem;
+            flex: 1;
+            min-width: 180px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            transition: all 0.15s;
+        }
+
+        .summary-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+        }
+
+        .summary-card .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #5f7d9c;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .summary-card .value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0f2c45;
+            line-height: 1.2;
+        }
+
+        .summary-card .sub-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d6a4f;
+            margin-top: 2px;
+        }
+
+        .summary-card .sub-value.danger {
+            color: #b13e2a;
+        }
+
+        .summary-card.total .value {
+            color: #0f4c75;
+        }
+        .summary-card.individu .value {
+            color: #1e40af;
+        }
+        .summary-card.tim .value {
+            color: #92400e;
+        }
+
+        .summary-card .label-icon {
+            font-size: 1.2rem;
+            margin-right: 4px;
+        }
+
         .grouped-date-title {
             background: #f1f5f9;
             padding: 10px 20px;
@@ -514,12 +696,18 @@
             font-weight: 600;
             z-index: 2000;
             animation: fadeUp 0.2s ease;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .loading-spinner {
@@ -531,7 +719,11 @@
             display: inline-block;
             animation: spin 0.7s linear infinite;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         .edit-tech-icon {
             background: none;
@@ -573,6 +765,87 @@
             margin-top: 8px;
             text-align: center;
         }
+
+        .kategori-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .kategori-badge.individu {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .kategori-badge.tim {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tech-name-cell {
+            font-weight: 700;
+            color: #0f2c45;
+            font-size: 1rem;
+        }
+
+        .sub-label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.3px;
+        }
+        .sub-label.individu-label {
+            color: #1e40af;
+        }
+        .sub-label.tim-label {
+            color: #92400e;
+        }
+
+        @media (max-width: 600px) {
+            .summary-card {
+                min-width: 140px;
+                padding: 0.8rem 1rem;
+            }
+            .summary-card .value {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* filter aktif highlight */
+        .filter-active .history-item {
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .filter-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #0f4c75;
+            background: #e0edf9;
+            padding: 4px 16px;
+            border-radius: 40px;
+        }
+
+        .filter-indicator .unfilter-btn {
+            background: none;
+            border: none;
+            color: #dc2626;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 4px;
+            padding: 0 4px;
+        }
+        .filter-indicator .unfilter-btn:hover {
+            text-decoration: underline;
+        }
+
+        .filter-bar .btn-sm {
+            padding: 8px 18px;
+            font-size: 0.8rem;
+            border-radius: 40px;
+        }
     </style>
 </head>
 <body>
@@ -590,7 +863,7 @@
         <div class="action-buttons">
             <div class="upload-area">
                 <button class="btn btn-primary" id="uploadBtn">📂 Upload JSON (Baru)</button>
-                <input type="file" id="jsonUploadInput" accept=".json" onchange="handleJsonUpload(event)">
+                <input type="file" id="jsonUploadInput" accept=".json" onchange="handleJsonUpload(event)" />
             </div>
             <button class="btn btn-success" onclick="showTeamAnalysis()">📊 Database Analisa Tim Teknisi</button>
             <button class="btn btn-warning" onclick="showIndividualTechDatabase()">👤 Database Analisa Per Teknisi</button>
@@ -598,9 +871,24 @@
             <button class="btn btn-primary" id="refreshAllBtn" onclick="refreshAllRecaps()">🔄 Refresh Semua Data</button>
         </div>
 
+        <!-- ===== FILTER BAR TANGGAL ===== -->
+        <div class="filter-bar" id="filterBar">
+            <span class="filter-label">📅 Filter Tanggal:</span>
+            <label style="font-size:0.75rem; font-weight:600; color:#475569;">Dari</label>
+            <input type="date" id="filterFromDate" />
+            <label style="font-size:0.75rem; font-weight:600; color:#475569;">Sampai</label>
+            <input type="date" id="filterToDate" />
+            <button class="btn btn-primary btn-sm" id="applyFilterBtn">✅ Terapkan</button>
+            <button class="btn btn-danger btn-sm" id="unfilterBtn">✖️ Unfilter</button>
+            <span id="filterStatus" class="filter-status" style="display:none;">
+                🔍 <span id="filterStatusText"></span>
+                <button class="clear-filter-btn" onclick="clearFilter()">✕</button>
+            </span>
+        </div>
+
         <div class="history-header">
             <div class="select-all-area">
-                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" />
                 <label for="selectAllCheckbox">Pilih Semua History</label>
             </div>
             <button class="btn btn-outline" onclick="downloadSelectedExcel()">📥 Download Excel Terpilih</button>
@@ -632,7 +920,7 @@
             <span class="close-modal" onclick="closeSearchModal()">&times;</span>
             <h2>🔎 Cari Berdasarkan No Layanan</h2>
             <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
-                <input type="text" id="searchInputField" placeholder="Masukkan No Layanan" style="flex:1; padding:12px; border-radius:60px; border:1px solid #cbdde9;">
+                <input type="text" id="searchInputField" placeholder="Masukkan No Layanan" style="flex:1; padding:12px; border-radius:60px; border:1px solid #cbdde9;" />
                 <button class="btn btn-primary" id="modalSearchBtn">Cari</button>
                 <button class="btn btn-outline" id="resetSearchModalBtn">Reset</button>
             </div>
@@ -647,6 +935,7 @@
                         <tr><th>Tanggal Rekap</th><th>No</th><th>No Layanan</th><th>Pelanggan</th><th>Tiket</th><th>Kategori</th><th>Status</th><th>Teknisi</th><th>Alamat</th><th>Kode Pos</th><th>Catatan</th></tr>
                     </thead>
                     <tbody id="search-result-body"><tr><td colspan="11">Masukkan No Layanan</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -658,7 +947,7 @@
             <span class="close-modal" onclick="closeEditDateModal()">&times;</span>
             <h2>✏️ Edit Tanggal Rekap</h2>
             <p>Pilih tanggal baru untuk memindahkan data ini</p>
-            <input type="date" id="newRecapDateInput" style="width:100%; padding:12px; border-radius:60px; margin:15px 0;">
+            <input type="date" id="newRecapDateInput" style="width:100%; padding:12px; border-radius:60px; margin:15px 0;" />
             <button class="btn btn-primary" id="confirmEditDateBtn" style="width:100%">Simpan & Pindahkan</button>
             <p class="note">⚠️ Data akan dipindah, tanggal lama dihapus.</p>
         </div>
@@ -670,6 +959,7 @@
             <span class="close-modal" onclick="closeTeamAnalysisModal()">&times;</span>
             <h2>📊 Database Analisa Tim Teknisi</h2>
             <p style="margin-bottom: 8px;">Statistik per tim & per hari rekap – Dilengkapi total keseluruhan PSB / Kunjungan / Isolir</p>
+            <div id="teamFilterInfo" style="font-size:0.8rem; color:#0f4c75; background:#e0edf9; padding:6px 16px; border-radius:40px; display:inline-block; margin-bottom:10px;"></div>
             <div class="modal-actions">
                 <button class="btn btn-success" onclick="downloadTeamAnalysisExcel()">📎 Excel</button>
             </div>
@@ -677,25 +967,67 @@
         </div>
     </div>
 
-    <!-- MODAL INDIVIDU -->
+    <!-- MODAL INDIVIDU + TIM (split) -->
     <div id="individual-tech-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeIndividualTechModal()">&times;</span>
             <h2>👤 Database Analisa Per Teknisi</h2>
-            <p>Rekap seluruh tiket dari semua tanggal rekap</p>
+            <p style="margin-bottom: 6px; font-size:0.95rem;">
+                Rekap seluruh tiket dari semua tanggal rekap — <strong>Individu</strong> (sendiri) vs <strong>Tim</strong> (bersama rekan)
+            </p>
+            <div id="individualFilterInfo" style="font-size:0.8rem; color:#0f4c75; background:#e0edf9; padding:6px 16px; border-radius:40px; display:inline-block; margin-bottom:10px;"></div>
+
+            <div id="individual-summary-cards" class="summary-cards">
+                <div class="summary-card total">
+                    <div class="label"><span class="label-icon">📊</span> TOTAL TIKET (SEMUA)</div>
+                    <div class="value" id="sum-total-all">0</div>
+                    <div class="sub-value" id="sum-total-all-pct">0%</div>
+                </div>
+                <div class="summary-card individu">
+                    <div class="label"><span class="label-icon">👤</span> INDIVIDU (SENDIRI)</div>
+                    <div class="value" id="sum-individu">0</div>
+                    <div class="sub-value" id="sum-individu-pct">0%</div>
+                </div>
+                <div class="summary-card tim">
+                    <div class="label"><span class="label-icon">👥</span> TIM (BERSAMA REKAN)</div>
+                    <div class="value" id="sum-tim">0</div>
+                    <div class="sub-value" id="sum-tim-pct">0%</div>
+                </div>
+            </div>
+
             <div class="modal-actions">
                 <button class="btn btn-success" onclick="downloadIndividualTechExcel()">📊 Excel</button>
             </div>
-            <div id="individual-summary"></div>
             <div class="table-container">
-                <table id="individual-tech-table" style="min-width:700px;">
+                <table id="individual-tech-table" style="min-width:850px;">
                     <thead>
-                        <tr><th rowspan="2">Nama Teknisi</th><th rowspan="2">Total Tiket</th><th colspan="3">PSB</th><th colspan="3">Kunjungan</th><th colspan="3">Isolir</th><th rowspan="2">Overall Sukses</th></tr>
-                        <tr><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th></tr>
+                        <tr>
+                            <th style="min-width:140px;">Nama Teknisi</th>
+                            <th style="min-width:80px;">Kategori</th>
+                            <th>Total Tiket</th>
+                            <th colspan="3">PSB</th>
+                            <th colspan="3">Kunjungan</th>
+                            <th colspan="3">Isolir</th>
+                            <th>Overall Sukses</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Total</th><th>Berhasil</th><th>%</th>
+                            <th>Total</th><th>Berhasil</th><th>%</th>
+                            <th>Total</th><th>Berhasil</th><th>%</th>
+                            <th></th>
+                        </tr>
                     </thead>
-                    <tbody id="individual-tech-body"><tr><td colspan="12"><div class="loading-spinner"></div> Memuat...</td></tr>
+                    <tbody id="individual-tech-body"><tr><td colspan="14"><div class="loading-spinner"></div> Memuat...</td></tr>
+                    </tbody>
                 </table>
             </div>
+            <p style="font-size:0.75rem; color:#5f7d9c; margin-top:8px; text-align:center;">
+                <span class="kategori-badge individu">Individu</span> = tiket hanya nama teknisi itu sendiri &nbsp;|&nbsp;
+                <span class="kategori-badge tim">Tim</span> = tiket berisi nama teknisi + rekan (tanda &amp;)
+            </p>
         </div>
     </div>
 
@@ -708,7 +1040,7 @@
                 <button class="btn btn-primary" id="uploadJsonForRecapBtn">📂 Upload JSON (Ganti Data)</button>
                 <button class="btn btn-success" id="downloadJsonForRecapBtn">⬇️ Download JSON</button>
             </div>
-            <p style="font-size: 0.8rem; text-align: center;">berikan saya data json untuk alamat lengkap tolong di perbaiki seperti rt rw nya.<br>Download & Upload data JSON.</p>
+            <p style="font-size: 0.8rem; text-align: center;">Upload &amp; Download data JSON untuk rekap tertentu.</p>
         </div>
     </div>
 
@@ -734,6 +1066,11 @@
         let currentJsonKey = null;
         let lastSearchResults = [];
         let isOnline = true;
+
+        // ===== FILTER STATE =====
+        let filterFrom = null; // timestamp (ms) or null
+        let filterTo = null; // timestamp (ms) or null
+        let filterActive = false;
 
         const DELETE_PIN = "0789";
 
@@ -772,12 +1109,13 @@
             n.className = 'notification';
             n.textContent = msg;
             c.appendChild(n);
-            setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 500); }, 2800);
+            setTimeout(() => { n.style.opacity = '0';
+                setTimeout(() => n.remove(), 500); }, 2800);
         }
 
         function escapeHtml(str) {
             if (!str) return '';
-            return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+            return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m]));
         }
 
         async function copyText(text) {
@@ -807,7 +1145,9 @@
             if (typeof dateInput === 'string' && dateInput.match(/^\d{4}-\d{2}-\d{2}/)) d = new Date(dateInput);
             else d = new Date(dateInput);
             if (isNaN(d.getTime())) return '-';
-            const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober",
+                "November", "Desember"
+            ];
             return `${d.getDate()} ${bulan[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
         }
 
@@ -927,14 +1267,18 @@
                     address: item.alamatLengkap,
                     details: {
                         'No Layanan': item.noLayanan,
-                        'Paket': item.tiket.includes('PSB') ? item.tiket.replace('PSB (', '').replace(')', '') : (item.tiket !== 'Kunjungan' ? item.tiket : ''),
+                        'Paket': item.tiket.includes('PSB') ? item.tiket.replace('PSB (', '').replace(')', '') : (item
+                            .tiket !== 'Kunjungan' ? item.tiket : ''),
                         'No WA': item.nomorTelpon,
                         'Catatan': item.catatan
                     },
-                    status: item.statusPengerjaan === 'Selesai' ? 'completed' : (item.statusPengerjaan === 'Gagal Kunjungan' ? 'failed' : 'pending'),
+                    status: item.statusPengerjaan === 'Selesai' ? 'completed' : (item.statusPengerjaan === 'Gagal Kunjungan' ?
+                        'failed' : 'pending'),
                     tag: item.kategori === 'PSB' ? 'PSB' : (item.kategori === 'ISOLIR' ? 'ISOLIR' : 'KUNJUNGAN'),
-                    completionNote: (item.statusPengerjaan === 'Selesai' && item.catatan && !item.catatan.startsWith('GAGAL')) ? item.catatan : undefined,
-                    failureNote: (item.statusPengerjaan === 'Gagal Kunjungan' && item.catatan) ? item.catatan.replace(/^GAGAL:\s*/i, '') : undefined,
+                    completionNote: (item.statusPengerjaan === 'Selesai' && item.catatan && !item.catatan.startsWith(
+                    'GAGAL')) ? item.catatan : undefined,
+                    failureNote: (item.statusPengerjaan === 'Gagal Kunjungan' && item.catatan) ? item.catatan.replace(
+                        /^GAGAL:\s*/i, '') : undefined,
                     technical: { sn: item.sn }
                 };
                 if (!job.completionNote) delete job.completionNote;
@@ -948,6 +1292,127 @@
             return teams;
         }
 
+        // ===== FILTER HELPERS =====
+        function isKeyInFilter(keyMs) {
+            if (!filterActive) return true;
+            const ts = parseInt(keyMs);
+            if (isNaN(ts)) return true;
+            if (filterFrom !== null && ts < filterFrom) return false;
+            if (filterTo !== null && ts > filterTo) return false;
+            return true;
+        }
+
+        function getFilteredKeys(keys) {
+            return keys.filter(k => isKeyInFilter(k));
+        }
+
+        function getFilterDescription() {
+            if (!filterActive) return 'Semua tanggal';
+            const fromStr = filterFrom ? new Date(filterFrom).toLocaleDateString('id-ID') : 'awal';
+            const toStr = filterTo ? new Date(filterTo).toLocaleDateString('id-ID') : 'akhir';
+            return `${fromStr} → ${toStr}`;
+        }
+
+        function updateFilterUI() {
+            const statusEl = document.getElementById('filterStatus');
+            const textEl = document.getElementById('filterStatusText');
+            if (filterActive) {
+                statusEl.style.display = 'inline-flex';
+                textEl.textContent = `🔍 ${getFilterDescription()}`;
+                document.getElementById('filterBar').classList.add('filter-active');
+            } else {
+                statusEl.style.display = 'none';
+                document.getElementById('filterBar').classList.remove('filter-active');
+            }
+            // update filter info in modals if open
+            const teamInfo = document.getElementById('teamFilterInfo');
+            if (teamInfo) teamInfo.textContent = filterActive ? `📅 Filter: ${getFilterDescription()}` : '📅 Semua data';
+            const indivInfo = document.getElementById('individualFilterInfo');
+            if (indivInfo) indivInfo.textContent = filterActive ? `📅 Filter: ${getFilterDescription()}` : '📅 Semua data';
+        }
+
+        function applyFilter() {
+            const fromVal = document.getElementById('filterFromDate').value;
+            const toVal = document.getElementById('filterToDate').value;
+            if (!fromVal && !toVal) {
+                showNotification('Pilih minimal satu tanggal (Dari atau Sampai)');
+                return;
+            }
+            filterFrom = fromVal ? new Date(fromVal).setHours(0, 0, 0, 0) : null;
+            filterTo = toVal ? new Date(toVal).setHours(23, 59, 59, 999) : null;
+            filterActive = true;
+            updateFilterUI();
+            showNotification(`✅ Filter aktif: ${getFilterDescription()}`);
+            loadHistoryList();
+        }
+
+        function clearFilter() {
+            filterFrom = null;
+            filterTo = null;
+            filterActive = false;
+            document.getElementById('filterFromDate').value = '';
+            document.getElementById('filterToDate').value = '';
+            updateFilterUI();
+            showNotification('🔓 Filter dilepas, semua data ditampilkan');
+            loadHistoryList();
+        }
+
+        // ===== HISTORY LIST =====
+        function loadHistoryList() {
+            onValue(historyRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                const allKeys = Object.keys(data).sort().reverse();
+                let keys = allKeys;
+                if (filterActive) {
+                    keys = allKeys.filter(k => isKeyInFilter(k));
+                }
+                const container = document.getElementById('history-list');
+                if (keys.length === 0) {
+                    const msg = filterActive ?
+                        `✨ Tidak ada data dalam rentang filter (${getFilterDescription()}).` :
+                        '✨ Belum ada data tiket. Silakan upload file JSON.';
+                    container.innerHTML = `<div class="empty-state">${msg}</div>`;
+                    return;
+                }
+                let html = '';
+                keys.forEach(key => {
+                    const entry = data[key];
+                    const dateOnly = new Date(parseInt(key)).toLocaleDateString('id-ID', { day: 'numeric',
+                        month: 'long', year: 'numeric' });
+                    const count = entry.data ? entry.data.length : 0;
+                    html += `<div class="history-item">
+                            <div class="history-check"><input type="checkbox" class="history-checkbox" value="${key}" onchange="updateSelectAllState()"></div>
+                            <div class="history-info"><span class="history-date">📅 ${dateOnly}<button class="edit-date-btn" onclick="openEditDateModal('${key}')">✏️</button></span><span class="history-count">${count} tiket</span></div>
+                            <div class="history-actions">
+                                <button class="btn btn-outline" onclick="viewDetail('${key}')">🔍 Lihat</button>
+                                <button class="btn btn-outline" onclick="downloadRecapExcel('${key}')">📊 Excel</button>
+                                <button class="btn btn-outline" onclick="openJsonOptions('${key}')">📁 JSON</button>
+                                <button class="btn btn-outline" onclick="deleteRecap('${key}')">🗑️ Hapus</button>
+                            </div>
+                          </div>`;
+                });
+                container.innerHTML = html;
+                document.getElementById('selectAllCheckbox').checked = false;
+                if (filterActive) {
+                    container.classList.add('filter-active');
+                } else {
+                    container.classList.remove('filter-active');
+                }
+            });
+        }
+
+        // ===== EXPOSE FUNCTIONS TO GLOBAL =====
+        window.toggleSelectAll = function() {
+            const cbs = document.querySelectorAll('.history-checkbox');
+            const ck = document.getElementById('selectAllCheckbox').checked;
+            cbs.forEach(cb => cb.checked = ck);
+        };
+        window.updateSelectAllState = function() {
+            const cbs = document.querySelectorAll('.history-checkbox');
+            const all = cbs.length > 0 && Array.from(cbs).every(cb => cb.checked);
+            document.getElementById('selectAllCheckbox').checked = all;
+        };
+
         window.handleJsonUpload = async function(event) {
             if (!checkOnline('Upload JSON')) return;
             const file = event.target.files[0];
@@ -960,7 +1425,8 @@
                     let teams = null;
                     if (Array.isArray(jsonData)) teams = jsonData;
                     else if (jsonData.teams && Array.isArray(jsonData.teams)) teams = jsonData.teams;
-                    else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master)) teams = jsonData.monitoring_teams_master;
+                    else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master)) teams =
+                        jsonData.monitoring_teams_master;
                     else throw new Error('Format JSON tidak dikenali.');
                     if (!teams.length) throw new Error('Tidak ada data tim');
                     const timestamp = Date.now();
@@ -978,32 +1444,6 @@
             };
             reader.readAsText(file);
         };
-
-        async function refreshRecap(key) {
-            const snap = await get(ref(db, 'history_recaps/' + key));
-            if (!snap.exists()) return false;
-            const entry = snap.val();
-            const originalJsonStr = entry.originalJson;
-            if (!originalJsonStr) return false;
-            try {
-                let jsonData = JSON.parse(originalJsonStr);
-                let teams = null;
-                if (Array.isArray(jsonData)) teams = jsonData;
-                else if (jsonData.teams && Array.isArray(jsonData.teams)) teams = jsonData.teams;
-                else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master)) teams = jsonData.monitoring_teams_master;
-                else throw new Error('Format JSON tidak dikenali');
-                if (!teams.length) throw new Error('Tidak ada data tim');
-                const recapItems = convertTeamsToRecapItems(teams, parseInt(key));
-                await set(ref(db, 'history_recaps/' + key), {
-                    data: recapItems,
-                    generatedAt: new Date().toISOString(),
-                    originalJson: originalJsonStr
-                });
-                return true;
-            } catch (err) {
-                return false;
-            }
-        }
 
         window.refreshAllRecaps = async function() {
             if (!checkOnline('Refresh semua data')) return;
@@ -1023,6 +1463,33 @@
             showNotification(`✅ Selesai refresh. Berhasil: ${successCount} dari ${keys.length} rekap.`);
         };
 
+        async function refreshRecap(key) {
+            const snap = await get(ref(db, 'history_recaps/' + key));
+            if (!snap.exists()) return false;
+            const entry = snap.val();
+            const originalJsonStr = entry.originalJson;
+            if (!originalJsonStr) return false;
+            try {
+                let jsonData = JSON.parse(originalJsonStr);
+                let teams = null;
+                if (Array.isArray(jsonData)) teams = jsonData;
+                else if (jsonData.teams && Array.isArray(jsonData.teams)) teams = jsonData.teams;
+                else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master)) teams =
+                    jsonData.monitoring_teams_master;
+                else throw new Error('Format JSON tidak dikenali');
+                if (!teams.length) throw new Error('Tidak ada data tim');
+                const recapItems = convertTeamsToRecapItems(teams, parseInt(key));
+                await set(ref(db, 'history_recaps/' + key), {
+                    data: recapItems,
+                    generatedAt: new Date().toISOString(),
+                    originalJson: originalJsonStr
+                });
+                return true;
+            } catch (err) {
+                return false;
+            }
+        }
+
         async function uploadJsonForRecap(key) {
             return new Promise((resolve, reject) => {
                 const input = document.createElement('input');
@@ -1039,7 +1506,8 @@
                             let teams = null;
                             if (Array.isArray(jsonData)) teams = jsonData;
                             else if (jsonData.teams && Array.isArray(jsonData.teams)) teams = jsonData.teams;
-                            else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master)) teams = jsonData.monitoring_teams_master;
+                            else if (jsonData.monitoring_teams_master && Array.isArray(jsonData
+                                    .monitoring_teams_master)) teams = jsonData.monitoring_teams_master;
                             else throw new Error('Format JSON tidak dikenali.');
                             if (!teams.length) throw new Error('Tidak ada data tim');
                             const recapItems = convertTeamsToRecapItems(teams, parseInt(key));
@@ -1118,168 +1586,313 @@
             return 'KUNJUNGAN';
         }
 
-        async function getTeamStatsForRecap(tickets) {
-            const teamMap = new Map();
-            let overallCategory = { psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 };
-            for (const ticket of tickets) {
-                const techName = ticket.namaTeknisi || 'Teknisi';
-                let category = getKategoriFromTicket(ticket);
-                const isSuccess = (ticket.statusPengerjaan === 'Selesai');
-                if (!teamMap.has(techName)) teamMap.set(techName, { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
-                const stat = teamMap.get(techName);
-                stat.total++;
-                if (category === 'PSB') { stat.psbTotal++; if (isSuccess) stat.psbSuccess++; overallCategory.psbTotal++; if (isSuccess) overallCategory.psbSuccess++; }
-                else if (category === 'ISOLIR') { stat.isolirTotal++; if (isSuccess) stat.isolirSuccess++; overallCategory.isolirTotal++; if (isSuccess) overallCategory.isolirSuccess++; }
-                else { stat.kunjTotal++; if (isSuccess) stat.kunjSuccess++; overallCategory.kunjTotal++; if (isSuccess) overallCategory.kunjSuccess++; }
-            }
-            const teamsStats = [];
-            let overallTotalSuccess = 0, overallTotalTickets = 0;
-            for (const [team, s] of teamMap.entries()) {
-                const overallSuccess = s.total > 0 ? ((s.psbSuccess + s.kunjSuccess + s.isolirSuccess) / s.total * 100).toFixed(1) : 0;
-                teamsStats.push({
-                    tim: team,
-                    total: s.total,
-                    psb: { total: s.psbTotal, success: s.psbSuccess, percent: s.psbTotal > 0 ? (s.psbSuccess / s.psbTotal * 100).toFixed(1) : 0 },
-                    kunj: { total: s.kunjTotal, success: s.kunjSuccess, percent: s.kunjTotal > 0 ? (s.kunjSuccess / s.kunjTotal * 100).toFixed(1) : 0 },
-                    isolir: { total: s.isolirTotal, success: s.isolirSuccess, percent: s.isolirTotal > 0 ? (s.isolirSuccess / s.isolirTotal * 100).toFixed(1) : 0 },
-                    overallSuccess
-                });
-                overallTotalSuccess += (s.psbSuccess + s.kunjSuccess + s.isolirSuccess);
-                overallTotalTickets += s.total;
-            }
-            const overallPercent = overallTotalTickets > 0 ? ((overallTotalSuccess / overallTotalTickets) * 100).toFixed(1) : 0;
-            return { teamsStats, overallTotalSuccess, overallTotalTickets, overallPercent, overallCategory };
+        function isTeamTicket(techNameRaw) {
+            if (!techNameRaw) return false;
+            return techNameRaw.includes('&');
         }
 
-        window.viewDetail = async function(historyKey) {
-            if (!checkOnline('Lihat detail')) return;
-            const snap = await get(ref(db, 'history_recaps/' + historyKey));
-            const entry = snap.val();
-            if (!entry?.data) return;
-            const tickets = entry.data;
-            const { teamsStats, overallTotalSuccess, overallTotalTickets, overallPercent, overallCategory } = await getTeamStatsForRecap(tickets);
-            let summaryHtml = `<div class="detail-stats-title">📊 RINGKASAN STATISTIK TIM - ${new Date(parseInt(historyKey)).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }).toUpperCase()}</div>`;
-            summaryHtml += `<div class="table-container"><table class="summary-table" style="min-width:800px;"><thead>
-            <tr><th rowspan="2">Nama Tim / Teknisi</th><th rowspan="2">Total Tiket</th><th colspan="3">PSB</th><th colspan="3">Kunjungan</th><th colspan="3">Isolir</th><th rowspan="2">Overall Sukses</th></tr>
-            <tr><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th></tr>
-            </thead><tbody>`;
-            for (const t of teamsStats) {
-                summaryHtml += `<tr>
-                    <td><strong>${escapeHtml(t.tim)}</strong></td>
-                    <td>${t.total}</td>
-                    <td class="psb-cell">${t.psb.total}</td><td class="psb-cell">${t.psb.success}</td><td class="psb-cell">${t.psb.percent}%</td>
-                    <td class="kunj-cell">${t.kunj.total}</td><td class="kunj-cell">${t.kunj.success}</td><td class="kunj-cell">${t.kunj.percent}%</td>
-                    <td class="isolir-cell">${t.isolir.total}</td><td class="isolir-cell">${t.isolir.success}</td><td class="isolir-cell">${t.isolir.percent}%</td>
-                    <td><strong>${t.overallSuccess}%</strong></td>
-                </tr>`;
-            }
-            const totalPsbPercent = overallCategory.psbTotal > 0 ? ((overallCategory.psbSuccess / overallCategory.psbTotal) * 100).toFixed(1) : 0;
-            const totalKunjPercent = overallCategory.kunjTotal > 0 ? ((overallCategory.kunjSuccess / overallCategory.kunjTotal) * 100).toFixed(1) : 0;
-            const totalIsolirPercent = overallCategory.isolirTotal > 0 ? ((overallCategory.isolirSuccess / overallCategory.isolirTotal) * 100).toFixed(1) : 0;
-            summaryHtml += `<tr class="total-row-category"><td><strong>TOTAL SEMUA TIM</strong></td>
-                <td><strong>${overallTotalTickets}</strong></td>
-                <td class="psb-cell"><strong>${overallCategory.psbTotal}</strong></td><td class="psb-cell"><strong>${overallCategory.psbSuccess}</strong></td><td class="psb-cell"><strong>${totalPsbPercent}%</strong></td>
-                <td class="kunj-cell"><strong>${overallCategory.kunjTotal}</strong></td><td class="kunj-cell"><strong>${overallCategory.kunjSuccess}</strong></td><td class="kunj-cell"><strong>${totalKunjPercent}%</strong></td>
-                <td class="isolir-cell"><strong>${overallCategory.isolirTotal}</strong></td><td class="isolir-cell"><strong>${overallCategory.isolirSuccess}</strong></td><td class="isolir-cell"><strong>${totalIsolirPercent}%</strong></td>
-                <td><strong>${overallPercent}%</strong></td>
-            </tr>`;
-            summaryHtml += `</tbody></table></div>`;
-            document.getElementById('detail-stats-area').innerHTML = summaryHtml;
+        function splitTeamNames(techNameRaw) {
+            if (!techNameRaw) return [];
+            const parts = techNameRaw.split('&').map(n => cleanTechnicianName(n.trim())).filter(n => n.length > 0);
+            if (parts.length === 0) return [cleanTechnicianName(techNameRaw)];
+            return parts;
+        }
 
-            const tbody = document.getElementById('detail-body');
-            tbody.innerHTML = '';
-            for (let idx = 0; idx < tickets.length; idx++) {
-                const item = tickets[idx];
-                const kategori = getKategoriFromTicket(item);
-                let kategoriClass = '';
-                if (kategori === 'PSB') kategoriClass = 'psb-cell';
-                else if (kategori === 'KUNJUNGAN') kategoriClass = 'kunj-cell';
-                else if (kategori === 'ISOLIR') kategoriClass = 'isolir-cell';
-                const statusClass = item.statusPengerjaan === 'Selesai' ? 'status-selesai' : (item.statusPengerjaan === 'Gagal Kunjungan' ? 'status-gagal' : '');
-                const escapedName = escapeHtml(item.namaTeknisi).replace(/'/g, "\\'");
-                tbody.innerHTML += `<tr>
-                    <td>${item.no}</td>
-                    <td>${escapeHtml(item.noLayanan)}</td>
-                    <td>${escapeHtml(item.namaPelanggan)}</td>
-                    <td>${escapeHtml(item.tiket)}</td>
-                    <td class="kategori-cell ${kategoriClass}"><strong>${escapeHtml(kategori)}</strong></td>
-                    <td class="status-cell"><span class="badge-status ${statusClass}">${escapeHtml(item.statusPengerjaan)}</span></td>
-                    <td>${escapeHtml(item.nomorTelpon)}</td>
-                    <td>${escapeHtml(item.tanggalSelesaiKunjungan)}</td>
-                    <td>${escapeHtml(item.namaTeknisi)} <button class="edit-tech-icon" onclick="editTechnicianName('${historyKey}', ${idx}, '${escapedName}')">✏️</button></td>
-                    <td>${escapeHtml(item.alamatLengkap)}</td>
-                    <td>${escapeHtml(item.rt)}</td>
-                    <td>${escapeHtml(item.rw)}</td>
-                    <td><strong>${escapeHtml(item.kodePos)}</strong></td>
-                    <td>${escapeHtml(item.sn)}</td>
-                    <td>${escapeHtml(item.catatan)}</td>
-                </tr>`;
-            }
-            document.getElementById('detail-title').innerHTML = `📋 Data Tiket + Statistik Tim - ${new Date(parseInt(historyKey)).toLocaleDateString('id-ID')}`;
-            document.getElementById('detail-modal').style.display = 'block';
-        };
+        // ===== GET INDIVIDUAL STATS WITH FILTER =====
+        async function getIndividualSplitStatsFromAllHistory() {
+            const snapshot = await get(historyRef);
+            const data = snapshot.val() || {};
+            const indivMap = new Map();
 
-        window.editTechnicianName = async function(historyKey, index, currentName) {
-            if (!checkOnline('Edit nama teknisi')) return;
-            const newName = prompt("Edit nama teknisi:", currentName);
-            if (!newName || newName === currentName) return;
+            const keys = Object.keys(data);
+            const filteredKeys = filterActive ? keys.filter(k => isKeyInFilter(k)) : keys;
+
+            for (const key of filteredKeys) {
+                const entry = data[key];
+                if (!entry?.data) continue;
+                for (const ticket of entry.data) {
+                    const rawTech = ticket.namaTeknisi || 'Teknisi';
+                    const category = getKategoriFromTicket(ticket);
+                    const isSuccess = (ticket.statusPengerjaan === 'Selesai');
+
+                    const isTeam = isTeamTicket(rawTech);
+
+                    if (isTeam) {
+                        const names = splitTeamNames(rawTech);
+                        for (const indivName of names) {
+                            if (!indivMap.has(indivName)) {
+                                indivMap.set(indivName, {
+                                    individu: { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0,
+                                        isolirTotal: 0, isolirSuccess: 0 },
+                                    tim: { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0,
+                                        isolirTotal: 0, isolirSuccess: 0 }
+                                });
+                            }
+                            const entry2 = indivMap.get(indivName);
+                            const st = entry2.tim;
+                            st.total++;
+                            if (category === 'PSB') { st.psbTotal++; if (isSuccess) st.psbSuccess++; } else if (category ===
+                                'ISOLIR') { st.isolirTotal++; if (isSuccess) st.isolirSuccess++; } else { st
+                                    .kunjTotal++; if (isSuccess) st.kunjSuccess++; }
+                        }
+                    } else {
+                        const cleanName = cleanTechnicianName(rawTech);
+                        if (!indivMap.has(cleanName)) {
+                            indivMap.set(cleanName, {
+                                individu: { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0,
+                                    isolirTotal: 0, isolirSuccess: 0 },
+                                tim: { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0,
+                                    isolirTotal: 0, isolirSuccess: 0 }
+                            });
+                        }
+                        const entry2 = indivMap.get(cleanName);
+                        const st = entry2.individu;
+                        st.total++;
+                        if (category === 'PSB') { st.psbTotal++; if (isSuccess) st.psbSuccess++; } else if (category ===
+                            'ISOLIR') { st.isolirTotal++; if (isSuccess) st.isolirSuccess++; } else { st.kunjTotal++;
+                            if (isSuccess) st.kunjSuccess++; }
+                    }
+                }
+            }
+
+            const result = [];
+            for (const [name, stats] of indivMap.entries()) {
+                const i = stats.individu;
+                const iOverall = i.total > 0 ? ((i.psbSuccess + i.kunjSuccess + i.isolirSuccess) / i.total * 100).toFixed(
+                1) : 0;
+
+                const t = stats.tim;
+                const tOverall = t.total > 0 ? ((t.psbSuccess + t.kunjSuccess + t.isolirSuccess) / t.total * 100).toFixed(
+                1) : 0;
+
+                result.push({
+                    teknisi: name,
+                    individu: {
+                        total: i.total,
+                        psb: { total: i.psbTotal, success: i.psbSuccess, percent: i.psbTotal > 0 ? (i.psbSuccess /
+                                i.psbTotal * 100).toFixed(1) : 0 },
+                        kunj: { total: i.kunjTotal, success: i.kunjSuccess, percent: i.kunjTotal > 0 ? (i
+                                .kunjSuccess / i.kunjTotal * 100).toFixed(1) : 0 },
+                        isolir: { total: i.isolirTotal, success: i.isolirSuccess, percent: i.isolirTotal > 0 ? (i
+                                .isolirSuccess / i.isolirTotal * 100).toFixed(1) : 0 },
+                        overallSuccess: iOverall
+                    },
+                    tim: {
+                        total: t.total,
+                        psb: { total: t.psbTotal, success: t.psbSuccess, percent: t.psbTotal > 0 ? (t.psbSuccess /
+                                t.psbTotal * 100).toFixed(1) : 0 },
+                        kunj: { total: t.kunjTotal, success: t.kunjSuccess, percent: t.kunjTotal > 0 ? (t
+                                .kunjSuccess / t.kunjTotal * 100).toFixed(1) : 0 },
+                        isolir: { total: t.isolirTotal, success: t.isolirSuccess, percent: t.isolirTotal > 0 ? (t
+                                .isolirSuccess / t.isolirTotal * 100).toFixed(1) : 0 },
+                        overallSuccess: tOverall
+                    }
+                });
+            }
+
+            result.sort((a, b) => ((b.individu.total + b.tim.total) - (a.individu.total + a.tim.total)));
+            return result;
+        }
+
+        function updateSummaryCards(data) {
+            let totalAll = 0;
+            let totalAllSukses = 0;
+            let totalIndividu = 0;
+            let totalIndividuSukses = 0;
+            let totalTim = 0;
+            let totalTimSukses = 0;
+
+            for (const d of data) {
+                const i = d.individu;
+                const t = d.tim;
+                totalIndividu += i.total;
+                totalIndividuSukses += (i.psb.success + i.kunj.success + i.isolir.success);
+                totalTim += t.total;
+                totalTimSukses += (t.psb.success + t.kunj.success + t.isolir.success);
+            }
+            totalAll = totalIndividu + totalTim;
+            totalAllSukses = totalIndividuSukses + totalTimSukses;
+
+            const pctAll = totalAll > 0 ? ((totalAllSukses / totalAll) * 100).toFixed(1) : 0;
+            const pctIndividu = totalIndividu > 0 ? ((totalIndividuSukses / totalIndividu) * 100).toFixed(1) : 0;
+            const pctTim = totalTim > 0 ? ((totalTimSukses / totalTim) * 100).toFixed(1) : 0;
+
+            document.getElementById('sum-total-all').textContent = totalAll;
+            document.getElementById('sum-total-all-pct').textContent = pctAll + '%';
+            document.getElementById('sum-individu').textContent = totalIndividu;
+            document.getElementById('sum-individu-pct').textContent = pctIndividu + '%';
+            document.getElementById('sum-tim').textContent = totalTim;
+            document.getElementById('sum-tim-pct').textContent = pctTim + '%';
+        }
+
+        // ===== SHOW INDIVIDUAL TECH DATABASE =====
+        window.showIndividualTechDatabase = async function() {
+            if (!checkOnline('Analisa individu')) return;
+            const modal = document.getElementById('individual-tech-modal');
+            modal.style.display = 'block';
+            const tbody = document.getElementById('individual-tech-body');
+
+            document.getElementById('sum-total-all').textContent = '...';
+            document.getElementById('sum-total-all-pct').textContent = '...';
+            document.getElementById('sum-individu').textContent = '...';
+            document.getElementById('sum-individu-pct').textContent = '...';
+            document.getElementById('sum-tim').textContent = '...';
+            document.getElementById('sum-tim-pct').textContent = '...';
+
+            // update filter info
+            const info = document.getElementById('individualFilterInfo');
+            if (info) info.textContent = filterActive ? `📅 Filter: ${getFilterDescription()}` : '📅 Semua data';
+
             try {
-                const snap = await get(ref(db, `history_recaps/${historyKey}`));
-                const entry = snap.val();
-                if (!entry || !entry.data) {
-                    showNotification("❌ Data tidak ditemukan");
+                const data = await getIndividualSplitStatsFromAllHistory();
+                if (!data.length) {
+                    tbody.innerHTML = '<tr><td colspan="14">Belum ada data.</td></tr>';
+                    document.getElementById('sum-total-all').textContent = '0';
+                    document.getElementById('sum-total-all-pct').textContent = '0%';
+                    document.getElementById('sum-individu').textContent = '0';
+                    document.getElementById('sum-individu-pct').textContent = '0%';
+                    document.getElementById('sum-tim').textContent = '0';
+                    document.getElementById('sum-tim-pct').textContent = '0%';
                     return;
                 }
-                entry.data[index].namaTeknisi = newName;
-                const updatedTeams = convertRecapItemsToTeams(entry.data, parseInt(historyKey));
-                const updatedJsonStr = JSON.stringify(updatedTeams, null, 2);
-                await set(ref(db, `history_recaps/${historyKey}`), {
-                    data: entry.data,
-                    generatedAt: entry.generatedAt || new Date().toISOString(),
-                    originalJson: updatedJsonStr
-                });
-                showNotification("✅ Nama teknisi berhasil diupdate & JSON tersinkronisasi");
-                if (document.getElementById('detail-modal').style.display === 'block') {
-                    await window.viewDetail(historyKey);
+
+                updateSummaryCards(data);
+
+                let rows = '';
+                for (const d of data) {
+                    const name = escapeHtml(d.teknisi);
+
+                    const i = d.individu;
+                    const iOverall = i.overallSuccess;
+                    rows += `<tr class="tech-name-header" style="border-top:2px solid #cbdde9;">
+                        <td colspan="14" style="font-size:1.05rem; font-weight:800; color:#0f2c45; text-align:left; padding-top:16px; padding-bottom:8px;">
+                            👤 ${name}
+                        </td>
+                    </tr>`;
+
+                    rows += `<tr class="sub-row-individu">
+                        <td style="text-align:left; padding-left:28px;"><span class="sub-label individu-label">Individu</span></td>
+                        <td><span class="kategori-badge individu">Sendiri</span></td>
+                        <td><strong>${i.total}</strong></td>
+                        <td class="psb-cell">${i.psb.total}</td><td class="psb-cell">${i.psb.success}</td><td class="psb-cell">${i.psb.percent}%</td>
+                        <td class="kunj-cell">${i.kunj.total}</td><td class="kunj-cell">${i.kunj.success}</td><td class="kunj-cell">${i.kunj.percent}%</td>
+                        <td class="isolir-cell">${i.isolir.total}</td><td class="isolir-cell">${i.isolir.success}</td><td class="isolir-cell">${i.isolir.percent}%</td>
+                        <td><strong>${iOverall}%</strong></td>
+                    </tr>`;
+
+                    const t = d.tim;
+                    const tOverall = t.overallSuccess;
+                    rows += `<tr class="sub-row-tim">
+                        <td style="text-align:left; padding-left:28px;"><span class="sub-label tim-label">Tim</span></td>
+                        <td><span class="kategori-badge tim">Bersama</span></td>
+                        <td><strong>${t.total}</strong></td>
+                        <td class="psb-cell">${t.psb.total}</td><td class="psb-cell">${t.psb.success}</td><td class="psb-cell">${t.psb.percent}%</td>
+                        <td class="kunj-cell">${t.kunj.total}</td><td class="kunj-cell">${t.kunj.success}</td><td class="kunj-cell">${t.kunj.percent}%</td>
+                        <td class="isolir-cell">${t.isolir.total}</td><td class="isolir-cell">${t.isolir.success}</td><td class="isolir-cell">${t.isolir.percent}%</td>
+                        <td><strong>${tOverall}%</strong></td>
+                    </tr>`;
+
+                    rows += `<tr style="height:6px; border-bottom:1px dashed #dce7f2;"><td colspan="14"></td></tr>`;
                 }
+
+                tbody.innerHTML = rows;
             } catch (e) {
-                showNotification("Gagal update: " + e.message);
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="14">Gagal memuat data</td></tr>';
             }
         };
-        window.closeDetailModal = () => document.getElementById('detail-modal').style.display = 'none';
 
+        window.closeIndividualTechModal = () => document.getElementById('individual-tech-modal').style.display = 'none';
+
+        // ===== DOWNLOAD INDIVIDUAL TECH EXCEL =====
+        window.downloadIndividualTechExcel = async function() {
+            const stats = await getIndividualSplitStatsFromAllHistory();
+            if (!stats.length) return;
+            const flatRows = [];
+            for (const d of stats) {
+                flatRows.push({
+                    'Nama Teknisi': d.teknisi,
+                    'Kategori': 'Individu (Sendiri)',
+                    'Total Tiket': d.individu.total,
+                    'PSB Total': d.individu.psb.total,
+                    'PSB Berhasil': d.individu.psb.success,
+                    'PSB %': d.individu.psb.percent,
+                    'Kunjungan Total': d.individu.kunj.total,
+                    'Kunjungan Berhasil': d.individu.kunj.success,
+                    'Kunjungan %': d.individu.kunj.percent,
+                    'Isolir Total': d.individu.isolir.total,
+                    'Isolir Berhasil': d.individu.isolir.success,
+                    'Isolir %': d.individu.isolir.percent,
+                    'Overall Sukses %': d.individu.overallSuccess
+                });
+                flatRows.push({
+                    'Nama Teknisi': d.teknisi,
+                    'Kategori': 'Tim (Bersama)',
+                    'Total Tiket': d.tim.total,
+                    'PSB Total': d.tim.psb.total,
+                    'PSB Berhasil': d.tim.psb.success,
+                    'PSB %': d.tim.psb.percent,
+                    'Kunjungan Total': d.tim.kunj.total,
+                    'Kunjungan Berhasil': d.tim.kunj.success,
+                    'Kunjungan %': d.tim.kunj.percent,
+                    'Isolir Total': d.tim.isolir.total,
+                    'Isolir Berhasil': d.tim.isolir.success,
+                    'Isolir %': d.tim.isolir.percent,
+                    'Overall Sukses %': d.tim.overallSuccess
+                });
+            }
+            const ws = XLSX.utils.json_to_sheet(flatRows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Analisa_Individu_Tim');
+            XLSX.writeFile(wb, `Analisa_Individu_Tim_${Date.now()}.xlsx`);
+            showNotification('✅ Excel selesai');
+        };
+
+        // ===== TEAM ANALYSIS WITH FILTER =====
         async function getTeamStatsGroupedByDate() {
             const snapshot = await get(historyRef);
             const data = snapshot.val() || {};
             const groups = [];
-            const keys = Object.keys(data).sort().reverse();
+            const allKeys = Object.keys(data).sort().reverse();
+            const keys = filterActive ? allKeys.filter(k => isKeyInFilter(k)) : allKeys;
+
             for (const key of keys) {
                 const entry = data[key];
                 if (!entry?.data) continue;
                 const recapTimestamp = parseInt(key);
-                const dateLabel = new Date(recapTimestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+                const dateLabel = new Date(recapTimestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long',
+                    year: 'numeric' }).toUpperCase();
                 const teamMap = new Map();
-                let overallCategory = { psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 };
+                let overallCategory = { psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0,
+                    isolirSuccess: 0 };
                 for (const ticket of entry.data) {
                     const techName = ticket.namaTeknisi || 'Teknisi';
                     let category = getKategoriFromTicket(ticket);
                     const isSuccess = (ticket.statusPengerjaan === 'Selesai');
-                    if (!teamMap.has(techName)) teamMap.set(techName, { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
+                    if (!teamMap.has(techName)) teamMap.set(techName, { total: 0, psbTotal: 0, psbSuccess: 0,
+                        kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
                     const stat = teamMap.get(techName);
                     stat.total++;
-                    if (category === 'PSB') { stat.psbTotal++; if (isSuccess) stat.psbSuccess++; overallCategory.psbTotal++; if (isSuccess) overallCategory.psbSuccess++; }
-                    else if (category === 'ISOLIR') { stat.isolirTotal++; if (isSuccess) stat.isolirSuccess++; overallCategory.isolirTotal++; if (isSuccess) overallCategory.isolirSuccess++; }
-                    else { stat.kunjTotal++; if (isSuccess) stat.kunjSuccess++; overallCategory.kunjTotal++; if (isSuccess) overallCategory.kunjSuccess++; }
+                    if (category === 'PSB') { stat.psbTotal++; if (isSuccess) stat.psbSuccess++;
+                        overallCategory.psbTotal++; if (isSuccess) overallCategory.psbSuccess++; } else if (category ===
+                        'ISOLIR') { stat.isolirTotal++; if (isSuccess) stat.isolirSuccess++;
+                        overallCategory.isolirTotal++; if (isSuccess) overallCategory.isolirSuccess++; } else { stat
+                            .kunjTotal++; if (isSuccess) stat.kunjSuccess++; overallCategory.kunjTotal++; if (
+                            isSuccess) overallCategory.kunjSuccess++; }
                 }
                 const teamsStats = [];
                 for (const [team, s] of teamMap.entries()) {
-                    const overallSuccess = s.total > 0 ? ((s.psbSuccess + s.kunjSuccess + s.isolirSuccess) / s.total * 100).toFixed(1) : 0;
+                    const overallSuccess = s.total > 0 ? ((s.psbSuccess + s.kunjSuccess + s.isolirSuccess) / s.total *
+                        100).toFixed(1) : 0;
                     teamsStats.push({
                         tim: team,
                         total: s.total,
-                        psb: { total: s.psbTotal, success: s.psbSuccess, percent: s.psbTotal > 0 ? (s.psbSuccess / s.psbTotal * 100).toFixed(1) : 0 },
-                        kunj: { total: s.kunjTotal, success: s.kunjSuccess, percent: s.kunjTotal > 0 ? (s.kunjSuccess / s.kunjTotal * 100).toFixed(1) : 0 },
-                        isolir: { total: s.isolirTotal, success: s.isolirSuccess, percent: s.isolirTotal > 0 ? (s.isolirSuccess / s.isolirTotal * 100).toFixed(1) : 0 },
+                        psb: { total: s.psbTotal, success: s.psbSuccess, percent: s.psbTotal > 0 ? (s.psbSuccess /
+                                s.psbTotal * 100).toFixed(1) : 0 },
+                        kunj: { total: s.kunjTotal, success: s.kunjSuccess, percent: s.kunjTotal > 0 ? (s
+                                .kunjSuccess / s.kunjTotal * 100).toFixed(1) : 0 },
+                        isolir: { total: s.isolirTotal, success: s.isolirSuccess, percent: s.isolirTotal > 0 ? (s
+                                .isolirSuccess / s.isolirTotal * 100).toFixed(1) : 0 },
                         overallSuccess
                     });
                 }
@@ -1288,30 +1901,41 @@
             }
             return groups;
         }
-        
+
         window.showTeamAnalysis = async function() {
             if (!checkOnline('Analisa tim')) return;
             const modal = document.getElementById('team-analysis-modal');
             modal.style.display = 'block';
             const container = document.getElementById('team-grouped-container');
             container.innerHTML = '<div><span class="loading-spinner"></span> Memuat statistik per tanggal...</div>';
+
+            const info = document.getElementById('teamFilterInfo');
+            if (info) info.textContent = filterActive ? `📅 Filter: ${getFilterDescription()}` : '📅 Semua data';
+
             try {
                 const groups = await getTeamStatsGroupedByDate();
                 if (!groups.length) {
-                    container.innerHTML = '<div class="empty-state">Belum ada data history. Upload JSON terlebih dahulu.</div>';
+                    const msg = filterActive ?
+                        `Belum ada data dalam rentang filter (${getFilterDescription()}).` :
+                        'Belum ada data history. Upload JSON terlebih dahulu.';
+                    container.innerHTML = `<div class="empty-state">${msg}</div>`;
                     return;
                 }
                 let html = '';
                 for (const group of groups) {
-                    const totalPsbPercent = group.overallCategory.psbTotal > 0 ? ((group.overallCategory.psbSuccess / group.overallCategory.psbTotal) * 100).toFixed(1) : 0;
-                    const totalKunjPercent = group.overallCategory.kunjTotal > 0 ? ((group.overallCategory.kunjSuccess / group.overallCategory.kunjTotal) * 100).toFixed(1) : 0;
-                    const totalIsolirPercent = group.overallCategory.isolirTotal > 0 ? ((group.overallCategory.isolirSuccess / group.overallCategory.isolirTotal) * 100).toFixed(1) : 0;
-                    
-                    // Hitung Overall Sukses untuk TOTAL KESELURUHAN
-                    const groupTotalSuccess = group.overallCategory.psbSuccess + group.overallCategory.kunjSuccess + group.overallCategory.isolirSuccess;
-                    const groupTotalTickets = group.overallCategory.psbTotal + group.overallCategory.kunjTotal + group.overallCategory.isolirTotal;
-                    const groupOverallPercent = groupTotalTickets > 0 ? ((groupTotalSuccess / groupTotalTickets) * 100).toFixed(1) : 0;
-                    
+                    const totalPsbPercent = group.overallCategory.psbTotal > 0 ? ((group.overallCategory.psbSuccess /
+                        group.overallCategory.psbTotal) * 100).toFixed(1) : 0;
+                    const totalKunjPercent = group.overallCategory.kunjTotal > 0 ? ((group.overallCategory.kunjSuccess /
+                        group.overallCategory.kunjTotal) * 100).toFixed(1) : 0;
+                    const totalIsolirPercent = group.overallCategory.isolirTotal > 0 ? ((group.overallCategory
+                        .isolirSuccess / group.overallCategory.isolirTotal) * 100).toFixed(1) : 0;
+                    const groupTotalSuccess = group.overallCategory.psbSuccess + group.overallCategory.kunjSuccess +
+                        group.overallCategory.isolirSuccess;
+                    const groupTotalTickets = group.overallCategory.psbTotal + group.overallCategory.kunjTotal + group
+                        .overallCategory.isolirTotal;
+                    const groupOverallPercent = groupTotalTickets > 0 ? ((groupTotalSuccess / groupTotalTickets) * 100)
+                        .toFixed(1) : 0;
+
                     html += `<div class="team-group-container"><div class="grouped-date-title">📅 ${group.dateLabel}</div><div class="table-container"><table class="tech-stats-table" style="min-width:800px"><thead>
                     <tr><th rowspan="2">Nama Tim / Teknisi</th><th rowspan="2">Total Tiket</th><th colspan="3">PSB</th><th colspan="3">Kunjungan</th><th colspan="3">Isolir</th><th rowspan="2">Overall Sukses</th></tr>
                     <tr><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th></tr>
@@ -1345,11 +1969,13 @@
             if (!groups.length) return;
             const flatRows = [];
             groups.forEach(g => {
-                // Hitung Overall Sukses untuk TOTAL KESELURUHAN per grup
-                const groupTotalSuccess = g.overallCategory.psbSuccess + g.overallCategory.kunjSuccess + g.overallCategory.isolirSuccess;
-                const groupTotalTickets = g.overallCategory.psbTotal + g.overallCategory.kunjTotal + g.overallCategory.isolirTotal;
-                const groupOverallPercent = groupTotalTickets > 0 ? ((groupTotalSuccess / groupTotalTickets) * 100).toFixed(1) : 0;
-                
+                const groupTotalSuccess = g.overallCategory.psbSuccess + g.overallCategory.kunjSuccess + g
+                    .overallCategory.isolirSuccess;
+                const groupTotalTickets = g.overallCategory.psbTotal + g.overallCategory.kunjTotal + g
+                    .overallCategory.isolirTotal;
+                const groupOverallPercent = groupTotalTickets > 0 ? ((groupTotalSuccess / groupTotalTickets) * 100)
+                    .toFixed(1) : 0;
+
                 g.teamsStats.forEach(t => {
                     flatRows.push({
                         'Tanggal Rekap': g.dateLabel,
@@ -1373,13 +1999,16 @@
                     'Total Tiket': g.teamsStats.reduce((a, b) => a + b.total, 0),
                     'PSB Total': g.overallCategory.psbTotal,
                     'PSB Berhasil': g.overallCategory.psbSuccess,
-                    'PSB %': g.overallCategory.psbTotal > 0 ? ((g.overallCategory.psbSuccess / g.overallCategory.psbTotal) * 100).toFixed(1) : 0,
+                    'PSB %': g.overallCategory.psbTotal > 0 ? ((g.overallCategory.psbSuccess / g.overallCategory
+                        .psbTotal) * 100).toFixed(1) : 0,
                     'Kunjungan Total': g.overallCategory.kunjTotal,
                     'Kunjungan Berhasil': g.overallCategory.kunjSuccess,
-                    'Kunjungan %': g.overallCategory.kunjTotal > 0 ? ((g.overallCategory.kunjSuccess / g.overallCategory.kunjTotal) * 100).toFixed(1) : 0,
+                    'Kunjungan %': g.overallCategory.kunjTotal > 0 ? ((g.overallCategory.kunjSuccess / g
+                        .overallCategory.kunjTotal) * 100).toFixed(1) : 0,
                     'Isolir Total': g.overallCategory.isolirTotal,
                     'Isolir Berhasil': g.overallCategory.isolirSuccess,
-                    'Isolir %': g.overallCategory.isolirTotal > 0 ? ((g.overallCategory.isolirSuccess / g.overallCategory.isolirTotal) * 100).toFixed(1) : 0,
+                    'Isolir %': g.overallCategory.isolirTotal > 0 ? ((g.overallCategory.isolirSuccess / g
+                        .overallCategory.isolirTotal) * 100).toFixed(1) : 0,
                     'Overall Sukses %': groupOverallPercent
                 });
             });
@@ -1388,107 +2017,154 @@
             XLSX.writeFile(wb, `Analisa_Tim_PerTanggal_${Date.now()}.xlsx`);
         };
 
-        async function getIndividualStatsFromAllHistory() {
-            const snapshot = await get(historyRef);
-            const data = snapshot.val() || {};
-            const indivMap = new Map();
-            for (const key of Object.keys(data)) {
-                const entry = data[key];
-                if (!entry?.data) continue;
-                for (const ticket of entry.data) {
-                    let rawTech = ticket.namaTeknisi || 'Teknisi';
-                    let category = getKategoriFromTicket(ticket);
-                    const isSuccess = (ticket.statusPengerjaan === 'Selesai');
-                    if (rawTech.includes('&')) {
-                        let names = rawTech.split('&').map(n => cleanTechnicianName(n.trim())).filter(n => n.length > 0);
-                        if (names.length === 0) names = [cleanTechnicianName(rawTech)];
-                        for (const indivName of names) {
-                            if (!indivMap.has(indivName)) indivMap.set(indivName, { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
-                            const st = indivMap.get(indivName);
-                            st.total++;
-                            if (category === 'PSB') { st.psbTotal++; if (isSuccess) st.psbSuccess++; }
-                            else if (category === 'ISOLIR') { st.isolirTotal++; if (isSuccess) st.isolirSuccess++; }
-                            else { st.kunjTotal++; if (isSuccess) st.kunjSuccess++; }
-                        }
-                    } else {
-                        const cleanName = cleanTechnicianName(rawTech);
-                        if (!indivMap.has(cleanName)) indivMap.set(cleanName, { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
-                        const st = indivMap.get(cleanName);
-                        st.total++;
-                        if (category === 'PSB') { st.psbTotal++; if (isSuccess) st.psbSuccess++; }
-                        else if (category === 'ISOLIR') { st.isolirTotal++; if (isSuccess) st.isolirSuccess++; }
-                        else { st.kunjTotal++; if (isSuccess) st.kunjSuccess++; }
-                    }
-                }
+        // ===== VIEW DETAIL =====
+        async function getTeamStatsForRecap(tickets) {
+            const teamMap = new Map();
+            let overallCategory = { psbTotal: 0, psbSuccess: 0, kunjTotal: 0, kunjSuccess: 0, isolirTotal: 0,
+                isolirSuccess: 0 };
+            for (const ticket of tickets) {
+                const techName = ticket.namaTeknisi || 'Teknisi';
+                let category = getKategoriFromTicket(ticket);
+                const isSuccess = (ticket.statusPengerjaan === 'Selesai');
+                if (!teamMap.has(techName)) teamMap.set(techName, { total: 0, psbTotal: 0, psbSuccess: 0, kunjTotal: 0,
+                    kunjSuccess: 0, isolirTotal: 0, isolirSuccess: 0 });
+                const stat = teamMap.get(techName);
+                stat.total++;
+                if (category === 'PSB') { stat.psbTotal++; if (isSuccess) stat.psbSuccess++;
+                    overallCategory.psbTotal++; if (isSuccess) overallCategory.psbSuccess++; } else if (category ===
+                    'ISOLIR') { stat.isolirTotal++; if (isSuccess) stat.isolirSuccess++;
+                    overallCategory.isolirTotal++; if (isSuccess) overallCategory.isolirSuccess++; } else { stat
+                        .kunjTotal++; if (isSuccess) stat.kunjSuccess++; overallCategory.kunjTotal++; if (isSuccess)
+                        overallCategory.kunjSuccess++; }
             }
-            const result = [];
-            for (const [name, s] of indivMap.entries()) {
-                const overallSuccess = s.total > 0 ? ((s.psbSuccess + s.kunjSuccess + s.isolirSuccess) / s.total * 100).toFixed(1) : 0;
-                result.push({
-                    teknisi: name,
+            const teamsStats = [];
+            let overallTotalSuccess = 0,
+                overallTotalTickets = 0;
+            for (const [team, s] of teamMap.entries()) {
+                const overallSuccess = s.total > 0 ? ((s.psbSuccess + s.kunjSuccess + s.isolirSuccess) / s.total * 100)
+                    .toFixed(1) : 0;
+                teamsStats.push({
+                    tim: team,
                     total: s.total,
-                    psb: { total: s.psbTotal, success: s.psbSuccess, percent: s.psbTotal > 0 ? (s.psbSuccess / s.psbTotal * 100).toFixed(1) : 0 },
-                    kunj: { total: s.kunjTotal, success: s.kunjSuccess, percent: s.kunjTotal > 0 ? (s.kunjSuccess / s.kunjTotal * 100).toFixed(1) : 0 },
-                    isolir: { total: s.isolirTotal, success: s.isolirSuccess, percent: s.isolirTotal > 0 ? (s.isolirSuccess / s.isolirTotal * 100).toFixed(1) : 0 },
+                    psb: { total: s.psbTotal, success: s.psbSuccess, percent: s.psbTotal > 0 ? (s.psbSuccess / s
+                            .psbTotal * 100).toFixed(1) : 0 },
+                    kunj: { total: s.kunjTotal, success: s.kunjSuccess, percent: s.kunjTotal > 0 ? (s.kunjSuccess /
+                            s.kunjTotal * 100).toFixed(1) : 0 },
+                    isolir: { total: s.isolirTotal, success: s.isolirSuccess, percent: s.isolirTotal > 0 ? (s
+                            .isolirSuccess / s.isolirTotal * 100).toFixed(1) : 0 },
                     overallSuccess
                 });
+                overallTotalSuccess += (s.psbSuccess + s.kunjSuccess + s.isolirSuccess);
+                overallTotalTickets += s.total;
             }
-            result.sort((a, b) => b.total - a.total);
-            return result;
+            const overallPercent = overallTotalTickets > 0 ? ((overallTotalSuccess / overallTotalTickets) * 100).toFixed(
+            1) : 0;
+            return { teamsStats, overallTotalSuccess, overallTotalTickets, overallPercent, overallCategory };
         }
-        
-        window.showIndividualTechDatabase = async function() {
-            if (!checkOnline('Analisa individu')) return;
-            const modal = document.getElementById('individual-tech-modal');
-            modal.style.display = 'block';
-            const tbody = document.getElementById('individual-tech-body');
-            const summaryDiv = document.getElementById('individual-summary');
-            summaryDiv.innerHTML = '<div><span class="loading-spinner"></span> Memproses data individu...</div>';
+
+        window.viewDetail = async function(historyKey) {
+            if (!checkOnline('Lihat detail')) return;
+            const snap = await get(ref(db, 'history_recaps/' + historyKey));
+            const entry = snap.val();
+            if (!entry?.data) return;
+            const tickets = entry.data;
+            const { teamsStats, overallTotalSuccess, overallTotalTickets, overallPercent, overallCategory } =
+                await getTeamStatsForRecap(tickets);
+            let summaryHtml =
+                `<div class="detail-stats-title">📊 RINGKASAN STATISTIK TIM - ${new Date(parseInt(historyKey)).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }).toUpperCase()}</div>`;
+            summaryHtml += `<div class="table-container"><table class="summary-table" style="min-width:800px;"><thead>
+            <tr><th rowspan="2">Nama Tim / Teknisi</th><th rowspan="2">Total Tiket</th><th colspan="3">PSB</th><th colspan="3">Kunjungan</th><th colspan="3">Isolir</th><th rowspan="2">Overall Sukses</th></tr>
+            <tr><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th><th>Total</th><th>Berhasil</th><th>%</th></tr>
+            </thead><tbody>`;
+            for (const t of teamsStats) {
+                summaryHtml += `<tr>
+                    <td><strong>${escapeHtml(t.tim)}</strong></td>
+                    <td>${t.total}</td>
+                    <td class="psb-cell">${t.psb.total}</td><td class="psb-cell">${t.psb.success}</td><td class="psb-cell">${t.psb.percent}%</td>
+                    <td class="kunj-cell">${t.kunj.total}</td><td class="kunj-cell">${t.kunj.success}</td><td class="kunj-cell">${t.kunj.percent}%</td>
+                    <td class="isolir-cell">${t.isolir.total}</td><td class="isolir-cell">${t.isolir.success}</td><td class="isolir-cell">${t.isolir.percent}%</td>
+                    <td><strong>${t.overallSuccess}%</strong></td>
+                </tr>`;
+            }
+            const totalPsbPercent = overallCategory.psbTotal > 0 ? ((overallCategory.psbSuccess / overallCategory
+                .psbTotal) * 100).toFixed(1) : 0;
+            const totalKunjPercent = overallCategory.kunjTotal > 0 ? ((overallCategory.kunjSuccess / overallCategory
+                .kunjTotal) * 100).toFixed(1) : 0;
+            const totalIsolirPercent = overallCategory.isolirTotal > 0 ? ((overallCategory.isolirSuccess /
+                overallCategory.isolirTotal) * 100).toFixed(1) : 0;
+            summaryHtml += `<tr class="total-row-category"><td><strong>TOTAL SEMUA TIM</strong></td>
+                <td><strong>${overallTotalTickets}</strong></td>
+                <td class="psb-cell"><strong>${overallCategory.psbTotal}</strong></td><td class="psb-cell"><strong>${overallCategory.psbSuccess}</strong></td><td class="psb-cell"><strong>${totalPsbPercent}%</strong></td>
+                <td class="kunj-cell"><strong>${overallCategory.kunjTotal}</strong></td><td class="kunj-cell"><strong>${overallCategory.kunjSuccess}</strong></td><td class="kunj-cell"><strong>${totalKunjPercent}%</strong></td>
+                <td class="isolir-cell"><strong>${overallCategory.isolirTotal}</strong></td><td class="isolir-cell"><strong>${overallCategory.isolirSuccess}</strong></td><td class="isolir-cell"><strong>${totalIsolirPercent}%</strong></td>
+                <td><strong>${overallPercent}%</strong></td>
+            </tr>`;
+            summaryHtml += `</tbody></table></div>`;
+            document.getElementById('detail-stats-area').innerHTML = summaryHtml;
+
+            const tbody = document.getElementById('detail-body');
+            tbody.innerHTML = '';
+            for (let idx = 0; idx < tickets.length; idx++) {
+                const item = tickets[idx];
+                const kategori = getKategoriFromTicket(item);
+                let kategoriClass = '';
+                if (kategori === 'PSB') kategoriClass = 'psb-cell';
+                else if (kategori === 'KUNJUNGAN') kategoriClass = 'kunj-cell';
+                else if (kategori === 'ISOLIR') kategoriClass = 'isolir-cell';
+                const statusClass = item.statusPengerjaan === 'Selesai' ? 'status-selesai' : (item.statusPengerjaan ===
+                    'Gagal Kunjungan' ? 'status-gagal' : '');
+                const escapedName = escapeHtml(item.namaTeknisi).replace(/'/g, "\\'");
+                tbody.innerHTML += `<tr>
+                    <td>${item.no}</td>
+                    <td>${escapeHtml(item.noLayanan)}</td>
+                    <td>${escapeHtml(item.namaPelanggan)}</td>
+                    <td>${escapeHtml(item.tiket)}</td>
+                    <td class="kategori-cell ${kategoriClass}"><strong>${escapeHtml(kategori)}</strong></td>
+                    <td class="status-cell"><span class="badge-status ${statusClass}">${escapeHtml(item.statusPengerjaan)}</span></td>
+                    <td>${escapeHtml(item.nomorTelpon)}</td>
+                    <td>${escapeHtml(item.tanggalSelesaiKunjungan)}</td>
+                    <td>${escapeHtml(item.namaTeknisi)} <button class="edit-tech-icon" onclick="editTechnicianName('${historyKey}', ${idx}, '${escapedName}')">✏️</button></td>
+                    <td>${escapeHtml(item.alamatLengkap)}</td>
+                    <td>${escapeHtml(item.rt)}</td>
+                    <td>${escapeHtml(item.rw)}</td>
+                    <td><strong>${escapeHtml(item.kodePos)}</strong></td>
+                    <td>${escapeHtml(item.sn)}</td>
+                    <td>${escapeHtml(item.catatan)}</td>
+                </tr>`;
+            }
+            document.getElementById('detail-title').innerHTML =
+                `📋 Data Tiket + Statistik Tim - ${new Date(parseInt(historyKey)).toLocaleDateString('id-ID')}`;
+            document.getElementById('detail-modal').style.display = 'block';
+        };
+
+        window.editTechnicianName = async function(historyKey, index, currentName) {
+            if (!checkOnline('Edit nama teknisi')) return;
+            const newName = prompt("Edit nama teknisi:", currentName);
+            if (!newName || newName === currentName) return;
             try {
-                const indiv = await getIndividualStatsFromAllHistory();
-                if (!indiv.length) {
-                    summaryDiv.innerHTML = '<div class="empty-state">Belum ada data.</div>';
-                    tbody.innerHTML = '<tr><td colspan="12">-</td></tr>';
+                const snap = await get(ref(db, `history_recaps/${historyKey}`));
+                const entry = snap.val();
+                if (!entry || !entry.data) {
+                    showNotification("❌ Data tidak ditemukan");
                     return;
                 }
-                let totalAll = indiv.reduce((a, b) => a + b.total, 0);
-                let avgOverall = indiv.reduce((a, b) => a + (parseFloat(b.overallSuccess) * b.total / 100), 0);
-                avgOverall = (avgOverall / totalAll * 100).toFixed(1);
-                summaryDiv.innerHTML = `<div class="stats-summary"><div class="stat-card"><div class="label">Total Tiket (Individu)</div><div class="value">${totalAll}</div></div><div class="stat-card"><div class="label">Rata Sukses Individu</div><div class="value">${avgOverall}%</div></div></div>`;
-                let rows = '';
-                for (let i of indiv) rows += `<tr>
-                    <td><strong>${escapeHtml(i.teknisi)}</strong></td>
-                    <td>${i.total}</td>
-                    <td class="psb-cell">${i.psb.total}</td><td class="psb-cell">${i.psb.success}</td><td class="psb-cell">${i.psb.percent}%</td>
-                    <td class="kunj-cell">${i.kunj.total}</td><td class="kunj-cell">${i.kunj.success}</td><td class="kunj-cell">${i.kunj.percent}%</td>
-                    <td class="isolir-cell">${i.isolir.total}</td><td class="isolir-cell">${i.isolir.success}</td><td class="isolir-cell">${i.isolir.percent}%</td>
-                    <td><strong>${i.overallSuccess}%</strong></td>
-                </tr>`;
-                tbody.innerHTML = rows;
-            } catch (e) { summaryDiv.innerHTML = '<div>Gagal memuat</div>'; }
+                entry.data[index].namaTeknisi = newName;
+                const updatedTeams = convertRecapItemsToTeams(entry.data, parseInt(historyKey));
+                const updatedJsonStr = JSON.stringify(updatedTeams, null, 2);
+                await set(ref(db, `history_recaps/${historyKey}`), {
+                    data: entry.data,
+                    generatedAt: entry.generatedAt || new Date().toISOString(),
+                    originalJson: updatedJsonStr
+                });
+                showNotification("✅ Nama teknisi berhasil diupdate & JSON tersinkronisasi");
+                if (document.getElementById('detail-modal').style.display === 'block') {
+                    await window.viewDetail(historyKey);
+                }
+            } catch (e) {
+                showNotification("Gagal update: " + e.message);
+            }
         };
-        window.closeIndividualTechModal = () => document.getElementById('individual-tech-modal').style.display = 'none';
-
-        window.downloadIndividualTechExcel = async function() {
-            const stats = await getIndividualStatsFromAllHistory();
-            const ws = XLSX.utils.json_to_sheet(stats.map(i => ({
-                'Nama Teknisi': i.teknisi,
-                'Total Tiket': i.total,
-                'PSB Total': i.psb.total,
-                'PSB Berhasil': i.psb.success,
-                'PSB %': i.psb.percent,
-                'Kunjungan Total': i.kunj.total,
-                'Kunjungan Berhasil': i.kunj.success,
-                'Kunjungan %': i.kunj.percent,
-                'Isolir Total': i.isolir.total,
-                'Isolir Berhasil': i.isolir.success,
-                'Isolir %': i.isolir.percent,
-                'Overall Sukses %': i.overallSuccess
-            })));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Analisa_Individu');
-            XLSX.writeFile(wb, `Analisa_Individu_${Date.now()}.xlsx`);
-        };
+        window.closeDetailModal = () => document.getElementById('detail-modal').style.display = 'none';
 
         window.deleteRecap = async function(key) {
             if (!checkOnline('Hapus data')) return;
@@ -1503,46 +2179,100 @@
             }
         };
 
-        function loadHistoryList() {
-            onValue(historyRef, (snapshot) => {
-                const data = snapshot.val() || {};
-                const keys = Object.keys(data).sort().reverse();
-                const container = document.getElementById('history-list');
-                if (keys.length === 0) {
-                    container.innerHTML = '<div class="empty-state">✨ Belum ada data tiket. Silakan upload file JSON.</div>';
-                    return;
+        // ===== SEARCH WITH FILTER =====
+        async function searchByNoLayanan(term) {
+            const snapshot = await get(historyRef);
+            const data = snapshot.val() || {};
+            const results = [];
+            const lowTerm = term.trim().toLowerCase();
+            const keys = Object.keys(data);
+            const filteredKeys = filterActive ? keys.filter(k => isKeyInFilter(k)) : keys;
+
+            for (const key of filteredKeys) {
+                const entry = data[key];
+                if (!entry.data) continue;
+                const rekapDate = new Date(parseInt(key)).toLocaleDateString('id-ID');
+                for (const item of entry.data) {
+                    if ((item.noLayanan || '').toLowerCase().includes(lowTerm)) {
+                        const kategori = getKategoriFromTicket(item);
+                        results.push({ rekapDate, ...item, kategori });
+                    }
                 }
-                let html = '';
-                keys.forEach(key => {
-                    const entry = data[key];
-                    const dateOnly = new Date(parseInt(key)).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    const count = entry.data ? entry.data.length : 0;
-                    html += `<div class="history-item">
-                            <div class="history-check"><input type="checkbox" class="history-checkbox" value="${key}" onchange="updateSelectAllState()"></div>
-                            <div class="history-info"><span class="history-date">📅 ${dateOnly}<button class="edit-date-btn" onclick="openEditDateModal('${key}')">✏️</button></span><span class="history-count">${count} tiket</span></div>
-                            <div class="history-actions">
-                                <button class="btn btn-outline" onclick="viewDetail('${key}')">🔍 Lihat</button>
-                                <button class="btn btn-outline" onclick="downloadRecapExcel('${key}')">📊 Excel</button>
-                                <button class="btn btn-outline" onclick="openJsonOptions('${key}')">📁 JSON</button>
-                                <button class="btn btn-outline" onclick="deleteRecap('${key}')">🗑️ Hapus</button>
-                            </div>
-                          </div>`;
-                });
-                container.innerHTML = html;
-                document.getElementById('selectAllCheckbox').checked = false;
-            });
+            }
+            return results;
         }
 
-        window.toggleSelectAll = function() {
-            const cbs = document.querySelectorAll('.history-checkbox');
-            const ck = document.getElementById('selectAllCheckbox').checked;
-            cbs.forEach(cb => cb.checked = ck);
+        window.openSearchModal = function() {
+            if (!checkOnline('Pencarian')) return;
+            document.getElementById('search-modal').style.display = 'block';
+            document.getElementById('searchInputField').value = '';
+            document.getElementById('search-result-body').innerHTML = '<tr><td colspan="11">Masukkan No Layanan</td></tr>';
+            lastSearchResults = [];
         };
-        window.updateSelectAllState = function() {
-            const cbs = document.querySelectorAll('.history-checkbox');
-            const all = cbs.length > 0 && Array.from(cbs).every(cb => cb.checked);
-            document.getElementById('selectAllCheckbox').checked = all;
+        window.closeSearchModal = () => document.getElementById('search-modal').style.display = 'none';
+        window.copySearchResults = function() {
+            if (!lastSearchResults.length) return;
+            let text = `HASIL PENCARIAN (${lastSearchResults.length})\n`;
+            lastSearchResults.forEach(r => {
+                text +=
+                    `${r.rekapDate} | ${r.noLayanan} | ${r.namaPelanggan} | ${r.tiket} | ${r.kategori} | ${r.statusPengerjaan}\n`;
+            });
+            copyText(text);
         };
+        window.downloadSearchResultsExcel = function() {
+            if (!lastSearchResults.length) return;
+            const ws = XLSX.utils.json_to_sheet(lastSearchResults.map(r => ({
+                'Tanggal Rekap': r.rekapDate,
+                'No Layanan': r.noLayanan,
+                'Nama': r.namaPelanggan,
+                'Tiket': r.tiket,
+                'Kategori Tiket': r.kategori,
+                'Status': r.statusPengerjaan,
+                'Teknisi': r.namaTeknisi,
+                'Kode Pos': r.kodePos,
+                'Catatan': r.catatan
+            })));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Hasil_Carian');
+            XLSX.writeFile(wb, `Search_${Date.now()}.xlsx`);
+            showNotification('✅ Excel selesai');
+        };
+
+        // ===== EDIT DATE =====
+        window.openEditDateModal = function(key) {
+            currentEditKey = key;
+            const modal = document.getElementById('edit-date-modal');
+            const dateInput = document.getElementById('newRecapDateInput');
+            const currentDate = new Date(parseInt(key));
+            dateInput.value =
+                `${currentDate.getFullYear()}-${String(currentDate.getMonth()+1).padStart(2,'0')}-${String(currentDate.getDate()).padStart(2,'0')}`;
+            modal.style.display = 'block';
+        };
+        window.closeEditDateModal = () => document.getElementById('edit-date-modal').style.display = 'none';
+
+        async function saveEditedDate() {
+            if (!checkOnline('Edit tanggal')) return;
+            if (!currentEditKey) return;
+            const newDateStr = document.getElementById('newRecapDateInput').value;
+            if (!newDateStr) { showNotification('Pilih tanggal'); return; }
+            const newTimestamp = new Date(newDateStr).setHours(12, 0, 0, 0);
+            if (isNaN(newTimestamp)) { showNotification('Tanggal tidak valid'); return; }
+            if (newTimestamp.toString() === currentEditKey) { showNotification('Tanggal sama');
+                closeEditDateModal(); return; }
+            const checkSnap = await get(ref(db, 'history_recaps/' + newTimestamp));
+            if (checkSnap.exists()) { showNotification('❌ Tanggal sudah ada rekap'); return; }
+            try {
+                const oldSnap = await get(ref(db, 'history_recaps/' + currentEditKey));
+                if (!oldSnap.exists()) { showNotification('Data tidak ditemukan');
+                    closeEditDateModal(); return; }
+                await set(ref(db, 'history_recaps/' + newTimestamp), oldSnap.val());
+                await remove(ref(db, 'history_recaps/' + currentEditKey));
+                showNotification(`✅ Tanggal diubah menjadi ${newDateStr}`);
+                closeEditDateModal();
+            } catch (e) { showNotification('Gagal: ' + e.message); }
+        }
+
+        // ===== DOWNLOAD SELECTED EXCEL =====
         window.downloadSelectedExcel = async function() {
             const sel = document.querySelectorAll('.history-checkbox:checked');
             if (!sel.length) { showNotification('Pilih history'); return; }
@@ -1583,6 +2313,7 @@
             XLSX.writeFile(wb, `Data_Tiket_${Date.now()}.xlsx`);
             showNotification(`✅ Export ${combined.length} tiket`);
         };
+
         window.downloadRecapExcel = async function(key) {
             const snap = await get(ref(db, 'history_recaps/' + key));
             if (snap.exists()) {
@@ -1614,89 +2345,15 @@
             }
         };
 
-        async function searchByNoLayanan(term) {
-            const snapshot = await get(historyRef);
-            const data = snapshot.val() || {};
-            const results = [];
-            const lowTerm = term.trim().toLowerCase();
-            for (const key of Object.keys(data)) {
-                const entry = data[key];
-                if (!entry.data) continue;
-                const rekapDate = new Date(parseInt(key)).toLocaleDateString('id-ID');
-                for (const item of entry.data) {
-                    if ((item.noLayanan || '').toLowerCase().includes(lowTerm)) {
-                        const kategori = getKategoriFromTicket(item);
-                        results.push({ rekapDate, ...item, kategori });
-                    }
-                }
-            }
-            return results;
-        }
-        window.openSearchModal = function() {
-            if (!checkOnline('Pencarian')) return;
-            document.getElementById('search-modal').style.display = 'block';
-            document.getElementById('searchInputField').value = '';
-            document.getElementById('search-result-body').innerHTML = '<tr><td colspan="11">Masukkan No Layanan</td></tr>';
-            lastSearchResults = [];
-        };
-        window.closeSearchModal = () => document.getElementById('search-modal').style.display = 'none';
-        window.copySearchResults = function() {
-            if (!lastSearchResults.length) return;
-            let text = `HASIL PENCARIAN (${lastSearchResults.length})\n`;
-            lastSearchResults.forEach(r => {
-                text += `${r.rekapDate} | ${r.noLayanan} | ${r.namaPelanggan} | ${r.tiket} | ${r.kategori} | ${r.statusPengerjaan}\n`;
-            });
-            copyText(text);
-        };
-        window.downloadSearchResultsExcel = function() {
-            if (!lastSearchResults.length) return;
-            const ws = XLSX.utils.json_to_sheet(lastSearchResults.map(r => ({
-                'Tanggal Rekap': r.rekapDate,
-                'No Layanan': r.noLayanan,
-                'Nama': r.namaPelanggan,
-                'Tiket': r.tiket,
-                'Kategori Tiket': r.kategori,
-                'Status': r.statusPengerjaan,
-                'Teknisi': r.namaTeknisi,
-                'Kode Pos': r.kodePos,
-                'Catatan': r.catatan
-            })));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Hasil_Carian');
-            XLSX.writeFile(wb, `Search_${Date.now()}.xlsx`);
-            showNotification('✅ Excel selesai');
-        };
-        window.openEditDateModal = function(key) {
-            currentEditKey = key;
-            const modal = document.getElementById('edit-date-modal');
-            const dateInput = document.getElementById('newRecapDateInput');
-            const currentDate = new Date(parseInt(key));
-            dateInput.value = `${currentDate.getFullYear()}-${String(currentDate.getMonth()+1).padStart(2,'0')}-${String(currentDate.getDate()).padStart(2,'0')}`;
-            modal.style.display = 'block';
-        };
-        window.closeEditDateModal = () => document.getElementById('edit-date-modal').style.display = 'none';
-        async function saveEditedDate() {
-            if (!checkOnline('Edit tanggal')) return;
-            if (!currentEditKey) return;
-            const newDateStr = document.getElementById('newRecapDateInput').value;
-            if (!newDateStr) { showNotification('Pilih tanggal'); return; }
-            const newTimestamp = new Date(newDateStr).setHours(12, 0, 0, 0);
-            if (isNaN(newTimestamp)) { showNotification('Tanggal tidak valid'); return; }
-            if (newTimestamp.toString() === currentEditKey) { showNotification('Tanggal sama'); closeEditDateModal(); return; }
-            const checkSnap = await get(ref(db, 'history_recaps/' + newTimestamp));
-            if (checkSnap.exists()) { showNotification('❌ Tanggal sudah ada rekap'); return; }
-            try {
-                const oldSnap = await get(ref(db, 'history_recaps/' + currentEditKey));
-                if (!oldSnap.exists()) { showNotification('Data tidak ditemukan'); closeEditDateModal(); return; }
-                await set(ref(db, 'history_recaps/' + newTimestamp), oldSnap.val());
-                await remove(ref(db, 'history_recaps/' + currentEditKey));
-                showNotification(`✅ Tanggal diubah menjadi ${newDateStr}`);
-                closeEditDateModal();
-            } catch (e) { showNotification('Gagal: ' + e.message); }
-        }
+        // ===== MODAL CLOSE HANDLERS =====
         window.onclick = (e) => {
             if (e.target.classList.contains('modal')) e.target.style.display = 'none';
         };
+
+        // ===== FILTER EVENT LISTENERS =====
+        document.getElementById('applyFilterBtn').addEventListener('click', applyFilter);
+        document.getElementById('unfilterBtn').addEventListener('click', clearFilter);
+
         document.getElementById('modalSearchBtn')?.addEventListener('click', async () => {
             if (!checkOnline('Pencarian')) return;
             const term = document.getElementById('searchInputField').value.trim();
@@ -1731,14 +2388,26 @@
                 </tr>`;
             }).join('');
         });
+
         document.getElementById('resetSearchModalBtn')?.addEventListener('click', () => {
             document.getElementById('searchInputField').value = '';
             document.getElementById('search-result-body').innerHTML = '<tr><td colspan="11">Masukkan No Layanan</td></tr>';
             document.getElementById('searchResultSummary').innerHTML = '';
             lastSearchResults = [];
         });
+
         document.getElementById('confirmEditDateBtn')?.addEventListener('click', saveEditedDate);
+
+        // ===== INIT =====
+        updateFilterUI();
         loadHistoryList();
+
+        // Keyboard shortcut: Enter on search input
+        document.getElementById('searchInputField')?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('modalSearchBtn')?.click();
+        });
+
+        console.log('✅ Sinyalku loaded with date filter.');
     </script>
 </body>
 </html>
