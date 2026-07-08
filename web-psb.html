@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-    <title>Master Data Tools - PSB & Tiket (Gemini Mode)</title>
+    <title>Master Data Tools - PSB & Tiket (Qwen Mode)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
         /* ===== RESET & VARIABLES ===== */
@@ -324,7 +324,7 @@
         <!-- HEADER -->
         <header>
             <h1>📋 Master Data Tools</h1>
-            <p>⚡ Generator PSB + Tiket | Excel Mode siap pakai untuk Gemini</p>
+            <p>⚡ Generator PSB + Tiket | Excel Mode siap pakai untuk Qwen & Gemini</p>
         </header>
 
         <!-- ===== MAIN MENU ===== -->
@@ -383,7 +383,7 @@
                         <h2>🚀 Finalisasi (Mode Detail)</h2>
                     </div>
                 </div>
-                <button class="btn-success" onclick="processPsbAndOpen()">✨ Gabungkan, Copy & Buka Gemini</button>
+                <button class="btn-success" onclick="processPsbAndOpen()">✨ Gabungkan, Copy & Buka Qwen AI</button>
             </div>
 
             <!-- Excel Preview -->
@@ -395,7 +395,7 @@
                     </div>
                 </div>
                 <div id="excelPreviewList"></div>
-                <button class="btn-success" id="copyExcelFinalBtn" style="margin-top: 24px;">📋 Gabungkan, Copy & Buka Gemini (Excel Ready)</button>
+                <button class="btn-success" id="copyExcelFinalBtn" style="margin-top: 24px;">📋 Gabungkan, Copy & Buka Qwen AI (Excel Ready)</button>
                 <div class="info-note">
                     💡 Setiap Data Detail otomatis berisi: <strong>"diambil dari file excel dengan no layanan X"</strong> sesuai permintaan.
                 </div>
@@ -423,7 +423,7 @@
         </div>
 
         <div style="text-align: center; margin-top: 40px; color: #9ca3af; font-size: 0.75rem;">
-            PSB + Tiket Automation • Support Gemini
+            PSB + Tiket Automation • Support Qwen AI & Gemini
         </div>
     </div>
 
@@ -434,7 +434,8 @@
         // ================================================================
         //  KONFIGURASI
         // ================================================================
-        const GEMINI_URL = "https://gemini.google.com/app";
+        const QWEN_URL = "https://chat.qwen.ai/";       // Khusus PSB
+        const GEMINI_URL = "https://gemini.google.com/app"; // Khusus Tiket
         const PSB_INSTRUCTION =
             `berikan saya table dengan urutan nomor layanan yang angka awal, nama, kolom alamat harus sesuai dengan apa yang ada di kolom alamat dan jangan ada yang dihapus atau ubah, rt nanti didepannya tidak ada angka 0, rw nanti didepannya tidak ada angka 0, kodepos ambil 5 angka dari depan nomor layanan, nomor handphone, tanggal terdaftar, paket layanan, referensi.`;
 
@@ -460,7 +461,7 @@
         }
 
         // ================================================================
-        //  CLIPBOARD + GEMINI
+        //  CLIPBOARD + OPEN AI
         // ================================================================
         async function copyToClipboard(text, successMsg = "✅ Tersalin!") {
             if (navigator.clipboard && window.isSecureContext) {
@@ -488,11 +489,13 @@
             }
         }
 
-        async function copyAndGoGemini(text) {
-            const ok = await copyToClipboard(text, "✅ Data PSB tersalin! Membuka Gemini...");
-            if (ok) setTimeout(() => window.open(GEMINI_URL, '_blank'), 1000);
+        // Khusus PSB -> Buka Qwen AI
+        async function copyAndGoQwen(text) {
+            const ok = await copyToClipboard(text, "✅ Data PSB tersalin! Membuka Qwen AI...");
+            if (ok) setTimeout(() => window.open(QWEN_URL, '_blank'), 1000);
         }
 
+        // Khusus Tiket -> Buka Gemini
         async function copyAndGoGeminiTicket(text) {
             const ok = await copyToClipboard(text, "🚀 Data Tiket tersalin! Membuka Gemini...");
             if (ok) setTimeout(() => window.open(GEMINI_URL, '_blank'), 1000);
@@ -590,7 +593,7 @@
                 return;
             }
             const finalPrompt = `((\n${combinedData})) ${PSB_INSTRUCTION}`;
-            copyAndGoGemini(finalPrompt);
+            copyAndGoQwen(finalPrompt); // <- Mengarah ke Qwen AI
         }
 
         // ================================================================
@@ -642,7 +645,7 @@
             }
             const final = buildExcelFinalPrompt();
             if (!final) return;
-            await copyAndGoGemini(final);
+            await copyAndGoQwen(final); // <- Mengarah ke Qwen AI
         }
 
         // ================================================================
@@ -748,7 +751,7 @@ Tanggal pemasangan: ${currentDate}
 FOTO Depan Rumah :
 Status Rumah : Pribadi
 Setuju berlangganan minimal 1 tahun: YA) , jika pada format nama lengkap  di sebelah namanya ada catatan maka satukan saja dengan di kolom paket layanan.`;
-            copyAndGoGeminiTicket(finalPrompt);
+            copyAndGoGeminiTicket(finalPrompt); // <- Tetap Gemini
         }
 
         // ================================================================
