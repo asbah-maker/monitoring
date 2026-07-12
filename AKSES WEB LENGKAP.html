@@ -387,6 +387,12 @@
             transition: transform 0.2s;
             pointer-events: none;
         }
+        .card-icon img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
         .card:hover .card-icon { transform: scale(1.05) rotate(2deg); }
         .card-title {
             font-weight: 700;
@@ -515,6 +521,9 @@
 
 <script>
     // ========= DATA MENU ==========
+    // Logo Qwen AI dalam format SVG (blue geometric logo)
+    const qwenLogoSVG = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTI1IDVMMzUgMjBMMjUgMzVMMTUgMjBMMjUgNVoiIGZpbGw9IiMzNzYzRkYiLz4KPHBhdGggZD0iTTEwIDI1TDI1IDM1TDQwIDI1TDI1IDE1TDEwIDI1WiIgZmlsbD0iIzM3NjNGRiIvPgo8cGF0aCBkPSJNMjUgMTVMMzUgMzBMMjUgNDVMMTUgMzBMMjUgMTVaIiBmaWxsPSIjMzc2M0ZGIiBvcGFjaXR5PSIwLjgiLz4KPC9zdmc+`;
+
     // MENU LENGKAP - item Barantum telah dihapus sesuai permintaan
     const menuData = [
         { name: "Social Chat", icon: "fas fa-comments", color: "#3b82f6", url: "https://app.socialchat.id/app/chat", category: "Komunikasi", keywords: "chat social" },
@@ -534,6 +543,7 @@
         { name: "GitHub Config", icon: "fab fa-github", color: "#333", url: "https://github.com/asbah-maker/monitoring/settings/pages", category: "Developer", keywords: "github" },
         { name: "Gemini AI", icon: "fas fa-brain", color: "#8b5cf6", url: "https://gemini.google.com/app?hl=id", category: "AI", keywords: "gemini ai" },
         { name: "DeepSeek AI", icon: "fas fa-robot", color: "#4d88ff", url: "https://chat.deepseek.com/", category: "AI", keywords: "deepseek ai" },
+        { name: "Qwen AI", logo: qwenLogoSVG, icon: "fas fa-robot", color: "#3763FF", url: "https://chat.qwen.ai/", category: "AI", keywords: "qwen ai chatbot alibaba" },
         { name: "Data Alat (Excel)", icon: "fas fa-file-excel", color: "#217346", url: "https://1drv.ms/x/c/4955526dc9bda579/IQBKkfhUj420Sa4L_o1DCABBAYDavNcinH9PxU5Sj8Zx8xA", category: "Data", keywords: "excel data" },
         { name: "YouTube", icon: "fab fa-youtube", color: "#ff0000", url: "https://www.youtube.com/", category: "Hiburan", keywords: "video" },
         // MENU BARU: SOP Sinyalku (Dokumentasi)
@@ -634,12 +644,17 @@
 
         grid.innerHTML = filtered.map(item => {
             const isFav = favorites.includes(item.name);
+            // Cek apakah item memiliki logo custom (gambar)
+            const iconHTML = item.logo 
+                ? `<img src="${item.logo}" alt="${item.name}" />`
+                : `<i class="${item.icon}"></i>`;
+            
             return `
                 <div class="card" data-url="${item.url.replace(/"/g, '&quot;')}" data-name="${item.name}">
                     <div class="favorite-icon ${isFav ? 'fav-active' : ''}" data-name="${item.name}">
                         <i class="${isFav ? 'fas fa-star' : 'far fa-star'}"></i>
                     </div>
-                    <div class="card-icon" style="color: ${item.color}"><i class="${item.icon}"></i></div>
+                    <div class="card-icon" style="color: ${item.color}">${iconHTML}</div>
                     <div class="card-title">${item.name}</div>
                     <div class="card-category">${item.category}</div>
                 </div>
