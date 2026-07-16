@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V7.5 (OLT Select + AI + Chunk + Kompas + History)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V7.5 (OLT Select + AI + Chunk + Kompas + History + ON/OFF Team)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js">
     </script>
     <style>
@@ -245,6 +245,11 @@
             margin-top: 3px;
             font-weight: normal;
         }
+        .btn-select-team.team-inactive {
+            opacity: 0.4;
+            border-color: #dc3545;
+            pointer-events: none;
+        }
         .btn-back-home {
             background: #6c757d;
             color: white;
@@ -359,6 +364,15 @@
             margin-bottom: 20px;
             overflow: hidden;
             border: 1px solid #e1e4e8;
+            transition: opacity 0.3s, filter 0.3s;
+        }
+        .team-card.team-inactive {
+            opacity: 0.55;
+            filter: grayscale(0.6);
+            border-color: #dc3545;
+        }
+        .team-card.team-inactive .team-header {
+            background: #6c757d !important;
         }
         .team-header {
             padding: 15px;
@@ -834,6 +848,66 @@
         .location-toggle input[type="checkbox"]:checked::after {
             transform: translateX(16px);
         }
+
+        /* ON/OFF TEAM TOGGLE */
+        .team-active-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            cursor: pointer;
+            user-select: none;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 2px 8px 2px 4px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background 0.2s;
+        }
+        .team-active-toggle:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .team-active-toggle input[type="checkbox"] {
+            width: 32px;
+            height: 18px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #dc3545;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.25s;
+            flex-shrink: 0;
+            border: none;
+            outline: none;
+        }
+        .team-active-toggle input[type="checkbox"]::after {
+            content: "";
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .team-active-toggle input[type="checkbox"]:checked {
+            background: #28a745;
+        }
+        .team-active-toggle input[type="checkbox"]:checked::after {
+            transform: translateX(14px);
+        }
+        .team-active-toggle .toggle-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            min-width: 18px;
+            text-align: center;
+        }
+
         .filter-bar {
             display: flex;
             gap: 6px;
@@ -1988,6 +2062,21 @@
             .history-entry .h-date {
                 align-self: flex-start;
             }
+            .team-active-toggle input[type="checkbox"] {
+                width: 28px;
+                height: 16px;
+            }
+            .team-active-toggle input[type="checkbox"]::after {
+                width: 12px;
+                height: 12px;
+            }
+            .team-active-toggle input[type="checkbox"]:checked::after {
+                transform: translateX(12px);
+            }
+            .team-active-toggle .toggle-label {
+                font-size: 0.5rem;
+                min-width: 14px;
+            }
         }
     </style>
 </head>
@@ -2009,7 +2098,7 @@
     <div class="container" id="main-app-container">
         <div class="header-section">
             <button class="btn-back-home" id="btn-back-tech" onclick="exitTechMode()">⬅️ Kembali / Ganti Tim</button>
-            <h1>📋 TES V1 MONITORING<br><span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • OLT Selector • AI Ticket Generator (Chunk 5) • Kompas • History</span>
+            <h1>📋 TES V1 MONITORING<br><span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • OLT Selector • AI Ticket Generator (Chunk 5) • Kompas • History • ON/OFF Tim</span>
                 <div id="connection-status">Connecting to server...</div>
             </h1>
             <div class="btn-group-header" id="admin-menu-group">
@@ -2294,7 +2383,7 @@
         let operTicketSource = null;
 
         // ===== HISTORY DATA CACHE =====
-        let historyDataCache = null; // { timestamp: { data: [...], generatedAt: ... } }
+        let historyDataCache = null;
         let historyDataLoaded = false;
 
         // ===== COMPASS & BEARING FUNCTIONS =====
@@ -2334,7 +2423,7 @@
             return 'far';
         }
 
-        // ===== HISTORY FUNCTIONS (filter hanya Selesai / Pending / Gagal Kunjungan) =====
+        // ===== HISTORY FUNCTIONS =====
         async function loadHistoryData() {
             if (historyDataLoaded) return;
             try {
@@ -2609,7 +2698,6 @@
                 isolirCount = 0;
             let errorOccurred = false;
 
-            // ===== UPDATED SYSTEM PROMPT: Address format without kode pos, omit missing fields =====
             const systemPrompt =
                 `Anda adalah asisten AI pengolah tiket internet. Ubah teks mentah menjadi JSON dengan format berikut.
 
@@ -2779,11 +2867,8 @@
             const noLayanan = ticket.noLayanan || ticket.layanan || '-';
             const referensi = ticket.referensi && ticket.referensi.trim() !== '' ? ticket.referensi :
                 'Tidak ada referensi';
-            // Hapus "kode pos" dari alamat jika masih ada (jaga-jaga AI tetap menyertakannya)
             let alamat = ticket.alamat || '-';
-            // Bersihkan "kode pos:" dan nilainya
             alamat = alamat.replace(/kode pos\s*:\s*[^,\s]+/gi, '').replace(/\s+/g, ' ').trim();
-            // Hapus tanda baca ganda
             alamat = alamat.replace(/[,.]\s*[,.]/g, ',').replace(/\s{2,}/g, ' ');
             card.innerHTML =
                 `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:#007bff;">Ticket PSB #${index+1}: ${ticket.nama || '-'}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${ticket.jam || 'FLEXIBEL'}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="PSB"><div class="input-group"><label>No Layanan</label><input type="text" class="bulk-nolayanan" value="${escapeHtml(noLayanan)}" placeholder="Nomor layanan (opsional)"></div><div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${escapeHtml(ticket.nama || '-')}"></div><div class="input-group"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${escapeHtml(alamat)}"></div><div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${escapeHtml(ticket.email || '-')}"></div><div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${escapeHtml(ticket.wa || '-')}"></div><div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${escapeHtml(ticket.paket || '-')}"></div><div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${escapeHtml(referensi)}"></div><div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${escapeHtml(ticket.ktp || '-')}"></div><div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${escapeHtml(ticket.tgl || '-')}"></div><div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${escapeHtml(ticket.statusRumah || '-')}"></div><div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${escapeHtml(ticket.setuju || '-')}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`;
@@ -2939,7 +3024,29 @@
             } catch (e) {}
         }
 
-        // ===== RENDER LANDING =====
+        // ===== HELPER: GET ACTIVE TEAMS (for non-admin views) =====
+        function getActiveTeams() {
+            return teams.filter(t => t.isActive !== false);
+        }
+
+        // ===== TOGGLE TEAM ACTIVE (ADMIN ONLY) =====
+        window.toggleTeamActive = function(teamIndex, checked) {
+            if (appMode !== 'admin') {
+                showSyncNotification('⚠️ Hanya admin yang dapat mengaktifkan/nonaktifkan tim', 'warning');
+                const cb = document.getElementById(`team-active-cb-${teams[teamIndex]?.id}`);
+                if (cb) cb.checked = teams[teamIndex]?.isActive !== false;
+                return;
+            }
+            const team = teams[teamIndex];
+            team.isActive = checked;
+            saveDataToFirebase();
+            renderJobs();
+            renderLandingTeams();
+            showSyncNotification(checked ? `✅ Tim ${team.teamName} diaktifkan (ON)` : `❌ Tim ${team.teamName} dinonaktifkan (OFF)`,
+                'success');
+        };
+
+        // ===== RENDER LANDING (only active teams) =====
         function renderLandingTeams() {
             if (appMode !== 'landing') return;
             const container = document.getElementById('landing-tech-grid');
@@ -2947,16 +3054,21 @@
             container.innerHTML = '';
             container.style.display = 'grid';
             let hasActiveTeams = false;
-            teams.forEach((team, index) => {
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach((team, index) => {
+                const actualIndex = teams.indexOf(team);
+                if (actualIndex === -1) return;
                 if (team.jobs && team.jobs.length > 0) {
                     hasActiveTeams = true;
                     const btn = document.createElement('div');
                     btn.className = 'btn-select-team';
-                    btn.onclick = () => enterTechMode(index);
+                    btn.onclick = () => enterTechMode(actualIndex);
                     btn.innerHTML = `${team.teamName}<span>(${team.jobs.length} Tiket)</span>`;
                     container.appendChild(btn);
                 }
             });
+            // Also show inactive teams on landing for admin? No, landing is for technicians.
+            // Only active teams with jobs appear.
             if (!hasActiveTeams) noMsg.style.display = 'block';
             else noMsg.style.display = 'none';
         }
@@ -3001,9 +3113,10 @@
             const select = document.getElementById('admin-team-filter-select');
             select.innerHTML = '<option value="all">👥 Semua Tim</option>';
             teams.forEach((team, idx) => {
+                const statusLabel = team.isActive === false ? ' [OFF]' : ' [ON]';
                 const opt = document.createElement('option');
                 opt.value = idx;
-                opt.textContent = `${team.teamName} (${team.jobs ? team.jobs.length : 0} tiket)`;
+                opt.textContent = `${team.teamName}${statusLabel} (${team.jobs ? team.jobs.length : 0} tiket)`;
                 select.appendChild(opt);
             });
             select.value = adminTeamFilter;
@@ -3022,7 +3135,6 @@
             loadPendingSyncOperations();
             loadApiKey();
 
-            // Load history data from second Firebase
             loadHistoryData();
 
             window.addEventListener('online', () => { updateConnectionStatus('connecting', 'Koneksi pulih, menyinkronkan...');
@@ -3040,6 +3152,7 @@
                         if (data) {
                             teams = data;
                             teams.forEach(t => {
+                                if (t.isActive === undefined) t.isActive = true;
                                 if (!t.inventory) t.inventory = [];
                                 t.inventory = t.inventory.map(item => { if (!item.status) item
                                         .status = 'pending'; return item; });
@@ -3047,7 +3160,7 @@
                                         .oltType = 'unknown'; if (job.tikor === undefined) job
                                         .tikor = null; });
                                 if (!t.mainLocation) t.mainLocation = null;
-                                if (!t.locationEnabled) t.locationEnabled = false;
+                                if (t.locationEnabled === undefined) t.locationEnabled = false;
                                 if (t.enableTikorOper === undefined) t.enableTikorOper = false;
                             });
                         } else { teams = JSON.parse(JSON.stringify(defaultTeams)); }
@@ -3085,7 +3198,8 @@
             let psb = 0,
                 mt = 0,
                 isolir = 0;
-            teams.forEach(team => { if (!team.jobs) return;
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach(team => { if (!team.jobs) return;
                 team.jobs.forEach(job => { const tag = job.tag.toUpperCase(); if (tag.includes('PSB')) psb++; else if (tag
                         .includes('ISOLIR')) isolir++; else mt++; }); });
             return { psb, mt, isolir };
@@ -3325,10 +3439,12 @@
             operTicketSource = { teamIdx, jobIdx };
             const select = document.getElementById('operTicketTarget');
             select.innerHTML = '';
-            teams.forEach((t, idx) => {
-                if (idx !== teamIdx) {
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach((t, idx) => {
+                const actualIdx = teams.indexOf(t);
+                if (actualIdx !== teamIdx) {
                     const opt = document.createElement('option');
-                    opt.value = idx;
+                    opt.value = actualIdx;
                     opt.textContent = `${t.teamName} (${t.jobs ? t.jobs.length : 0} tiket)`;
                     select.appendChild(opt);
                 }
@@ -3336,7 +3452,7 @@
             if (select.options.length === 0) {
                 const opt = document.createElement('option');
                 opt.value = '';
-                opt.textContent = '-- Tidak ada tim lain --';
+                opt.textContent = '-- Tidak ada tim aktif lain --';
                 select.appendChild(opt);
             }
             document.getElementById('modalOperTicket').style.display = 'block';
@@ -3479,41 +3595,7 @@
             currentHistoryNoLayanan = '';
         };
 
-        // ===== HELPER: SORT JOBS BY TIME (EARLIEST TO LATEST) =====
-        function timeToMinutes(timeStr) {
-            if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999;
-            const lower = timeStr.toLowerCase();
-            if (lower.includes("pagi")) return 480;
-            if (lower.includes("siang")) return 780;
-            if (lower.includes("sore")) return 960;
-            if (lower.includes("malam")) return 1140;
-            const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/);
-            if (match) {
-                let hour = parseInt(match[1]);
-                const minute = match[2] ? parseInt(match[2]) : 0;
-                if (hour === 12 && lower.includes('siang')) hour = 12;
-                else if (hour === 12 && lower.includes('malam')) hour = 0;
-                else if (hour < 12 && lower.includes('sore')) hour += 12;
-                else if (hour < 12 && lower.includes('malam')) hour += 12;
-                else if (hour < 5 && lower.includes('siang')) hour += 12;
-                return hour * 60 + minute;
-            }
-            return 99999;
-        }
-
-        function sortJobsByTime(jobs) {
-            if (!jobs || !Array.isArray(jobs)) return [];
-            // Buat salinan agar tidak mengubah array asli
-            const sorted = [...jobs];
-            sorted.sort((a, b) => {
-                const timeA = a.time || 'FLEXIBEL';
-                const timeB = b.time || 'FLEXIBEL';
-                return timeToMinutes(timeA) - timeToMinutes(timeB);
-            });
-            return sorted;
-        }
-
-        // ===== RENDER JOBS (with COMPASS - ADMIN ONLY + HISTORY BADGE for both modes) =====
+        // ===== RENDER JOBS (with ON/OFF toggle for admin) =====
         function renderJobs() {
             const container = document.getElementById('teams-container');
             container.innerHTML = '';
@@ -3524,7 +3606,12 @@
             let teamsToShow = [];
             if (appMode === 'tech') {
                 if (selectedTechIndex >= 0 && selectedTechIndex < teams.length) {
-                    teamsToShow = [teams[selectedTechIndex]];
+                    const team = teams[selectedTechIndex];
+                    if (team.isActive !== false) {
+                        teamsToShow = [team];
+                    } else {
+                        teamsToShow = [];
+                    }
                 } else {
                     teamsToShow = [];
                 }
@@ -3551,7 +3638,10 @@
 
                 if (!team.jobs) team.jobs = [];
                 if (!team.inventory) team.inventory = [];
-                if (team.jobs.length === 0) return;
+                // For admin: show even if no jobs, but with a message
+                // For tech: only show if has jobs
+                if (appMode === 'tech' && team.jobs.length === 0) return;
+                if (appMode !== 'admin' && team.jobs.length === 0) return;
 
                 const teamFilter = getTeamFilter(actualIndex);
 
@@ -3559,9 +3649,14 @@
                 if (teamFilter !== 'all') {
                     filteredJobs = filteredJobs.filter(job => getCategoryFromJob(job) === teamFilter);
                 }
-                if (filteredJobs.length === 0) return;
+                // For tech mode, if no jobs after filter, skip
+                if (appMode === 'tech' && filteredJobs.length === 0) return;
 
                 const isAdmin = (appMode === 'admin');
+                const isActive = team.isActive !== false;
+
+                // For tech mode, skip inactive teams
+                if (appMode === 'tech' && !isActive) return;
 
                 const locationEnabled = isAdmin && team.locationEnabled && team.mainLocation;
                 if (locationEnabled) {
@@ -3588,12 +3683,20 @@
                     filteredJobs.sort((a, b) => (timeToMinutes(a.time) - timeToMinutes(b.time)));
                 }
 
+                // For admin: still show the team card even with 0 jobs (but with a message)
+                // For tech: skip if no jobs
+                if (appMode === 'tech' && filteredJobs.length === 0) return;
+
                 visibleTeamsCount++;
                 const pendingInv = getPendingInventory(actualIndex);
                 const stockCount = pendingInv.length;
 
                 const teamDiv = document.createElement('div');
                 teamDiv.className = 'team-card';
+                if (!isActive && isAdmin) {
+                    teamDiv.classList.add('team-inactive');
+                }
+
                 const locActive = (isAdmin && team.locationEnabled && team.mainLocation) ? 'active' : '';
                 const locLabel = '📍';
                 const locText = (isAdmin && team.mainLocation) ? 'Lokasi' : 'Setel Lokasi';
@@ -3619,12 +3722,20 @@
                         </button>
                     ` : '';
 
+                // ON/OFF TEAM TOGGLE (ADMIN ONLY)
+                const activeToggle = isAdmin ? `
+                        <label class="team-active-toggle" title="Aktifkan/Nonaktifkan tim ini">
+                            <input type="checkbox" id="team-active-cb-${team.id}" ${isActive ? 'checked' : ''} onchange="toggleTeamActive(${actualIndex}, this.checked)">
+                            <span class="toggle-label">${isActive ? 'ON' : 'OFF'}</span>
+                        </label>
+                    ` : '';
+
                 const filterAllActive = teamFilter === 'all' ? 'active' : '';
                 const filterPsbActive = teamFilter === 'psb' ? 'active' : '';
                 const filterMtActive = teamFilter === 'mt' ? 'active' : '';
                 const filterIsolirActive = teamFilter === 'isolir' ? 'active' : '';
 
-                let filterBarHTML = `
+                let filterBarHTML = isAdmin ? `
                         <div class="filter-bar">
                             <span class="filter-label">Filter:</span>
                             <button class="filter-btn ${filterAllActive}" onclick="setCategoryFilterPerTeam(${actualIndex}, 'all', this)">Semua</button>
@@ -3632,22 +3743,26 @@
                             <button class="filter-btn ${filterMtActive}" onclick="setCategoryFilterPerTeam(${actualIndex}, 'mt', this)">Kunjungan</button>
                             <button class="filter-btn ${filterIsolirActive}" onclick="setCategoryFilterPerTeam(${actualIndex}, 'isolir', this)">Isolir</button>
                         </div>
-                    `;
+                    ` : '';
+
+                const jobCountDisplay = filteredJobs.length;
+                const statusText = !isActive && isAdmin ? ' (OFF)' : '';
 
                 teamDiv.innerHTML = `
                         <div class="team-header ${team.colorClass}">
                             <div class="header-left">
-                                <span>${team.teamName}</span>
+                                <span>${team.teamName}${statusText}</span>
                                 <span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok Pending: ${stockCount} pcs</span>
                             </div>
                             <div class="header-right">
+                                ${activeToggle}
                                 ${tikorOperToggle}
                                 <button class="btn-copy-team" onclick="copyTeamSummary(${actualIndex}, this)">📑 Rekap</button>
                                 <button class="btn-view-stock" onclick="openStockListModal(${actualIndex})">MODEM</button>
                                 ${locationButton}
                                 ${locationToggle}
                                 ${filterBarHTML}
-                                <span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">0/0</span>
+                                <span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">${isAdmin ? (jobCountDisplay + '/' + team.jobs.length) : (jobCountDisplay + '/0')}</span>
                             </div>
                         </div>
                         <div class="progress-container"><div class="progress-bar" id="progress-${team.id}"></div></div>
@@ -3656,6 +3771,16 @@
                 container.appendChild(teamDiv);
 
                 const listContainer = document.getElementById(`list-${team.id}`);
+
+                // If no jobs and admin, show a message
+                if (filteredJobs.length === 0 && isAdmin) {
+                    const emptyLi = document.createElement('li');
+                    emptyLi.style.cssText = 'padding:20px; text-align:center; color:#999; font-style:italic;';
+                    emptyLi.textContent = '📭 Belum ada tiket di tim ini.';
+                    listContainer.appendChild(emptyLi);
+                    updateProgressUI(team.id, filteredJobs);
+                    return;
+                }
 
                 let modemOptions =
                     `<option value="">-- Pilih Modem dari Stok (${team.inventory.length}) --</option>`;
@@ -3702,7 +3827,6 @@
                     const uniqueId = `details-${team.id}-${displayIndex}`;
                     const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none";
 
-                    // ---- COMPASS + DISTANCE BADGE (ADMIN ONLY) ----
                     let compassHtml = '';
                     if (isAdmin && locationEnabled && job._distance !== null && job._bearing !== null) {
                         const dist = job._distance;
@@ -3747,7 +3871,6 @@
                             `<button class="btn-oper" onclick="openOperTicketModal(${actualIndex}, ${originalIndex})">🔄 Oper</button>`;
                     }
 
-                    // ---- HISTORY BUTTON with BADGE (BOTH MODES) ----
                     const noLayananForHistory = job.details?.['No Layanan'] || job.details?.['Layanan'] || '';
                     let historyBtnHtml = '';
                     let historyBadge = '';
@@ -3767,7 +3890,6 @@
                             `;
                     }
 
-                    // ---- DETAIL HTML ----
                     let detailHTML = '';
                     if (isPSB) {
                         detailHTML +=
@@ -3903,12 +4025,24 @@
             });
 
             if (visibleTeamsCount === 0) {
-                const filterMsg = '';
+                let filterMsg = '';
+                if (appMode === 'tech') {
+                    filterMsg = ' (Tidak ada tim aktif dengan tiket)';
+                }
                 container.innerHTML =
                     `<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif.${filterMsg}</div>`;
             }
             updateGlobalStatsDisplay();
         }
+
+        function timeToMinutes(timeStr) { if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999; const lower =
+                timeStr.toLowerCase(); if (lower.includes("pagi")) return 480; if (lower.includes("siang")) return 780; if (
+                lower.includes("sore")) return 960; if (lower.includes("malam")) return 1140; const match = timeStr.match(
+                /(\d{1,2})[:.]?(\d{2})?/); if (match) { let hour = parseInt(match[1]); const minute = match[2] ? parseInt(
+                    match[2]) : 0; if (hour === 12 && lower.includes('siang')) hour = 12; else if (hour === 12 && lower
+                    .includes('malam')) hour = 0; else if (hour < 12 && lower.includes('sore')) hour += 12; else if (hour <
+                    12 && lower.includes('malam')) hour += 12; else if (hour < 5 && lower.includes('siang')) hour += 12;
+                return hour * 60 + minute; } return 99999; }
 
         function updateProgressUI(teamId, jobs) { const total = jobs.length; const completed = jobs.filter(j => j.status ===
                 'completed' || j.completed === true).length; const percent = (total === 0) ? 0 : (completed / total) * 100;
@@ -4164,7 +4298,11 @@
             pendingOption.value = 'non_ikr_pending';
             pendingOption.textContent = '📋 Pending (Non IKR)';
             select.appendChild(pendingOption);
-            teams.forEach((t, i) => { if (i !== teamIdx) { select.add(new Option(t.teamName, i)); } });
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach((t) => {
+                const idx = teams.indexOf(t);
+                if (idx !== teamIdx) { select.add(new Option(t.teamName, idx)); }
+            });
             document.getElementById('oper-modem-panel').style.display = 'block'; };
 
         window.executeOperModem = async function() {
@@ -4248,7 +4386,10 @@
             header += `${filterText}\n\n`;
             let allText = header;
             let hasAny = false;
-            teams.forEach((team, idx) => {
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach((team) => {
+                const idx = teams.indexOf(team);
+                if (idx === -1) return;
                 if (!team.inventory || team.inventory.length === 0) return;
                 let filtered = team.inventory;
                 if (filter === 'pending') filtered = team.inventory.filter(m => m.status === 'pending');
@@ -4432,19 +4573,19 @@
             copyToClipboard(textToCopy, btn);
         };
 
-        // ===== copyAllSummaryV2 (SORTED BY TIME PER TEAM) =====
+        // ===== COPY FUNCTIONS (filtered by active teams) =====
         window.copyAllSummaryV2 = function() {
             let text = `📋 *REKAP STATUS TIKET*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
+            const activeTeams = getActiveTeams();
 
-            teams.forEach((team, tIndex) => {
+            activeTeams.forEach((team) => {
+                const tIndex = teams.indexOf(team);
+                if (tIndex === -1) return;
                 if (!team.jobs || team.jobs.length === 0) return;
-
-                // Sort jobs by time (earliest to latest)
-                const sortedJobs = sortJobsByTime(team.jobs);
 
                 text += `TEKNISI : ${team.teamName}\n\n`;
 
-                sortedJobs.forEach((job, jIndex) => {
+                team.jobs.forEach((job, jIndex) => {
                     const isPSB = job.tag.toUpperCase().includes("PSB");
                     const isCompleted = (job.status === 'completed' || job.completed === true);
                     const isFailed = (job.status === 'failed');
@@ -4561,54 +4702,37 @@
             copyToClipboard(text, null, "✅ Rekap V2 Tersalin!");
         };
 
-        // ===== copyTeamSummary (SORTED BY TIME) =====
         window.copyTeamSummary = function(tIndex, btn) {
             const team = teams[tIndex];
-            // Sort jobs by time
-            const sortedJobs = sortJobsByTime(team.jobs);
-
+            if (!team) return;
             let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
-            sortedJobs.forEach((job, index) => {
-                const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
-                const time = job.time || 'FLEXIBEL';
-                const numIcon = getNumberEmoji(index + 1);
-                let statusLine = "",
+            team.jobs.forEach((job, index) => { const layID = job.details['No Layanan'] || job.details['Layanan'] ||
+                    '-'; const time = job.time || 'FLEXIBEL'; const numIcon = getNumberEmoji(index + 1); let statusLine =
+                    "",
                     failureLine = "",
-                    noteSuffix = "";
-                if (job.status === 'completed' || (job.completed && !job.status)) {
-                    if (job.completionNote) noteSuffix = ` (${job.completionNote})`;
-                    statusLine = `✅ STATUS: SELESAI${noteSuffix}`;
-                } else if (job.status === 'failed') {
-                    statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`;
-                    if (job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`;
-                } else statusLine = `⏳ STATUS: PENDING`;
-                text += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`;
-            });
+                    noteSuffix = ""; if (job.status === 'completed' || (job.completed && !job.status)) { if (job
+                        .completionNote) noteSuffix = ` (${job.completionNote})`;
+                    statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if (job.status === 'failed') { statusLine =
+                    `⛔ STATUS: GAGAL KUNJUNGAN`; if (job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`; } else
+                    statusLine = `⏳ STATUS: PENDING`;
+                text += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`; });
             copyToClipboard(text, btn, "✅ Disalin!");
         };
 
-        // ===== copyAllSummary (SORTED BY TIME PER TEAM) =====
         window.copyAllSummary = function() {
             let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
-            teams.forEach(team => {
-                // Sort jobs by time
-                const sortedJobs = sortJobsByTime(team.jobs);
-
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach(team => {
                 summaryText += `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
-                sortedJobs.forEach((job, index) => {
-                    const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
-                    const time = job.time || 'FLEXIBEL';
-                    const numIcon = getNumberEmoji(index + 1);
-                    let statusLine = "",
+                team.jobs.forEach((job, index) => { const layID = job.details['No Layanan'] || job.details[
+                        'Layanan'] || '-'; const time = job.time || 'FLEXIBEL'; const numIcon =
+                        getNumberEmoji(index + 1); let statusLine = "",
                         failureLine = "",
-                        noteSuffix = "";
-                    if (job.status === 'completed' || (job.completed && !job.status)) {
-                        if (job.completionNote) noteSuffix = ` (${job.completionNote})`;
-                        statusLine = `✅ STATUS: SELESAI${noteSuffix}`;
-                    } else if (job.status === 'failed') {
-                        statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`;
-                        if (job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`;
-                    } else statusLine = `⏳ STATUS: PENDING`;
+                        noteSuffix = ""; if (job.status === 'completed' || (job.completed && !job.status)) { if (
+                            job.completionNote) noteSuffix = ` (${job.completionNote})`;
+                        statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if (job.status === 'failed') {
+                        statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`; if (job.failureNote) failureLine =
+                            `\n📝 Ket: ${job.failureNote}`; } else statusLine = `⏳ STATUS: PENDING`;
                     summaryText +=
                         `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`;
                 });
@@ -4617,40 +4741,17 @@
             copyToClipboard(summaryText, null, "✅ Rekap Semua Tiket Tersalin!");
         };
 
-        // ===== copyPSBSummary (SORTED BY TIME ACROSS ALL TEAMS) =====
         window.copyPSBSummary = function() {
-            // Kumpulkan semua PSB berhasil dari semua tim, lalu urutkan berdasarkan waktu
-            let psbEntries = [];
-            teams.forEach(team => {
-                if (!team.jobs) return;
-                team.jobs.forEach(job => {
-                    const isPSB = job.tag.toUpperCase().includes("PSB");
-                    const isCompleted = job.status === 'completed' || (job.completed && !job.status);
-                    if (isPSB && isCompleted) {
-                        const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '-';
-                        const referensi = job.details['Referensi'] || '-';
-                        if (noLayanan !== '-') {
-                            psbEntries.push({
-                                noLayanan: noLayanan,
-                                referensi: referensi,
-                                time: job.time || 'FLEXIBEL'
-                            });
-                        }
-                    }
-                });
-            });
-
-            // Urutkan berdasarkan waktu
-            psbEntries.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
-
             let text = `📋 *REKAP PSB BERHASIL*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
-            if (psbEntries.length === 0) {
-                text += "Tidak ada data PSB berhasil.\n";
-            } else {
-                psbEntries.forEach(entry => {
-                    text += `${entry.noLayanan} referensi: ${entry.referensi}\n`;
-                });
-            }
+            let count = 0;
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach(team => { team.jobs.forEach(job => { const isPSB = job.tag.toUpperCase().includes(
+                        "PSB"); const isCompleted = job.status === 'completed' || (job.completed && !job.status); if (
+                        isPSB && isCompleted) { const noLayanan = job.details['No Layanan'] || job.details[
+                            'Layanan'] || '-'; const referensi = job.details['Referensi'] || '-'; if (noLayanan !==
+                            '-') { text += `${noLayanan} referensi: ${referensi}\n`;
+                        count++; } } }); });
+            if (count === 0) text += "Tidak ada data PSB berhasil.\n";
             copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!");
         };
 
@@ -4661,7 +4762,7 @@
         function getNumberEmoji(n) { const emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']; return emojis[
                 n] || `${n}.`; }
 
-        // ===== EXCEL DOWNLOAD =====
+        // ===== EXCEL DOWNLOAD (filtered by active teams) =====
         function formatDateIndo(dateStr) { if (!dateStr || dateStr === '-' || dateStr === "") return "-"; const rawDate =
                 dateStr.split(',')[0].trim(); const parts = rawDate.split('/'); if (parts.length === 3) { const months = [
                     "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER",
@@ -4673,46 +4774,94 @@
                 /RW\s*[\.\:\-\/]?\s*0?(\d+)/i); const kelMatch = addr.match(/Kel\.?\s*([A-Za-z\s]+)/i); return { rt: rtMatch ?
                     rtMatch[1] : '-', rw: rwMatch ? rwMatch[1] : '-', kel: kelMatch ? kelMatch[1] : '-' }; }
 
-        window.downloadExcel = function(mode) { let dataToExport = []; const todayRaw = new Date().toLocaleString('id-ID');
-            let rowNumber = 1; teams.forEach(team => { const rawTechName = team.teamName.split(':')[1]?.trim() || team
-                    .teamName; team.jobs.forEach((job) => { const isPSB = job.tag.toUpperCase().includes("PSB"); if (
-                        mode === 'psb' && !isPSB) return; if (mode === 'non_psb' && isPSB) return; const d = job.details;
-                    const tech = job.technical || {}; const addressParts = parseAddress(job.address); let rawDate = job
-                        .status === 'completed' ? (job.completedAt || todayRaw) : "-"; if (isPSB && rawDate === "-")
-                        rawDate = d['Tgl Pasang'] || d['Tanggal Pemasangan'] || "-"; const finalDate = formatDateIndo(
-                        rawDate); if (mode === 'psb') { dataToExport.push({ "No": rowNumber++, "No layanan": d[
-                                'No Layanan'] || d['Layanan'] || "-", "Nama": job.name, "Alamat": job
-                                .address, "RT": addressParts.rt, "RW": addressParts.rw, "Kode Pos": "-",
-                            "No Handphone": d['No WA'] || d['No Telp'] || "-", "Tanggal pemasangan": finalDate,
-                            "Paket Layanan": d['Paket'] || "-", "Tipe OLT": mapOltType(job.oltType || 'unknown') });
-                    } else { let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel; if (kelurahan ===
-                            '-') { if (job.address.includes("Jatinegara")) kelurahan = "Jatinegara"; if (job.address
-                                .includes("Cipinang")) kelurahan = "Cipinang"; } let statusExcel = "Pending"; if (job
-                            .status === 'completed' || (job.completed && !job.status)) statusExcel = "Selesai"; else if (
-                            job.status === 'failed') statusExcel = "Gagal Kunjungan"; let catatanFull = d['Catatan'] ||
-                            "-"; if (job.status === 'failed' && job.failureNote) { if (catatanFull === "-") catatanFull =
-                                `GAGAL: ${job.failureNote}`; else catatanFull += ` | GAGAL: ${job.failureNote}`; } if (
-                            job.status === 'completed' && job.completionNote) { if (catatanFull === "-") catatanFull =
-                                `SOLUSI: ${job.completionNote}`; else catatanFull += ` | SOLUSI: ${job.completionNote}`; }
-                        dataToExport.push({ "No": rowNumber++, "No Layanan": d['No Layanan'] || d['Layanan'] || "-",
-                            "Nama Pelanggan": job.name, "Status Pengerjaan": statusExcel, "Nomor Telpon": d[
-                                'No WA'] || d['No Telp'] || "-", "Tanggal Selesai Kunjungan": finalDate,
-                            "Nama Teknisi": rawTechName, "Alamat Lengkap": job.address, "RT": addressParts
-                                .rt, "RW": addressParts.rw, "Area Kelurahan": kelurahan, "SN": tech.sn ||
-                                "-", "Catatan": catatanFull }); } }); });
+        window.downloadExcel = function(mode) {
+            let dataToExport = [];
+            const todayRaw = new Date().toLocaleString('id-ID');
+            let rowNumber = 1;
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach(team => {
+                const rawTechName = team.teamName.split(':')[1]?.trim() || team.teamName;
+                team.jobs.forEach((job) => {
+                    const isPSB = job.tag.toUpperCase().includes("PSB");
+                    if (mode === 'psb' && !isPSB) return;
+                    if (mode === 'non_psb' && isPSB) return;
+                    const d = job.details;
+                    const tech = job.technical || {};
+                    const addressParts = parseAddress(job.address);
+                    let rawDate = job.status === 'completed' ? (job.completedAt || todayRaw) : "-";
+                    if (isPSB && rawDate === "-") rawDate = d['Tgl Pasang'] || d['Tanggal Pemasangan'] ||
+                    "-";
+                    const finalDate = formatDateIndo(rawDate);
+                    if (mode === 'psb') {
+                        dataToExport.push({
+                            "No": rowNumber++,
+                            "No layanan": d['No Layanan'] || d['Layanan'] || "-",
+                            "Nama": job.name,
+                            "Alamat": job.address,
+                            "RT": addressParts.rt,
+                            "RW": addressParts.rw,
+                            "Kode Pos": "-",
+                            "No Handphone": d['No WA'] || d['No Telp'] || "-",
+                            "Tanggal pemasangan": finalDate,
+                            "Paket Layanan": d['Paket'] || "-",
+                            "Tipe OLT": mapOltType(job.oltType || 'unknown')
+                        });
+                    } else {
+                        let kelurahan = d['Coverage']?.replace('Kel. ', '') || addressParts.kel;
+                        if (kelurahan === '-') {
+                            if (job.address.includes("Jatinegara")) kelurahan = "Jatinegara";
+                            if (job.address.includes("Cipinang")) kelurahan = "Cipinang";
+                        }
+                        let statusExcel = "Pending";
+                        if (job.status === 'completed' || (job.completed && !job.status)) statusExcel =
+                            "Selesai";
+                        else if (job.status === 'failed') statusExcel = "Gagal Kunjungan";
+                        let catatanFull = d['Catatan'] || "-";
+                        if (job.status === 'failed' && job.failureNote) {
+                            if (catatanFull === "-") catatanFull = `GAGAL: ${job.failureNote}`;
+                            else catatanFull += ` | GAGAL: ${job.failureNote}`;
+                        }
+                        if (job.status === 'completed' && job.completionNote) {
+                            if (catatanFull === "-") catatanFull = `SOLUSI: ${job.completionNote}`;
+                            else catatanFull += ` | SOLUSI: ${job.completionNote}`;
+                        }
+                        dataToExport.push({
+                            "No": rowNumber++,
+                            "No Layanan": d['No Layanan'] || d['Layanan'] || "-",
+                            "Nama Pelanggan": job.name,
+                            "Status Pengerjaan": statusExcel,
+                            "Nomor Telpon": d['No WA'] || d['No Telp'] || "-",
+                            "Tanggal Selesai Kunjungan": finalDate,
+                            "Nama Teknisi": rawTechName,
+                            "Alamat Lengkap": job.address,
+                            "RT": addressParts.rt,
+                            "RW": addressParts.rw,
+                            "Area Kelurahan": kelurahan,
+                            "SN": tech.sn || "-",
+                            "Catatan": catatanFull
+                        });
+                    }
+                });
+            });
             if (dataToExport.length === 0) { alert("⚠️ Tidak ada data untuk kategori ini.");
-                closeExcelOption(); return; } const ws = XLSX.utils.json_to_sheet(dataToExport); if (mode === 'psb') ws[
-                    '!cols'] = [{ wch: 5 }, { wch: 20 }, { wch: 30 }, { wch: 40 }, { wch: 5 }, { wch: 5 }, { wch: 10 },
-                { wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 15 }
+                closeExcelOption(); return; }
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            if (mode === 'psb') ws['!cols'] = [{ wch: 5 }, { wch: 20 }, { wch: 30 }, { wch: 40 }, { wch: 5 }, { wch: 5 },
+                { wch: 10 }, { wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 15 }
             ]; else ws['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 20 },
                 { wch: 40 }, { wch: 5 }, { wch: 5 }, { wch: 15 }, { wch: 20 }, { wch: 30 }
-            ]; const wb = XLSX.utils.book_new(); let fileName = "Laporan_Teknisi.xlsx",
-                sheetName = "Data"; if (mode === 'psb') { fileName = "Laporan_PSB_New.xlsx";
+            ];
+            const wb = XLSX.utils.book_new();
+            let fileName = "Laporan_Teknisi.xlsx",
+                sheetName = "Data";
+            if (mode === 'psb') { fileName = "Laporan_PSB_New.xlsx";
                 sheetName = "PSB"; } else if (mode === 'non_psb') { fileName = "Laporan_Maintenance_Isolir.xlsx";
                 sheetName = "MT_ISO"; } else { fileName = "Laporan_Semua_Data.xlsx";
-                sheetName = "All_Data"; } XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                sheetName = "All_Data"; }
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
             XLSX.writeFile(wb, fileName);
-            closeExcelOption(); };
+            closeExcelOption();
+        };
 
         // ===== MODAL CONTROLS =====
         window.openCopyOption = function() { document.getElementById('modalCopyOption').style.display = 'block'; };
@@ -4722,104 +4871,144 @@
         window.openTicketOption = function() { document.getElementById('modalTicketSelection').style.display = "block"; };
         window.closeTicketOption = function() { document.getElementById('modalTicketSelection').style.display = "none"; };
         window.openCreateTicketModal = function() { closeTicketOption();
-            populateTechSelect('tech-1', 'tech-2'); const teamSelect = document.getElementById('select-existing-team'); teamSelect
-                .innerHTML = '<option value="">-- Pilih Tim (Langsung) --</option>'; teams.forEach((team, idx) => { teamSelect
-                    .add(new Option(`${team.teamName} (${team.jobs.length} tiket)`, idx)); });
+            populateTechSelect('tech-1', 'tech-2');
+            const teamSelect = document.getElementById('select-existing-team');
+            teamSelect.innerHTML = '<option value="">-- Pilih Tim (Langsung) --</option>';
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach((team) => {
+                const idx = teams.indexOf(team);
+                if (idx !== -1) teamSelect.add(new Option(`${team.teamName} (${team.jobs.length} tiket)`, idx));
+            });
             const savedKey = localStorage.getItem('deepseek_api_key') || '';
             document.getElementById('deepseekApiKeyInput').value = savedKey;
             if (savedKey) updateApiKeyStatusLabel(true);
-            document.getElementById("modalTicket").style.display = "block"; };
-        window.closeCreateTicketModal = function() { document.getElementById("modalTicket").style.display = "none"; document
-                .getElementById('preview-container').innerHTML =
+            document.getElementById("modalTicket").style.display = "block";
+        };
+        window.closeCreateTicketModal = function() { document.getElementById("modalTicket").style.display = "none";
+            document.getElementById('preview-container').innerHTML =
                 '<div style="text-align: center; color: #999; font-style: italic;">Preview tiket akan muncul disini...</div>';
             document.getElementById('bulk-input-text').value = '';
             document.getElementById('aiStatus').className = 'ai-status';
             document.getElementById('aiStatus').textContent = '';
             document.getElementById('aiProgressBar').style.display = 'none';
             document.getElementById('aiProgressFill').style.width = '0%'; };
-        window.openEditTechModal = function() { closeTicketOption(); const select = document.getElementById(
-                'edit-tech-team-select'); select.innerHTML = '<option value="">-- Pilih Tim --</option>'; teams.forEach((t,
-                index) => { select.add(new Option(t.teamName, index)); });
+        window.openEditTechModal = function() { closeTicketOption();
+            const select = document.getElementById('edit-tech-team-select');
+            select.innerHTML = '<option value="">-- Pilih Tim --</option>';
+            teams.forEach((t, index) => {
+                const statusLabel = t.isActive === false ? ' [OFF]' : ' [ON]';
+                select.add(new Option(t.teamName + statusLabel, index));
+            });
             document.getElementById('edit-team-name').value = '';
             populateTechSelect('edit-tech-1', 'edit-tech-2');
             document.getElementById('modalEditTech').style.display = 'block'; };
         window.closeEditTechModal = function() { document.getElementById('modalEditTech').style.display = 'none'; };
-        window.loadTeamMembersForEdit = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; if (
-                teamIdx === "") return; const team = teams[teamIdx];
-            document.getElementById('edit-team-name').value = team.teamName; const t1Select = document.getElementById(
-                'edit-tech-1'); const t2Select = document.getElementById('edit-tech-2'); if (team.members && team.members
-                .length > 0) { const matchOption = (sel, val) => { for (let i = 0; i < sel.options.length; i++) { if (sel
-                        .options[i].value.toLowerCase() === val.toLowerCase()) { sel.selectedIndex = i; return; } } };
-                matchOption(t1Select, team.members[0]); if (team.members.length > 1) matchOption(t2Select, team.members[1]);
-                else t2Select.value = ""; } };
-        window.saveEditTech = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; const t1 =
-                document.getElementById('edit-tech-1').value; const t2 = document.getElementById('edit-tech-2').value; if (
-                teamIdx === "") { alert("Pilih tim dulu!"); return; } if (!t1) { alert("Teknisi 1 wajib diisi!"); return; }
-            let newMembers = [t1.toLowerCase()]; if (t2 && t2 !== "") newMembers.push(t2.toLowerCase());
-            newMembers.sort(); const oldMembers = teams[teamIdx].members; teams[teamIdx].members = newMembers; const
-                currentTeamName = teams[teamIdx].teamName; const match = currentTeamName.match(/Tim\s+(\d+):/i); if (match) { const
-                    prefix = match[0]; const newTeamName = `${prefix} ${t1}${t2 ? ' & '+t2 : ''}`; teams[teamIdx].teamName =
-                    newTeamName; }
+        window.loadTeamMembersForEdit = function() { const teamIdx = document.getElementById('edit-tech-team-select')
+            .value; if (teamIdx === "") return; const team = teams[teamIdx];
+            document.getElementById('edit-team-name').value = team.teamName;
+            const t1Select = document.getElementById('edit-tech-1');
+            const t2Select = document.getElementById('edit-tech-2');
+            if (team.members && team.members.length > 0) {
+                const matchOption = (sel, val) => { for (let i = 0; i < sel.options.length; i++) { if (sel.options[i]
+                        .value.toLowerCase() === val.toLowerCase()) { sel.selectedIndex = i; return; } } };
+                matchOption(t1Select, team.members[0]);
+                if (team.members.length > 1) matchOption(t2Select, team.members[1]);
+                else t2Select.value = "";
+            } };
+        window.saveEditTech = function() { const teamIdx = document.getElementById('edit-tech-team-select')
+            .value; const t1 = document.getElementById('edit-tech-1').value; const t2 = document.getElementById(
+                'edit-tech-2').value; if (teamIdx === "") { alert("Pilih tim dulu!"); return; } if (!t1) { alert(
+                "Teknisi 1 wajib diisi!"); return; } let newMembers = [t1.toLowerCase()]; if (t2 && t2 !== "")
+                newMembers.push(t2.toLowerCase());
+            newMembers.sort();
+            teams[teamIdx].members = newMembers;
+            const currentTeamName = teams[teamIdx].teamName;
+            const match = currentTeamName.match(/Tim\s+(\d+):/i);
+            if (match) { const prefix = match[0]; const newTeamName = `${prefix} ${t1}${t2 ? ' & '+t2 : ''}`;
+                teams[teamIdx].teamName = newTeamName; }
             saveDataToFirebase();
             alert(`✅ Personil tim berhasil diubah!`);
             closeEditTechModal();
             renderJobs(); };
-        window.updateTeamName = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; const
-                newName = document.getElementById('edit-team-name').value.trim(); if (teamIdx === "") { alert(
-                    "Pilih tim dulu!"); return; } if (newName === "") { alert("Nama tim tidak boleh kosong!"); return; } teams[
-                teamIdx].teamName = newName;
+        window.updateTeamName = function() { const teamIdx = document.getElementById('edit-tech-team-select')
+            .value; const newName = document.getElementById('edit-team-name').value.trim(); if (teamIdx === "") { alert(
+                "Pilih tim dulu!"); return; } if (newName === "") { alert("Nama tim tidak boleh kosong!"); return; }
+            teams[teamIdx].teamName = newName;
             saveDataToFirebase();
             alert("✅ Nama tim berhasil diubah!");
             closeEditTechModal();
             renderJobs(); };
-        window.deleteTeam = function() { const teamIdx = document.getElementById('edit-tech-team-select').value; if (teamIdx ===
-                "") { alert("Pilih tim dulu!"); return; } const teamName = teams[teamIdx].teamName; let pin = prompt(
-                "🔒 Masukkan PIN Admin untuk menghapus tim ini:"); if (!checkPin(pin)) { alert("❌ PIN SALAH! Penghapusan dibatalkan."
-                    ); return; } if (confirm(
-                    `⚠️ Yakin ingin menghapus tim "${teamName}" beserta semua tiket dan stok modem-nya?`)) { teams.splice(
+        window.deleteTeam = function() { const teamIdx = document.getElementById('edit-tech-team-select')
+            .value; if (teamIdx === "") { alert("Pilih tim dulu!"); return; } const teamName = teams[teamIdx]
+                .teamName; let pin = prompt(
+                "🔒 Masukkan PIN Admin untuk menghapus tim ini:"); if (!checkPin(pin)) { alert(
+                "❌ PIN SALAH! Penghapusan dibatalkan."); return; } if (confirm(
+                `⚠️ Yakin ingin menghapus tim "${teamName}" beserta semua tiket dan stok modem-nya?`)) { teams.splice(
                     teamIdx, 1);
                 saveDataToFirebase();
                 alert("✅ Tim berhasil dihapus.");
                 closeEditTechModal();
                 renderJobs();
                 renderLandingTeams(); } };
-        window.openTransferModal = function() { closeTicketOption(); const sourceSel = document.getElementById(
-                'transfer-source-team'); sourceSel.innerHTML = '<option value="">-- Pilih Tim Asal --</option>'; teams.forEach((
-                t, index) => { if (t.jobs && t.jobs.length > 0) sourceSel.add(new Option(`${t.teamName} (${t.jobs.length} Tiket)`,
-                    index)); });
+        window.openTransferModal = function() { closeTicketOption();
+            const sourceSel = document.getElementById('transfer-source-team');
+            sourceSel.innerHTML = '<option value="">-- Pilih Tim Asal --</option>';
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach((t) => {
+                const idx = teams.indexOf(t);
+                if (idx !== -1 && t.jobs && t.jobs.length > 0) {
+                    sourceSel.add(new Option(`${t.teamName} (${t.jobs.length} Tiket)`, idx));
+                }
+            });
             document.getElementById('transfer-job-section').style.display = 'none';
             document.getElementById('modalTransferTicket').style.display = 'block'; };
         window.closeTransferModal = function() { document.getElementById('modalTransferTicket').style.display = 'none'; };
-        window.renderTransferJobs = function() { const teamIdx = document.getElementById('transfer-source-team').value; const
-                container = document.getElementById('transfer-job-list'); const targetSel = document.getElementById(
-                'transfer-target-team'); container.innerHTML = ''; targetSel.innerHTML =
-                '<option value="">-- Pilih Tujuan --</option><option value="new_team">➕ BUAT TIM BARU</option>'; if (teamIdx ===
-                "") { document.getElementById('transfer-job-section').style.display = 'none'; return; } teams[teamIdx].jobs
-                .forEach((job, idx) => { const div = document.createElement('div'); div.className = 'transfer-item';
+        window.renderTransferJobs = function() { const teamIdx = document.getElementById('transfer-source-team')
+            .value; const container = document.getElementById('transfer-job-list'); const targetSel = document
+                .getElementById('transfer-target-team'); container.innerHTML = '';
+            targetSel.innerHTML = '<option value="">-- Pilih Tujuan --</option><option value="new_team">➕ BUAT TIM BARU</option>';
+            if (teamIdx === "") { document.getElementById('transfer-job-section').style.display = 'none'; return; }
+            const team = teams[teamIdx];
+            if (!team) return;
+            team.jobs.forEach((job, idx) => { const div = document.createElement('div');
+                div.className = 'transfer-item';
                 div.innerHTML =
                     `<input type="checkbox" class="job-transfer-cb" value="${idx}" id="cb-trans-${idx}"><label for="cb-trans-${idx}"><strong>${job.name}</strong> (${job.tag})<br><span style="font-size:0.8em; color:#666;">${job.address.substr(0,40)}...</span></label>`;
-                container.appendChild(div); }); teams.forEach((t, index) => { if (index != teamIdx) targetSel.add(new Option(t
-                    .teamName, index)); });
+                container.appendChild(div); });
+            const activeTeams = getActiveTeams();
+            activeTeams.forEach((t) => {
+                const idx = teams.indexOf(t);
+                if (idx != teamIdx) targetSel.add(new Option(t.teamName, idx));
+            });
             document.getElementById('transfer-job-section').style.display = 'block'; };
-        window.checkNewTeamOption = function() { const val = document.getElementById('transfer-target-team').value; const
-                newTeamDiv = document.getElementById('new-team-input-section'); if (val === 'new_team') { newTeamDiv.style
-                    .display = 'block';
-                populateTechSelect('transfer-new-tech-1', 'transfer-new-tech-2'); } else newTeamDiv.style.display = 'none'; };
-        window.processTransfer = function() { const sourceIdx = document.getElementById('transfer-source-team').value; const
-                targetVal = document.getElementById('transfer-target-team').value; if (sourceIdx === "" || targetVal === "") { alert(
-                    "Lengkapi pilihan tim!"); return; } const cbs = document.querySelectorAll('.job-transfer-cb:checked'); if (
-                cbs.length === 0) { alert("Pilih minimal 1 tiket untuk dilempar!"); return; } let jobIndices = Array.from(cbs)
-                .map(cb => parseInt(cb.value)).sort((a, b) => b - a); let jobsToMove = [];
-            jobIndices.forEach(idx => jobsToMove.push(teams[sourceIdx].jobs[idx])); let targetTeamIdx; if (targetVal ===
-                'new_team') { const t1 = document.getElementById('transfer-new-tech-1').value; const t2 = document
-                    .getElementById('transfer-new-tech-2').value; if (!t1) { alert("Pilih teknisi untuk tim baru!"); return; }
-                let selectedMembers = [t1.toLowerCase()]; if (t2) selectedMembers.push(t2.toLowerCase());
-                selectedMembers.sort(); const newId = Date.now(); const colorIndex = (teams.length) % extraColors.length; const
-                    usedNumbers = teams.map(t => { const match = t.teamName.match(/Tim\s+(\d+)/i); return match ? parseInt(
-                        match[1]) : 0; }); let nextNum = 1; while (usedNumbers.includes(nextNum)) nextNum++; const
-                    teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`; const newTeamObj = { id: newId,
-                    teamName: teamNameStr, colorClass: extraColors[colorIndex] || "bg-dark", members: selectedMembers,
-                    jobs: [], inventory: [], enableTikorOper: false };
+        window.checkNewTeamOption = function() { const val = document.getElementById('transfer-target-team')
+            .value; const newTeamDiv = document.getElementById('new-team-input-section'); if (val === 'new_team') {
+                newTeamDiv.style.display = 'block';
+                populateTechSelect('transfer-new-tech-1', 'transfer-new-tech-2'); } else newTeamDiv.style.display =
+                'none'; };
+        window.processTransfer = function() { const sourceIdx = document.getElementById('transfer-source-team')
+            .value; const targetVal = document.getElementById('transfer-target-team').value; if (sourceIdx === "" ||
+                targetVal === "") { alert("Lengkapi pilihan tim!"); return; } const cbs = document.querySelectorAll(
+                '.job-transfer-cb:checked'); if (cbs.length === 0) { alert("Pilih minimal 1 tiket untuk dilempar!");
+                return; } let jobIndices = Array.from(cbs).map(cb => parseInt(cb.value)).sort((a, b) => b - a);
+            let jobsToMove = [];
+            jobIndices.forEach(idx => jobsToMove.push(teams[sourceIdx].jobs[idx]));
+            let targetTeamIdx;
+            if (targetVal === 'new_team') { const t1 = document.getElementById('transfer-new-tech-1').value; const t2 =
+                    document.getElementById('transfer-new-tech-2').value; if (!t1) { alert(
+                        "Pilih teknisi untuk tim baru!"); return; } let selectedMembers = [t1.toLowerCase()]; if (t2)
+                    selectedMembers.push(t2.toLowerCase());
+                selectedMembers.sort();
+                const newId = Date.now();
+                const colorIndex = (teams.length) % extraColors.length;
+                const usedNumbers = teams.map(t => { const match = t.teamName.match(/Tim\s+(\d+)/i); return match ?
+                        parseInt(match[1]) : 0; });
+                let nextNum = 1;
+                while (usedNumbers.includes(nextNum)) nextNum++;
+                const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`;
+                const newTeamObj = { id: newId, teamName: teamNameStr, colorClass: extraColors[colorIndex] ||
+                        "bg-dark", members: selectedMembers, jobs: [], inventory: [], enableTikorOper: false,
+                    isActive: true };
                 teams.push(newTeamObj);
                 targetTeamIdx = teams.length - 1; } else targetTeamIdx = parseInt(targetVal);
             jobsToMove.forEach(j => teams[targetTeamIdx].jobs.push(j));
@@ -4891,14 +5080,12 @@
             return "-";
         }
 
-        // ===== MANUAL PSB CARD (updated: no kode pos, omit missing fields) =====
         function createPSBCard(text, index, container) {
             const jam = getFieldValue(text, 'Jam');
             const nama = getFieldValue(text, 'Nama Lengkap');
             const alamatLengkap = getFieldValue(text, 'Alamat Lengkap Pemasangan') || getFieldValue(text, 'Alamat Lengkap');
             const rtRw = getFieldValue(text, 'RT/RW');
             const nomorRumah = getFieldValue(text, 'Nomor Rumah');
-            // kodePos intentionally omitted per user request
             const patokan = getFieldValue(text, 'Patokan Lokasi');
             const statusHunian = getFieldValue(text, 'Status Hunian') || getFieldValue(text, 'Status Rumah');
 
@@ -4989,7 +5176,8 @@
                     while (usedNumbers.includes(nextNum)) nextNum++;
                     const teamNameStr = `Tim ${nextNum}: ${t1}${t2 ? ' & '+t2 : ''}`;
                     const newTeamObj = { id: newId, teamName: teamNameStr, colorClass: extraColors[colorIndex] ||
-                            "bg-dark", members: selectedMembers, jobs: [], inventory: [], enableTikorOper: false };
+                            "bg-dark", members: selectedMembers, jobs: [], inventory: [], enableTikorOper: false,
+                        isActive: true };
                     teams.push(newTeamObj);
                     targetTeamIndex = teams.length - 1;
                 }
@@ -5163,6 +5351,7 @@
                             backupData.teams;
                         nonIkrRetrievals = backupData.nonIkrRetrievals || [];
                         teams.forEach(t => {
+                            if (t.isActive === undefined) t.isActive = true;
                             if (!t.mainLocation) t.mainLocation = null;
                             if (t.locationEnabled === undefined) t.locationEnabled = false;
                             if (t.jobs) t.jobs.forEach(j => { if (j.tikor === undefined) j.tikor =
