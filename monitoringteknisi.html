@@ -3479,6 +3479,40 @@
             currentHistoryNoLayanan = '';
         };
 
+        // ===== HELPER: SORT JOBS BY TIME (EARLIEST TO LATEST) =====
+        function timeToMinutes(timeStr) {
+            if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999;
+            const lower = timeStr.toLowerCase();
+            if (lower.includes("pagi")) return 480;
+            if (lower.includes("siang")) return 780;
+            if (lower.includes("sore")) return 960;
+            if (lower.includes("malam")) return 1140;
+            const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/);
+            if (match) {
+                let hour = parseInt(match[1]);
+                const minute = match[2] ? parseInt(match[2]) : 0;
+                if (hour === 12 && lower.includes('siang')) hour = 12;
+                else if (hour === 12 && lower.includes('malam')) hour = 0;
+                else if (hour < 12 && lower.includes('sore')) hour += 12;
+                else if (hour < 12 && lower.includes('malam')) hour += 12;
+                else if (hour < 5 && lower.includes('siang')) hour += 12;
+                return hour * 60 + minute;
+            }
+            return 99999;
+        }
+
+        function sortJobsByTime(jobs) {
+            if (!jobs || !Array.isArray(jobs)) return [];
+            // Buat salinan agar tidak mengubah array asli
+            const sorted = [...jobs];
+            sorted.sort((a, b) => {
+                const timeA = a.time || 'FLEXIBEL';
+                const timeB = b.time || 'FLEXIBEL';
+                return timeToMinutes(timeA) - timeToMinutes(timeB);
+            });
+            return sorted;
+        }
+
         // ===== RENDER JOBS (with COMPASS - ADMIN ONLY + HISTORY BADGE for both modes) =====
         function renderJobs() {
             const container = document.getElementById('teams-container');
@@ -3875,15 +3909,6 @@
             }
             updateGlobalStatsDisplay();
         }
-
-        function timeToMinutes(timeStr) { if (!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999; const lower =
-                timeStr.toLowerCase(); if (lower.includes("pagi")) return 480; if (lower.includes("siang")) return 780; if (
-                lower.includes("sore")) return 960; if (lower.includes("malam")) return 1140; const match = timeStr.match(
-                /(\d{1,2})[:.]?(\d{2})?/); if (match) { let hour = parseInt(match[1]); const minute = match[2] ? parseInt(
-                    match[2]) : 0; if (hour === 12 && lower.includes('siang')) hour = 12; else if (hour === 12 && lower
-                    .includes('malam')) hour = 0; else if (hour < 12 && lower.includes('sore')) hour += 12; else if (hour <
-                    12 && lower.includes('malam')) hour += 12; else if (hour < 5 && lower.includes('siang')) hour += 12;
-                return hour * 60 + minute; } return 99999; }
 
         function updateProgressUI(teamId, jobs) { const total = jobs.length; const completed = jobs.filter(j => j.status ===
                 'completed' || j.completed === true).length; const percent = (total === 0) ? 0 : (completed / total) * 100;
@@ -4407,16 +4432,19 @@
             copyToClipboard(textToCopy, btn);
         };
 
-        // ===== copyAllSummaryV2 =====
+        // ===== copyAllSummaryV2 (SORTED BY TIME PER TEAM) =====
         window.copyAllSummaryV2 = function() {
             let text = `📋 *REKAP STATUS TIKET*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
 
             teams.forEach((team, tIndex) => {
                 if (!team.jobs || team.jobs.length === 0) return;
 
+                // Sort jobs by time (earliest to latest)
+                const sortedJobs = sortJobsByTime(team.jobs);
+
                 text += `TEKNISI : ${team.teamName}\n\n`;
 
-                team.jobs.forEach((job, jIndex) => {
+                sortedJobs.forEach((job, jIndex) => {
                     const isPSB = job.tag.toUpperCase().includes("PSB");
                     const isCompleted = (job.status === 'completed' || job.completed === true);
                     const isFailed = (job.status === 'failed');
@@ -4533,48 +4561,98 @@
             copyToClipboard(text, null, "✅ Rekap V2 Tersalin!");
         };
 
-        window.copyTeamSummary = function(tIndex, btn) { const team = teams[tIndex]; let text =
-                `📋 REKAP ${team.teamName.toUpperCase()}\n\n`; team.jobs.forEach((job, index) => { const layID = job.details[
-                    'No Layanan'] || job.details['Layanan'] || '-'; const time = job.time || 'FLEXIBEL'; const numIcon =
-                    getNumberEmoji(index + 1); let statusLine = "",
-                    failureLine = "",
-                    noteSuffix = ""; if (job.status === 'completed' || (job.completed && !job.status)) { if (job
-                        .completionNote) noteSuffix = ` (${job.completionNote})`;
-                    statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if (job.status === 'failed') { statusLine =
-                    `⛔ STATUS: GAGAL KUNJUNGAN`; if (job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`; } else
-                    statusLine = `⏳ STATUS: PENDING`;
-                text += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`; });
-            copyToClipboard(text, btn, "✅ Disalin!"); };
+        // ===== copyTeamSummary (SORTED BY TIME) =====
+        window.copyTeamSummary = function(tIndex, btn) {
+            const team = teams[tIndex];
+            // Sort jobs by time
+            const sortedJobs = sortJobsByTime(team.jobs);
 
-        window.copyAllSummary = function() { let summaryText =
-                `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`; teams.forEach(team => {
-                summaryText += `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
-                team.jobs.forEach((job, index) => { const layID = job.details['No Layanan'] || job.details['Layanan'] ||
-                        '-'; const time = job.time || 'FLEXIBEL'; const numIcon = getNumberEmoji(index + 1); let
-                    statusLine = "",
+            let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
+            sortedJobs.forEach((job, index) => {
+                const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
+                const time = job.time || 'FLEXIBEL';
+                const numIcon = getNumberEmoji(index + 1);
+                let statusLine = "",
                     failureLine = "",
-                    noteSuffix = ""; if (job.status === 'completed' || (job.completed && !job.status)) { if (job
-                        .completionNote) noteSuffix = ` (${job.completionNote})`;
-                        statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if (job.status === 'failed') { statusLine =
-                        `⛔ STATUS: GAGAL KUNJUNGAN`; if (job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`; }
-                    else statusLine = `⏳ STATUS: PENDING`;
+                    noteSuffix = "";
+                if (job.status === 'completed' || (job.completed && !job.status)) {
+                    if (job.completionNote) noteSuffix = ` (${job.completionNote})`;
+                    statusLine = `✅ STATUS: SELESAI${noteSuffix}`;
+                } else if (job.status === 'failed') {
+                    statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`;
+                    if (job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`;
+                } else statusLine = `⏳ STATUS: PENDING`;
+                text += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`;
+            });
+            copyToClipboard(text, btn, "✅ Disalin!");
+        };
+
+        // ===== copyAllSummary (SORTED BY TIME PER TEAM) =====
+        window.copyAllSummary = function() {
+            let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
+            teams.forEach(team => {
+                // Sort jobs by time
+                const sortedJobs = sortJobsByTime(team.jobs);
+
+                summaryText += `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
+                sortedJobs.forEach((job, index) => {
+                    const layID = job.details['No Layanan'] || job.details['Layanan'] || '-';
+                    const time = job.time || 'FLEXIBEL';
+                    const numIcon = getNumberEmoji(index + 1);
+                    let statusLine = "",
+                        failureLine = "",
+                        noteSuffix = "";
+                    if (job.status === 'completed' || (job.completed && !job.status)) {
+                        if (job.completionNote) noteSuffix = ` (${job.completionNote})`;
+                        statusLine = `✅ STATUS: SELESAI${noteSuffix}`;
+                    } else if (job.status === 'failed') {
+                        statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`;
+                        if (job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`;
+                    } else statusLine = `⏳ STATUS: PENDING`;
                     summaryText +=
                         `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`;
                 });
                 summaryText += `\n`;
             });
-            copyToClipboard(summaryText, null, "✅ Rekap Semua Tiket Tersalin!"); };
+            copyToClipboard(summaryText, null, "✅ Rekap Semua Tiket Tersalin!");
+        };
 
-        window.copyPSBSummary = function() { let text =
-                `📋 *REKAP PSB BERHASIL*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`; let count = 0;
-            teams.forEach(team => { team.jobs.forEach(job => { const isPSB = job.tag.toUpperCase().includes("PSB"); const
-                        isCompleted = job.status === 'completed' || (job.completed && !job.status); if (isPSB &&
-                        isCompleted) { const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '-';
-                        const referensi = job.details['Referensi'] || '-'; if (noLayanan !== '-') { text +=
-                            `${noLayanan} referensi: ${referensi}\n`;
-                            count++; } } }); });
-            if (count === 0) text += "Tidak ada data PSB berhasil.\n";
-            copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!"); };
+        // ===== copyPSBSummary (SORTED BY TIME ACROSS ALL TEAMS) =====
+        window.copyPSBSummary = function() {
+            // Kumpulkan semua PSB berhasil dari semua tim, lalu urutkan berdasarkan waktu
+            let psbEntries = [];
+            teams.forEach(team => {
+                if (!team.jobs) return;
+                team.jobs.forEach(job => {
+                    const isPSB = job.tag.toUpperCase().includes("PSB");
+                    const isCompleted = job.status === 'completed' || (job.completed && !job.status);
+                    if (isPSB && isCompleted) {
+                        const noLayanan = job.details['No Layanan'] || job.details['Layanan'] || '-';
+                        const referensi = job.details['Referensi'] || '-';
+                        if (noLayanan !== '-') {
+                            psbEntries.push({
+                                noLayanan: noLayanan,
+                                referensi: referensi,
+                                time: job.time || 'FLEXIBEL'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Urutkan berdasarkan waktu
+            psbEntries.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+
+            let text = `📋 *REKAP PSB BERHASIL*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
+            if (psbEntries.length === 0) {
+                text += "Tidak ada data PSB berhasil.\n";
+            } else {
+                psbEntries.forEach(entry => {
+                    text += `${entry.noLayanan} referensi: ${entry.referensi}\n`;
+                });
+            }
+            copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!");
+        };
 
         function formatMacForCopy(input) { if (!input || input === '-' || input.trim() === "") return '-'; let clean = input
                 .replace(/[^a-fA-F0-9]/g, "").toUpperCase(); if (clean.length > 2) return clean.match(/.{1,2}/g).join(':');
