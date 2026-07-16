@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>📊 Pengelola File Excel + Gabung Sheet + Filter</title>
+    <title>📊 Pengelola File Excel + Firebase</title>
     <!-- SheetJS (XLSX) -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js">
+    </script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js">
     </script>
     <style>
         /* ----- RESET & GLOBAL ----- */
@@ -85,6 +90,9 @@
             background: #f39c12;
             animation: pulse-dot 0.8s ease-in-out infinite;
         }
+        .badge-status .dot.offline {
+            background: #c0392b;
+        }
         @keyframes pulse-dot {
             0%,
             100% {
@@ -96,6 +104,48 @@
                 opacity: 0.7;
             }
         }
+
+        /* ----- CONNECTION STATUS ----- */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 1rem 0.2rem 0.8rem;
+            border-radius: 40px;
+            background: #eef3fa;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        .connection-status.online {
+            background: #e1f5e8;
+            border-color: #2b8c5e;
+            color: #1a6b3a;
+        }
+        .connection-status.offline {
+            background: #fde8e8;
+            border-color: #c0392b;
+            color: #a93226;
+        }
+        .connection-status .conn-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .connection-status.online .conn-dot {
+            background: #2b8c5e;
+        }
+        .connection-status.offline .conn-dot {
+            background: #c0392b;
+            animation: pulse-dot 1s ease-in-out infinite;
+        }
+        .connection-status .conn-label {
+            font-weight: 500;
+        }
+
         /* ----- UPLOAD ZONE ----- */
         .upload-zone {
             border: 2.5px dashed #cdd9e8;
@@ -265,6 +315,24 @@
             font-size: 0.9rem;
             white-space: nowrap;
         }
+        .btn-manage-sheets {
+            background: #1d3b5c;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 0.3rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+        .btn-manage-sheets:hover {
+            background: #0f2a44;
+        }
         .btn-delete-sheet {
             background: none;
             border: none;
@@ -421,7 +489,7 @@
             margin-right: 0.1rem;
         }
 
-        /* ----- LABEL PEJABAT TOGGLE (BARU) ----- */
+        /* ----- LABEL PEJABAT TOGGLE ----- */
         .label-pejabat-toggle {
             display: flex;
             align-items: center;
@@ -512,7 +580,6 @@
             min-width: 500px;
             table-layout: auto;
         }
-        /* Auto-fit mode styles */
         .table-wrapper.auto-fit table {
             table-layout: fixed;
             width: 100%;
@@ -571,7 +638,6 @@
             display: block;
             margin-bottom: 0.4rem;
         }
-        /* Highlight for Masa Aktif & SRB/SYN columns */
         .table-wrapper th.col-masa-aktif {
             background: #e8f0fe;
             color: #0a3d6b;
@@ -602,8 +668,6 @@
         .table-wrapper td.col-nama {
             background: #f8faff;
         }
-
-        /* ----- PEJABAT ROW STYLING ----- */
         .table-wrapper tr.pejabat-row td {
             background: #fef0e6 !important;
             border-left: 4px solid #c0392b;
@@ -628,8 +692,6 @@
             font-size: 0.65rem;
             margin-right: 0.1rem;
         }
-
-        /* Sort indicator on Masa Aktif header */
         .sort-indicator {
             display: inline-block;
             margin-left: 4px;
@@ -646,7 +708,6 @@
         .sort-indicator.desc::after {
             content: " ▼";
         }
-        /* ----- FILTER BUTTON IN HEADER ----- */
         .th-content {
             display: flex;
             align-items: center;
@@ -695,7 +756,6 @@
             justify-content: center;
             font-weight: 700;
         }
-        /* Sort click area on header */
         .sort-header-btn {
             background: none;
             border: none;
@@ -838,7 +898,7 @@
             text-align: center;
             padding: 0.5rem 0;
         }
-        /* ----- RANGE FILTER (Masa Aktif) ----- */
+        /* ----- RANGE FILTER ----- */
         .filter-dropdown .range-controls {
             display: flex;
             flex-direction: column;
@@ -902,11 +962,9 @@
             text-align: center;
             padding: 0.1rem 0;
         }
-        /* Filter indicator on table */
         .table-wrapper.has-filter th .filter-btn {
             color: #1d3b5c;
         }
-        /* Sort active state on Masa Aktif header */
         .table-wrapper th.col-masa-aktif .sort-header-btn.active {
             color: #0a3d6b;
         }
@@ -1159,8 +1217,7 @@
             display: inline-block;
             margin-bottom: 0.5rem;
         }
-
-        /* ----- COPY WA OPTION MODAL (BARU) ----- */
+        /* ----- COPY WA OPTION MODAL ----- */
         .copy-wa-modal .modal-box {
             max-width: 440px;
         }
@@ -1229,8 +1286,133 @@
             display: inline-block;
             margin-bottom: 0.5rem;
         }
-
-        /* ----- TOAST NOTIFICATION ----- */
+        /* ----- MANAGE SHEETS MODAL ----- */
+        .manage-sheets-modal .modal-box {
+            max-width: 520px;
+        }
+        .manage-sheets-modal .modal-box .sheet-list {
+            max-height: 360px;
+            overflow-y: auto;
+            margin: 0.5rem 0 1rem 0;
+            border: 1px solid #e6edf5;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #e6edf5;
+            transition: background 0.15s;
+            background: white;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item:last-child {
+            border-bottom: none;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item:hover {
+            background: #f6faff;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name {
+            flex: 1;
+            font-weight: 500;
+            color: #1d3b5c;
+            font-size: 0.95rem;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name-input {
+            flex: 1;
+            border: 1px solid #cad5e3;
+            border-radius: 8px;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1d3b5c;
+            outline: none;
+            background: #fafcff;
+            min-width: 80px;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name-input:focus {
+            border-color: #2f6bb0;
+            box-shadow: 0 0 0 2px rgba(47, 107, 176, 0.1);
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions {
+            display: flex;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            transition: background 0.2s, color 0.2s;
+            color: #8aa0b8;
+            line-height: 1;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions button:hover {
+            background: #eef3fa;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions .btn-rename-sheet:hover {
+            color: #2f6bb0;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions .btn-delete-sheet-item:hover {
+            color: #c0392b;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions .btn-confirm-rename {
+            color: #2b8c5e;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions .btn-confirm-rename:hover {
+            background: #e1f5e8;
+            color: #1a6b3a;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions .btn-cancel-rename {
+            color: #c0392b;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions .btn-cancel-rename:hover {
+            background: #fde8e8;
+            color: #a93226;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions .btn-delete-sheet-item:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-badge-current {
+            background: #2b8c5e;
+            color: white;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.1rem 0.5rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-empty {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: #8aa0b8;
+            font-size: 0.95rem;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-empty .big-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .manage-sheets-modal .modal-box .sheet-count-badge {
+            background: #eef3fa;
+            border-radius: 40px;
+            padding: 0.15rem 1rem;
+            font-size: 0.8rem;
+            color: #1d3b5c;
+            display: inline-block;
+            margin-bottom: 0.2rem;
+        }
+        /* ----- TOAST ----- */
         .toast {
             position: fixed;
             bottom: 2rem;
@@ -1270,7 +1452,7 @@
         .toast .toast-close:hover {
             color: white;
         }
-        /* ===== COPY WA BUTTON ===== */
+        /* ----- COPY WA BUTTON ----- */
         .btn-copy-wa {
             background: #25D366;
             color: white;
@@ -1298,7 +1480,6 @@
             cursor: not-allowed;
             transform: none;
         }
-        /* ----- COPY VERSION SELECT ----- */
         .copy-version-select {
             padding: 0.2rem 0.8rem 0.2rem 1rem;
             border-radius: 40px;
@@ -1471,6 +1652,30 @@
             .copy-wa-modal .modal-box .wa-options label {
                 min-width: unset;
             }
+            .connection-status .conn-label {
+                font-size: 0.7rem;
+            }
+            .connection-status {
+                padding: 0.15rem 0.6rem 0.15rem 0.5rem;
+            }
+            .manage-sheets-modal .modal-box .sheet-list .sheet-item {
+                flex-wrap: wrap;
+                gap: 0.4rem;
+            }
+            .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name {
+                flex-basis: 100%;
+                white-space: normal;
+            }
+            .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name-input {
+                flex-basis: 100%;
+            }
+            .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions {
+                margin-left: auto;
+            }
+            .btn-manage-sheets {
+                font-size: 0.75rem;
+                padding: 0.2rem 0.8rem;
+            }
         }
         @media (max-width: 420px) {
             .sheet-bar .left {
@@ -1514,9 +1719,16 @@
                 📂 Pengelola Excel
                 <span>.xlsx .xls</span>
             </h1>
-            <div class="badge-status">
-                <span class="dot" id="statusDot"></span>
-                <span id="statusText">Belum ada file</span>
+            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+                <!-- Connection Status -->
+                <div class="connection-status offline" id="connectionStatus">
+                    <span class="conn-dot"></span>
+                    <span class="conn-label" id="connLabel">⏳ Menghubungkan...</span>
+                </div>
+                <div class="badge-status">
+                    <span class="dot" id="statusDot"></span>
+                    <span id="statusText">Belum ada file</span>
+                </div>
             </div>
         </div>
         <!-- UPLOAD ZONE -->
@@ -1541,7 +1753,9 @@
                 <span class="label">📑 Sheet :</span>
                 <select id="sheetSelect"></select>
                 <span class="stats" id="rowCount">0 baris</span>
-                <button class="btn-delete-sheet" id="deleteSheetBtn" title="Hapus sheet ini">🗑️</button>
+                <button class="btn-manage-sheets" id="manageSheetsBtn" title="Kelola sheet (hapus / rename)">
+                    📋 Kelola Sheet
+                </button>
                 <button class="btn-delete-sheet" id="clearFiltersBtn" title="Hapus semua filter" style="color:#7f8fa3;">🧹</button>
             </div>
             <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
@@ -1562,7 +1776,7 @@
                         <span class="slider"></span>
                     </span>
                 </label>
-                <!-- LABEL PEJABAT TOGGLE (BARU) -->
+                <!-- LABEL PEJABAT TOGGLE -->
                 <label class="label-pejabat-toggle" id="labelPejabatToggle" title="Aktifkan: klik 3x pada baris user untuk memberi label Pejabat">
                     <span class="label-text"><span class="icon">👤</span> Label Pejabat</span>
                     <span class="switch">
@@ -1605,6 +1819,7 @@
                 <span id="filterStatus" style="color:#2f6bb0;display:none;">🔍 filter aktif</span>
                 <span id="autoMinus30Status" style="color:#c0392b;display:none;">🔻 Auto -30 aktif</span>
                 <span id="pejabatStatus" style="color:#c0392b;display:none;">👤 Label Pejabat aktif</span>
+                <span id="firebaseStatus" style="color:#2b8c5e;display:none;">☁️ Tersimpan</span>
             </div>
         </div>
     </div>
@@ -1683,7 +1898,7 @@
         </div>
     </div>
 
-    <!-- ===== MODAL COPY WA OPTION (BARU) ===== -->
+    <!-- ===== MODAL COPY WA OPTION ===== -->
     <div class="modal-overlay copy-wa-modal" id="copyWaModal">
         <div class="modal-box">
             <h2>
@@ -1714,6 +1929,30 @@
         </div>
     </div>
 
+    <!-- ===== MODAL MANAGE SHEETS (HAPUS + RENAME) ===== -->
+    <div class="modal-overlay manage-sheets-modal" id="manageSheetsModal">
+        <div class="modal-box">
+            <h2>
+                📋 Kelola Sheet
+                <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="manageSheetsCounter"></span>
+            </h2>
+            <p class="sub">Kelola semua sheet: <strong>hapus</strong> atau <strong>ubah nama</strong> sheet.</p>
+            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+                <span class="sheet-count-badge" id="manageSheetsCount">📑 0 sheet</span>
+                <span style="font-size:0.8rem;color:#5c738b;" id="manageSheetsInfo"></span>
+            </div>
+            <div class="sheet-list" id="sheetListContainer">
+                <div class="sheet-empty">
+                    <span class="big-icon">📭</span>
+                    Belum ada sheet
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="manageSheetsCloseBtn">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast">
         <span class="toast-icon" id="toastIcon">✅</span>
@@ -1724,7 +1963,60 @@
     <script>
         (function() {
             'use strict';
-            // ----- DOM refs -----
+
+            // ============================================================
+            //  FIREBASE CONFIG & INIT
+            // ============================================================
+            const firebaseConfig = {
+                apiKey: "AIzaSyBjKNRvMvOdvmpmuJHoqLzLQQQ0e_xSX-I",
+                authDomain: "listisolir.firebaseapp.com",
+                projectId: "listisolir",
+                storageBucket: "listisolir.firebasestorage.app",
+                messagingSenderId: "588243494028",
+                appId: "1:588243494028:web:42fb129700b57194be47a9",
+                measurementId: "G-V297VK6SGM"
+            };
+
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+
+            // ----- Connection status -----
+            const connStatusEl = document.getElementById('connectionStatus');
+            const connLabelEl = document.getElementById('connLabel');
+            const firebaseStatusEl = document.getElementById('firebaseStatus');
+
+            let isOnline = false;
+            let isFirebaseReady = false;
+            let firebaseLoaded = false;
+
+            db.ref('.info/connected').on('value', (snap) => {
+                const connected = snap.val() === true;
+                isOnline = connected;
+                updateConnectionUI(connected);
+                if (connected && !firebaseLoaded) {
+                    firebaseLoaded = true;
+                    loadAllDataFromFirebase();
+                }
+            });
+
+            function updateConnectionUI(connected) {
+                if (connected) {
+                    connStatusEl.className = 'connection-status online';
+                    connLabelEl.textContent = '☁️ Online';
+                    firebaseStatusEl.style.display = 'inline';
+                    firebaseStatusEl.textContent = '☁️ Tersimpan';
+                } else {
+                    connStatusEl.className = 'connection-status offline';
+                    connLabelEl.textContent = '📡 Offline';
+                    firebaseStatusEl.style.display = 'inline';
+                    firebaseStatusEl.textContent = '📡 Offline';
+                }
+                isFirebaseReady = connected;
+            }
+
+            // ============================================================
+            //  DOM REFS
+            // ============================================================
             const uploadZone = document.getElementById('uploadZone');
             const fileInput = document.getElementById('fileInput');
             const browseBtn = document.getElementById('browseBtn');
@@ -1740,7 +2032,7 @@
             const statusText = document.getElementById('statusText');
             const cellCount = document.getElementById('cellCount');
             const sheetCount = document.getElementById('sheetCount');
-            const deleteSheetBtn = document.getElementById('deleteSheetBtn');
+            const manageSheetsBtn = document.getElementById('manageSheetsBtn');
             const clearFiltersBtn = document.getElementById('clearFiltersBtn');
             const autoFitCheckbox = document.getElementById('autoFitCheckbox');
             const autoFitToggle = document.getElementById('autoFitToggle');
@@ -1750,12 +2042,10 @@
             const filterStatus = document.getElementById('filterStatus');
             const copyWaBtn = document.getElementById('copyWaBtn');
             const copyVersionSelect = document.getElementById('copyVersionSelect');
-            // Pejabat
             const labelPejabatCheckbox = document.getElementById('labelPejabatCheckbox');
             const labelPejabatToggle = document.getElementById('labelPejabatToggle');
             const pejabatStatus = document.getElementById('pejabatStatus');
 
-            // Queue bar
             const queueBar = document.getElementById('queueBar');
             const queueProgress = document.getElementById('queueProgress');
             const queueFileName = document.getElementById('queueFileName');
@@ -1763,7 +2053,6 @@
             const queueCancelBtn = document.getElementById('queueCancelBtn');
             const queueBadge = document.getElementById('queueBadge');
 
-            // Row Select Modal
             const rowSelectModal = document.getElementById('rowSelectModal');
             const rowSelectSubText = document.getElementById('rowSelectSubText');
             const rowSelectCounter = document.getElementById('rowSelectCounter');
@@ -1775,7 +2064,6 @@
             const rowSelectCancelBtn = document.getElementById('rowSelectCancelBtn');
             const rowOptions = document.getElementById('rowOptions');
 
-            // Target Sheet Modal
             const modalOverlay = document.getElementById('modalOverlay');
             const modalFileName = document.getElementById('modalFileName');
             const modalCounter = document.getElementById('modalCounter');
@@ -1789,7 +2077,6 @@
             const modalCancelBtn = document.getElementById('modalCancelBtn');
             const modalAllProsesBtn = document.getElementById('modalAllProsesBtn');
 
-            // Copy WA Modal (BARU)
             const copyWaModal = document.getElementById('copyWaModal');
             const copyWaCounter = document.getElementById('copyWaCounter');
             const copyWaSubText = document.getElementById('copyWaSubText');
@@ -1801,35 +2088,48 @@
             const copyWaConfirmBtn = document.getElementById('copyWaConfirmBtn');
             const copyWaCancelBtn = document.getElementById('copyWaCancelBtn');
 
-            // Toast
+            const manageSheetsModal = document.getElementById('manageSheetsModal');
+            const manageSheetsCounter = document.getElementById('manageSheetsCounter');
+            const manageSheetsCount = document.getElementById('manageSheetsCount');
+            const manageSheetsInfo = document.getElementById('manageSheetsInfo');
+            const sheetListContainer = document.getElementById('sheetListContainer');
+            const manageSheetsCloseBtn = document.getElementById('manageSheetsCloseBtn');
+
             const toast = document.getElementById('toast');
             const toastIcon = document.getElementById('toastIcon');
             const toastMessage = document.getElementById('toastMessage');
             const toastClose = document.getElementById('toastClose');
 
-            // ----- STATE -----
-            const state = {
-                sheets: {},
+            // ============================================================
+            //  STATE — semua data disimpan di Firebase, kita sync secara realtime
+            // ============================================================
+            // Data mentah dari Firebase
+            let firebaseSheets = {}; // { sheetName: { headers, rows, _meta, pejabatMarks: [], filters: {} } }
+            let firebaseAppState = {
                 currentSheet: null,
+                sortColumn: null,
+                sortDirection: null,
+                autoFitEnabled: false,
+                autoMinus30Enabled: false,
+                labelPejabatEnabled: false,
+                copyVersion: 2,
+            };
+
+            // State lokal (untuk kecepatan, di-sync dengan Firebase)
+            const state = {
+                sheets: {}, // { sheetName: { headers, rows, _meta } }
+                pejabatMarks: {}, // { sheetName: Set(originalIndex) }
+                filters: {}, // { sheetName|colIdx: { type, values, active, min, max, mode } }
+                currentSheet: null,
+                sortState: { column: null, direction: null },
+                autoFitEnabled: false,
+                autoMinus30Enabled: false,
+                labelPejabatEnabled: false,
+                copyVersion: 2,
                 pendingFileData: null,
-                headerRow: 0,
-                // Pejabat marks: { sheetName: Set(originalRowIndex) }
-                pejabatMarks: {},
             };
 
-            // ----- FILTER STATE -----
-            const filters = {};
-            // ----- SORT STATE -----
-            const sortState = {
-                column: null,
-                direction: null,
-            };
-            // ----- AUTO -30 STATE -----
-            let autoMinus30Enabled = false;
-            // ----- LABEL PEJABAT STATE -----
-            let labelPejabatEnabled = false;
-
-            // ----- QUEUE STATE -----
+            // Queue state (transient)
             const queue = {
                 files: [],
                 currentIndex: 0,
@@ -1841,11 +2141,239 @@
                 pendingFileObjects: [],
             };
 
-            let autoFitEnabled = false;
             let activeFilterDropdown = null;
+            let renderTimeout = null;
+            let isRendering = false;
+
+            // Triple-click tracking (per row, per sheet)
+            let clickCounts = new Map();
+            let clickTimeouts = new Map();
 
             // ============================================================
-            //  DATE PARSING & DAY DIFFERENCE HELPERS
+            //  FIREBASE READ / WRITE
+            // ============================================================
+            const FIREBASE_PATH_SHEETS = 'sheets';
+            const FIREBASE_PATH_APPSTATE = 'appState';
+
+            function loadAllDataFromFirebase() {
+                // Load sheets
+                db.ref(FIREBASE_PATH_SHEETS).once('value', (snap) => {
+                    const data = snap.val() || {};
+                    firebaseSheets = data;
+                    syncFirebaseToState();
+                }).catch((err) => {
+                    console.warn('Gagal load sheets dari Firebase:', err);
+                    syncFirebaseToState();
+                });
+
+                // Load app state
+                db.ref(FIREBASE_PATH_APPSTATE).once('value', (snap) => {
+                    const data = snap.val() || {};
+                    firebaseAppState = data;
+                    syncAppStateToState();
+                }).catch((err) => {
+                    console.warn('Gagal load appState dari Firebase:', err);
+                    syncAppStateToState();
+                });
+
+                // Listen for real-time updates on sheets
+                db.ref(FIREBASE_PATH_SHEETS).on('value', (snap) => {
+                    const data = snap.val() || {};
+                    firebaseSheets = data;
+                    syncFirebaseToState();
+                });
+
+                // Listen for real-time updates on appState
+                db.ref(FIREBASE_PATH_APPSTATE).on('value', (snap) => {
+                    const data = snap.val() || {};
+                    firebaseAppState = data;
+                    syncAppStateToState();
+                });
+            }
+
+            function syncFirebaseToState() {
+                const newSheets = {};
+                const newPejabatMarks = {};
+                const newFilters = {};
+
+                for (const [sheetName, sheetData] of Object.entries(firebaseSheets)) {
+                    if (!sheetData || typeof sheetData !== 'object') continue;
+                    newSheets[sheetName] = {
+                        headers: sheetData.headers || [],
+                        rows: sheetData.rows || [],
+                        _meta: sheetData._meta || {},
+                    };
+                    const marks = sheetData.pejabatMarks || [];
+                    newPejabatMarks[sheetName] = new Set(marks);
+                    const fData = sheetData.filters || {};
+                    for (const [key, val] of Object.entries(fData)) {
+                        const fKey = sheetName + '|' + key;
+                        newFilters[fKey] = {
+                            type: val.type || 'exact',
+                            values: new Set(val.values || []),
+                            active: val.active || false,
+                            min: val.min !== undefined ? val.min : null,
+                            max: val.max !== undefined ? val.max : null,
+                            mode: val.mode || 'between',
+                        };
+                    }
+                }
+
+                state.sheets = newSheets;
+                state.pejabatMarks = newPejabatMarks;
+                state.filters = newFilters;
+
+                updateSheetSelect();
+                if (state.currentSheet && state.sheets[state.currentSheet]) {
+                    loadSheet(state.currentSheet);
+                } else if (Object.keys(state.sheets).length > 0) {
+                    const first = Object.keys(state.sheets)[0];
+                    state.currentSheet = first;
+                    loadSheet(first);
+                } else {
+                    state.currentSheet = null;
+                    sheetBar.style.display = 'none';
+                    tableHead.innerHTML = '';
+                    tableBody.innerHTML = `
+                        <tr><td colspan="1" class="empty-msg">
+                            <span class="big-icon">📊</span>
+                            Unggah file Excel untuk mulai mengelola data
+                        </td></tr>
+                    `;
+                    rowCount.textContent = '0 baris';
+                    cellCount.textContent = '';
+                    updateFilterStatus();
+                    updateAutoMinus30Status();
+                    updatePejabatStatus();
+                    updateSheetCount();
+                    setStatus(false, 'Belum ada file');
+                }
+                updateFilterStatus();
+                updateAutoMinus30Status();
+                updatePejabatStatus();
+                updateSheetCount();
+                setStatus(true, 'Siap');
+            }
+
+            function syncAppStateToState() {
+                state.currentSheet = firebaseAppState.currentSheet || null;
+                state.sortState.column = firebaseAppState.sortColumn || null;
+                state.sortState.direction = firebaseAppState.sortDirection || null;
+                state.autoFitEnabled = firebaseAppState.autoFitEnabled || false;
+                state.autoMinus30Enabled = firebaseAppState.autoMinus30Enabled || false;
+                state.labelPejabatEnabled = firebaseAppState.labelPejabatEnabled || false;
+                state.copyVersion = firebaseAppState.copyVersion || 2;
+
+                autoFitCheckbox.checked = state.autoFitEnabled;
+                if (state.autoFitEnabled) autoFitToggle.classList.add('active');
+                else autoFitToggle.classList.remove('active');
+
+                autoMinus30Checkbox.checked = state.autoMinus30Enabled;
+                if (state.autoMinus30Enabled) autoMinus30Toggle.classList.add('active');
+                else autoMinus30Toggle.classList.remove('active');
+
+                labelPejabatCheckbox.checked = state.labelPejabatEnabled;
+                if (state.labelPejabatEnabled) labelPejabatToggle.classList.add('active');
+                else labelPejabatToggle.classList.remove('active');
+
+                copyVersionSelect.value = state.copyVersion;
+
+                if (state.currentSheet && state.sheets[state.currentSheet]) {
+                    loadSheet(state.currentSheet);
+                }
+                updateAutoMinus30Status();
+                updatePejabatStatus();
+                updateFilterStatus();
+            }
+
+            function saveSheetToFirebase(sheetName) {
+                if (!isOnline) {
+                    showToast('⚠️', 'Offline — data akan disimpan saat koneksi kembali');
+                    return;
+                }
+                const sheetData = state.sheets[sheetName];
+                if (!sheetData) return;
+
+                const marks = state.pejabatMarks[sheetName] || new Set();
+                const marksArray = Array.from(marks);
+
+                const filtersObj = {};
+                const prefix = sheetName + '|';
+                for (const [key, f] of Object.entries(state.filters)) {
+                    if (key.startsWith(prefix)) {
+                        const colIdx = key.substring(prefix.length);
+                        filtersObj[colIdx] = {
+                            type: f.type || 'exact',
+                            values: f.values ? Array.from(f.values) : [],
+                            active: f.active || false,
+                            min: f.min !== undefined ? f.min : null,
+                            max: f.max !== undefined ? f.max : null,
+                            mode: f.mode || 'between',
+                        };
+                    }
+                }
+
+                const payload = {
+                    headers: sheetData.headers || [],
+                    rows: sheetData.rows || [],
+                    _meta: sheetData._meta || {},
+                    pejabatMarks: marksArray,
+                    filters: filtersObj,
+                };
+
+                db.ref(FIREBASE_PATH_SHEETS + '/' + sheetName).set(payload)
+                    .then(() => {
+                        if (firebaseStatusEl) {
+                            firebaseStatusEl.textContent = '☁️ Tersimpan';
+                            setTimeout(() => {
+                                if (isOnline) firebaseStatusEl.textContent = '☁️ Tersimpan';
+                            }, 1500);
+                        }
+                    })
+                    .catch((err) => {
+                        console.warn('Gagal menyimpan sheet ke Firebase:', err);
+                        showToast('⚠️', 'Gagal menyimpan: ' + err.message);
+                    });
+            }
+
+            function saveAppStateToFirebase() {
+                if (!isOnline) return;
+                const payload = {
+                    currentSheet: state.currentSheet || null,
+                    sortColumn: state.sortState.column || null,
+                    sortDirection: state.sortState.direction || null,
+                    autoFitEnabled: state.autoFitEnabled || false,
+                    autoMinus30Enabled: state.autoMinus30Enabled || false,
+                    labelPejabatEnabled: state.labelPejabatEnabled || false,
+                    copyVersion: state.copyVersion || 2,
+                };
+                db.ref(FIREBASE_PATH_APPSTATE).set(payload)
+                    .catch((err) => console.warn('Gagal simpan appState:', err));
+            }
+
+            function deleteSheetFromFirebase(sheetName) {
+                if (!isOnline) return Promise.reject('Offline');
+                return db.ref(FIREBASE_PATH_SHEETS + '/' + sheetName).remove();
+            }
+
+            function renameSheetInFirebase(oldName, newName) {
+                if (!isOnline) return Promise.reject('Offline');
+                // Baca data sheet lama, tulis ke path baru, hapus path lama
+                return db.ref(FIREBASE_PATH_SHEETS + '/' + oldName).once('value')
+                    .then((snap) => {
+                        const data = snap.val();
+                        if (!data) throw new Error('Sheet "' + oldName + '" tidak ditemukan.');
+                        // Tulis ke path baru
+                        return db.ref(FIREBASE_PATH_SHEETS + '/' + newName).set(data)
+                            .then(() => {
+                                // Hapus path lama
+                                return db.ref(FIREBASE_PATH_SHEETS + '/' + oldName).remove();
+                            });
+                    });
+            }
+
+            // ============================================================
+            //  DATE PARSING & HELPERS
             // ============================================================
             function extractDateFromStatus(status) {
                 if (!status || typeof status !== 'string') return null;
@@ -1905,20 +2433,13 @@
                 return formatDayDiff(diff);
             }
 
-            // ============================================================
-            //  SRB/SYN dari kolom "paket layanan"
-            // ============================================================
             function computeSrbSynFromPaket(paketValue) {
                 if (!paketValue || typeof paketValue !== 'string') return '';
                 const trimmed = paketValue.trim();
                 if (!trimmed) return '';
                 const upper = trimmed.toUpperCase();
-                if (upper.startsWith('PROMO')) {
-                    return 'SRB';
-                }
-                if (upper.startsWith('SYN') || upper.startsWith('INETHOME')) {
-                    return 'SYN';
-                }
+                if (upper.startsWith('PROMO')) return 'SRB';
+                if (upper.startsWith('SYN') || upper.startsWith('INETHOME')) return 'SYN';
                 const sepIndex = trimmed.indexOf('||');
                 if (sepIndex !== -1) {
                     const before = trimmed.substring(0, sepIndex).trim();
@@ -1927,8 +2448,47 @@
                 return trimmed;
             }
 
+            function parseMasaAktifValue(str) {
+                if (!str || typeof str !== 'string') return null;
+                const trimmed = str.trim();
+                if (trimmed === '-' || trimmed === '') return null;
+                const match = trimmed.match(/([+-]?\d+)\s*hari/);
+                if (match) {
+                    const val = parseInt(match[1]);
+                    if (!isNaN(val)) return val;
+                }
+                return null;
+            }
+
+            function formatNumber(n) {
+                if (n === undefined || n === null) return '0';
+                return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            function escapeHtml(str) {
+                if (str === undefined || str === null) return '';
+                const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+                return String(str).replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+
+            function getSheetNames() {
+                return Object.keys(state.sheets);
+            }
+
+            function getSheetData(sheetName) {
+                return state.sheets[sheetName] || null;
+            }
+
+            function setStatus(active, text, type) {
+                statusDot.className = 'dot' + (active ? ' active' : '');
+                if (type === 'processing') {
+                    statusDot.className = 'dot processing';
+                }
+                statusText.textContent = text || (active ? 'Siap' : 'Belum ada file');
+            }
+
             // ============================================================
-            //  readFileData
+            //  READ FILE DATA
             // ============================================================
             function readFileData(file, headerRow) {
                 return new Promise((resolve, reject) => {
@@ -1989,20 +2549,14 @@
                             const namaVariants = ['nama', 'name', 'Nama', 'Name', 'NAMA'];
                             for (let i = 0; i < finalHeaders.length; i++) {
                                 const h = finalHeaders[i].toString().trim();
-                                if (namaVariants.some(v => h === v)) {
-                                    namaIdx = i;
-                                    break;
-                                }
+                                if (namaVariants.some(v => h === v)) { namaIdx = i; break; }
                             }
 
                             let statusIdx = -1;
                             const statusVariants = ['status', 'Status', 'STATUS'];
                             for (let i = 0; i < finalHeaders.length; i++) {
                                 const h = finalHeaders[i].toString().trim();
-                                if (statusVariants.some(v => h === v)) {
-                                    statusIdx = i;
-                                    break;
-                                }
+                                if (statusVariants.some(v => h === v)) { statusIdx = i; break; }
                             }
 
                             let paketIdx = -1;
@@ -2012,13 +2566,9 @@
                             ];
                             for (let i = 0; i < finalHeaders.length; i++) {
                                 const h = finalHeaders[i].toString().trim().toLowerCase();
-                                if (paketVariants.some(v => h === v.toLowerCase())) {
-                                    paketIdx = i;
-                                    break;
-                                }
+                                if (paketVariants.some(v => h === v.toLowerCase())) { paketIdx = i; break; }
                             }
 
-                            // Perluas daftar kata kunci untuk nomor telepon
                             let noTelpIdx = -1;
                             const telpVariants = [
                                 'no telp', 'no_telp', 'no.telp', 'notelp',
@@ -2086,7 +2636,7 @@
                                 }
                                 if (!srbSynVal) {
                                     const combined = row.map(v => (v !== undefined && v !== null) ? String(v) : '')
-                                    .join(' ');
+                                        .join(' ');
                                     if (combined.includes('PROMO_MASA_AKTIF') || combined.includes('PROMO')) {
                                         srbSynVal = 'SRB';
                                     } else if (combined.includes('SYN_MASA_AKTIF') || combined.includes('SYN') ||
@@ -2197,10 +2747,10 @@
 
             function getFilterState(sheetName, colIndex) {
                 const key = getFilterKey(sheetName, colIndex);
-                if (!filters[key]) {
-                    filters[key] = { type: 'exact', values: new Set(), active: false };
+                if (!state.filters[key]) {
+                    state.filters[key] = { type: 'exact', values: new Set(), active: false };
                 }
-                return filters[key];
+                return state.filters[key];
             }
 
             function isColumnFiltered(sheetName, colIndex) {
@@ -2215,11 +2765,11 @@
 
             function getActiveFilters(sheetName) {
                 const result = {};
-                for (const key in filters) {
+                for (const key in state.filters) {
                     if (key.startsWith(sheetName + '|')) {
                         const parts = key.split('|');
                         const colIdx = parseInt(parts[1]);
-                        const f = filters[key];
+                        const f = state.filters[key];
                         if (f.active) {
                             if (f.type === 'exact' && f.values.size > 0) {
                                 result[colIdx] = { type: 'exact', values: f.values };
@@ -2233,9 +2783,9 @@
             }
 
             function clearAllFilters(sheetName) {
-                for (const key in filters) {
+                for (const key in state.filters) {
                     if (key.startsWith(sheetName + '|')) {
-                        const f = filters[key];
+                        const f = state.filters[key];
                         if (f.type === 'exact') {
                             f.values = new Set();
                             f.active = false;
@@ -2248,6 +2798,7 @@
                     }
                 }
                 closeAllDropdowns();
+                saveSheetToFirebase(sheetName);
                 if (state.currentSheet) {
                     renderSheet(state.currentSheet);
                 }
@@ -2256,8 +2807,8 @@
 
             function clearColumnFilter(sheetName, colIndex) {
                 const key = getFilterKey(sheetName, colIndex);
-                if (filters[key]) {
-                    const f = filters[key];
+                if (state.filters[key]) {
+                    const f = state.filters[key];
                     if (f.type === 'exact') {
                         f.values = new Set();
                         f.active = false;
@@ -2269,6 +2820,7 @@
                     }
                 }
                 closeAllDropdowns();
+                saveSheetToFirebase(sheetName);
                 if (state.currentSheet) {
                     renderSheet(state.currentSheet);
                 }
@@ -2277,10 +2829,10 @@
 
             function applyFilter(sheetName, colIndex, filterData) {
                 const key = getFilterKey(sheetName, colIndex);
-                if (!filters[key]) {
-                    filters[key] = { type: 'exact', values: new Set(), active: false };
+                if (!state.filters[key]) {
+                    state.filters[key] = { type: 'exact', values: new Set(), active: false };
                 }
-                const f = filters[key];
+                const f = state.filters[key];
                 if (filterData.type === 'exact') {
                     f.type = 'exact';
                     f.values = new Set(filterData.values || []);
@@ -2295,6 +2847,7 @@
                     f.active = (f.min !== null || f.max !== null);
                 }
                 closeAllDropdowns();
+                saveSheetToFirebase(sheetName);
                 if (state.currentSheet) {
                     renderSheet(state.currentSheet);
                 }
@@ -2327,27 +2880,28 @@
             //  SORT SYSTEM
             // ============================================================
             function toggleSort(columnIdx) {
-                if (sortState.column === columnIdx) {
-                    if (sortState.direction === 'asc') {
-                        sortState.direction = 'desc';
-                    } else if (sortState.direction === 'desc') {
-                        sortState.column = null;
-                        sortState.direction = null;
+                if (state.sortState.column === columnIdx) {
+                    if (state.sortState.direction === 'asc') {
+                        state.sortState.direction = 'desc';
+                    } else if (state.sortState.direction === 'desc') {
+                        state.sortState.column = null;
+                        state.sortState.direction = null;
                     }
                 } else {
-                    sortState.column = columnIdx;
-                    sortState.direction = 'asc';
+                    state.sortState.column = columnIdx;
+                    state.sortState.direction = 'asc';
                 }
+                saveAppStateToFirebase();
                 if (state.currentSheet) {
                     renderSheet(state.currentSheet);
                 }
             }
 
             function applySort(rows, headers, masaAktifIdx) {
-                if (sortState.column === null || sortState.direction === null) {
+                if (state.sortState.column === null || state.sortState.direction === null) {
                     return rows;
                 }
-                const colIdx = sortState.column;
+                const colIdx = state.sortState.column;
                 const isMasaAktif = (colIdx === masaAktifIdx);
                 const sorted = [...rows];
                 sorted.sort((a, b) => {
@@ -2373,22 +2927,10 @@
                     if (valA > valB) return 1;
                     return 0;
                 });
-                if (sortState.direction === 'desc') {
+                if (state.sortState.direction === 'desc') {
                     sorted.reverse();
                 }
                 return sorted;
-            }
-
-            function parseMasaAktifValue(str) {
-                if (!str || typeof str !== 'string') return null;
-                const trimmed = str.trim();
-                if (trimmed === '-' || trimmed === '') return null;
-                const match = trimmed.match(/([+-]?\d+)\s*hari/);
-                if (match) {
-                    const val = parseInt(match[1]);
-                    if (!isNaN(val)) return val;
-                }
-                return null;
             }
 
             // ============================================================
@@ -2437,8 +2979,6 @@
                     return;
                 }
                 const headerRow = parseInt(selected.value, 10);
-                state.headerRow = headerRow;
-                closeRowSelectModal();
                 const files = queue.pendingFileObjects;
                 queue.pendingFileObjects = [];
                 const promises = files.map(file => readFileData(file, headerRow));
@@ -2740,6 +3280,10 @@
                         });
                         existing.rows = existing.rows.concat(adjustedNewRows);
                         state.sheets[targetSheetName] = existing;
+                        if (state.pejabatMarks[targetSheetName] === undefined) {
+                            state.pejabatMarks[targetSheetName] = new Set();
+                        }
+                        saveSheetToFirebase(targetSheetName);
                         updateSheetSelect();
                         state.currentSheet = targetSheetName;
                         loadSheet(targetSheetName);
@@ -2765,17 +3309,17 @@
                             rows: finalRows,
                             _meta: _meta || {},
                         };
-                        const fKey = targetSheetName + '|';
-                        for (let i = 0; i < finalHeaders.length; i++) {
-                            const key = fKey + i;
-                            if (!filters[key]) {
-                                filters[key] = { type: 'exact', values: new Set(), active: false };
-                            }
-                        }
-                        // Init pejabat marks for this sheet
                         if (!state.pejabatMarks[targetSheetName]) {
                             state.pejabatMarks[targetSheetName] = new Set();
                         }
+                        const fKey = targetSheetName + '|';
+                        for (let i = 0; i < finalHeaders.length; i++) {
+                            const key = fKey + i;
+                            if (!state.filters[key]) {
+                                state.filters[key] = { type: 'exact', values: new Set(), active: false };
+                            }
+                        }
+                        saveSheetToFirebase(targetSheetName);
                         updateSheetSelect();
                         state.currentSheet = targetSheetName;
                         loadSheet(targetSheetName);
@@ -2921,6 +3465,10 @@
                         });
                         existing.rows = existing.rows.concat(adjustedNewRows);
                         state.sheets[targetSheetName] = existing;
+                        if (!state.pejabatMarks[targetSheetName]) {
+                            state.pejabatMarks[targetSheetName] = new Set();
+                        }
+                        saveSheetToFirebase(targetSheetName);
                         showToast('✅',
                             `Berhasil menggabungkan ${filesToProcess.length} file ke sheet "${targetSheetName}" (${adjustedNewRows.length} baris ditambahkan)`
                             );
@@ -2930,16 +3478,17 @@
                             rows: allRows,
                             _meta: allMeta,
                         };
-                        const fKey = targetSheetName + '|';
-                        for (let i = 0; i < allHeaders.length; i++) {
-                            const key = fKey + i;
-                            if (!filters[key]) {
-                                filters[key] = { type: 'exact', values: new Set(), active: false };
-                            }
-                        }
                         if (!state.pejabatMarks[targetSheetName]) {
                             state.pejabatMarks[targetSheetName] = new Set();
                         }
+                        const fKey = targetSheetName + '|';
+                        for (let i = 0; i < allHeaders.length; i++) {
+                            const key = fKey + i;
+                            if (!state.filters[key]) {
+                                state.filters[key] = { type: 'exact', values: new Set(), active: false };
+                            }
+                        }
+                        saveSheetToFirebase(targetSheetName);
                         showToast('✅',
                             `Berhasil menggabungkan ${filesToProcess.length} file ke sheet baru "${targetSheetName}" (${allRows.length} baris)`
                             );
@@ -2976,461 +3525,477 @@
             }
 
             // ============================================================
-            //  RENDER (with FILTERS + SORT + AUTO -30 + PEJABAT)
+            //  RENDER (OPTIMIZED — dengan debounce & event delegation)
             // ============================================================
             function renderSheet(sheetName) {
-                const data = getSheetData(sheetName);
-                if (!data) {
-                    tableHead.innerHTML = '';
-                    tableBody.innerHTML = `
-                        <tr><td colspan="1" class="empty-msg">
-                            <span class="big-icon">📭</span>
-                            Sheet tidak ditemukan
-                        </td></tr>
-                    `;
-                    rowCount.textContent = '0 baris';
-                    cellCount.textContent = '';
-                    updateFilterStatus();
-                    updateAutoMinus30Status();
-                    updatePejabatStatus();
-                    return;
+                if (renderTimeout) {
+                    cancelAnimationFrame(renderTimeout);
+                    renderTimeout = null;
                 }
-                let { headers, rows } = data;
-                const meta = data._meta || {};
-                if (!headers || headers.length === 0) {
-                    tableHead.innerHTML = '';
-                    tableBody.innerHTML = `
-                        <tr><td colspan="1" class="empty-msg">
-                            <span class="big-icon">📭</span>
-                            Sheet kosong
-                        </td></tr>
-                    `;
-                    rowCount.textContent = '0 baris';
-                    cellCount.textContent = '';
-                    updateFilterStatus();
-                    updateAutoMinus30Status();
-                    updatePejabatStatus();
-                    return;
-                }
-
-                const noKeywords = ['no', 'nomor', 'id', 'urut', '#'];
-                const isNo = (h) => noKeywords.includes((h || '').toString().toLowerCase().trim());
-                let noIdx = headers.findIndex(h => isNo(h));
-                if (noIdx === -1) {
-                    headers = ['No', ...headers];
-                    rows = rows.map(row => [null, ...row]);
-                    noIdx = 0;
-                }
-                if (noIdx !== 0) {
-                    const noHeader = headers[noIdx];
-                    headers.splice(noIdx, 1);
-                    headers.unshift(noHeader);
-                    rows = rows.map(row => {
-                        const val = row[noIdx];
-                        row.splice(noIdx, 1);
-                        row.unshift(val);
-                        return row;
-                    });
-                    noIdx = 0;
-                }
-
-                // Reset No column
-                rows = rows.map((row, index) => {
-                    const newRow = [...row];
-                    newRow[0] = index + 1;
-                    return newRow;
+                renderTimeout = requestAnimationFrame(() => {
+                    renderTimeout = null;
+                    _renderSheet(sheetName);
                 });
-                state.sheets[sheetName].headers = headers;
-                state.sheets[sheetName].rows = rows;
+            }
 
-                let masaAktifIdx = -1;
-                let srbSynIdx = -1;
-                let namaIdx = -1;
-                let noTelpIdx = -1;
-                let noLayananIdx = -1;
-                let kodePosIdx = -1;
+            function _renderSheet(sheetName) {
+                if (isRendering) return;
+                isRendering = true;
 
-                if (meta.masaAktifIdx !== undefined && meta.masaAktifIdx >= 0 && meta.masaAktifIdx < headers.length) {
-                    masaAktifIdx = meta.masaAktifIdx;
-                }
-                if (meta.srbSynIdx !== undefined && meta.srbSynIdx >= 0 && meta.srbSynIdx < headers.length) {
-                    srbSynIdx = meta.srbSynIdx;
-                }
-                if (meta.namaIdx !== undefined && meta.namaIdx >= 0 && meta.namaIdx < headers.length) {
-                    namaIdx = meta.namaIdx;
-                }
-                if (meta.noTelpIdx !== undefined && meta.noTelpIdx >= 0 && meta.noTelpIdx < headers.length) {
-                    noTelpIdx = meta.noTelpIdx;
-                }
-                if (meta.noLayananIdx !== undefined && meta.noLayananIdx >= 0 && meta.noLayananIdx < headers.length) {
-                    noLayananIdx = meta.noLayananIdx;
-                }
-                if (meta.kodePosIdx !== undefined && meta.kodePosIdx >= 0 && meta.kodePosIdx < headers.length) {
-                    kodePosIdx = meta.kodePosIdx;
-                }
+                try {
+                    const data = getSheetData(sheetName);
+                    if (!data) {
+                        tableHead.innerHTML = '';
+                        tableBody.innerHTML = `
+                            <tr><td colspan="1" class="empty-msg">
+                                <span class="big-icon">📭</span>
+                                Sheet tidak ditemukan
+                            </td></tr>
+                        `;
+                        rowCount.textContent = '0 baris';
+                        cellCount.textContent = '';
+                        updateFilterStatus();
+                        updateAutoMinus30Status();
+                        updatePejabatStatus();
+                        isRendering = false;
+                        return;
+                    }
+                    let { headers, rows } = data;
+                    const meta = data._meta || {};
+                    if (!headers || headers.length === 0) {
+                        tableHead.innerHTML = '';
+                        tableBody.innerHTML = `
+                            <tr><td colspan="1" class="empty-msg">
+                                <span class="big-icon">📭</span>
+                                Sheet kosong
+                            </td></tr>
+                        `;
+                        rowCount.textContent = '0 baris';
+                        cellCount.textContent = '';
+                        updateFilterStatus();
+                        updateAutoMinus30Status();
+                        updatePejabatStatus();
+                        isRendering = false;
+                        return;
+                    }
 
-                if (masaAktifIdx === -1) {
-                    for (let i = 0; i < headers.length; i++) {
-                        const h = headers[i].toString().trim().toLowerCase();
-                        if (h === 'masa aktif') { masaAktifIdx = i; break; }
+                    const noKeywords = ['no', 'nomor', 'id', 'urut', '#'];
+                    const isNo = (h) => noKeywords.includes((h || '').toString().toLowerCase().trim());
+                    let noIdx = headers.findIndex(h => isNo(h));
+                    if (noIdx === -1) {
+                        headers = ['No', ...headers];
+                        rows = rows.map(row => [null, ...row]);
+                        noIdx = 0;
                     }
-                }
-                if (srbSynIdx === -1) {
-                    for (let i = 0; i < headers.length; i++) {
-                        const h = headers[i].toString().trim().toLowerCase();
-                        if (h === 'srb/syn') { srbSynIdx = i; break; }
+                    if (noIdx !== 0) {
+                        const noHeader = headers[noIdx];
+                        headers.splice(noIdx, 1);
+                        headers.unshift(noHeader);
+                        rows = rows.map(row => {
+                            const val = row[noIdx];
+                            row.splice(noIdx, 1);
+                            row.unshift(val);
+                            return row;
+                        });
+                        noIdx = 0;
                     }
-                }
-                if (namaIdx === -1) {
-                    for (let i = 0; i < headers.length; i++) {
-                        const h = headers[i].toString().trim().toLowerCase();
-                        if (h === 'nama' || h === 'name') { namaIdx = i; break; }
-                    }
-                }
-                if (noTelpIdx === -1) {
-                    const telpKeywords = ['no telp', 'telp', 'telepon', 'no hp', 'hp', 'phone', 'kontak'];
-                    for (let i = 0; i < headers.length; i++) {
-                        const h = headers[i].toString().trim().toLowerCase();
-                        if (telpKeywords.some(k => h === k)) { noTelpIdx = i; break; }
-                    }
-                }
-                if (noLayananIdx === -1) {
-                    const layananKeywords = ['no layanan', 'no_layanan', 'id', 'id pelanggan', 'pelanggan'];
-                    for (let i = 0; i < headers.length; i++) {
-                        const h = headers[i].toString().trim().toLowerCase();
-                        if (layananKeywords.some(k => h === k)) { noLayananIdx = i; break; }
-                    }
-                }
-                if (kodePosIdx === -1) {
-                    const kodeKeywords = ['kode pos', 'kode_pos', 'kodepos', 'pos'];
-                    for (let i = 0; i < headers.length; i++) {
-                        const h = headers[i].toString().trim().toLowerCase();
-                        if (kodeKeywords.some(k => h === k)) { kodePosIdx = i; break; }
-                    }
-                }
 
-                // --- AUTO -30 ---
-                let forceFilter = null;
-                let forceSort = null;
-                if (autoMinus30Enabled && masaAktifIdx >= 0) {
-                    forceFilter = {
-                        colIdx: masaAktifIdx,
-                        type: 'range',
-                        mode: 'between',
-                        min: null,
-                        max: -30,
-                    };
-                    forceSort = {
-                        column: masaAktifIdx,
-                        direction: 'desc',
-                    };
-                }
+                    rows = rows.map((row, index) => {
+                        const newRow = [...row];
+                        newRow[0] = index + 1;
+                        return newRow;
+                    });
+                    state.sheets[sheetName].headers = headers;
+                    state.sheets[sheetName].rows = rows;
 
-                // --- Apply manual filters ---
-                const activeFilters = getActiveFilters(sheetName);
-                const hasManualFilters = Object.keys(activeFilters).length > 0;
-                let filteredRows = rows;
-                if (hasManualFilters || forceFilter) {
-                    filteredRows = rows.filter(row => {
-                        for (const colIdxStr in activeFilters) {
-                            const colIdx = parseInt(colIdxStr);
-                            const filterInfo = activeFilters[colIdx];
-                            const cellVal = (row[colIdx] !== undefined && row[colIdx] !== null) ? String(row[
-                                colIdx]) : '';
-                            if (filterInfo.type === 'exact') {
-                                const allowedValues = filterInfo.values;
-                                if (allowedValues.size === 0) continue;
-                                if (!allowedValues.has(cellVal)) {
-                                    return false;
+                    let masaAktifIdx = -1;
+                    let srbSynIdx = -1;
+                    let namaIdx = -1;
+                    let noTelpIdx = -1;
+                    let noLayananIdx = -1;
+                    let kodePosIdx = -1;
+
+                    if (meta.masaAktifIdx !== undefined && meta.masaAktifIdx >= 0 && meta.masaAktifIdx < headers.length) {
+                        masaAktifIdx = meta.masaAktifIdx;
+                    }
+                    if (meta.srbSynIdx !== undefined && meta.srbSynIdx >= 0 && meta.srbSynIdx < headers.length) {
+                        srbSynIdx = meta.srbSynIdx;
+                    }
+                    if (meta.namaIdx !== undefined && meta.namaIdx >= 0 && meta.namaIdx < headers.length) {
+                        namaIdx = meta.namaIdx;
+                    }
+                    if (meta.noTelpIdx !== undefined && meta.noTelpIdx >= 0 && meta.noTelpIdx < headers.length) {
+                        noTelpIdx = meta.noTelpIdx;
+                    }
+                    if (meta.noLayananIdx !== undefined && meta.noLayananIdx >= 0 && meta.noLayananIdx < headers.length) {
+                        noLayananIdx = meta.noLayananIdx;
+                    }
+                    if (meta.kodePosIdx !== undefined && meta.kodePosIdx >= 0 && meta.kodePosIdx < headers.length) {
+                        kodePosIdx = meta.kodePosIdx;
+                    }
+
+                    if (masaAktifIdx === -1) {
+                        for (let i = 0; i < headers.length; i++) {
+                            const h = headers[i].toString().trim().toLowerCase();
+                            if (h === 'masa aktif') { masaAktifIdx = i; break; }
+                        }
+                    }
+                    if (srbSynIdx === -1) {
+                        for (let i = 0; i < headers.length; i++) {
+                            const h = headers[i].toString().trim().toLowerCase();
+                            if (h === 'srb/syn') { srbSynIdx = i; break; }
+                        }
+                    }
+                    if (namaIdx === -1) {
+                        for (let i = 0; i < headers.length; i++) {
+                            const h = headers[i].toString().trim().toLowerCase();
+                            if (h === 'nama' || h === 'name') { namaIdx = i; break; }
+                        }
+                    }
+                    if (noTelpIdx === -1) {
+                        const telpKeywords = ['no telp', 'telp', 'telepon', 'no hp', 'hp', 'phone', 'kontak'];
+                        for (let i = 0; i < headers.length; i++) {
+                            const h = headers[i].toString().trim().toLowerCase();
+                            if (telpKeywords.some(k => h === k)) { noTelpIdx = i; break; }
+                        }
+                    }
+                    if (noLayananIdx === -1) {
+                        const layananKeywords = ['no layanan', 'no_layanan', 'id', 'id pelanggan', 'pelanggan'];
+                        for (let i = 0; i < headers.length; i++) {
+                            const h = headers[i].toString().trim().toLowerCase();
+                            if (layananKeywords.some(k => h === k)) { noLayananIdx = i; break; }
+                        }
+                    }
+                    if (kodePosIdx === -1) {
+                        const kodeKeywords = ['kode pos', 'kode_pos', 'kodepos', 'pos'];
+                        for (let i = 0; i < headers.length; i++) {
+                            const h = headers[i].toString().trim().toLowerCase();
+                            if (kodeKeywords.some(k => h === k)) { kodePosIdx = i; break; }
+                        }
+                    }
+
+                    let forceFilter = null;
+                    let forceSort = null;
+                    if (state.autoMinus30Enabled && masaAktifIdx >= 0) {
+                        forceFilter = {
+                            colIdx: masaAktifIdx,
+                            type: 'range',
+                            mode: 'between',
+                            min: null,
+                            max: -30,
+                        };
+                        forceSort = {
+                            column: masaAktifIdx,
+                            direction: 'desc',
+                        };
+                    }
+
+                    const activeFilters = getActiveFilters(sheetName);
+                    const hasManualFilters = Object.keys(activeFilters).length > 0;
+                    let filteredRows = rows;
+                    if (hasManualFilters || forceFilter) {
+                        filteredRows = rows.filter(row => {
+                            for (const colIdxStr in activeFilters) {
+                                const colIdx = parseInt(colIdxStr);
+                                const filterInfo = activeFilters[colIdx];
+                                const cellVal = (row[colIdx] !== undefined && row[colIdx] !== null) ? String(row[
+                                    colIdx]) : '';
+                                if (filterInfo.type === 'exact') {
+                                    const allowedValues = filterInfo.values;
+                                    if (allowedValues.size === 0) continue;
+                                    if (!allowedValues.has(cellVal)) {
+                                        return false;
+                                    }
+                                } else if (filterInfo.type === 'range') {
+                                    const numVal = parseMasaAktifValue(cellVal);
+                                    if (numVal === null) {
+                                        if (filterInfo.min !== null || filterInfo.max !== null) return false;
+                                        continue;
+                                    }
+                                    const mode = filterInfo.mode || 'between';
+                                    const minVal = filterInfo.min;
+                                    const maxVal = filterInfo.max;
+                                    if (mode === 'above') {
+                                        if (minVal === null) continue;
+                                        if (numVal <= minVal) return false;
+                                    } else if (mode === 'below') {
+                                        if (minVal === null) continue;
+                                        if (numVal >= minVal) return false;
+                                    } else if (mode === 'between') {
+                                        if (minVal !== null && numVal < minVal) return false;
+                                        if (maxVal !== null && numVal > maxVal) return false;
+                                    } else if (mode === 'equals') {
+                                        if (minVal === null) continue;
+                                        if (numVal !== minVal) return false;
+                                    }
                                 }
-                            } else if (filterInfo.type === 'range') {
+                            }
+                            if (forceFilter) {
+                                const cellVal = (row[forceFilter.colIdx] !== undefined && row[forceFilter.colIdx] !==
+                                    null) ? String(row[forceFilter.colIdx]) : '';
                                 const numVal = parseMasaAktifValue(cellVal);
-                                if (numVal === null) {
-                                    if (filterInfo.min !== null || filterInfo.max !== null) return false;
-                                    continue;
-                                }
-                                const mode = filterInfo.mode || 'between';
-                                const minVal = filterInfo.min;
-                                const maxVal = filterInfo.max;
-                                if (mode === 'above') {
-                                    if (minVal === null) continue;
-                                    if (numVal <= minVal) return false;
-                                } else if (mode === 'below') {
-                                    if (minVal === null) continue;
-                                    if (numVal >= minVal) return false;
-                                } else if (mode === 'between') {
-                                    if (minVal !== null && numVal < minVal) return false;
-                                    if (maxVal !== null && numVal > maxVal) return false;
-                                } else if (mode === 'equals') {
-                                    if (minVal === null) continue;
-                                    if (numVal !== minVal) return false;
-                                }
+                                if (numVal === null) return false;
+                                if (forceFilter.max !== null && numVal > forceFilter.max) return false;
+                                if (forceFilter.min !== null && numVal < forceFilter.min) return false;
                             }
-                        }
-                        if (forceFilter) {
-                            const cellVal = (row[forceFilter.colIdx] !== undefined && row[forceFilter.colIdx] !==
-                                null) ? String(row[forceFilter.colIdx]) : '';
-                            const numVal = parseMasaAktifValue(cellVal);
-                            if (numVal === null) return false;
-                            if (forceFilter.max !== null && numVal > forceFilter.max) return false;
-                            if (forceFilter.min !== null && numVal < forceFilter.min) return false;
-                        }
-                        return true;
-                    });
-                }
-
-                // --- Apply sort ---
-                let effectiveSort = sortState;
-                if (forceSort) {
-                    effectiveSort = forceSort;
-                }
-                const sortedRows = applySortWithOverride(filteredRows, headers, masaAktifIdx, effectiveSort);
-
-                // --- Build header with optional Label column for pejabat ---
-                // We'll add a "Label" column after the "No" column (index 1).
-                const pejabatMarks = state.pejabatMarks[sheetName] || new Set();
-                const showLabelCol = labelPejabatEnabled;
-
-                // Build final display headers and rows with Label column
-                let displayHeaders = [];
-                let displayRows = [];
-
-                if (showLabelCol) {
-                    // Insert "Label" after "No" (index 1)
-                    displayHeaders = [headers[0], 'Label', ...headers.slice(1)];
-                    for (let r = 0; r < sortedRows.length; r++) {
-                        const row = sortedRows[r];
-                        // Determine if this row is marked as pejabat
-                        // We need the original index. Since rows are renumbered, we use the row's "No" value - 1
-                        const noVal = parseInt(row[0]);
-                        const origIdx = (isNaN(noVal) ? r : noVal - 1);
-                        const isPejabat = pejabatMarks.has(origIdx);
-                        const labelVal = isPejabat ? '👤 Pejabat' : '';
-                        displayRows.push([row[0], labelVal, ...row.slice(1)]);
+                            return true;
+                        });
                     }
-                } else {
-                    displayHeaders = headers;
-                    displayRows = sortedRows.map(row => [...row]);
-                }
 
-                // Update the actual data for display purposes (but don't store Label column)
-                const actualHeaders = displayHeaders;
-                const actualRows = displayRows;
+                    let effectiveSort = state.sortState;
+                    if (forceSort) {
+                        effectiveSort = forceSort;
+                    }
+                    const sortedRows = applySortWithOverride(filteredRows, headers, masaAktifIdx, effectiveSort);
 
-                // --- Render table ---
-                let colHtml = '';
-                for (let i = 0; i < actualHeaders.length; i++) {
-                    colHtml += '<col />';
-                }
-                colGroup.innerHTML = colHtml;
+                    const pejabatMarks = state.pejabatMarks[sheetName] || new Set();
+                    const showLabelCol = state.labelPejabatEnabled;
 
-                // Adjust index mapping for pejabat column
-                const labelColOffset = showLabelCol ? 1 : 0;
-                const actualMasaAktifIdx = masaAktifIdx >= 0 ? masaAktifIdx + labelColOffset : -1;
-                const actualNamaIdx = namaIdx >= 0 ? namaIdx + labelColOffset : -1;
-                const actualSrbSynIdx = srbSynIdx >= 0 ? srbSynIdx + labelColOffset : -1;
+                    let displayHeaders = [];
+                    let displayRows = [];
 
-                let theadHtml = '<tr>';
-                for (let i = 0; i < actualHeaders.length; i++) {
-                    const display = (actualHeaders[i] !== undefined && actualHeaders[i] !== null && String(actualHeaders[i])
-                        .trim()) ?
-                        String(actualHeaders[i]).trim() : '(kosong)';
-                    let cls = '';
-                    if (i === actualNamaIdx) cls = 'col-nama';
-                    else if (i === actualMasaAktifIdx) cls = 'col-masa-aktif';
-                    else if (i === actualSrbSynIdx) cls = 'col-srb-syn';
-                    // Special class for Label column
-                    if (showLabelCol && i === 1) cls += ' col-label';
+                    if (showLabelCol) {
+                        displayHeaders = [headers[0], 'Label', ...headers.slice(1)];
+                        for (let r = 0; r < sortedRows.length; r++) {
+                            const row = sortedRows[r];
+                            const noVal = parseInt(row[0]);
+                            const origIdx = (isNaN(noVal) ? r : noVal - 1);
+                            const isPejabat = pejabatMarks.has(origIdx);
+                            const labelVal = isPejabat ? '👤 Pejabat' : '';
+                            displayRows.push([row[0], labelVal, ...row.slice(1)]);
+                        }
+                    } else {
+                        displayHeaders = headers;
+                        displayRows = sortedRows.map(row => [...row]);
+                    }
 
-                    const isFiltered = isColumnFiltered(sheetName, i - labelColOffset) || (forceFilter && (i - labelColOffset) ===
-                        masaAktifIdx);
-                    const filterActiveClass = isFiltered ? 'active' : '';
-                    const isMasaAktif = (i === actualMasaAktifIdx);
-                    const isSorted = (effectiveSort.column === (i - labelColOffset) && effectiveSort.direction !== null);
-                    const sortClass = isSorted ? 'active' : '';
-                    const sortDirClass = effectiveSort.direction === 'asc' ? 'asc' : (effectiveSort.direction === 'desc' ?
-                        'desc' : '');
+                    const actualHeaders = displayHeaders;
+                    const actualRows = displayRows;
 
-                    let sortButtonHtml = '';
-                    if (isMasaAktif) {
-                        sortButtonHtml = `
-                            <button class="sort-header-btn ${sortClass}" data-col="${i - labelColOffset}" title="Urutkan Masa Aktif">
-                                ↕
-                                <span class="sort-indicator ${sortClass} ${sortDirClass}"></span>
-                            </button>
+                    let colHtml = '';
+                    for (let i = 0; i < actualHeaders.length; i++) {
+                        colHtml += '<col />';
+                    }
+                    colGroup.innerHTML = colHtml;
+
+                    const labelColOffset = showLabelCol ? 1 : 0;
+                    const actualMasaAktifIdx = masaAktifIdx >= 0 ? masaAktifIdx + labelColOffset : -1;
+                    const actualNamaIdx = namaIdx >= 0 ? namaIdx + labelColOffset : -1;
+                    const actualSrbSynIdx = srbSynIdx >= 0 ? srbSynIdx + labelColOffset : -1;
+
+                    let theadHtml = '<tr>';
+                    for (let i = 0; i < actualHeaders.length; i++) {
+                        const display = (actualHeaders[i] !== undefined && actualHeaders[i] !== null && String(actualHeaders[
+                            i]).trim()) ?
+                            String(actualHeaders[i]).trim() : '(kosong)';
+                        let cls = '';
+                        if (i === actualNamaIdx) cls = 'col-nama';
+                        else if (i === actualMasaAktifIdx) cls = 'col-masa-aktif';
+                        else if (i === actualSrbSynIdx) cls = 'col-srb-syn';
+                        if (showLabelCol && i === 1) cls += ' col-label';
+
+                        const isFiltered = isColumnFiltered(sheetName, i - labelColOffset) || (forceFilter && (i -
+                            labelColOffset) === masaAktifIdx);
+                        const filterActiveClass = isFiltered ? 'active' : '';
+                        const isMasaAktif = (i === actualMasaAktifIdx);
+                        const isSorted = (effectiveSort.column === (i - labelColOffset) && effectiveSort.direction !==
+                            null);
+                        const sortClass = isSorted ? 'active' : '';
+                        const sortDirClass = effectiveSort.direction === 'asc' ? 'asc' : (effectiveSort.direction ===
+                            'desc' ? 'desc' : '');
+
+                        let sortButtonHtml = '';
+                        if (isMasaAktif) {
+                            sortButtonHtml = `
+                                <button class="sort-header-btn ${sortClass}" data-col="${i - labelColOffset}" title="Urutkan Masa Aktif">
+                                    ↕
+                                    <span class="sort-indicator ${sortClass} ${sortDirClass}"></span>
+                                </button>
+                            `;
+                        }
+
+                        let filterButtonHtml = '';
+                        if (!(showLabelCol && i === 1)) {
+                            filterButtonHtml = `
+                                <button class="filter-btn ${filterActiveClass}" data-col="${i - labelColOffset}" title="Filter kolom ini">
+                                    🔽
+                                    ${isFiltered ? '<span class="filter-badge">●</span>' : ''}
+                                </button>
+                            `;
+                        }
+
+                        theadHtml += `
+                            <th class="${cls}" data-col="${i}">
+                                <div class="th-content">
+                                    <span class="th-label">${escapeHtml(display)}</span>
+                                    <span style="display:flex;align-items:center;gap:2px;">
+                                        ${sortButtonHtml}
+                                        ${filterButtonHtml}
+                                    </span>
+                                </div>
+                                ${(!(showLabelCol && i === 1)) ? `
+                                <div class="filter-dropdown" data-col="${i - labelColOffset}" data-sheet="${sheetName}">
+                                    ${isMasaAktif ? `
+                                    <div class="range-controls">
+                                        <div class="range-mode-group">
+                                            <button class="mode-btn active" data-mode="between">Between</button>
+                                            <button class="mode-btn" data-mode="above">Above</button>
+                                            <button class="mode-btn" data-mode="below">Below</button>
+                                            <button class="mode-btn" data-mode="equals">Equals</button>
+                                        </div>
+                                        <div class="range-input-group">
+                                            <label>Min</label>
+                                            <input type="number" class="range-min" placeholder="-" />
+                                            <span class="range-label">–</span>
+                                            <label>Max</label>
+                                            <input type="number" class="range-max" placeholder="-" />
+                                        </div>
+                                        <div class="range-info">Filter berdasarkan jumlah hari (contoh: +5, -3, 0)</div>
+                                    </div>
+                                    <div class="filter-actions">
+                                        <button class="filter-apply-range">Terapkan</button>
+                                        <button class="filter-reset-range">Reset</button>
+                                    </div>
+                                    ` : `
+                                    <input type="text" class="filter-search" placeholder="Cari..." />
+                                    <div class="filter-list"></div>
+                                    <div class="filter-actions">
+                                        <button class="filter-select-all">Semua</button>
+                                        <button class="filter-clear-all">Hapus</button>
+                                        <button class="filter-apply">Terapkan</button>
+                                        <button class="filter-reset">Reset</button>
+                                    </div>
+                                    `}
+                                </div>
+                                ` : ''}
+                            </th>
                         `;
                     }
+                    theadHtml += '</tr>';
+                    tableHead.innerHTML = theadHtml;
 
-                    // Filter button for all columns except Label
-                    let filterButtonHtml = '';
-                    if (!(showLabelCol && i === 1)) {
-                        filterButtonHtml = `
-                            <button class="filter-btn ${filterActiveClass}" data-col="${i - labelColOffset}" title="Filter kolom ini">
-                                🔽
-                                ${isFiltered ? '<span class="filter-badge">●</span>' : ''}
-                            </button>
+                    if (!actualRows || actualRows.length === 0) {
+                        let msg = 'Tidak ada data';
+                        if (hasManualFilters || forceFilter) msg = 'Tidak ada data yang cocok dengan filter';
+                        if (forceFilter && !hasManualFilters) msg = 'Tidak ada data dengan Masa Aktif <= -30';
+                        tableBody.innerHTML = `
+                            <tr><td colspan="${actualHeaders.length}" class="empty-msg">
+                                <span class="big-icon">🔍</span>
+                                ${msg}
+                            </td></tr>
                         `;
-                    }
+                    } else {
+                        const fragment = document.createDocumentFragment();
+                        for (let r = 0; r < actualRows.length; r++) {
+                            const row = actualRows[r];
+                            const noVal = parseInt(row[0]);
+                            const origIdx = (isNaN(noVal) ? r : noVal - 1);
+                            const isPejabat = pejabatMarks.has(origIdx);
+                            const pejabatClass = isPejabat ? 'pejabat-row' : '';
 
-                    theadHtml += `
-                        <th class="${cls}" data-col="${i}">
-                            <div class="th-content">
-                                <span class="th-label">${escapeHtml(display)}</span>
-                                <span style="display:flex;align-items:center;gap:2px;">
-                                    ${sortButtonHtml}
-                                    ${filterButtonHtml}
-                                </span>
-                            </div>
-                            ${(!(showLabelCol && i === 1)) ? `
-                            <div class="filter-dropdown" data-col="${i - labelColOffset}" data-sheet="${sheetName}">
-                                ${isMasaAktif ? `
-                                <div class="range-controls">
-                                    <div class="range-mode-group">
-                                        <button class="mode-btn active" data-mode="between">Between</button>
-                                        <button class="mode-btn" data-mode="above">Above</button>
-                                        <button class="mode-btn" data-mode="below">Below</button>
-                                        <button class="mode-btn" data-mode="equals">Equals</button>
-                                    </div>
-                                    <div class="range-input-group">
-                                        <label>Min</label>
-                                        <input type="number" class="range-min" placeholder="-" />
-                                        <span class="range-label">–</span>
-                                        <label>Max</label>
-                                        <input type="number" class="range-max" placeholder="-" />
-                                    </div>
-                                    <div class="range-info">Filter berdasarkan jumlah hari (contoh: +5, -3, 0)</div>
-                                </div>
-                                <div class="filter-actions">
-                                    <button class="filter-apply-range">Terapkan</button>
-                                    <button class="filter-reset-range">Reset</button>
-                                </div>
-                                ` : `
-                                <input type="text" class="filter-search" placeholder="Cari..." />
-                                <div class="filter-list"></div>
-                                <div class="filter-actions">
-                                    <button class="filter-select-all">Semua</button>
-                                    <button class="filter-clear-all">Hapus</button>
-                                    <button class="filter-apply">Terapkan</button>
-                                    <button class="filter-reset">Reset</button>
-                                </div>
-                                `}
-                            </div>
-                            ` : ''}
-                        </th>
-                    `;
-                }
-                theadHtml += '</tr>';
-                tableHead.innerHTML = theadHtml;
+                            const tr = document.createElement('tr');
+                            tr.className = pejabatClass;
+                            tr.dataset.originalIndex = origIdx;
 
-                if (!actualRows || actualRows.length === 0) {
-                    let msg = 'Tidak ada data';
-                    if (hasManualFilters || forceFilter) msg = 'Tidak ada data yang cocok dengan filter';
-                    if (forceFilter && !hasManualFilters) msg = 'Tidak ada data dengan Masa Aktif <= -30';
-                    tableBody.innerHTML = `
-                        <tr><td colspan="${actualHeaders.length}" class="empty-msg">
-                            <span class="big-icon">🔍</span>
-                            ${msg}
-                        </td></tr>
-                    `;
-                } else {
-                    let tbodyHtml = '';
-                    for (let r = 0; r < actualRows.length; r++) {
-                        const row = actualRows[r];
-                        const noVal = parseInt(row[0]);
-                        const origIdx = (isNaN(noVal) ? r : noVal - 1);
-                        const isPejabat = pejabatMarks.has(origIdx);
-                        const pejabatClass = isPejabat ? 'pejabat-row' : '';
+                            for (let i = 0; i < actualHeaders.length; i++) {
+                                let val = (row[i] !== undefined && row[i] !== null) ? String(row[i]) : '';
+                                let cls = '';
+                                if (i === actualNamaIdx) cls = 'col-nama';
+                                else if (i === actualMasaAktifIdx) cls = 'col-masa-aktif';
+                                else if (i === actualSrbSynIdx) {
+                                    cls = 'col-srb-syn';
+                                    const lowerVal = val.toLowerCase();
+                                    if (lowerVal === 'srb') cls += ' srb';
+                                    else if (lowerVal === 'syn') cls += ' syn';
+                                }
+                                if (showLabelCol && i === 1) cls += ' col-label';
 
-                        tbodyHtml += `<tr class="${pejabatClass}" data-original-index="${origIdx}">`;
-                        for (let i = 0; i < actualHeaders.length; i++) {
-                            let val = (row[i] !== undefined && row[i] !== null) ? String(row[i]) : '';
-                            let cls = '';
-                            if (i === actualNamaIdx) cls = 'col-nama';
-                            else if (i === actualMasaAktifIdx) cls = 'col-masa-aktif';
-                            else if (i === actualSrbSynIdx) {
-                                cls = 'col-srb-syn';
-                                const lowerVal = val.toLowerCase();
-                                if (lowerVal === 'srb') cls += ' srb';
-                                else if (lowerVal === 'syn') cls += ' syn';
+                                const td = document.createElement('td');
+                                td.className = cls;
+                                if (showLabelCol && i === 1 && isPejabat) {
+                                    const badge = document.createElement('span');
+                                    badge.className = 'pejabat-badge';
+                                    badge.innerHTML = '<span class="icon">👤</span> PEJABAT';
+                                    td.appendChild(badge);
+                                } else {
+                                    td.textContent = val;
+                                }
+                                tr.appendChild(td);
                             }
-                            if (showLabelCol && i === 1) cls += ' col-label';
-
-                            // For Label column, show badge if pejabat
-                            if (showLabelCol && i === 1 && isPejabat) {
-                                val = '<span class="pejabat-badge"><span class="icon">👤</span> PEJABAT</span>';
-                            }
-
-                            tbodyHtml += `<td class="${cls}">${val}</td>`;
+                            fragment.appendChild(tr);
                         }
-                        tbodyHtml += '</tr>';
+                        tableBody.innerHTML = '';
+                        tableBody.appendChild(fragment);
                     }
-                    tableBody.innerHTML = tbodyHtml;
+
+                    attachTableEventListeners();
+
+                    const totalRows = actualRows ? actualRows.length : 0;
+                    const totalCols = actualHeaders.length;
+                    let filterInfo = '';
+                    if (hasManualFilters || forceFilter) {
+                        const parts = [];
+                        if (hasManualFilters) parts.push('filter manual');
+                        if (forceFilter) parts.push('Auto -30');
+                        filterInfo = ` (difilter: ${parts.join(' + ')} dari ${rows.length} baris)`;
+                    }
+                    const sortInfo = effectiveSort.column !== null ? ` · diurutkan` : '';
+                    rowCount.textContent =
+                        `${formatNumber(totalRows)} baris • ${formatNumber(totalCols)} kolom${filterInfo}${sortInfo}`;
+
+                    const totalCells = totalRows * totalCols;
+                    cellCount.textContent = totalCells > 0 ? `🧮 ${formatNumber(totalCells)} sel` : '';
+
+                    attachFilterAndSortEvents(sheetName, masaAktifIdx, forceSort, labelColOffset);
+
+                    if (state.autoFitEnabled) {
+                        setTimeout(() => {
+                            applyAutoFit(actualHeaders, actualRows);
+                        }, 10);
+                    } else {
+                        tableWrapper.classList.remove('auto-fit');
+                        const cols = colGroup.querySelectorAll('col');
+                        cols.forEach(col => {
+                            col.style.width = '';
+                            col.style.minWidth = '';
+                            col.style.maxWidth = '';
+                        });
+                        const allCells = document.querySelectorAll('#dataTable td, #dataTable th');
+                        allCells.forEach(cell => {
+                            cell.style.whiteSpace = '';
+                            cell.style.wordWrap = '';
+                            cell.style.overflowWrap = '';
+                            cell.style.maxWidth = '';
+                            cell.style.verticalAlign = '';
+                        });
+                    }
+
+                    updateFilterStatus();
+                    updateAutoMinus30Status();
+                    updatePejabatStatus();
+
+                    data._filteredRows = actualRows;
+                    data._hasFilters = hasManualFilters || forceFilter !== null;
+                    data._sortState = { column: effectiveSort.column, direction: effectiveSort.direction };
+                    data._autoMinus30Active = state.autoMinus30Enabled;
+                    data._indices = {
+                        masaAktifIdx: actualMasaAktifIdx,
+                        srbSynIdx: actualSrbSynIdx,
+                        namaIdx: actualNamaIdx,
+                        noTelpIdx: noTelpIdx >= 0 ? noTelpIdx + labelColOffset : -1,
+                        noLayananIdx: noLayananIdx >= 0 ? noLayananIdx + labelColOffset : -1,
+                        kodePosIdx: kodePosIdx >= 0 ? kodePosIdx + labelColOffset : -1,
+                        labelColOffset: labelColOffset,
+                        showLabelCol: showLabelCol,
+                    };
+                    data._pejabatMarks = pejabatMarks;
+                    data._originalRows = rows;
+
+                } catch (err) {
+                    console.error('Render error:', err);
+                } finally {
+                    isRendering = false;
                 }
-
-                // Update counts
-                const totalRows = actualRows ? actualRows.length : 0;
-                const totalCols = actualHeaders.length;
-                let filterInfo = '';
-                if (hasManualFilters || forceFilter) {
-                    const parts = [];
-                    if (hasManualFilters) parts.push('filter manual');
-                    if (forceFilter) parts.push('Auto -30');
-                    filterInfo = ` (difilter: ${parts.join(' + ')} dari ${rows.length} baris)`;
-                }
-                const sortInfo = effectiveSort.column !== null ? ` · diurutkan` : '';
-                rowCount.textContent =
-                    `${formatNumber(totalRows)} baris • ${formatNumber(totalCols)} kolom${filterInfo}${sortInfo}`;
-
-                const totalCells = totalRows * totalCols;
-                cellCount.textContent = totalCells > 0 ? `🧮 ${formatNumber(totalCells)} sel` : '';
-
-                // Attach events
-                attachFilterAndSortEvents(sheetName, masaAktifIdx, forceSort, labelColOffset);
-                attachTripleClickEvents();
-
-                if (autoFitEnabled) {
-                    setTimeout(() => {
-                        applyAutoFit(actualHeaders, actualRows);
-                    }, 10);
-                } else {
-                    tableWrapper.classList.remove('auto-fit');
-                    const cols = colGroup.querySelectorAll('col');
-                    cols.forEach(col => {
-                        col.style.width = '';
-                        col.style.minWidth = '';
-                        col.style.maxWidth = '';
-                    });
-                    const allCells = document.querySelectorAll('#dataTable td, #dataTable th');
-                    allCells.forEach(cell => {
-                        cell.style.whiteSpace = '';
-                        cell.style.wordWrap = '';
-                        cell.style.overflowWrap = '';
-                        cell.style.maxWidth = '';
-                        cell.style.verticalAlign = '';
-                    });
-                }
-
-                updateFilterStatus();
-                updateAutoMinus30Status();
-                updatePejabatStatus();
-
-                // Store data for copy
-                data._filteredRows = actualRows;
-                data._hasFilters = hasManualFilters || forceFilter !== null;
-                data._sortState = { column: effectiveSort.column, direction: effectiveSort.direction };
-                data._autoMinus30Active = autoMinus30Enabled;
-                data._indices = {
-                    masaAktifIdx: actualMasaAktifIdx,
-                    srbSynIdx: actualSrbSynIdx,
-                    namaIdx: actualNamaIdx,
-                    noTelpIdx: noTelpIdx >= 0 ? noTelpIdx + labelColOffset : -1,
-                    noLayananIdx: noLayananIdx >= 0 ? noLayananIdx + labelColOffset : -1,
-                    kodePosIdx: kodePosIdx >= 0 ? kodePosIdx + labelColOffset : -1,
-                    labelColOffset: labelColOffset,
-                    showLabelCol: showLabelCol,
-                };
-                data._pejabatMarks = pejabatMarks;
-                data._originalRows = rows;
             }
 
             function applySortWithOverride(rows, headers, masaAktifIdx, effectiveSort) {
@@ -3470,65 +4035,58 @@
             }
 
             // ============================================================
-            //  TRIPLE CLICK DETECTION FOR PEJABAT LABEL
+            //  TABLE EVENT LISTENERS (DELEGATION untuk triple-click)
             // ============================================================
-            let clickCounts = new Map();
-            let clickTimeouts = new Map();
+            let tableEventAttached = false;
 
-            function attachTripleClickEvents() {
-                if (!labelPejabatEnabled) return;
-                const rows = tableBody.querySelectorAll('tr');
-                rows.forEach(row => {
-                    // Remove existing listener to avoid duplicates
-                    row.removeEventListener('click', handleRowTripleClick);
-                    row.addEventListener('click', handleRowTripleClick);
-                });
-            }
+            function attachTableEventListeners() {
+                if (tableEventAttached) return;
+                tableEventAttached = true;
 
-            function handleRowTripleClick(e) {
-                if (!labelPejabatEnabled) return;
-                const row = e.currentTarget;
-                const originalIndex = parseInt(row.dataset.originalIndex);
-                if (isNaN(originalIndex)) return;
+                tableBody.addEventListener('click', function(e) {
+                    if (!state.labelPejabatEnabled) return;
+                    const row = e.target.closest('tr');
+                    if (!row) return;
+                    const originalIndex = parseInt(row.dataset.originalIndex);
+                    if (isNaN(originalIndex)) return;
 
-                const sheetName = state.currentSheet;
-                if (!sheetName || !state.sheets[sheetName]) return;
+                    const sheetName = state.currentSheet;
+                    if (!sheetName || !state.sheets[sheetName]) return;
 
-                const key = sheetName + '|' + originalIndex;
-                const now = Date.now();
+                    const key = sheetName + '|' + originalIndex;
+                    const now = Date.now();
 
-                if (!clickCounts.has(key)) {
-                    clickCounts.set(key, { count: 1, lastTime: now });
-                } else {
-                    const data = clickCounts.get(key);
-                    if (now - data.lastTime < 500) {
-                        data.count += 1;
-                        data.lastTime = now;
-                        if (data.count >= 3) {
-                            // Triple click detected!
-                            togglePejabatMark(sheetName, originalIndex);
-                            clickCounts.delete(key);
-                            if (clickTimeouts.has(key)) {
-                                clearTimeout(clickTimeouts.get(key));
-                                clickTimeouts.delete(key);
-                            }
-                            return;
-                        }
+                    if (!clickCounts.has(key)) {
+                        clickCounts.set(key, { count: 1, lastTime: now });
                     } else {
-                        data.count = 1;
-                        data.lastTime = now;
+                        const data = clickCounts.get(key);
+                        if (now - data.lastTime < 500) {
+                            data.count += 1;
+                            data.lastTime = now;
+                            if (data.count >= 3) {
+                                togglePejabatMark(sheetName, originalIndex);
+                                clickCounts.delete(key);
+                                if (clickTimeouts.has(key)) {
+                                    clearTimeout(clickTimeouts.get(key));
+                                    clickTimeouts.delete(key);
+                                }
+                                return;
+                            }
+                        } else {
+                            data.count = 1;
+                            data.lastTime = now;
+                        }
                     }
-                }
 
-                // Reset after 500ms
-                if (clickTimeouts.has(key)) {
-                    clearTimeout(clickTimeouts.get(key));
-                }
-                const timeout = setTimeout(() => {
-                    clickCounts.delete(key);
-                    clickTimeouts.delete(key);
-                }, 500);
-                clickTimeouts.set(key, timeout);
+                    if (clickTimeouts.has(key)) {
+                        clearTimeout(clickTimeouts.get(key));
+                    }
+                    const timeout = setTimeout(() => {
+                        clickCounts.delete(key);
+                        clickTimeouts.delete(key);
+                    }, 500);
+                    clickTimeouts.set(key, timeout);
+                });
             }
 
             function togglePejabatMark(sheetName, originalIndex) {
@@ -3543,7 +4101,7 @@
                     marks.add(originalIndex);
                     showToast('👤', `Label Pejabat ditambahkan ke baris #${originalIndex + 1}`);
                 }
-                // Re-render
+                saveSheetToFirebase(sheetName);
                 if (state.currentSheet) {
                     renderSheet(state.currentSheet);
                 }
@@ -3551,13 +4109,21 @@
             }
 
             function updatePejabatStatus() {
-                if (labelPejabatEnabled && state.currentSheet) {
+                if (state.labelPejabatEnabled && state.currentSheet) {
                     const marks = state.pejabatMarks[state.currentSheet] || new Set();
                     const count = marks.size;
                     pejabatStatus.style.display = 'inline';
                     pejabatStatus.textContent = `👤 Label Pejabat aktif (${count} baris)`;
                 } else {
                     pejabatStatus.style.display = 'none';
+                }
+            }
+
+            function updateAutoMinus30Status() {
+                if (state.autoMinus30Enabled && state.currentSheet) {
+                    autoMinus30Status.style.display = 'inline';
+                } else {
+                    autoMinus30Status.style.display = 'none';
                 }
             }
 
@@ -3625,7 +4191,7 @@
                 e.stopPropagation();
                 const btn = e.currentTarget;
                 const colIdx = parseInt(btn.dataset.col);
-                if (autoMinus30Enabled) {
+                if (state.autoMinus30Enabled) {
                     const th = btn.closest('th');
                     const isMasaAktif = th.classList.contains('col-masa-aktif');
                     if (isMasaAktif) {
@@ -3908,33 +4474,387 @@
             }
 
             // ============================================================
-            //  EXISTING HELPERS
+            //  SHEET MANAGEMENT
             // ============================================================
-            function setStatus(active, text, type) {
-                statusDot.className = 'dot' + (active ? ' active' : '');
-                if (type === 'processing') {
-                    statusDot.className = 'dot processing';
+            function updateSheetSelect() {
+                const names = getSheetNames();
+                const current = state.currentSheet;
+                sheetSelect.innerHTML = '';
+                if (names.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = '— tidak ada sheet —';
+                    sheetSelect.appendChild(opt);
+                    sheetBar.style.display = 'none';
+                    updateSheetCount();
+                    updateFilterStatus();
+                    updateAutoMinus30Status();
+                    updatePejabatStatus();
+                    return;
                 }
-                statusText.textContent = text || (active ? 'Siap' : 'Belum ada file');
+                names.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    sheetSelect.appendChild(opt);
+                });
+                if (current && names.includes(current)) {
+                    sheetSelect.value = current;
+                } else {
+                    sheetSelect.value = names[0];
+                    state.currentSheet = names[0];
+                    saveAppStateToFirebase();
+                }
+                sheetBar.style.display = 'flex';
+                loadSheet(state.currentSheet);
+                updateSheetCount();
+                updateFilterStatus();
+                updateAutoMinus30Status();
+                updatePejabatStatus();
             }
 
-            function formatNumber(n) {
-                if (n === undefined || n === null) return '0';
-                return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            function loadSheet(sheetName) {
+                if (!sheetName || !state.sheets[sheetName]) {
+                    const names = getSheetNames();
+                    if (names.length > 0) {
+                        sheetName = names[0];
+                        state.currentSheet = sheetName;
+                        saveAppStateToFirebase();
+                    } else {
+                        state.currentSheet = null;
+                        saveAppStateToFirebase();
+                        sheetBar.style.display = 'none';
+                        tableHead.innerHTML = '';
+                        tableBody.innerHTML = `
+                            <tr><td colspan="1" class="empty-msg">
+                                <span class="big-icon">📊</span>
+                                Belum ada sheet. Unggah file Excel untuk mulai.
+                            </td></tr>
+                        `;
+                        rowCount.textContent = '0 baris';
+                        cellCount.textContent = '';
+                        updateFilterStatus();
+                        updateAutoMinus30Status();
+                        updatePejabatStatus();
+                        return;
+                    }
+                }
+                state.currentSheet = sheetName;
+                saveAppStateToFirebase();
+                sheetSelect.value = sheetName;
+                renderSheet(sheetName);
+                fileNameDisplay.textContent = sheetName;
+                sheetBar.style.display = 'flex';
+                updateFilterStatus();
+                updateAutoMinus30Status();
+                updatePejabatStatus();
             }
 
-            function escapeHtml(str) {
-                if (str === undefined || str === null) return '';
-                const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-                return String(str).replace(/[&<>"']/g, function(m) { return map[m]; });
+            // ============================================================
+            //  MANAGE SHEETS MODAL (HAPUS + RENAME)
+            // ============================================================
+            function openManageSheetsModal() {
+                renderManageSheetsList();
+                manageSheetsModal.classList.add('open');
             }
 
-            function getSheetNames() {
-                return Object.keys(state.sheets);
+            function closeManageSheetsModal() {
+                manageSheetsModal.classList.remove('open');
             }
 
-            function getSheetData(sheetName) {
-                return state.sheets[sheetName] || null;
+            function renderManageSheetsList() {
+                const names = getSheetNames();
+                const current = state.currentSheet;
+                const container = sheetListContainer;
+
+                if (names.length === 0) {
+                    container.innerHTML = `
+                        <div class="sheet-empty">
+                            <span class="big-icon">📭</span>
+                            Belum ada sheet
+                        </div>
+                    `;
+                    manageSheetsCount.textContent = '📑 0 sheet';
+                    manageSheetsInfo.textContent = '';
+                    manageSheetsCounter.textContent = '';
+                    return;
+                }
+
+                manageSheetsCount.textContent = `📑 ${names.length} sheet`;
+                manageSheetsInfo.textContent = `Aktif: ${current || '-'}`;
+                manageSheetsCounter.textContent = `(${names.length} sheet)`;
+
+                let html = '';
+                names.forEach(name => {
+                    const isCurrent = (name === current);
+                    const isOnly = names.length === 1;
+                    html += `
+                        <div class="sheet-item" data-sheet="${escapeHtml(name)}">
+                            <span class="sheet-name" id="sheetNameDisplay_${escapeHtml(name)}">${escapeHtml(name)}</span>
+                            <input type="text" class="sheet-name-input" id="sheetNameInput_${escapeHtml(name)}" value="${escapeHtml(name)}" style="display:none;" />
+                            <div class="sheet-actions">
+                                ${isCurrent ? '<span class="sheet-badge-current">● Aktif</span>' : ''}
+                                <button class="btn-rename-sheet" data-sheet="${escapeHtml(name)}" title="Ubah nama sheet">✏️</button>
+                                <button class="btn-delete-sheet-item" data-sheet="${escapeHtml(name)}" ${isOnly ? 'disabled title="Tidak bisa menghapus sheet terakhir"' : 'title="Hapus sheet"'}>🗑️</button>
+                                <button class="btn-confirm-rename" data-sheet="${escapeHtml(name)}" style="display:none;" title="Konfirmasi rename">✅</button>
+                                <button class="btn-cancel-rename" data-sheet="${escapeHtml(name)}" style="display:none;" title="Batal rename">✕</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+
+                // Event listeners untuk rename & delete
+                container.querySelectorAll('.btn-rename-sheet').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const sheetName = this.dataset.sheet;
+                        startRenameSheet(sheetName);
+                    });
+                });
+
+                container.querySelectorAll('.btn-delete-sheet-item').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const sheetName = this.dataset.sheet;
+                        if (this.disabled) return;
+                        deleteSheetFromModal(sheetName);
+                    });
+                });
+
+                container.querySelectorAll('.btn-confirm-rename').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const sheetName = this.dataset.sheet;
+                        confirmRenameSheet(sheetName);
+                    });
+                });
+
+                container.querySelectorAll('.btn-cancel-rename').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const sheetName = this.dataset.sheet;
+                        cancelRenameSheet(sheetName);
+                    });
+                });
+
+                container.querySelectorAll('.sheet-name-input').forEach(input => {
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const sheetName = this.id.replace('sheetNameInput_', '');
+                            confirmRenameSheet(sheetName);
+                        }
+                        if (e.key === 'Escape') {
+                            e.preventDefault();
+                            const sheetName = this.id.replace('sheetNameInput_', '');
+                            cancelRenameSheet(sheetName);
+                        }
+                    });
+                    input.addEventListener('blur', function() {
+                        // Jangan auto-confirm on blur, biarkan user klik tombol
+                    });
+                });
+            }
+
+            let renamingSheet = null;
+
+            function startRenameSheet(sheetName) {
+                // Tutup rename yang sedang aktif
+                if (renamingSheet) {
+                    cancelRenameSheet(renamingSheet);
+                }
+                renamingSheet = sheetName;
+
+                const display = document.getElementById('sheetNameDisplay_' + sheetName);
+                const input = document.getElementById('sheetNameInput_' + sheetName);
+                const renameBtn = document.querySelector(`.btn-rename-sheet[data-sheet="${sheetName}"]`);
+                const deleteBtn = document.querySelector(`.btn-delete-sheet-item[data-sheet="${sheetName}"]`);
+                const confirmBtn = document.querySelector(`.btn-confirm-rename[data-sheet="${sheetName}"]`);
+                const cancelBtn = document.querySelector(`.btn-cancel-rename[data-sheet="${sheetName}"]`);
+
+                if (!display || !input) return;
+
+                display.style.display = 'none';
+                input.style.display = 'block';
+                input.value = sheetName;
+                input.focus();
+                input.select();
+
+                if (renameBtn) renameBtn.style.display = 'none';
+                if (deleteBtn) deleteBtn.style.display = 'none';
+                if (confirmBtn) confirmBtn.style.display = 'inline-block';
+                if (cancelBtn) cancelBtn.style.display = 'inline-block';
+            }
+
+            function cancelRenameSheet(sheetName) {
+                const display = document.getElementById('sheetNameDisplay_' + sheetName);
+                const input = document.getElementById('sheetNameInput_' + sheetName);
+                const renameBtn = document.querySelector(`.btn-rename-sheet[data-sheet="${sheetName}"]`);
+                const deleteBtn = document.querySelector(`.btn-delete-sheet-item[data-sheet="${sheetName}"]`);
+                const confirmBtn = document.querySelector(`.btn-confirm-rename[data-sheet="${sheetName}"]`);
+                const cancelBtn = document.querySelector(`.btn-cancel-rename[data-sheet="${sheetName}"]`);
+
+                if (!display || !input) return;
+
+                display.style.display = 'block';
+                input.style.display = 'none';
+
+                if (renameBtn) renameBtn.style.display = 'inline-block';
+                if (deleteBtn) deleteBtn.style.display = 'inline-block';
+                if (confirmBtn) confirmBtn.style.display = 'none';
+                if (cancelBtn) cancelBtn.style.display = 'none';
+
+                if (renamingSheet === sheetName) renamingSheet = null;
+            }
+
+            function confirmRenameSheet(oldName) {
+                const input = document.getElementById('sheetNameInput_' + oldName);
+                if (!input) return;
+                const newName = input.value.trim();
+                if (!newName) {
+                    showToast('⚠️', 'Nama sheet tidak boleh kosong.');
+                    cancelRenameSheet(oldName);
+                    return;
+                }
+                if (newName === oldName) {
+                    cancelRenameSheet(oldName);
+                    return;
+                }
+                if (state.sheets[newName]) {
+                    showToast('⚠️', 'Sheet dengan nama "' + newName + '" sudah ada.');
+                    input.focus();
+                    input.select();
+                    return;
+                }
+
+                // Jalankan rename
+                if (!isOnline) {
+                    showToast('⚠️', 'Offline — tidak bisa rename. Koneksi ulang.');
+                    return;
+                }
+
+                // Backup data dari state
+                const sheetData = state.sheets[oldName];
+                if (!sheetData) {
+                    showToast('❌', 'Sheet "' + oldName + '" tidak ditemukan.');
+                    cancelRenameSheet(oldName);
+                    return;
+                }
+
+                // Simpan data dengan nama baru di Firebase
+                renameSheetInFirebase(oldName, newName)
+                    .then(() => {
+                        // Update state lokal
+                        state.sheets[newName] = state.sheets[oldName];
+                        delete state.sheets[oldName];
+
+                        // Update pejabatMarks
+                        if (state.pejabatMarks[oldName]) {
+                            state.pejabatMarks[newName] = state.pejabatMarks[oldName];
+                            delete state.pejabatMarks[oldName];
+                        } else {
+                            state.pejabatMarks[newName] = new Set();
+                        }
+
+                        // Update filters
+                        const oldPrefix = oldName + '|';
+                        const newPrefix = newName + '|';
+                        for (const key in state.filters) {
+                            if (key.startsWith(oldPrefix)) {
+                                const newKey = key.replace(oldPrefix, newPrefix);
+                                state.filters[newKey] = state.filters[key];
+                                delete state.filters[key];
+                            }
+                        }
+
+                        // Update current sheet jika perlu
+                        if (state.currentSheet === oldName) {
+                            state.currentSheet = newName;
+                        }
+
+                        // Simpan app state
+                        saveAppStateToFirebase();
+
+                        // Update UI
+                        updateSheetSelect();
+                        if (state.currentSheet) {
+                            loadSheet(state.currentSheet);
+                        }
+                        renderManageSheetsList();
+                        showToast('✅', 'Sheet "' + oldName + '" berhasil diubah menjadi "' + newName + '"');
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        showToast('❌', 'Gagal rename: ' + err.message);
+                        cancelRenameSheet(oldName);
+                    });
+            }
+
+            function deleteSheetFromModal(sheetName) {
+                const names = getSheetNames();
+                if (names.length <= 1) {
+                    showToast('⚠️', 'Tidak dapat menghapus sheet terakhir. Buat sheet baru terlebih dahulu.');
+                    return;
+                }
+                if (!confirm(`Hapus sheet "${sheetName}" beserta semua datanya?`)) return;
+
+                deleteSheetFromFirebase(sheetName)
+                    .then(() => {
+                        // Hapus dari state
+                        for (const key in state.filters) {
+                            if (key.startsWith(sheetName + '|')) {
+                                delete state.filters[key];
+                            }
+                        }
+                        delete state.sheets[sheetName];
+                        delete state.pejabatMarks[sheetName];
+
+                        const remaining = getSheetNames();
+                        if (remaining.length > 0) {
+                            if (state.currentSheet === sheetName) {
+                                state.currentSheet = remaining[0];
+                            }
+                        } else {
+                            state.currentSheet = null;
+                        }
+                        state.sortState.column = null;
+                        state.sortState.direction = null;
+                        saveAppStateToFirebase();
+
+                        updateSheetSelect();
+                        if (state.currentSheet) {
+                            loadSheet(state.currentSheet);
+                        } else {
+                            tableHead.innerHTML = '';
+                            tableBody.innerHTML = `
+                                <tr><td colspan="1" class="empty-msg">
+                                    <span class="big-icon">📊</span>
+                                    Unggah file Excel untuk mulai mengelola data
+                                </td></tr>
+                            `;
+                            rowCount.textContent = '0 baris';
+                            cellCount.textContent = '';
+                            sheetBar.style.display = 'none';
+                            setStatus(false, 'Belum ada sheet');
+                        }
+                        updateSheetCount();
+                        updateFilterStatus();
+                        updateAutoMinus30Status();
+                        updatePejabatStatus();
+
+                        // Tutup modal jika tidak ada sheet
+                        if (getSheetNames().length === 0) {
+                            closeManageSheetsModal();
+                        } else {
+                            renderManageSheetsList();
+                        }
+                        showToast('🗑️', 'Sheet "' + sheetName + '" berhasil dihapus');
+                    })
+                    .catch((err) => {
+                        console.warn('Gagal hapus dari Firebase:', err);
+                        showToast('❌', 'Gagal menghapus sheet: ' + err.message);
+                    });
             }
 
             function updateSheetCount() {
@@ -3942,15 +4862,9 @@
                 sheetCount.textContent = `📑 ${names.length} sheet`;
             }
 
-            function updateAutoMinus30Status() {
-                if (autoMinus30Enabled && state.currentSheet) {
-                    autoMinus30Status.style.display = 'inline';
-                } else {
-                    autoMinus30Status.style.display = 'none';
-                }
-            }
-
-            // ----- AUTO-FIT -----
+            // ============================================================
+            //  AUTO-FIT
+            // ============================================================
             function getTextWidth(text, font) {
                 if (!text) return 0;
                 const canvas = document.createElement('canvas');
@@ -3961,7 +4875,7 @@
             }
 
             function applyAutoFit(headers, rows) {
-                if (!autoFitEnabled) {
+                if (!state.autoFitEnabled) {
                     tableWrapper.classList.remove('auto-fit');
                     const cols = colGroup.querySelectorAll('col');
                     cols.forEach(col => {
@@ -4051,128 +4965,13 @@
                 });
             }
 
-            // ----- SHEET MANAGEMENT -----
-            function updateSheetSelect() {
-                const names = getSheetNames();
-                const current = state.currentSheet;
-                sheetSelect.innerHTML = '';
-                if (names.length === 0) {
-                    const opt = document.createElement('option');
-                    opt.value = '';
-                    opt.textContent = '— tidak ada sheet —';
-                    sheetSelect.appendChild(opt);
-                    sheetBar.style.display = 'none';
-                    updateSheetCount();
-                    updateFilterStatus();
-                    updateAutoMinus30Status();
-                    updatePejabatStatus();
-                    return;
-                }
-                names.forEach(name => {
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.textContent = name;
-                    sheetSelect.appendChild(opt);
-                });
-                if (current && names.includes(current)) {
-                    sheetSelect.value = current;
-                } else {
-                    sheetSelect.value = names[0];
-                    state.currentSheet = names[0];
-                }
-                sheetBar.style.display = 'flex';
-                loadSheet(state.currentSheet);
-                updateSheetCount();
-                updateFilterStatus();
-                updateAutoMinus30Status();
-                updatePejabatStatus();
-            }
-
-            function loadSheet(sheetName) {
-                if (!sheetName || !state.sheets[sheetName]) {
-                    const names = getSheetNames();
-                    if (names.length > 0) {
-                        sheetName = names[0];
-                        state.currentSheet = sheetName;
-                    } else {
-                        state.currentSheet = null;
-                        sheetBar.style.display = 'none';
-                        tableHead.innerHTML = '';
-                        tableBody.innerHTML = `
-                            <tr><td colspan="1" class="empty-msg">
-                                <span class="big-icon">📊</span>
-                                Belum ada sheet. Unggah file Excel untuk mulai.
-                            </td></tr>
-                        `;
-                        rowCount.textContent = '0 baris';
-                        cellCount.textContent = '';
-                        updateFilterStatus();
-                        updateAutoMinus30Status();
-                        updatePejabatStatus();
-                        return;
-                    }
-                }
-                state.currentSheet = sheetName;
-                sheetSelect.value = sheetName;
-                renderSheet(sheetName);
-                fileNameDisplay.textContent = sheetName;
-                sheetBar.style.display = 'flex';
-                updateFilterStatus();
-                updateAutoMinus30Status();
-                updatePejabatStatus();
-            }
-
-            function deleteCurrentSheet() {
-                const name = state.currentSheet;
-                if (!name) return;
-                const names = getSheetNames();
-                if (names.length <= 1) {
-                    alert('Tidak dapat menghapus sheet terakhir. Buat sheet baru terlebih dahulu.');
-                    return;
-                }
-                if (!confirm(`Hapus sheet "${name}" beserta semua datanya?`)) return;
-
-                for (const key in filters) {
-                    if (key.startsWith(name + '|')) {
-                        delete filters[key];
-                    }
-                }
-                delete state.sheets[name];
-                delete state.pejabatMarks[name];
-
-                const remaining = getSheetNames();
-                if (remaining.length > 0) {
-                    state.currentSheet = remaining[0];
-                } else {
-                    state.currentSheet = null;
-                }
-                sortState.column = null;
-                sortState.direction = null;
-                updateSheetSelect();
-                if (state.currentSheet) {
-                    loadSheet(state.currentSheet);
-                } else {
-                    tableHead.innerHTML = '';
-                    tableBody.innerHTML = `
-                        <tr><td colspan="1" class="empty-msg">
-                            <span class="big-icon">📊</span>
-                            Unggah file Excel untuk mulai mengelola data
-                        </td></tr>
-                    `;
-                    rowCount.textContent = '0 baris';
-                    cellCount.textContent = '';
-                    sheetBar.style.display = 'none';
-                    setStatus(false, 'Belum ada sheet');
-                }
-                updateSheetCount();
-                updateFilterStatus();
-                updateAutoMinus30Status();
-                updatePejabatStatus();
-            }
-
+            // ============================================================
+            //  TOGGLE FUNCTIONS
+            // ============================================================
             function toggleAutoFit(checked) {
-                autoFitEnabled = checked;
-                if (autoFitEnabled) {
+                state.autoFitEnabled = checked;
+                saveAppStateToFirebase();
+                if (state.autoFitEnabled) {
                     autoFitToggle.classList.add('active');
                 } else {
                     autoFitToggle.classList.remove('active');
@@ -4183,11 +4982,13 @@
             }
 
             function toggleAutoMinus30(checked) {
-                autoMinus30Enabled = checked;
-                if (autoMinus30Enabled) {
+                state.autoMinus30Enabled = checked;
+                saveAppStateToFirebase();
+                if (state.autoMinus30Enabled) {
                     autoMinus30Toggle.classList.add('active');
-                    sortState.column = null;
-                    sortState.direction = null;
+                    state.sortState.column = null;
+                    state.sortState.direction = null;
+                    saveAppStateToFirebase();
                 } else {
                     autoMinus30Toggle.classList.remove('active');
                 }
@@ -4195,7 +4996,7 @@
                     renderSheet(state.currentSheet);
                 }
                 updateAutoMinus30Status();
-                if (autoMinus30Enabled) {
+                if (state.autoMinus30Enabled) {
                     showToast('🔻', 'Auto -30 aktif: menampilkan Masa Aktif <= -30, diurutkan maks ke min');
                 } else {
                     showToast('ℹ️', 'Auto -30 dinonaktifkan');
@@ -4203,13 +5004,13 @@
             }
 
             function toggleLabelPejabat(checked) {
-                labelPejabatEnabled = checked;
-                if (labelPejabatEnabled) {
+                state.labelPejabatEnabled = checked;
+                saveAppStateToFirebase();
+                if (state.labelPejabatEnabled) {
                     labelPejabatToggle.classList.add('active');
                     showToast('👤', 'Label Pejabat aktif — klik 3x pada baris user untuk menandai');
                 } else {
                     labelPejabatToggle.classList.remove('active');
-                    // Clear all click counts
                     clickCounts.clear();
                     for (const [key, timeout] of clickTimeouts) {
                         clearTimeout(timeout);
@@ -4223,7 +5024,9 @@
                 updatePejabatStatus();
             }
 
-            // ----- TOAST -----
+            // ============================================================
+            //  TOAST
+            // ============================================================
             let toastTimeout = null;
 
             function showToast(icon, message) {
@@ -4237,7 +5040,7 @@
             }
 
             // ============================================================
-            //  COPY TO WHATSAPP — WITH PEJABAT LABEL OPTION
+            //  COPY TO WHATSAPP
             // ============================================================
             function openCopyWaModal() {
                 const sheetName = state.currentSheet;
@@ -4256,7 +5059,6 @@
                     return;
                 }
 
-                // Count pejabat rows
                 const marks = state.pejabatMarks[sheetName] || new Set();
                 let pejabatCount = 0;
                 for (let r = 0; r < rows.length; r++) {
@@ -4266,9 +5068,9 @@
                 }
 
                 copyWaCount.textContent = `📊 ${rows.length} baris`;
-                copyWaInfo.textContent = pejabatCount > 0 ? `👤 ${pejabatCount} baris berlabel Pejabat` : 'Tidak ada label Pejabat';
+                copyWaInfo.textContent = pejabatCount > 0 ? `👤 ${pejabatCount} baris berlabel Pejabat` :
+                    'Tidak ada label Pejabat';
 
-                // Set default selection: with label if there are pejabat rows, otherwise without
                 if (pejabatCount > 0) {
                     document.querySelector('input[name="waOption"][value="withLabel"]').checked = true;
                     waOptionWithLabel.classList.add('selected');
@@ -4297,14 +5099,6 @@
                 performCopyWa(withLabel);
             }
 
-            /**
-             * performCopyWa - Menghasilkan teks untuk WhatsApp.
-             * Format yang dihasilkan:
-             * 1. = 08123456789 SYN 12345 hari: +5 hari
-             * Jika nomor telepon tidak tersedia, maka:
-             * 1. = SYN 12345 hari: +5 hari
-             * Label Pejabat ditambahkan di akhir jika denganLabel = true dan baris ditandai.
-             */
             function performCopyWa(includePejabatLabel) {
                 const sheetName = state.currentSheet;
                 if (!sheetName || !state.sheets[sheetName]) {
@@ -4327,7 +5121,6 @@
                     return;
                 }
 
-                // Dapatkan indeks kolom
                 let namaIdx = indices.namaIdx ?? -1;
                 let srbSynIdx = indices.srbSynIdx ?? -1;
                 let masaAktifIdx = indices.masaAktifIdx ?? -1;
@@ -4335,7 +5128,6 @@
                 let noLayananIdx = indices.noLayananIdx ?? -1;
                 let kodePosIdx = indices.kodePosIdx ?? -1;
 
-                // Fungsi pencarian header dengan kata kunci yang lebih luas
                 const findHeaderIndex = (keywords) => {
                     for (let i = 0; i < headers.length; i++) {
                         const h = headers[i].toString().trim().toLowerCase();
@@ -4348,7 +5140,6 @@
                 if (srbSynIdx === -1) srbSynIdx = findHeaderIndex(['srb/syn', 'srb_syn', 'tipe', 'brand']);
                 if (masaAktifIdx === -1) masaAktifIdx = findHeaderIndex(['masa aktif', 'masa_aktif', 'sisa hari']);
 
-                // Perluas pencarian no telp
                 if (noTelpIdx === -1) {
                     const telpKeywords = [
                         'no telp', 'notelp', 'no_telp', 'no.telp',
@@ -4388,7 +5179,6 @@
                     }
                 }
 
-                // Fallback: jika masih tidak ada, gunakan kolom "No Layanan" sebagai alternatif
                 if (noTelpIdx === -1 && noLayananIdx !== -1) {
                     noTelpIdx = noLayananIdx;
                 }
@@ -4399,7 +5189,6 @@
                     kodePosIdx = noLayananIdx;
                 }
 
-                // Validasi kolom wajib
                 if (srbSynIdx === -1) {
                     showToast('⚠️', 'Kolom "SRB/SYN" tidak ditemukan.');
                     return;
@@ -4428,12 +5217,6 @@
                     return brand;
                 }
 
-                /**
-                 * formatItem - Membentuk string item.
-                 * Format: jika ada noTelp: "08123456789 SYN 12345 hari: +5 hari"
-                 * Jika tidak ada noTelp: "SYN 12345 hari: +5 hari"
-                 * Label Pejabat ditambahkan di akhir jika diperlukan.
-                 */
                 function formatItem(noTelp, brand, idPelanggan, hari, isPejabat) {
                     const telpPart = noTelp ? noTelp : '';
                     const idPart = idPelanggan ? idPelanggan : '';
@@ -4441,15 +5224,12 @@
                     if (includePejabatLabel && isPejabat) {
                         labelPart = ' [PEJABAT]';
                     }
-                    // Jika tidak ada nomor telepon, langsung brand
                     if (!telpPart) {
                         return `${brand} ${idPart} hari: ${hari}${labelPart}`;
                     }
-                    // Format: NOMOR_TELP BRAND ID hari: HARI
                     return `${telpPart} ${brand} ${idPart} hari: ${hari}${labelPart}`;
                 }
 
-                // Kelompokkan berdasarkan brand
                 const groups = {};
                 rows.forEach((row, idx) => {
                     const brand = getVal(row, srbSynIdx).trim();
@@ -4477,7 +5257,6 @@
                 lines.push('==========');
 
                 if (version === 1) {
-                    // VERSI 1: dengan KODE POS
                     for (const brandKey of sortedKeys) {
                         const items = groups[brandKey];
                         if (!items || items.length === 0) continue;
@@ -4523,7 +5302,6 @@
                         }
                     }
                 } else {
-                    // VERSI 2: tanpa KODE POS
                     for (const brandKey of sortedKeys) {
                         const items = groups[brandKey];
                         if (!items || items.length === 0) continue;
@@ -4547,7 +5325,6 @@
                     }
                 }
 
-                // Hapus baris kosong di akhir
                 while (lines.length > 0 && lines[lines.length - 1] === '') {
                     lines.pop();
                 }
@@ -4635,17 +5412,32 @@
                 const selected = this.value;
                 if (selected && state.sheets[selected]) {
                     state.currentSheet = selected;
-                    sortState.column = null;
-                    sortState.direction = null;
+                    state.sortState.column = null;
+                    state.sortState.direction = null;
+                    saveAppStateToFirebase();
                     loadSheet(selected);
                 }
             });
 
-            deleteSheetBtn.addEventListener('click', deleteCurrentSheet);
+            manageSheetsBtn.addEventListener('click', openManageSheetsModal);
+
+            manageSheetsCloseBtn.addEventListener('click', closeManageSheetsModal);
+            manageSheetsModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeManageSheetsModal();
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (!manageSheetsModal.classList.contains('open')) return;
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeManageSheetsModal();
+                }
+            });
 
             clearFiltersBtn.addEventListener('click', function() {
                 if (!state.currentSheet) return;
-                if (autoMinus30Enabled) {
+                if (state.autoMinus30Enabled) {
                     autoMinus30Checkbox.checked = false;
                     toggleAutoMinus30(false);
                 }
@@ -4678,7 +5470,6 @@
                 }
             });
 
-            // Target sheet modal events
             optExisting.addEventListener('change', toggleModalOptions);
             optNew.addEventListener('change', toggleModalOptions);
             existingSheetSelect.addEventListener('change', validateModal);
@@ -4700,7 +5491,6 @@
                 }
             });
 
-            // Copy WA Modal events
             waOptions.addEventListener('click', function(e) {
                 const label = e.target.closest('label');
                 if (!label) return;
@@ -4747,38 +5537,25 @@
 
             copyWaBtn.addEventListener('click', openCopyWaModal);
 
+            copyVersionSelect.addEventListener('change', function() {
+                state.copyVersion = parseInt(this.value, 10);
+                saveAppStateToFirebase();
+            });
+
             // ============================================================
             //  INIT
             // ============================================================
-            setStatus(false, 'Belum ada file');
-            sheetBar.style.display = 'none';
-            autoFitCheckbox.checked = false;
-            autoFitEnabled = false;
-            autoMinus30Checkbox.checked = false;
-            autoMinus30Enabled = false;
-            labelPejabatCheckbox.checked = false;
-            labelPejabatEnabled = false;
+            setStatus(false, 'Menghubungkan ke Firebase...');
 
-            updateSheetCount();
-            updateFilterStatus();
-            updateAutoMinus30Status();
-            updatePejabatStatus();
+            updateConnectionUI(false);
 
-            if (typeof FileReader === 'undefined') {
-                tableBody.innerHTML = `
-                    <tr><td colspan="1" class="empty-msg">
-                        <span class="big-icon">⚠️</span>
-                        Browser Anda tidak mendukung FileReader.
-                    </td></tr>
-                `;
-                setStatus(false, 'Browser tidak mendukung');
-            }
-
-            console.log('📊 Pengelola Excel siap — dengan Label Pejabat & Copy WA 2 opsi');
+            console.log('📊 Pengelola Excel + Firebase Realtime Database');
+            console.log('📋 Kelola Sheet: hapus & rename sheet melalui tombol "Kelola Sheet"');
             console.log('👤 Fitur Label Pejabat: aktifkan toggle, lalu klik 3x pada baris user');
             console.log('💬 Copy WA: 2 opsi — dengan/tanpa label Pejabat');
             console.log('📱 Copy WA: Versi 1 (KODE POS) & Versi 2 (Sederhana)');
-            console.log('📞 Format Copy WA: 1. = 08123456789 SYN 12345 hari: +5 hari');
+            console.log('☁️ Data disimpan di Firebase Realtime Database');
+            console.log('📡 Status online/offline otomatis');
 
         })();
     </script>
