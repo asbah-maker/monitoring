@@ -258,7 +258,7 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
-        /* ----- SHEET TAB / INFO ----- */
+        /* ----- SHEET BAR (tanpa dropdown sheet) ----- */
         .sheet-bar {
             display: flex;
             flex-wrap: wrap;
@@ -275,30 +275,6 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
-        .sheet-bar .label {
-            font-weight: 500;
-            color: #1f3c5a;
-            font-size: 0.95rem;
-        }
-        .sheet-bar select {
-            background: white;
-            border: 1px solid #cad5e3;
-            border-radius: 40px;
-            padding: 0.4rem 2rem 0.4rem 1.2rem;
-            font-size: 0.95rem;
-            color: #0b1e33;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%233b5779' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.8rem center;
-            cursor: pointer;
-            outline: none;
-            min-width: 160px;
-        }
-        .sheet-bar select:focus {
-            border-color: #2f6bb0;
-            box-shadow: 0 0 0 3px rgba(47, 107, 176, 0.12);
-        }
         .sheet-bar .stats {
             font-size: 0.9rem;
             color: #3b5a7a;
@@ -308,12 +284,19 @@
             white-space: nowrap;
         }
         .sheet-bar .file-name {
-            background: #eef3fa;
-            padding: 0.2rem 1.1rem;
+            background: #1d3b5c;
+            color: white;
+            padding: 0.2rem 1.4rem;
             border-radius: 40px;
-            color: #1a3b5c;
             font-size: 0.9rem;
+            font-weight: 600;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sheet-bar .file-name .sheet-icon {
+            font-size: 1rem;
         }
         .btn-manage-sheets {
             background: #1d3b5c;
@@ -345,78 +328,8 @@
         .btn-delete-sheet:hover {
             color: #c0392b;
         }
-        /* ----- AUTO-FIT TOGGLE ----- */
-        .auto-fit-toggle {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: #1f3c5a;
-            cursor: pointer;
-            user-select: none;
-            background: #eef3fa;
-            padding: 0.2rem 0.8rem 0.2rem 0.8rem;
-            border-radius: 40px;
-            transition: background 0.2s;
-            border: 1px solid transparent;
-        }
-        .auto-fit-toggle:hover {
-            background: #e2e9f3;
-        }
-        .auto-fit-toggle.active {
-            background: #d4e2f5;
-            border-color: #2f6bb0;
-        }
-        .auto-fit-toggle .switch {
-            position: relative;
-            display: inline-block;
-            width: 36px;
-            height: 20px;
-            flex-shrink: 0;
-        }
-        .auto-fit-toggle .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .auto-fit-toggle .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #bcc9db;
-            border-radius: 20px;
-            transition: 0.25s;
-        }
-        .auto-fit-toggle .slider::before {
-            content: "";
-            position: absolute;
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            border-radius: 50%;
-            transition: 0.25s;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-        }
-        .auto-fit-toggle input:checked+.slider {
-            background: #1d3b5c;
-        }
-        .auto-fit-toggle input:checked+.slider::before {
-            transform: translateX(16px);
-        }
-        .auto-fit-toggle .label-text {
-            font-weight: 500;
-            font-size: 0.85rem;
-        }
-        .auto-fit-toggle .label-text .icon {
-            font-size: 1rem;
-            margin-right: 0.1rem;
-        }
-        /* ----- AUTO -30 TOGGLE ----- */
+
+        /* ----- AUTO -30 TOGGLE (localStorage) ----- */
         .auto-minus30-toggle {
             display: flex;
             align-items: center;
@@ -489,77 +402,64 @@
             margin-right: 0.1rem;
         }
 
-        /* ----- LABEL PEJABAT TOGGLE ----- */
-        .label-pejabat-toggle {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: #1f3c5a;
-            cursor: pointer;
-            user-select: none;
-            background: #eef3fa;
-            padding: 0.2rem 0.8rem 0.2rem 0.8rem;
+        /* ----- DAFTAR PEJABAT BUTTON ----- */
+        .btn-pejabat-list {
+            background: #8e44ad;
+            color: white;
+            border: none;
             border-radius: 40px;
-            transition: background 0.2s;
-            border: 1px solid transparent;
-        }
-        .label-pejabat-toggle:hover {
-            background: #e2e9f3;
-        }
-        .label-pejabat-toggle.active {
-            background: #fde8e8;
-            border-color: #c0392b;
-        }
-        .label-pejabat-toggle .switch {
-            position: relative;
-            display: inline-block;
-            width: 36px;
-            height: 20px;
-            flex-shrink: 0;
-        }
-        .label-pejabat-toggle .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .label-pejabat-toggle .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #bcc9db;
-            border-radius: 20px;
-            transition: 0.25s;
-        }
-        .label-pejabat-toggle .slider::before {
-            content: "";
-            position: absolute;
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            border-radius: 50%;
-            transition: 0.25s;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-        }
-        .label-pejabat-toggle input:checked+.slider {
-            background: #c0392b;
-        }
-        .label-pejabat-toggle input:checked+.slider::before {
-            transform: translateX(16px);
-        }
-        .label-pejabat-toggle .label-text {
-            font-weight: 500;
+            padding: 0.3rem 1.2rem;
             font-size: 0.85rem;
-            color: #c0392b;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
         }
-        .label-pejabat-toggle .label-text .icon {
-            font-size: 1rem;
-            margin-right: 0.1rem;
+        .btn-pejabat-list:hover {
+            background: #6c3483;
+            transform: scale(1.02);
+        }
+        .btn-pejabat-list:active {
+            transform: scale(0.97);
+        }
+        .btn-pejabat-list .badge-count {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 40px;
+            padding: 0.05rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* ----- CUT DATA BUTTON ----- */
+        .btn-cut-data {
+            background: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 0.3rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+        .btn-cut-data:hover {
+            background: #a93226;
+            transform: scale(1.02);
+        }
+        .btn-cut-data:active {
+            transform: scale(0.97);
+        }
+        .btn-cut-data:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
         }
 
         /* ----- TABLE WRAPPER ----- */
@@ -580,22 +480,16 @@
             min-width: 500px;
             table-layout: auto;
         }
-        .table-wrapper.auto-fit table {
-            table-layout: fixed;
-            width: 100%;
-        }
-        .table-wrapper.auto-fit table td,
-        .table-wrapper.auto-fit table th {
+        .table-wrapper table td,
+        .table-wrapper table th {
             word-wrap: break-word;
             white-space: normal;
             overflow-wrap: break-word;
             vertical-align: top;
             padding: 0.6rem 0.8rem;
+            max-width: 100%;
         }
-        .table-wrapper.auto-fit table td {
-            max-width: 300px;
-        }
-        .table-wrapper.auto-fit table th {
+        .table-wrapper table th {
             white-space: normal;
         }
         .table-wrapper th {
@@ -605,7 +499,7 @@
             padding: 0.8rem 1rem;
             text-align: left;
             border-bottom: 2px solid #d7e1ed;
-            white-space: nowrap;
+            white-space: normal;
             position: sticky;
             top: 0;
             z-index: 2;
@@ -616,10 +510,11 @@
             border-bottom: 1px solid #e6edf5;
             color: #1e354e;
             vertical-align: middle;
-            max-width: 280px;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            word-wrap: break-word;
+            white-space: normal;
+            max-width: 100%;
         }
         .table-wrapper tr:hover td {
             background: #f6faff;
@@ -668,13 +563,25 @@
         .table-wrapper td.col-nama {
             background: #f8faff;
         }
+
+        /* ----- PEJABAT ROW STYLING (via No Layanan) ----- */
         .table-wrapper tr.pejabat-row td {
-            background: #fef0e6 !important;
+            background: #fde8e8 !important;
             border-left: 4px solid #c0392b;
         }
         .table-wrapper tr.pejabat-row td:first-child {
             border-left: 4px solid #c0392b;
         }
+        .table-wrapper tr.pejabat-row td.col-nama {
+            background: #fde8e8 !important;
+        }
+        .table-wrapper tr.pejabat-row td.col-masa-aktif {
+            background: #fde8e8 !important;
+        }
+        .table-wrapper tr.pejabat-row td.col-srb-syn {
+            background: #fde8e8 !important;
+        }
+
         .pejabat-badge {
             display: inline-block;
             background: #c0392b;
@@ -692,6 +599,7 @@
             font-size: 0.65rem;
             margin-right: 0.1rem;
         }
+
         .sort-indicator {
             display: inline-block;
             margin-left: 4px;
@@ -1158,6 +1066,17 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        .modal-box .modal-actions .btn-danger {
+            background: #c0392b;
+            color: white;
+        }
+        .modal-box .modal-actions .btn-danger:hover {
+            background: #a93226;
+        }
+        .modal-box .modal-actions .btn-danger:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         /* ----- ROW SELECTION MODAL ----- */
         .row-select-modal .modal-box {
             max-width: 440px;
@@ -1286,12 +1205,12 @@
             display: inline-block;
             margin-bottom: 0.5rem;
         }
-        /* ----- MANAGE SHEETS MODAL ----- */
+        /* ===== MODAL MANAGE SHEETS (dengan pemilihan sheet) ===== */
         .manage-sheets-modal .modal-box {
-            max-width: 520px;
+            max-width: 580px;
         }
         .manage-sheets-modal .modal-box .sheet-list {
-            max-height: 360px;
+            max-height: 400px;
             overflow-y: auto;
             margin: 0.5rem 0 1rem 0;
             border: 1px solid #e6edf5;
@@ -1306,12 +1225,13 @@
             border-bottom: 1px solid #e6edf5;
             transition: background 0.15s;
             background: white;
+            cursor: pointer;
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-item:last-child {
             border-bottom: none;
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-item:hover {
-            background: #f6faff;
+            background: #f0f6ff;
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name {
             flex: 1;
@@ -1322,6 +1242,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name:hover {
+            color: #2f6bb0;
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name-input {
             flex: 1;
@@ -1341,14 +1266,15 @@
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions {
             display: flex;
-            gap: 0.4rem;
+            gap: 0.3rem;
             flex-shrink: 0;
+            align-items: center;
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions button {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
             padding: 0.2rem 0.4rem;
             border-radius: 6px;
             transition: background 0.2s, color 0.2s;
@@ -1387,10 +1313,35 @@
             color: white;
             font-size: 0.55rem;
             font-weight: 700;
-            padding: 0.1rem 0.5rem;
+            padding: 0.1rem 0.6rem;
             border-radius: 12px;
             text-transform: uppercase;
             flex-shrink: 0;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .btn-set-active {
+            background: #1d3b5c;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0.15rem 0.9rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .btn-set-active:hover {
+            background: #0f2a44;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .btn-set-active:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-rename-group {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            flex: 1;
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-empty {
             padding: 2rem 1rem;
@@ -1411,6 +1362,245 @@
             color: #1d3b5c;
             display: inline-block;
             margin-bottom: 0.2rem;
+        }
+        /* ===== MODAL DAFTAR PEJABAT ===== */
+        .pejabat-list-modal .modal-box {
+            max-width: 520px;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 0.5rem 0 1rem 0;
+            border: 1px solid #e6edf5;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #e6edf5;
+            transition: background 0.15s;
+            background: white;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item:last-child {
+            border-bottom: none;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item:hover {
+            background: #f6faff;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item .pejabat-value {
+            flex: 1;
+            font-weight: 500;
+            color: #1d3b5c;
+            font-size: 0.95rem;
+            font-family: 'Courier New', monospace;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item .pejabat-actions {
+            display: flex;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item .pejabat-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            transition: background 0.2s, color 0.2s;
+            color: #8aa0b8;
+            line-height: 1;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item .pejabat-actions .btn-delete-pejabat:hover {
+            color: #c0392b;
+            background: #fde8e8;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-empty {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: #8aa0b8;
+            font-size: 0.95rem;
+        }
+        .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-empty .big-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .pejabat-list-modal .modal-box .pejabat-count-badge {
+            background: #eef3fa;
+            border-radius: 40px;
+            padding: 0.15rem 1rem;
+            font-size: 0.8rem;
+            color: #1d3b5c;
+            display: inline-block;
+            margin-bottom: 0.2rem;
+        }
+        .pejabat-list-modal .modal-box .add-pejabat-section {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin: 0.8rem 0 0.4rem 0;
+            align-items: center;
+        }
+        .pejabat-list-modal .modal-box .add-pejabat-section input[type="text"] {
+            flex: 1;
+            min-width: 150px;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #cad5e3;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+            background: white;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+        .pejabat-list-modal .modal-box .add-pejabat-section input[type="text"]:focus {
+            border-color: #2f6bb0;
+            box-shadow: 0 0 0 3px rgba(47, 107, 176, 0.12);
+        }
+        .pejabat-list-modal .modal-box .add-pejabat-section .btn-add-pejabat {
+            background: #8e44ad;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 0.45rem 1.4rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .pejabat-list-modal .modal-box .add-pejabat-section .btn-add-pejabat:hover {
+            background: #6c3483;
+        }
+        .pejabat-list-modal .modal-box .add-pejabat-section .btn-add-pejabat:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .pejabat-list-modal .modal-box .bulk-add-section {
+            margin: 0.6rem 0 0.2rem 0;
+        }
+        .pejabat-list-modal .modal-box .bulk-add-section textarea {
+            width: 100%;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #cad5e3;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+            outline: none;
+            background: white;
+            resize: vertical;
+            min-height: 60px;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+        .pejabat-list-modal .modal-box .bulk-add-section textarea:focus {
+            border-color: #2f6bb0;
+            box-shadow: 0 0 0 3px rgba(47, 107, 176, 0.12);
+        }
+        .pejabat-list-modal .modal-box .bulk-add-section .bulk-actions {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-top: 0.3rem;
+        }
+        .pejabat-list-modal .modal-box .bulk-add-section .bulk-actions button {
+            padding: 0.25rem 1rem;
+            border-radius: 40px;
+            border: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .pejabat-list-modal .modal-box .bulk-add-section .bulk-actions .btn-bulk-add {
+            background: #8e44ad;
+            color: white;
+        }
+        .pejabat-list-modal .modal-box .bulk-add-section .bulk-actions .btn-bulk-add:hover {
+            background: #6c3483;
+        }
+        .pejabat-list-modal .modal-box .bulk-add-section .bulk-actions .btn-bulk-clear {
+            background: #e9edf4;
+            color: #1d3b5c;
+        }
+        .pejabat-list-modal .modal-box .bulk-add-section .bulk-actions .btn-bulk-clear:hover {
+            background: #d5dee9;
+        }
+        .pejabat-list-modal .modal-box .pejabat-hint {
+            font-size: 0.8rem;
+            color: #8aa0b8;
+            margin-top: 0.3rem;
+            padding: 0.3rem 0.6rem;
+            background: #f4f8fe;
+            border-radius: 8px;
+        }
+
+        /* ===== MODAL KONFIRMASI CUT DATA ===== */
+        .cut-confirm-modal .modal-box {
+            max-width: 480px;
+        }
+        .cut-confirm-modal .modal-box .cut-stats {
+            background: #f4f8fe;
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            margin: 0.8rem 0 1.2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .cut-confirm-modal .modal-box .cut-stats .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            color: #1d3b5c;
+        }
+        .cut-confirm-modal .modal-box .cut-stats .stat-row .stat-label {
+            font-weight: 400;
+            color: #5c738b;
+        }
+        .cut-confirm-modal .modal-box .cut-stats .stat-row .stat-value {
+            font-weight: 600;
+        }
+        .cut-confirm-modal .modal-box .cut-stats .stat-row .stat-value.danger {
+            color: #c0392b;
+        }
+        .cut-confirm-modal .modal-box .cut-stats .stat-row .stat-value.success {
+            color: #2b8c5e;
+        }
+        .cut-confirm-modal .modal-box .warning-text {
+            color: #c0392b;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 0.2rem;
+            padding: 0.4rem 0.8rem;
+            background: #fde8e8;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .cut-confirm-modal .modal-box .filter-list-preview {
+            max-height: 120px;
+            overflow-y: auto;
+            background: #fafcff;
+            border: 1px solid #e6edf5;
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            margin: 0.4rem 0 0.6rem 0;
+            font-size: 0.8rem;
+            color: #3b5a7a;
+        }
+        .cut-confirm-modal .modal-box .filter-list-preview .filter-tag {
+            display: inline-block;
+            background: #eef3fa;
+            padding: 0.05rem 0.6rem;
+            border-radius: 12px;
+            margin: 0.1rem 0.2rem;
+            font-size: 0.75rem;
         }
         /* ----- TOAST ----- */
         .toast {
@@ -1525,9 +1715,6 @@
             .sheet-bar .left {
                 flex-wrap: wrap;
             }
-            .sheet-bar select {
-                min-width: 100%;
-            }
             .table-wrapper table {
                 font-size: 0.8rem;
                 min-width: 360px;
@@ -1549,25 +1736,6 @@
                 width: 100%;
                 text-align: center;
             }
-            .auto-fit-toggle .label-text .icon {
-                display: none;
-            }
-            .auto-fit-toggle .label-text {
-                font-size: 0.75rem;
-            }
-            .auto-fit-toggle .switch {
-                width: 30px;
-                height: 18px;
-            }
-            .auto-fit-toggle .slider::before {
-                height: 12px;
-                width: 12px;
-                left: 3px;
-                bottom: 3px;
-            }
-            .auto-fit-toggle input:checked+.slider::before {
-                transform: translateX(12px);
-            }
             .auto-minus30-toggle .label-text .icon {
                 display: none;
             }
@@ -1587,24 +1755,13 @@
             .auto-minus30-toggle input:checked+.slider::before {
                 transform: translateX(12px);
             }
-            .label-pejabat-toggle .label-text .icon {
-                display: none;
-            }
-            .label-pejabat-toggle .label-text {
+            .btn-pejabat-list {
                 font-size: 0.75rem;
+                padding: 0.25rem 0.8rem;
             }
-            .label-pejabat-toggle .switch {
-                width: 30px;
-                height: 18px;
-            }
-            .label-pejabat-toggle .slider::before {
-                height: 12px;
-                width: 12px;
-                left: 3px;
-                bottom: 3px;
-            }
-            .label-pejabat-toggle input:checked+.slider::before {
-                transform: translateX(12px);
+            .btn-cut-data {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.9rem;
             }
             .queue-bar {
                 flex-wrap: wrap;
@@ -1676,6 +1833,27 @@
                 font-size: 0.75rem;
                 padding: 0.2rem 0.8rem;
             }
+            .cut-confirm-modal .modal-box .cut-stats .stat-row {
+                font-size: 0.85rem;
+            }
+            .pejabat-list-modal .modal-box .add-pejabat-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .pejabat-list-modal .modal-box .add-pejabat-section input[type="text"] {
+                min-width: unset;
+            }
+            .pejabat-list-modal .modal-box .bulk-add-section .bulk-actions {
+                flex-direction: column;
+            }
+            .sheet-bar .file-name {
+                font-size: 0.8rem;
+                padding: 0.15rem 1rem;
+            }
+            .manage-sheets-modal .modal-box .sheet-list .sheet-item .btn-set-active {
+                font-size: 0.6rem;
+                padding: 0.1rem 0.6rem;
+            }
         }
         @media (max-width: 420px) {
             .sheet-bar .left {
@@ -1686,13 +1864,7 @@
                 white-space: normal;
                 text-align: center;
             }
-            .auto-fit-toggle {
-                justify-content: center;
-            }
             .auto-minus30-toggle {
-                justify-content: center;
-            }
-            .label-pejabat-toggle {
                 justify-content: center;
             }
             .filter-dropdown {
@@ -1706,6 +1878,14 @@
             }
             .filter-dropdown .range-input-group input[type="number"] {
                 width: 45px;
+            }
+            .btn-cut-data {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.7rem;
+            }
+            .btn-pejabat-list {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.7rem;
             }
         }
     </style>
@@ -1747,40 +1927,33 @@
             <span class="queue-status-text" id="queueStatusText">⏳ Menunggu konfirmasi...</span>
             <button class="queue-cancel-btn" id="queueCancelBtn" title="Batalkan semua antrian">✕</button>
         </div>
-        <!-- SHEET BAR -->
+        <!-- SHEET BAR (tanpa dropdown sheet) -->
         <div class="sheet-bar" id="sheetBar" style="display:none;">
             <div class="left">
-                <span class="label">📑 Sheet :</span>
-                <select id="sheetSelect"></select>
-                <span class="stats" id="rowCount">0 baris</span>
-                <button class="btn-manage-sheets" id="manageSheetsBtn" title="Kelola sheet (hapus / rename)">
+                <span class="file-name" id="fileNameDisplay">
+                    <span class="sheet-icon">📄</span> -
+                </span>
+                <button class="btn-manage-sheets" id="manageSheetsBtn" title="Kelola sheet (pilih, hapus, rename)">
                     📋 Kelola Sheet
                 </button>
                 <button class="btn-delete-sheet" id="clearFiltersBtn" title="Hapus semua filter" style="color:#7f8fa3;">🧹</button>
+                <!-- TOMBOL CUT DATA -->
+                <button class="btn-cut-data" id="cutDataBtn" title="Potong/hapus data yang TIDAK sesuai filter">
+                    ✂️ Cut Data
+                </button>
+                <!-- TOMBOL DAFTAR PEJABAT -->
+                <button class="btn-pejabat-list" id="pejabatListBtn" title="Kelola daftar No Layanan yang ditandai sebagai Pejabat">
+                    👤 Daftar Pejabat
+                    <span class="badge-count" id="pejabatBadgeCount">0</span>
+                </button>
+                <span class="stats" id="rowCount">0 baris</span>
             </div>
             <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
-                <span class="file-name" id="fileNameDisplay">-</span>
-                <!-- AUTO-FIT TOGGLE -->
-                <label class="auto-fit-toggle" id="autoFitToggle" title="Aktifkan auto-fit untuk kolom & baris">
-                    <span class="label-text"><span class="icon">📐</span> Auto Fit</span>
-                    <span class="switch">
-                        <input type="checkbox" id="autoFitCheckbox" />
-                        <span class="slider"></span>
-                    </span>
-                </label>
-                <!-- AUTO -30 TOGGLE -->
-                <label class="auto-minus30-toggle" id="autoMinus30Toggle" title="Filter otomatis Masa Aktif <= -30 & sort descending">
+                <!-- AUTO -30 TOGGLE (localStorage) -->
+                <label class="auto-minus30-toggle" id="autoMinus30Toggle" title="Filter otomatis Masa Aktif <= -30 & sort descending (local perangkat)">
                     <span class="label-text"><span class="icon">🔻</span> Auto -30</span>
                     <span class="switch">
                         <input type="checkbox" id="autoMinus30Checkbox" />
-                        <span class="slider"></span>
-                    </span>
-                </label>
-                <!-- LABEL PEJABAT TOGGLE -->
-                <label class="label-pejabat-toggle" id="labelPejabatToggle" title="Aktifkan: klik 3x pada baris user untuk memberi label Pejabat">
-                    <span class="label-text"><span class="icon">👤</span> Label Pejabat</span>
-                    <span class="switch">
-                        <input type="checkbox" id="labelPejabatCheckbox" />
                         <span class="slider"></span>
                     </span>
                 </label>
@@ -1818,7 +1991,7 @@
                 <span id="sheetCount">📑 0 sheet</span>
                 <span id="filterStatus" style="color:#2f6bb0;display:none;">🔍 filter aktif</span>
                 <span id="autoMinus30Status" style="color:#c0392b;display:none;">🔻 Auto -30 aktif</span>
-                <span id="pejabatStatus" style="color:#c0392b;display:none;">👤 Label Pejabat aktif</span>
+                <span id="pejabatStatus" style="color:#8e44ad;display:none;">👤 Pejabat list aktif</span>
                 <span id="firebaseStatus" style="color:#2b8c5e;display:none;">☁️ Tersimpan</span>
             </div>
         </div>
@@ -1929,14 +2102,14 @@
         </div>
     </div>
 
-    <!-- ===== MODAL MANAGE SHEETS (HAPUS + RENAME) ===== -->
+    <!-- ===== MODAL MANAGE SHEETS (dengan pemilihan sheet) ===== -->
     <div class="modal-overlay manage-sheets-modal" id="manageSheetsModal">
         <div class="modal-box">
             <h2>
                 📋 Kelola Sheet
                 <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="manageSheetsCounter"></span>
             </h2>
-            <p class="sub">Kelola semua sheet: <strong>hapus</strong> atau <strong>ubah nama</strong> sheet.</p>
+            <p class="sub">Kelola semua sheet: <strong>pilih</strong> sheet yang ditampilkan, <strong>hapus</strong>, atau <strong>ubah nama</strong> sheet.</p>
             <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem;">
                 <span class="sheet-count-badge" id="manageSheetsCount">📑 0 sheet</span>
                 <span style="font-size:0.8rem;color:#5c738b;" id="manageSheetsInfo"></span>
@@ -1949,6 +2122,88 @@
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" id="manageSheetsCloseBtn">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL DAFTAR PEJABAT ===== -->
+    <div class="modal-overlay pejabat-list-modal" id="pejabatListModal">
+        <div class="modal-box">
+            <h2>
+                👤 Daftar Pejabat
+                <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="pejabatModalCounter"></span>
+            </h2>
+            <p class="sub">Daftar <strong>No Layanan</strong> yang akan ditandai sebagai <strong>Pejabat</strong> (warna merah + label). Data ini <strong>bersifat global</strong> untuk semua sheet dan tersimpan di Firebase secara realtime.</p>
+            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+                <span class="pejabat-count-badge" id="pejabatListCount">👤 0 entri</span>
+                <span style="font-size:0.8rem;color:#5c738b;" id="pejabatListInfo"></span>
+            </div>
+            <div class="pejabat-list-container" id="pejabatListContainer">
+                <div class="pejabat-empty">
+                    <span class="big-icon">📭</span>
+                    Belum ada No Layanan yang terdaftar sebagai Pejabat
+                </div>
+            </div>
+            <div class="add-pejabat-section">
+                <input type="text" id="pejabatAddInput" placeholder="Masukkan No Layanan..." />
+                <button class="btn-add-pejabat" id="pejabatAddBtn">➕ Tambah</button>
+            </div>
+            <div class="bulk-add-section">
+                <textarea id="pejabatBulkInput" placeholder="Masukkan banyak No Layanan (pisahkan dengan koma, spasi, atau enter)"></textarea>
+                <div class="bulk-actions">
+                    <button class="btn-bulk-add" id="pejabatBulkAddBtn">📥 Tambah Banyak</button>
+                    <button class="btn-bulk-clear" id="pejabatBulkClearBtn">🧹 Kosongkan Semua</button>
+                </div>
+            </div>
+            <div class="pejabat-hint">
+                💡 Data dengan No Layanan yang cocok akan <strong>berwarna merah</strong> dan diberi label <strong>PEJABAT</strong>.
+                <br>📌 Daftar ini <strong>global untuk semua sheet</strong> dan tersimpan di Firebase — perubahan langsung terlihat oleh semua pengguna.
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="pejabatListCloseBtn">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL KONFIRMASI CUT DATA ===== -->
+    <div class="modal-overlay cut-confirm-modal" id="cutConfirmModal">
+        <div class="modal-box">
+            <h2>
+                ✂️ Potong Data
+                <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="cutModalCounter"></span>
+            </h2>
+            <p class="sub" id="cutModalSubText">Data yang <strong>TIDAK</strong> sesuai filter akan dihapus secara permanen.</p>
+            <div class="cut-stats" id="cutStats">
+                <div class="stat-row">
+                    <span class="stat-label">Total baris saat ini</span>
+                    <span class="stat-value" id="cutTotalRows">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Baris yang lolos filter (akan dipertahankan)</span>
+                    <span class="stat-value success" id="cutKeepRows">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Baris yang akan dihapus</span>
+                    <span class="stat-value danger" id="cutDeleteRows">0</span>
+                </div>
+            </div>
+            <div id="cutFilterInfo">
+                <div class="warning-text">
+                    ⚠️ Data yang dihapus <strong>tidak dapat dikembalikan</strong>!
+                </div>
+                <div style="margin-top:0.5rem;font-size:0.85rem;color:#5c738b;">
+                    <strong>Filter aktif:</strong>
+                    <div class="filter-list-preview" id="cutFilterList"></div>
+                </div>
+            </div>
+            <div id="cutNoFilterWarning" style="display:none;">
+                <div class="warning-text" style="background:#fef3cd;color:#856404;">
+                    ⚠️ Tidak ada filter aktif. Semua data akan dihapus.
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cutCancelBtn">Batal</button>
+                <button class="btn-danger" id="cutConfirmBtn">✂️ Potong & Hapus</button>
             </div>
         </div>
     </div>
@@ -2015,12 +2270,52 @@
             }
 
             // ============================================================
+            //  LOCAL STORAGE HELPERS
+            // ============================================================
+            const LS_KEY_AUTO_MINUS30 = 'excelApp_autoMinus30';
+            const LS_KEY_CURRENT_SHEET = 'excelApp_currentSheet';
+
+            function loadLocalSettings() {
+                try {
+                    const m30 = localStorage.getItem(LS_KEY_AUTO_MINUS30);
+                    return {
+                        autoMinus30: m30 === 'true',
+                    };
+                } catch (_) {
+                    return { autoMinus30: false };
+                }
+            }
+
+            function saveLocalAutoMinus30(value) {
+                try {
+                    localStorage.setItem(LS_KEY_AUTO_MINUS30, value ? 'true' : 'false');
+                } catch (_) { /* ignore */ }
+            }
+
+            function loadCurrentSheetFromLocal() {
+                try {
+                    return localStorage.getItem(LS_KEY_CURRENT_SHEET) || null;
+                } catch (_) {
+                    return null;
+                }
+            }
+
+            function saveCurrentSheetToLocal(sheetName) {
+                try {
+                    if (sheetName) {
+                        localStorage.setItem(LS_KEY_CURRENT_SHEET, sheetName);
+                    } else {
+                        localStorage.removeItem(LS_KEY_CURRENT_SHEET);
+                    }
+                } catch (_) { /* ignore */ }
+            }
+
+            // ============================================================
             //  DOM REFS
             // ============================================================
             const uploadZone = document.getElementById('uploadZone');
             const fileInput = document.getElementById('fileInput');
             const browseBtn = document.getElementById('browseBtn');
-            const sheetSelect = document.getElementById('sheetSelect');
             const sheetBar = document.getElementById('sheetBar');
             const fileNameDisplay = document.getElementById('fileNameDisplay');
             const rowCount = document.getElementById('rowCount');
@@ -2034,17 +2329,16 @@
             const sheetCount = document.getElementById('sheetCount');
             const manageSheetsBtn = document.getElementById('manageSheetsBtn');
             const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-            const autoFitCheckbox = document.getElementById('autoFitCheckbox');
-            const autoFitToggle = document.getElementById('autoFitToggle');
             const autoMinus30Checkbox = document.getElementById('autoMinus30Checkbox');
             const autoMinus30Toggle = document.getElementById('autoMinus30Toggle');
             const autoMinus30Status = document.getElementById('autoMinus30Status');
             const filterStatus = document.getElementById('filterStatus');
             const copyWaBtn = document.getElementById('copyWaBtn');
             const copyVersionSelect = document.getElementById('copyVersionSelect');
-            const labelPejabatCheckbox = document.getElementById('labelPejabatCheckbox');
-            const labelPejabatToggle = document.getElementById('labelPejabatToggle');
             const pejabatStatus = document.getElementById('pejabatStatus');
+            const cutDataBtn = document.getElementById('cutDataBtn');
+            const pejabatListBtn = document.getElementById('pejabatListBtn');
+            const pejabatBadgeCount = document.getElementById('pejabatBadgeCount');
 
             const queueBar = document.getElementById('queueBar');
             const queueProgress = document.getElementById('queueProgress');
@@ -2095,41 +2389,53 @@
             const sheetListContainer = document.getElementById('sheetListContainer');
             const manageSheetsCloseBtn = document.getElementById('manageSheetsCloseBtn');
 
+            // Pejabat List Modal
+            const pejabatListModal = document.getElementById('pejabatListModal');
+            const pejabatModalCounter = document.getElementById('pejabatModalCounter');
+            const pejabatListCount = document.getElementById('pejabatListCount');
+            const pejabatListInfo = document.getElementById('pejabatListInfo');
+            const pejabatListContainer = document.getElementById('pejabatListContainer');
+            const pejabatAddInput = document.getElementById('pejabatAddInput');
+            const pejabatAddBtn = document.getElementById('pejabatAddBtn');
+            const pejabatBulkInput = document.getElementById('pejabatBulkInput');
+            const pejabatBulkAddBtn = document.getElementById('pejabatBulkAddBtn');
+            const pejabatBulkClearBtn = document.getElementById('pejabatBulkClearBtn');
+            const pejabatListCloseBtn = document.getElementById('pejabatListCloseBtn');
+
+            // Cut confirm modal
+            const cutConfirmModal = document.getElementById('cutConfirmModal');
+            const cutModalCounter = document.getElementById('cutModalCounter');
+            const cutModalSubText = document.getElementById('cutModalSubText');
+            const cutTotalRows = document.getElementById('cutTotalRows');
+            const cutKeepRows = document.getElementById('cutKeepRows');
+            const cutDeleteRows = document.getElementById('cutDeleteRows');
+            const cutFilterList = document.getElementById('cutFilterList');
+            const cutNoFilterWarning = document.getElementById('cutNoFilterWarning');
+            const cutCancelBtn = document.getElementById('cutCancelBtn');
+            const cutConfirmBtn = document.getElementById('cutConfirmBtn');
+
             const toast = document.getElementById('toast');
             const toastIcon = document.getElementById('toastIcon');
             const toastMessage = document.getElementById('toastMessage');
             const toastClose = document.getElementById('toastClose');
 
             // ============================================================
-            //  STATE — semua data disimpan di Firebase, kita sync secara realtime
+            //  STATE
             // ============================================================
-            // Data mentah dari Firebase
-            let firebaseSheets = {}; // { sheetName: { headers, rows, _meta, pejabatMarks: [], filters: {} } }
-            let firebaseAppState = {
-                currentSheet: null,
-                sortColumn: null,
-                sortDirection: null,
-                autoFitEnabled: false,
-                autoMinus30Enabled: false,
-                labelPejabatEnabled: false,
-                copyVersion: 2,
-            };
+            const localSettings = loadLocalSettings();
 
-            // State lokal (untuk kecepatan, di-sync dengan Firebase)
             const state = {
-                sheets: {}, // { sheetName: { headers, rows, _meta } }
-                pejabatMarks: {}, // { sheetName: Set(originalIndex) }
-                filters: {}, // { sheetName|colIdx: { type, values, active, min, max, mode } }
-                currentSheet: null,
+                sheets: {},
+                // pejabatList GLOBAL (tidak per sheet)
+                pejabatList: new Set(),
+                filters: {},
+                currentSheet: loadCurrentSheetFromLocal(),
                 sortState: { column: null, direction: null },
-                autoFitEnabled: false,
-                autoMinus30Enabled: false,
-                labelPejabatEnabled: false,
+                autoMinus30Enabled: localSettings.autoMinus30,
                 copyVersion: 2,
                 pendingFileData: null,
             };
 
-            // Queue state (transient)
             const queue = {
                 files: [],
                 currentIndex: 0,
@@ -2145,15 +2451,12 @@
             let renderTimeout = null;
             let isRendering = false;
 
-            // Triple-click tracking (per row, per sheet)
-            let clickCounts = new Map();
-            let clickTimeouts = new Map();
-
             // ============================================================
             //  FIREBASE READ / WRITE
             // ============================================================
             const FIREBASE_PATH_SHEETS = 'sheets';
             const FIREBASE_PATH_APPSTATE = 'appState';
+            const FIREBASE_PATH_PEJABAT = 'pejabatList'; // path terpisah untuk global
 
             function loadAllDataFromFirebase() {
                 // Load sheets
@@ -2166,7 +2469,7 @@
                     syncFirebaseToState();
                 });
 
-                // Load app state
+                // Load appState
                 db.ref(FIREBASE_PATH_APPSTATE).once('value', (snap) => {
                     const data = snap.val() || {};
                     firebaseAppState = data;
@@ -2176,14 +2479,37 @@
                     syncAppStateToState();
                 });
 
-                // Listen for real-time updates on sheets
+                // Load pejabatList GLOBAL
+                db.ref(FIREBASE_PATH_PEJABAT).once('value', (snap) => {
+                    const data = snap.val() || [];
+                    state.pejabatList = new Set(data);
+                    updatePejabatStatus();
+                    updatePejabatBadge();
+                    if (state.currentSheet) renderSheet(state.currentSheet);
+                }).catch((err) => {
+                    console.warn('Gagal load pejabatList:', err);
+                });
+
+                // Listener realtime untuk pejabatList
+                db.ref(FIREBASE_PATH_PEJABAT).on('value', (snap) => {
+                    const data = snap.val() || [];
+                    state.pejabatList = new Set(data);
+                    updatePejabatStatus();
+                    updatePejabatBadge();
+                    if (state.currentSheet) renderSheet(state.currentSheet);
+                    // Jika modal pejabat terbuka, refresh daftar
+                    if (pejabatListModal.classList.contains('open')) {
+                        renderPejabatList();
+                    }
+                });
+
+                // Listener untuk sheets (realtime)
                 db.ref(FIREBASE_PATH_SHEETS).on('value', (snap) => {
                     const data = snap.val() || {};
                     firebaseSheets = data;
                     syncFirebaseToState();
                 });
 
-                // Listen for real-time updates on appState
                 db.ref(FIREBASE_PATH_APPSTATE).on('value', (snap) => {
                     const data = snap.val() || {};
                     firebaseAppState = data;
@@ -2191,9 +2517,11 @@
                 });
             }
 
+            let firebaseSheets = {};
+            let firebaseAppState = {};
+
             function syncFirebaseToState() {
                 const newSheets = {};
-                const newPejabatMarks = {};
                 const newFilters = {};
 
                 for (const [sheetName, sheetData] of Object.entries(firebaseSheets)) {
@@ -2203,8 +2531,8 @@
                         rows: sheetData.rows || [],
                         _meta: sheetData._meta || {},
                     };
-                    const marks = sheetData.pejabatMarks || [];
-                    newPejabatMarks[sheetName] = new Set(marks);
+                    // PEJABAT TIDAK LAGI DISIMPAN DI SHEET — menggunakan global
+                    // Ambil filters dari sheet (tetap per sheet)
                     const fData = sheetData.filters || {};
                     for (const [key, val] of Object.entries(fData)) {
                         const fKey = sheetName + '|' + key;
@@ -2220,18 +2548,26 @@
                 }
 
                 state.sheets = newSheets;
-                state.pejabatMarks = newPejabatMarks;
                 state.filters = newFilters;
 
-                updateSheetSelect();
-                if (state.currentSheet && state.sheets[state.currentSheet]) {
-                    loadSheet(state.currentSheet);
-                } else if (Object.keys(state.sheets).length > 0) {
-                    const first = Object.keys(state.sheets)[0];
-                    state.currentSheet = first;
-                    loadSheet(first);
+                updateSheetSelectInternal();
+
+                // Cek currentSheet dari localStorage
+                let targetSheet = state.currentSheet;
+                if (targetSheet && !state.sheets[targetSheet]) {
+                    targetSheet = null;
+                }
+                if (!targetSheet && Object.keys(state.sheets).length > 0) {
+                    targetSheet = Object.keys(state.sheets)[0];
+                }
+
+                if (targetSheet) {
+                    state.currentSheet = targetSheet;
+                    saveCurrentSheetToLocal(targetSheet);
+                    loadSheet(targetSheet);
                 } else {
                     state.currentSheet = null;
+                    saveCurrentSheetToLocal(null);
                     sheetBar.style.display = 'none';
                     tableHead.innerHTML = '';
                     tableBody.innerHTML = `
@@ -2252,38 +2588,38 @@
                 updateAutoMinus30Status();
                 updatePejabatStatus();
                 updateSheetCount();
+                updatePejabatBadge();
                 setStatus(true, 'Siap');
             }
 
             function syncAppStateToState() {
-                state.currentSheet = firebaseAppState.currentSheet || null;
-                state.sortState.column = firebaseAppState.sortColumn || null;
-                state.sortState.direction = firebaseAppState.sortDirection || null;
-                state.autoFitEnabled = firebaseAppState.autoFitEnabled || false;
-                state.autoMinus30Enabled = firebaseAppState.autoMinus30Enabled || false;
-                state.labelPejabatEnabled = firebaseAppState.labelPejabatEnabled || false;
-                state.copyVersion = firebaseAppState.copyVersion || 2;
-
-                autoFitCheckbox.checked = state.autoFitEnabled;
-                if (state.autoFitEnabled) autoFitToggle.classList.add('active');
-                else autoFitToggle.classList.remove('active');
+                if (firebaseAppState.sortColumn !== undefined) {
+                    state.sortState.column = firebaseAppState.sortColumn;
+                }
+                if (firebaseAppState.sortDirection !== undefined) {
+                    state.sortState.direction = firebaseAppState.sortDirection;
+                }
+                if (firebaseAppState.copyVersion !== undefined) {
+                    state.copyVersion = firebaseAppState.copyVersion;
+                    copyVersionSelect.value = state.copyVersion;
+                }
 
                 autoMinus30Checkbox.checked = state.autoMinus30Enabled;
                 if (state.autoMinus30Enabled) autoMinus30Toggle.classList.add('active');
                 else autoMinus30Toggle.classList.remove('active');
 
-                labelPejabatCheckbox.checked = state.labelPejabatEnabled;
-                if (state.labelPejabatEnabled) labelPejabatToggle.classList.add('active');
-                else labelPejabatToggle.classList.remove('active');
-
-                copyVersionSelect.value = state.copyVersion;
-
                 if (state.currentSheet && state.sheets[state.currentSheet]) {
                     loadSheet(state.currentSheet);
+                } else if (Object.keys(state.sheets).length > 0) {
+                    const first = Object.keys(state.sheets)[0];
+                    state.currentSheet = first;
+                    saveCurrentSheetToLocal(first);
+                    loadSheet(first);
                 }
                 updateAutoMinus30Status();
                 updatePejabatStatus();
                 updateFilterStatus();
+                updatePejabatBadge();
             }
 
             function saveSheetToFirebase(sheetName) {
@@ -2294,8 +2630,7 @@
                 const sheetData = state.sheets[sheetName];
                 if (!sheetData) return;
 
-                const marks = state.pejabatMarks[sheetName] || new Set();
-                const marksArray = Array.from(marks);
+                // PEJABAT TIDAK LAGI DISIMPAN DI SHEET — sudah global
 
                 const filtersObj = {};
                 const prefix = sheetName + '|';
@@ -2317,8 +2652,8 @@
                     headers: sheetData.headers || [],
                     rows: sheetData.rows || [],
                     _meta: sheetData._meta || {},
-                    pejabatMarks: marksArray,
                     filters: filtersObj,
+                    // pejabatList dihapus
                 };
 
                 db.ref(FIREBASE_PATH_SHEETS + '/' + sheetName).set(payload)
@@ -2336,15 +2671,25 @@
                     });
             }
 
+            // Fungsi simpan pejabat global
+            function savePejabatListToFirebase() {
+                if (!isOnline) {
+                    showToast('⚠️', 'Offline — perubahan pejabat tidak tersimpan');
+                    return;
+                }
+                const arr = Array.from(state.pejabatList);
+                db.ref(FIREBASE_PATH_PEJABAT).set(arr)
+                    .catch((err) => {
+                        console.warn('Gagal simpan pejabatList:', err);
+                        showToast('⚠️', 'Gagal menyimpan daftar pejabat: ' + err.message);
+                    });
+            }
+
             function saveAppStateToFirebase() {
                 if (!isOnline) return;
                 const payload = {
-                    currentSheet: state.currentSheet || null,
                     sortColumn: state.sortState.column || null,
                     sortDirection: state.sortState.direction || null,
-                    autoFitEnabled: state.autoFitEnabled || false,
-                    autoMinus30Enabled: state.autoMinus30Enabled || false,
-                    labelPejabatEnabled: state.labelPejabatEnabled || false,
                     copyVersion: state.copyVersion || 2,
                 };
                 db.ref(FIREBASE_PATH_APPSTATE).set(payload)
@@ -2358,15 +2703,14 @@
 
             function renameSheetInFirebase(oldName, newName) {
                 if (!isOnline) return Promise.reject('Offline');
-                // Baca data sheet lama, tulis ke path baru, hapus path lama
                 return db.ref(FIREBASE_PATH_SHEETS + '/' + oldName).once('value')
                     .then((snap) => {
                         const data = snap.val();
                         if (!data) throw new Error('Sheet "' + oldName + '" tidak ditemukan.');
-                        // Tulis ke path baru
+                        // Hapus pejabatList dari data (jika ada) karena sekarang global
+                        delete data.pejabatList;
                         return db.ref(FIREBASE_PATH_SHEETS + '/' + newName).set(data)
                             .then(() => {
-                                // Hapus path lama
                                 return db.ref(FIREBASE_PATH_SHEETS + '/' + oldName).remove();
                             });
                     });
@@ -2485,6 +2829,95 @@
                     statusDot.className = 'dot processing';
                 }
                 statusText.textContent = text || (active ? 'Siap' : 'Belum ada file');
+            }
+
+            // ============================================================
+            //  AUTO-FIT DYNAMIC (tanpa toggle, selalu aktif)
+            // ============================================================
+            function getTextWidth(text, font) {
+                if (!text) return 0;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.font = font || '14px "Segoe UI", Roboto, sans-serif';
+                const metrics = ctx.measureText(String(text));
+                return metrics.width;
+            }
+
+            function applyAutoFitDynamic() {
+                const table = document.getElementById('dataTable');
+                const thead = table.querySelector('thead');
+                const tbody = table.querySelector('tbody');
+                if (!thead || !tbody) return;
+                const headerRow = thead.querySelector('tr');
+                if (!headerRow) return;
+                const ths = headerRow.querySelectorAll('th');
+                const colCount = ths.length;
+                if (colCount === 0) return;
+
+                const columnTexts = Array.from({ length: colCount }, () => []);
+                ths.forEach((th, i) => {
+                    const label = th.querySelector('.th-label');
+                    const text = label ? label.textContent : (th.textContent || '');
+                    columnTexts[i].push(text);
+                });
+                const rows = tbody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const tds = row.querySelectorAll('td');
+                    tds.forEach((td, i) => {
+                        if (i < colCount) {
+                            let text = td.textContent || '';
+                            const badge = td.querySelector('.pejabat-badge');
+                            if (badge) {
+                                text += ' ' + (badge.textContent || '');
+                            }
+                            columnTexts[i].push(text);
+                        }
+                    });
+                });
+
+                const computedStyle = window.getComputedStyle(ths[0] || document.body);
+                const font = computedStyle.font || '14px "Segoe UI", Roboto, sans-serif';
+                const paddingTotal = 24;
+
+                const maxWidths = columnTexts.map(texts => {
+                    let maxW = 0;
+                    texts.forEach(t => {
+                        const w = getTextWidth(t, font);
+                        if (w > maxW) maxW = w;
+                    });
+                    return maxW + paddingTotal;
+                });
+
+                const MIN_COL_WIDTH = 60;
+                const MAX_COL_WIDTH = 400;
+                const finalWidths = maxWidths.map(w => {
+                    let clamped = Math.max(MIN_COL_WIDTH, w);
+                    return Math.min(MAX_COL_WIDTH, clamped);
+                });
+
+                const cols = colGroup.querySelectorAll('col');
+                cols.forEach((col, i) => {
+                    if (i < finalWidths.length) {
+                        const w = finalWidths[i];
+                        col.style.width = w + 'px';
+                        col.style.minWidth = w + 'px';
+                        col.style.maxWidth = w + 'px';
+                    }
+                });
+
+                const allCells = document.querySelectorAll('#dataTable td, #dataTable th');
+                allCells.forEach(cell => {
+                    cell.style.whiteSpace = 'normal';
+                    cell.style.wordWrap = 'break-word';
+                    cell.style.overflowWrap = 'break-word';
+                    cell.style.maxWidth = '100%';
+                    cell.style.verticalAlign = 'top';
+                });
+                ths.forEach(th => {
+                    th.style.whiteSpace = 'normal';
+                    th.style.wordWrap = 'break-word';
+                    th.style.overflowWrap = 'break-word';
+                });
             }
 
             // ============================================================
@@ -3280,12 +3713,11 @@
                         });
                         existing.rows = existing.rows.concat(adjustedNewRows);
                         state.sheets[targetSheetName] = existing;
-                        if (state.pejabatMarks[targetSheetName] === undefined) {
-                            state.pejabatMarks[targetSheetName] = new Set();
-                        }
+                        // PEJABAT GLOBAL — tidak perlu inisialisasi per sheet
                         saveSheetToFirebase(targetSheetName);
-                        updateSheetSelect();
+                        updateSheetSelectInternal();
                         state.currentSheet = targetSheetName;
+                        saveCurrentSheetToLocal(targetSheetName);
                         loadSheet(targetSheetName);
                         success = true;
                         queue.totalProcessed++;
@@ -3309,9 +3741,7 @@
                             rows: finalRows,
                             _meta: _meta || {},
                         };
-                        if (!state.pejabatMarks[targetSheetName]) {
-                            state.pejabatMarks[targetSheetName] = new Set();
-                        }
+                        // PEJABAT GLOBAL — tidak perlu inisialisasi per sheet
                         const fKey = targetSheetName + '|';
                         for (let i = 0; i < finalHeaders.length; i++) {
                             const key = fKey + i;
@@ -3320,8 +3750,9 @@
                             }
                         }
                         saveSheetToFirebase(targetSheetName);
-                        updateSheetSelect();
+                        updateSheetSelectInternal();
                         state.currentSheet = targetSheetName;
+                        saveCurrentSheetToLocal(targetSheetName);
                         loadSheet(targetSheetName);
                         success = true;
                         queue.totalProcessed++;
@@ -3465,9 +3896,6 @@
                         });
                         existing.rows = existing.rows.concat(adjustedNewRows);
                         state.sheets[targetSheetName] = existing;
-                        if (!state.pejabatMarks[targetSheetName]) {
-                            state.pejabatMarks[targetSheetName] = new Set();
-                        }
                         saveSheetToFirebase(targetSheetName);
                         showToast('✅',
                             `Berhasil menggabungkan ${filesToProcess.length} file ke sheet "${targetSheetName}" (${adjustedNewRows.length} baris ditambahkan)`
@@ -3478,9 +3906,6 @@
                             rows: allRows,
                             _meta: allMeta,
                         };
-                        if (!state.pejabatMarks[targetSheetName]) {
-                            state.pejabatMarks[targetSheetName] = new Set();
-                        }
                         const fKey = targetSheetName + '|';
                         for (let i = 0; i < allHeaders.length; i++) {
                             const key = fKey + i;
@@ -3493,8 +3918,9 @@
                             `Berhasil menggabungkan ${filesToProcess.length} file ke sheet baru "${targetSheetName}" (${allRows.length} baris)`
                             );
                     }
-                    updateSheetSelect();
+                    updateSheetSelectInternal();
                     state.currentSheet = targetSheetName;
+                    saveCurrentSheetToLocal(targetSheetName);
                     loadSheet(targetSheetName);
                     queue.totalProcessed += filesToProcess.length;
                     queue.currentIndex = queue.files.length;
@@ -3525,7 +3951,7 @@
             }
 
             // ============================================================
-            //  RENDER (OPTIMIZED — dengan debounce & event delegation)
+            //  RENDER
             // ============================================================
             function renderSheet(sheetName) {
                 if (renderTimeout) {
@@ -3674,6 +4100,9 @@
                         }
                     }
 
+                    // --- Ambil daftar Pejabat GLOBAL ---
+                    const pejabatSet = state.pejabatList;
+
                     let forceFilter = null;
                     let forceSort = null;
                     if (state.autoMinus30Enabled && masaAktifIdx >= 0) {
@@ -3748,25 +4177,28 @@
                     }
                     const sortedRows = applySortWithOverride(filteredRows, headers, masaAktifIdx, effectiveSort);
 
-                    const pejabatMarks = state.pejabatMarks[sheetName] || new Set();
-                    const showLabelCol = state.labelPejabatEnabled;
-
+                    // ---- Cek Pejabat berdasarkan No Layanan (GLOBAL) ----
+                    const showPejabat = true;
                     let displayHeaders = [];
                     let displayRows = [];
 
-                    if (showLabelCol) {
-                        displayHeaders = [headers[0], 'Label', ...headers.slice(1)];
-                        for (let r = 0; r < sortedRows.length; r++) {
-                            const row = sortedRows[r];
-                            const noVal = parseInt(row[0]);
-                            const origIdx = (isNaN(noVal) ? r : noVal - 1);
-                            const isPejabat = pejabatMarks.has(origIdx);
-                            const labelVal = isPejabat ? '👤 Pejabat' : '';
-                            displayRows.push([row[0], labelVal, ...row.slice(1)]);
+                    displayHeaders = [headers[0], 'Label', ...headers.slice(1)];
+                    for (let r = 0; r < sortedRows.length; r++) {
+                        const row = sortedRows[r];
+                        const noVal = parseInt(row[0]);
+                        const origIdx = (isNaN(noVal) ? r : noVal - 1);
+
+                        let isPejabat = false;
+                        if (noLayananIdx >= 0 && noLayananIdx < row.length) {
+                            const noLayananVal = (row[noLayananIdx] !== undefined && row[noLayananIdx] !== null) ?
+                                String(row[noLayananIdx]).trim() : '';
+                            if (noLayananVal && pejabatSet.has(noLayananVal)) {
+                                isPejabat = true;
+                            }
                         }
-                    } else {
-                        displayHeaders = headers;
-                        displayRows = sortedRows.map(row => [...row]);
+
+                        const labelVal = isPejabat ? '👤 Pejabat' : '';
+                        displayRows.push([row[0], labelVal, ...row.slice(1)]);
                     }
 
                     const actualHeaders = displayHeaders;
@@ -3778,10 +4210,11 @@
                     }
                     colGroup.innerHTML = colHtml;
 
-                    const labelColOffset = showLabelCol ? 1 : 0;
+                    const labelColOffset = 1;
                     const actualMasaAktifIdx = masaAktifIdx >= 0 ? masaAktifIdx + labelColOffset : -1;
                     const actualNamaIdx = namaIdx >= 0 ? namaIdx + labelColOffset : -1;
                     const actualSrbSynIdx = srbSynIdx >= 0 ? srbSynIdx + labelColOffset : -1;
+                    const actualNoLayananIdx = noLayananIdx >= 0 ? noLayananIdx + labelColOffset : -1;
 
                     let theadHtml = '<tr>';
                     for (let i = 0; i < actualHeaders.length; i++) {
@@ -3792,7 +4225,7 @@
                         if (i === actualNamaIdx) cls = 'col-nama';
                         else if (i === actualMasaAktifIdx) cls = 'col-masa-aktif';
                         else if (i === actualSrbSynIdx) cls = 'col-srb-syn';
-                        if (showLabelCol && i === 1) cls += ' col-label';
+                        if (i === 1) cls += ' col-label';
 
                         const isFiltered = isColumnFiltered(sheetName, i - labelColOffset) || (forceFilter && (i -
                             labelColOffset) === masaAktifIdx);
@@ -3815,7 +4248,7 @@
                         }
 
                         let filterButtonHtml = '';
-                        if (!(showLabelCol && i === 1)) {
+                        if (i !== 1) {
                             filterButtonHtml = `
                                 <button class="filter-btn ${filterActiveClass}" data-col="${i - labelColOffset}" title="Filter kolom ini">
                                     🔽
@@ -3833,7 +4266,7 @@
                                         ${filterButtonHtml}
                                     </span>
                                 </div>
-                                ${(!(showLabelCol && i === 1)) ? `
+                                ${(i !== 1) ? `
                                 <div class="filter-dropdown" data-col="${i - labelColOffset}" data-sheet="${sheetName}">
                                     ${isMasaAktif ? `
                                     <div class="range-controls">
@@ -3890,7 +4323,19 @@
                             const row = actualRows[r];
                             const noVal = parseInt(row[0]);
                             const origIdx = (isNaN(noVal) ? r : noVal - 1);
-                            const isPejabat = pejabatMarks.has(origIdx);
+
+                            let isPejabat = false;
+                            if (noLayananIdx >= 0 && noLayananIdx < row.length - 1) {
+                                const dataIdx = noLayananIdx + 1;
+                                if (dataIdx < row.length) {
+                                    const noLayananVal = (row[dataIdx] !== undefined && row[dataIdx] !== null) ?
+                                        String(row[dataIdx]).trim() : '';
+                                    if (noLayananVal && pejabatSet.has(noLayananVal)) {
+                                        isPejabat = true;
+                                    }
+                                }
+                            }
+
                             const pejabatClass = isPejabat ? 'pejabat-row' : '';
 
                             const tr = document.createElement('tr');
@@ -3908,11 +4353,11 @@
                                     if (lowerVal === 'srb') cls += ' srb';
                                     else if (lowerVal === 'syn') cls += ' syn';
                                 }
-                                if (showLabelCol && i === 1) cls += ' col-label';
+                                if (i === 1) cls += ' col-label';
 
                                 const td = document.createElement('td');
                                 td.className = cls;
-                                if (showLabelCol && i === 1 && isPejabat) {
+                                if (i === 1 && isPejabat) {
                                     const badge = document.createElement('span');
                                     badge.className = 'pejabat-badge';
                                     badge.innerHTML = '<span class="icon">👤</span> PEJABAT';
@@ -3948,31 +4393,13 @@
 
                     attachFilterAndSortEvents(sheetName, masaAktifIdx, forceSort, labelColOffset);
 
-                    if (state.autoFitEnabled) {
-                        setTimeout(() => {
-                            applyAutoFit(actualHeaders, actualRows);
-                        }, 10);
-                    } else {
-                        tableWrapper.classList.remove('auto-fit');
-                        const cols = colGroup.querySelectorAll('col');
-                        cols.forEach(col => {
-                            col.style.width = '';
-                            col.style.minWidth = '';
-                            col.style.maxWidth = '';
-                        });
-                        const allCells = document.querySelectorAll('#dataTable td, #dataTable th');
-                        allCells.forEach(cell => {
-                            cell.style.whiteSpace = '';
-                            cell.style.wordWrap = '';
-                            cell.style.overflowWrap = '';
-                            cell.style.maxWidth = '';
-                            cell.style.verticalAlign = '';
-                        });
-                    }
+                    // === Terapkan auto-fit dinamis (selalu aktif) ===
+                    applyAutoFitDynamic();
 
                     updateFilterStatus();
                     updateAutoMinus30Status();
                     updatePejabatStatus();
+                    updatePejabatBadge();
 
                     data._filteredRows = actualRows;
                     data._hasFilters = hasManualFilters || forceFilter !== null;
@@ -3986,9 +4413,9 @@
                         noLayananIdx: noLayananIdx >= 0 ? noLayananIdx + labelColOffset : -1,
                         kodePosIdx: kodePosIdx >= 0 ? kodePosIdx + labelColOffset : -1,
                         labelColOffset: labelColOffset,
-                        showLabelCol: showLabelCol,
+                        showPejabat: true,
                     };
-                    data._pejabatMarks = pejabatMarks;
+                    data._pejabatSet = pejabatSet;
                     data._originalRows = rows;
 
                 } catch (err) {
@@ -4035,88 +4462,27 @@
             }
 
             // ============================================================
-            //  TABLE EVENT LISTENERS (DELEGATION untuk triple-click)
+            //  TABLE EVENT LISTENERS
             // ============================================================
             let tableEventAttached = false;
 
             function attachTableEventListeners() {
                 if (tableEventAttached) return;
                 tableEventAttached = true;
-
-                tableBody.addEventListener('click', function(e) {
-                    if (!state.labelPejabatEnabled) return;
-                    const row = e.target.closest('tr');
-                    if (!row) return;
-                    const originalIndex = parseInt(row.dataset.originalIndex);
-                    if (isNaN(originalIndex)) return;
-
-                    const sheetName = state.currentSheet;
-                    if (!sheetName || !state.sheets[sheetName]) return;
-
-                    const key = sheetName + '|' + originalIndex;
-                    const now = Date.now();
-
-                    if (!clickCounts.has(key)) {
-                        clickCounts.set(key, { count: 1, lastTime: now });
-                    } else {
-                        const data = clickCounts.get(key);
-                        if (now - data.lastTime < 500) {
-                            data.count += 1;
-                            data.lastTime = now;
-                            if (data.count >= 3) {
-                                togglePejabatMark(sheetName, originalIndex);
-                                clickCounts.delete(key);
-                                if (clickTimeouts.has(key)) {
-                                    clearTimeout(clickTimeouts.get(key));
-                                    clickTimeouts.delete(key);
-                                }
-                                return;
-                            }
-                        } else {
-                            data.count = 1;
-                            data.lastTime = now;
-                        }
-                    }
-
-                    if (clickTimeouts.has(key)) {
-                        clearTimeout(clickTimeouts.get(key));
-                    }
-                    const timeout = setTimeout(() => {
-                        clickCounts.delete(key);
-                        clickTimeouts.delete(key);
-                    }, 500);
-                    clickTimeouts.set(key, timeout);
-                });
-            }
-
-            function togglePejabatMark(sheetName, originalIndex) {
-                if (!state.pejabatMarks[sheetName]) {
-                    state.pejabatMarks[sheetName] = new Set();
-                }
-                const marks = state.pejabatMarks[sheetName];
-                if (marks.has(originalIndex)) {
-                    marks.delete(originalIndex);
-                    showToast('👤', `Label Pejabat dihapus dari baris #${originalIndex + 1}`);
-                } else {
-                    marks.add(originalIndex);
-                    showToast('👤', `Label Pejabat ditambahkan ke baris #${originalIndex + 1}`);
-                }
-                saveSheetToFirebase(sheetName);
-                if (state.currentSheet) {
-                    renderSheet(state.currentSheet);
-                }
-                updatePejabatStatus();
             }
 
             function updatePejabatStatus() {
-                if (state.labelPejabatEnabled && state.currentSheet) {
-                    const marks = state.pejabatMarks[state.currentSheet] || new Set();
-                    const count = marks.size;
+                const count = state.pejabatList.size;
+                if (count > 0) {
                     pejabatStatus.style.display = 'inline';
-                    pejabatStatus.textContent = `👤 Label Pejabat aktif (${count} baris)`;
+                    pejabatStatus.textContent = `👤 ${count} Pejabat terdaftar (global)`;
                 } else {
                     pejabatStatus.style.display = 'none';
                 }
+            }
+
+            function updatePejabatBadge() {
+                pejabatBadgeCount.textContent = state.pejabatList.size;
             }
 
             function updateAutoMinus30Status() {
@@ -4474,17 +4840,12 @@
             }
 
             // ============================================================
-            //  SHEET MANAGEMENT
+            //  SHEET MANAGEMENT (tanpa dropdown utama)
             // ============================================================
-            function updateSheetSelect() {
+            function updateSheetSelectInternal() {
                 const names = getSheetNames();
                 const current = state.currentSheet;
-                sheetSelect.innerHTML = '';
                 if (names.length === 0) {
-                    const opt = document.createElement('option');
-                    opt.value = '';
-                    opt.textContent = '— tidak ada sheet —';
-                    sheetSelect.appendChild(opt);
                     sheetBar.style.display = 'none';
                     updateSheetCount();
                     updateFilterStatus();
@@ -4492,21 +4853,15 @@
                     updatePejabatStatus();
                     return;
                 }
-                names.forEach(name => {
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.textContent = name;
-                    sheetSelect.appendChild(opt);
-                });
                 if (current && names.includes(current)) {
-                    sheetSelect.value = current;
-                } else {
-                    sheetSelect.value = names[0];
-                    state.currentSheet = names[0];
-                    saveAppStateToFirebase();
+                    fileNameDisplay.innerHTML = `<span class="sheet-icon">📄</span> ${escapeHtml(current)}`;
+                } else if (names.length > 0) {
+                    const first = names[0];
+                    state.currentSheet = first;
+                    saveCurrentSheetToLocal(first);
+                    fileNameDisplay.innerHTML = `<span class="sheet-icon">📄</span> ${escapeHtml(first)}`;
                 }
                 sheetBar.style.display = 'flex';
-                loadSheet(state.currentSheet);
                 updateSheetCount();
                 updateFilterStatus();
                 updateAutoMinus30Status();
@@ -4519,10 +4874,10 @@
                     if (names.length > 0) {
                         sheetName = names[0];
                         state.currentSheet = sheetName;
-                        saveAppStateToFirebase();
+                        saveCurrentSheetToLocal(sheetName);
                     } else {
                         state.currentSheet = null;
-                        saveAppStateToFirebase();
+                        saveCurrentSheetToLocal(null);
                         sheetBar.style.display = 'none';
                         tableHead.innerHTML = '';
                         tableBody.innerHTML = `
@@ -4540,18 +4895,18 @@
                     }
                 }
                 state.currentSheet = sheetName;
-                saveAppStateToFirebase();
-                sheetSelect.value = sheetName;
+                saveCurrentSheetToLocal(sheetName);
+                fileNameDisplay.innerHTML = `<span class="sheet-icon">📄</span> ${escapeHtml(sheetName)}`;
                 renderSheet(sheetName);
-                fileNameDisplay.textContent = sheetName;
                 sheetBar.style.display = 'flex';
                 updateFilterStatus();
                 updateAutoMinus30Status();
                 updatePejabatStatus();
+                updatePejabatBadge();
             }
 
             // ============================================================
-            //  MANAGE SHEETS MODAL (HAPUS + RENAME)
+            //  MANAGE SHEETS MODAL (dengan pemilihan sheet)
             // ============================================================
             function openManageSheetsModal() {
                 renderManageSheetsList();
@@ -4588,12 +4943,17 @@
                 names.forEach(name => {
                     const isCurrent = (name === current);
                     const isOnly = names.length === 1;
+                    const activeLabel = isCurrent ? '● Aktif' : 'Tampilkan';
+
                     html += `
                         <div class="sheet-item" data-sheet="${escapeHtml(name)}">
                             <span class="sheet-name" id="sheetNameDisplay_${escapeHtml(name)}">${escapeHtml(name)}</span>
                             <input type="text" class="sheet-name-input" id="sheetNameInput_${escapeHtml(name)}" value="${escapeHtml(name)}" style="display:none;" />
                             <div class="sheet-actions">
                                 ${isCurrent ? '<span class="sheet-badge-current">● Aktif</span>' : ''}
+                                <button class="btn-set-active" data-sheet="${escapeHtml(name)}" ${isCurrent ? 'disabled' : ''} title="${isCurrent ? 'Sudah aktif' : 'Tampilkan sheet ini'}">
+                                    ${isCurrent ? '✓' : '👁 Tampilkan'}
+                                </button>
                                 <button class="btn-rename-sheet" data-sheet="${escapeHtml(name)}" title="Ubah nama sheet">✏️</button>
                                 <button class="btn-delete-sheet-item" data-sheet="${escapeHtml(name)}" ${isOnly ? 'disabled title="Tidak bisa menghapus sheet terakhir"' : 'title="Hapus sheet"'}>🗑️</button>
                                 <button class="btn-confirm-rename" data-sheet="${escapeHtml(name)}" style="display:none;" title="Konfirmasi rename">✅</button>
@@ -4604,7 +4964,27 @@
                 });
                 container.innerHTML = html;
 
-                // Event listeners untuk rename & delete
+                // Event: Tampilkan sheet
+                container.querySelectorAll('.btn-set-active').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const sheetName = this.dataset.sheet;
+                        switchToSheet(sheetName);
+                    });
+                });
+
+                // Event: klik pada nama sheet juga bisa switch
+                container.querySelectorAll('.sheet-name').forEach(el => {
+                    el.addEventListener('click', function() {
+                        const sheetName = this.textContent.trim();
+                        if (sheetName && state.sheets[sheetName] && sheetName !== state.currentSheet) {
+                            switchToSheet(sheetName);
+                        } else if (sheetName === state.currentSheet) {
+                            showToast('ℹ️', `Sheet "${sheetName}" sudah aktif`);
+                        }
+                    });
+                });
+
                 container.querySelectorAll('.btn-rename-sheet').forEach(btn => {
                     btn.addEventListener('click', function(e) {
                         e.stopPropagation();
@@ -4651,16 +5031,32 @@
                             cancelRenameSheet(sheetName);
                         }
                     });
-                    input.addEventListener('blur', function() {
-                        // Jangan auto-confirm on blur, biarkan user klik tombol
-                    });
                 });
+            }
+
+            function switchToSheet(sheetName) {
+                if (!sheetName || !state.sheets[sheetName]) {
+                    showToast('⚠️', 'Sheet tidak ditemukan.');
+                    return;
+                }
+                if (sheetName === state.currentSheet) {
+                    showToast('ℹ️', `Sheet "${sheetName}" sudah aktif`);
+                    closeManageSheetsModal();
+                    return;
+                }
+                state.currentSheet = sheetName;
+                state.sortState.column = null;
+                state.sortState.direction = null;
+                saveCurrentSheetToLocal(sheetName);
+                saveAppStateToFirebase();
+                loadSheet(sheetName);
+                closeManageSheetsModal();
+                showToast('📄', `Berganti ke sheet "${sheetName}"`);
             }
 
             let renamingSheet = null;
 
             function startRenameSheet(sheetName) {
-                // Tutup rename yang sedang aktif
                 if (renamingSheet) {
                     cancelRenameSheet(renamingSheet);
                 }
@@ -4672,6 +5068,7 @@
                 const deleteBtn = document.querySelector(`.btn-delete-sheet-item[data-sheet="${sheetName}"]`);
                 const confirmBtn = document.querySelector(`.btn-confirm-rename[data-sheet="${sheetName}"]`);
                 const cancelBtn = document.querySelector(`.btn-cancel-rename[data-sheet="${sheetName}"]`);
+                const setActiveBtn = document.querySelector(`.btn-set-active[data-sheet="${sheetName}"]`);
 
                 if (!display || !input) return;
 
@@ -4683,6 +5080,7 @@
 
                 if (renameBtn) renameBtn.style.display = 'none';
                 if (deleteBtn) deleteBtn.style.display = 'none';
+                if (setActiveBtn) setActiveBtn.style.display = 'none';
                 if (confirmBtn) confirmBtn.style.display = 'inline-block';
                 if (cancelBtn) cancelBtn.style.display = 'inline-block';
             }
@@ -4694,6 +5092,7 @@
                 const deleteBtn = document.querySelector(`.btn-delete-sheet-item[data-sheet="${sheetName}"]`);
                 const confirmBtn = document.querySelector(`.btn-confirm-rename[data-sheet="${sheetName}"]`);
                 const cancelBtn = document.querySelector(`.btn-cancel-rename[data-sheet="${sheetName}"]`);
+                const setActiveBtn = document.querySelector(`.btn-set-active[data-sheet="${sheetName}"]`);
 
                 if (!display || !input) return;
 
@@ -4702,6 +5101,7 @@
 
                 if (renameBtn) renameBtn.style.display = 'inline-block';
                 if (deleteBtn) deleteBtn.style.display = 'inline-block';
+                if (setActiveBtn) setActiveBtn.style.display = 'inline-block';
                 if (confirmBtn) confirmBtn.style.display = 'none';
                 if (cancelBtn) cancelBtn.style.display = 'none';
 
@@ -4728,13 +5128,11 @@
                     return;
                 }
 
-                // Jalankan rename
                 if (!isOnline) {
                     showToast('⚠️', 'Offline — tidak bisa rename. Koneksi ulang.');
                     return;
                 }
 
-                // Backup data dari state
                 const sheetData = state.sheets[oldName];
                 if (!sheetData) {
                     showToast('❌', 'Sheet "' + oldName + '" tidak ditemukan.');
@@ -4742,22 +5140,11 @@
                     return;
                 }
 
-                // Simpan data dengan nama baru di Firebase
                 renameSheetInFirebase(oldName, newName)
                     .then(() => {
-                        // Update state lokal
                         state.sheets[newName] = state.sheets[oldName];
                         delete state.sheets[oldName];
 
-                        // Update pejabatMarks
-                        if (state.pejabatMarks[oldName]) {
-                            state.pejabatMarks[newName] = state.pejabatMarks[oldName];
-                            delete state.pejabatMarks[oldName];
-                        } else {
-                            state.pejabatMarks[newName] = new Set();
-                        }
-
-                        // Update filters
                         const oldPrefix = oldName + '|';
                         const newPrefix = newName + '|';
                         for (const key in state.filters) {
@@ -4768,16 +5155,13 @@
                             }
                         }
 
-                        // Update current sheet jika perlu
                         if (state.currentSheet === oldName) {
                             state.currentSheet = newName;
+                            saveCurrentSheetToLocal(newName);
                         }
 
-                        // Simpan app state
                         saveAppStateToFirebase();
-
-                        // Update UI
-                        updateSheetSelect();
+                        updateSheetSelectInternal();
                         if (state.currentSheet) {
                             loadSheet(state.currentSheet);
                         }
@@ -4801,28 +5185,28 @@
 
                 deleteSheetFromFirebase(sheetName)
                     .then(() => {
-                        // Hapus dari state
                         for (const key in state.filters) {
                             if (key.startsWith(sheetName + '|')) {
                                 delete state.filters[key];
                             }
                         }
                         delete state.sheets[sheetName];
-                        delete state.pejabatMarks[sheetName];
 
                         const remaining = getSheetNames();
                         if (remaining.length > 0) {
                             if (state.currentSheet === sheetName) {
                                 state.currentSheet = remaining[0];
+                                saveCurrentSheetToLocal(remaining[0]);
                             }
                         } else {
                             state.currentSheet = null;
+                            saveCurrentSheetToLocal(null);
                         }
                         state.sortState.column = null;
                         state.sortState.direction = null;
                         saveAppStateToFirebase();
 
-                        updateSheetSelect();
+                        updateSheetSelectInternal();
                         if (state.currentSheet) {
                             loadSheet(state.currentSheet);
                         } else {
@@ -4843,7 +5227,6 @@
                         updateAutoMinus30Status();
                         updatePejabatStatus();
 
-                        // Tutup modal jika tidak ada sheet
                         if (getSheetNames().length === 0) {
                             closeManageSheetsModal();
                         } else {
@@ -4860,168 +5243,6 @@
             function updateSheetCount() {
                 const names = getSheetNames();
                 sheetCount.textContent = `📑 ${names.length} sheet`;
-            }
-
-            // ============================================================
-            //  AUTO-FIT
-            // ============================================================
-            function getTextWidth(text, font) {
-                if (!text) return 0;
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                ctx.font = font || '14px "Segoe UI", Roboto, sans-serif';
-                const metrics = ctx.measureText(String(text));
-                return metrics.width;
-            }
-
-            function applyAutoFit(headers, rows) {
-                if (!state.autoFitEnabled) {
-                    tableWrapper.classList.remove('auto-fit');
-                    const cols = colGroup.querySelectorAll('col');
-                    cols.forEach(col => {
-                        col.style.width = '';
-                        col.style.minWidth = '';
-                        col.style.maxWidth = '';
-                    });
-                    const allCells = document.querySelectorAll('#dataTable td, #dataTable th');
-                    allCells.forEach(cell => {
-                        cell.style.whiteSpace = '';
-                        cell.style.wordWrap = '';
-                        cell.style.overflowWrap = '';
-                        cell.style.maxWidth = '';
-                        cell.style.verticalAlign = '';
-                    });
-                    return;
-                }
-                tableWrapper.classList.add('auto-fit');
-                const table = document.getElementById('dataTable');
-                const headerRow = table.querySelector('thead tr');
-                if (!headerRow) return;
-                const ths = headerRow.querySelectorAll('th');
-                const colCount = ths.length;
-                if (colCount === 0) return;
-
-                const columnTexts = Array.from({ length: colCount }, () => []);
-                ths.forEach((th, i) => {
-                    const label = th.querySelector('.th-label');
-                    const text = label ? label.textContent : (th.textContent || '');
-                    columnTexts[i].push(text);
-                });
-                const bodyRows = table.querySelectorAll('tbody tr');
-                bodyRows.forEach(row => {
-                    const tds = row.querySelectorAll('td');
-                    tds.forEach((td, i) => {
-                        if (i < colCount) {
-                            const text = td.textContent || '';
-                            columnTexts[i].push(text);
-                        }
-                    });
-                });
-                const computedStyle = window.getComputedStyle(ths[0] || document.body);
-                const font = computedStyle.font || '14px "Segoe UI", Roboto, sans-serif';
-                const paddingTotal = 32;
-                const maxWidths = columnTexts.map(texts => {
-                    let maxW = 0;
-                    texts.forEach(t => {
-                        const w = getTextWidth(t, font);
-                        if (w > maxW) maxW = w;
-                    });
-                    return maxW + paddingTotal;
-                });
-                const MIN_COL_WIDTH = 50;
-                const MAX_COL_WIDTH = 400;
-                const finalWidths = maxWidths.map(w => {
-                    let clamped = Math.max(MIN_COL_WIDTH, w);
-                    return Math.min(MAX_COL_WIDTH, clamped);
-                });
-                const cols = colGroup.querySelectorAll('col');
-                cols.forEach((col, i) => {
-                    if (i < finalWidths.length) {
-                        const w = finalWidths[i];
-                        col.style.width = w + 'px';
-                        col.style.minWidth = w + 'px';
-                        col.style.maxWidth = w + 'px';
-                    }
-                });
-                if (cols.length > 0) {
-                    const noCol = cols[0];
-                    const noWidth = Math.min(60, finalWidths[0] || 60);
-                    noCol.style.width = noWidth + 'px';
-                    noCol.style.minWidth = noWidth + 'px';
-                    noCol.style.maxWidth = noWidth + 'px';
-                }
-                const allCells = document.querySelectorAll('#dataTable td, #dataTable th');
-                allCells.forEach(cell => {
-                    cell.style.whiteSpace = 'normal';
-                    cell.style.wordWrap = 'break-word';
-                    cell.style.overflowWrap = 'break-word';
-                    cell.style.maxWidth = '100%';
-                    cell.style.verticalAlign = 'top';
-                });
-                ths.forEach(th => {
-                    th.style.whiteSpace = 'normal';
-                    th.style.wordWrap = 'break-word';
-                    th.style.overflowWrap = 'break-word';
-                });
-            }
-
-            // ============================================================
-            //  TOGGLE FUNCTIONS
-            // ============================================================
-            function toggleAutoFit(checked) {
-                state.autoFitEnabled = checked;
-                saveAppStateToFirebase();
-                if (state.autoFitEnabled) {
-                    autoFitToggle.classList.add('active');
-                } else {
-                    autoFitToggle.classList.remove('active');
-                }
-                if (state.currentSheet && state.sheets[state.currentSheet]) {
-                    renderSheet(state.currentSheet);
-                }
-            }
-
-            function toggleAutoMinus30(checked) {
-                state.autoMinus30Enabled = checked;
-                saveAppStateToFirebase();
-                if (state.autoMinus30Enabled) {
-                    autoMinus30Toggle.classList.add('active');
-                    state.sortState.column = null;
-                    state.sortState.direction = null;
-                    saveAppStateToFirebase();
-                } else {
-                    autoMinus30Toggle.classList.remove('active');
-                }
-                if (state.currentSheet && state.sheets[state.currentSheet]) {
-                    renderSheet(state.currentSheet);
-                }
-                updateAutoMinus30Status();
-                if (state.autoMinus30Enabled) {
-                    showToast('🔻', 'Auto -30 aktif: menampilkan Masa Aktif <= -30, diurutkan maks ke min');
-                } else {
-                    showToast('ℹ️', 'Auto -30 dinonaktifkan');
-                }
-            }
-
-            function toggleLabelPejabat(checked) {
-                state.labelPejabatEnabled = checked;
-                saveAppStateToFirebase();
-                if (state.labelPejabatEnabled) {
-                    labelPejabatToggle.classList.add('active');
-                    showToast('👤', 'Label Pejabat aktif — klik 3x pada baris user untuk menandai');
-                } else {
-                    labelPejabatToggle.classList.remove('active');
-                    clickCounts.clear();
-                    for (const [key, timeout] of clickTimeouts) {
-                        clearTimeout(timeout);
-                    }
-                    clickTimeouts.clear();
-                    showToast('ℹ️', 'Label Pejabat dinonaktifkan');
-                }
-                if (state.currentSheet && state.sheets[state.currentSheet]) {
-                    renderSheet(state.currentSheet);
-                }
-                updatePejabatStatus();
             }
 
             // ============================================================
@@ -5059,12 +5280,27 @@
                     return;
                 }
 
-                const marks = state.pejabatMarks[sheetName] || new Set();
+                const pejabatSet = state.pejabatList; // GLOBAL
+                const meta = data._meta || {};
+                let noLayananIdx = meta.noLayananIdx !== undefined ? meta.noLayananIdx : -1;
+                if (noLayananIdx === -1) {
+                    for (let i = 0; i < data.headers.length; i++) {
+                        const h = data.headers[i].toString().trim().toLowerCase();
+                        if (h === 'no layanan' || h === 'no_layanan' || h === 'id' || h === 'id pelanggan') {
+                            noLayananIdx = i;
+                            break;
+                        }
+                    }
+                }
+
                 let pejabatCount = 0;
                 for (let r = 0; r < rows.length; r++) {
-                    const noVal = parseInt(rows[r][0]);
-                    const origIdx = (isNaN(noVal) ? r : noVal - 1);
-                    if (marks.has(origIdx)) pejabatCount++;
+                    const row = rows[r];
+                    if (noLayananIdx >= 0 && noLayananIdx < row.length) {
+                        const val = (row[noLayananIdx] !== undefined && row[noLayananIdx] !== null) ?
+                            String(row[noLayananIdx]).trim() : '';
+                        if (val && pejabatSet.has(val)) pejabatCount++;
+                    }
                 }
 
                 copyWaCount.textContent = `📊 ${rows.length} baris`;
@@ -5114,7 +5350,7 @@
                 const headers = data.headers || [];
                 const meta = data._meta || {};
                 const indices = data._indices || {};
-                const marks = state.pejabatMarks[sheetName] || new Set();
+                const pejabatSet = state.pejabatList; // GLOBAL
 
                 if (!rows || rows.length === 0) {
                     showToast('⚠️', 'Tidak ada data yang cocok dengan filter.');
@@ -5288,7 +5524,15 @@
                                 const brand = brandKey;
                                 const idPelanggan = getVal(row, noLayananIdx);
                                 const hari = getVal(row, masaAktifIdx);
-                                const isPejabat = marks.has(origIdx);
+
+                                let isPejabat = false;
+                                if (noLayananIdx >= 0 && noLayananIdx < row.length) {
+                                    const noLayananVal = getVal(row, noLayananIdx);
+                                    if (noLayananVal && pejabatSet.has(noLayananVal)) {
+                                        isPejabat = true;
+                                    }
+                                }
+
                                 lines.push(`${itemIdx + 1}. = ${formatItem(noTelp, brand, idPelanggan, hari, isPejabat)}`);
                             });
                             if (sortedKode.indexOf(kode) < sortedKode.length - 1) {
@@ -5315,7 +5559,15 @@
                             const brand = brandKey;
                             const idPelanggan = getVal(row, noLayananIdx);
                             const hari = getVal(row, masaAktifIdx);
-                            const isPejabat = marks.has(origIdx);
+
+                            let isPejabat = false;
+                            if (noLayananIdx >= 0 && noLayananIdx < row.length) {
+                                const noLayananVal = getVal(row, noLayananIdx);
+                                if (noLayananVal && pejabatSet.has(noLayananVal)) {
+                                    isPejabat = true;
+                                }
+                            }
+
                             lines.push(`${itemIdx + 1}. = ${formatItem(noTelp, brand, idPelanggan, hari, isPejabat)}`);
                         });
 
@@ -5364,6 +5616,482 @@
             }
 
             // ============================================================
+            //  CUT DATA FEATURE
+            // ============================================================
+            function openCutConfirmModal() {
+                const sheetName = state.currentSheet;
+                if (!sheetName || !state.sheets[sheetName]) {
+                    showToast('⚠️', 'Tidak ada sheet yang aktif.');
+                    return;
+                }
+                const data = getSheetData(sheetName);
+                if (!data || !data.rows || data.rows.length === 0) {
+                    showToast('⚠️', 'Sheet kosong, tidak ada data untuk dipotong.');
+                    return;
+                }
+
+                const allRows = data.rows || [];
+                const totalAll = allRows.length;
+
+                const activeFilters = getActiveFilters(sheetName);
+                const hasManualFilters = Object.keys(activeFilters).length > 0;
+
+                let forceFilter = null;
+                if (state.autoMinus30Enabled) {
+                    const meta = data._meta || {};
+                    let masaAktifIdx = meta.masaAktifIdx !== undefined ? meta.masaAktifIdx : -1;
+                    if (masaAktifIdx === -1) {
+                        for (let i = 0; i < data.headers.length; i++) {
+                            const h = data.headers[i].toString().trim().toLowerCase();
+                            if (h === 'masa aktif') { masaAktifIdx = i; break; }
+                        }
+                    }
+                    if (masaAktifIdx >= 0) {
+                        forceFilter = {
+                            colIdx: masaAktifIdx,
+                            type: 'range',
+                            mode: 'between',
+                            min: null,
+                            max: -30,
+                        };
+                    }
+                }
+
+                const hasAnyFilter = hasManualFilters || forceFilter !== null;
+
+                let keepRows = [];
+                if (hasAnyFilter) {
+                    keepRows = allRows.filter(row => {
+                        for (const colIdxStr in activeFilters) {
+                            const colIdx = parseInt(colIdxStr);
+                            const filterInfo = activeFilters[colIdx];
+                            const cellVal = (row[colIdx] !== undefined && row[colIdx] !== null) ? String(row[
+                                colIdx]) : '';
+                            if (filterInfo.type === 'exact') {
+                                const allowedValues = filterInfo.values;
+                                if (allowedValues.size === 0) continue;
+                                if (!allowedValues.has(cellVal)) {
+                                    return false;
+                                }
+                            } else if (filterInfo.type === 'range') {
+                                const numVal = parseMasaAktifValue(cellVal);
+                                if (numVal === null) {
+                                    if (filterInfo.min !== null || filterInfo.max !== null) return false;
+                                    continue;
+                                }
+                                const mode = filterInfo.mode || 'between';
+                                const minVal = filterInfo.min;
+                                const maxVal = filterInfo.max;
+                                if (mode === 'above') {
+                                    if (minVal === null) continue;
+                                    if (numVal <= minVal) return false;
+                                } else if (mode === 'below') {
+                                    if (minVal === null) continue;
+                                    if (numVal >= minVal) return false;
+                                } else if (mode === 'between') {
+                                    if (minVal !== null && numVal < minVal) return false;
+                                    if (maxVal !== null && numVal > maxVal) return false;
+                                } else if (mode === 'equals') {
+                                    if (minVal === null) continue;
+                                    if (numVal !== minVal) return false;
+                                }
+                            }
+                        }
+                        if (forceFilter) {
+                            const cellVal = (row[forceFilter.colIdx] !== undefined && row[forceFilter.colIdx] !==
+                                null) ? String(row[forceFilter.colIdx]) : '';
+                            const numVal = parseMasaAktifValue(cellVal);
+                            if (numVal === null) return false;
+                            if (forceFilter.max !== null && numVal > forceFilter.max) return false;
+                            if (forceFilter.min !== null && numVal < forceFilter.min) return false;
+                        }
+                        return true;
+                    });
+                } else {
+                    keepRows = [];
+                }
+
+                const keepCount = keepRows.length;
+                const deleteCount = totalAll - keepCount;
+
+                cutTotalRows.textContent = formatNumber(totalAll);
+                cutKeepRows.textContent = formatNumber(keepCount);
+                cutDeleteRows.textContent = formatNumber(deleteCount);
+
+                const filterListEl = document.getElementById('cutFilterList');
+                const noFilterWarning = document.getElementById('cutNoFilterWarning');
+
+                if (hasAnyFilter) {
+                    noFilterWarning.style.display = 'none';
+                    let filterDesc = [];
+                    for (const colIdxStr in activeFilters) {
+                        const colIdx = parseInt(colIdxStr);
+                        const f = activeFilters[colIdx];
+                        const headerName = data.headers[colIdx] || 'Kolom ' + (colIdx + 1);
+                        if (f.type === 'exact') {
+                            const vals = Array.from(f.values).slice(0, 5);
+                            const more = f.values.size > 5 ? ` +${f.values.size - 5} lagi` : '';
+                            filterDesc.push(
+                                `<span class="filter-tag">${escapeHtml(headerName)} ∈ {${vals.map(v => escapeHtml(v)).join(', ')}${more}}</span>`
+                                );
+                        } else if (f.type === 'range') {
+                            const mode = f.mode || 'between';
+                            let desc = '';
+                            if (mode === 'between') {
+                                if (f.min !== null && f.max !== null) desc = `${f.min} ≤ x ≤ ${f.max}`;
+                                else if (f.min !== null) desc = `x ≥ ${f.min}`;
+                                else if (f.max !== null) desc = `x ≤ ${f.max}`;
+                            } else if (mode === 'above') {
+                                desc = `x > ${f.min}`;
+                            } else if (mode === 'below') {
+                                desc = `x < ${f.min}`;
+                            } else if (mode === 'equals') {
+                                desc = `x = ${f.min}`;
+                            }
+                            filterDesc.push(`<span class="filter-tag">${escapeHtml(headerName)} ${desc}</span>`);
+                        }
+                    }
+                    if (forceFilter) {
+                        const headerName = data.headers[forceFilter.colIdx] || 'Kolom ' + (forceFilter.colIdx + 1);
+                        filterDesc.push(`<span class="filter-tag" style="background:#fde8e8;">${escapeHtml(headerName)} ≤ -30 (Auto -30)</span>`);
+                    }
+                    filterListEl.innerHTML = filterDesc.length > 0 ? filterDesc.join(' ') :
+                        '<span style="color:#8aa0b8;">Tidak ada filter spesifik</span>';
+                } else {
+                    noFilterWarning.style.display = 'block';
+                    filterListEl.innerHTML = '';
+                }
+
+                cutModalCounter.textContent = `(${formatNumber(totalAll)} baris)`;
+                cutModalSubText.innerHTML = `Data yang <strong>TIDAK</strong> sesuai filter akan dihapus secara permanen. <strong>${formatNumber(deleteCount)} baris</strong> akan dihapus.`;
+
+                cutConfirmBtn.disabled = (deleteCount === 0);
+                if (deleteCount === 0) {
+                    cutConfirmBtn.title = 'Tidak ada data yang akan dihapus';
+                } else {
+                    cutConfirmBtn.title = 'Potong data yang tidak sesuai filter';
+                }
+
+                cutConfirmModal.classList.add('open');
+            }
+
+            function closeCutConfirmModal() {
+                cutConfirmModal.classList.remove('open');
+            }
+
+            function executeCutData() {
+                const sheetName = state.currentSheet;
+                if (!sheetName || !state.sheets[sheetName]) {
+                    showToast('⚠️', 'Tidak ada sheet yang aktif.');
+                    closeCutConfirmModal();
+                    return;
+                }
+                const data = getSheetData(sheetName);
+                if (!data || !data.rows || data.rows.length === 0) {
+                    showToast('⚠️', 'Sheet kosong.');
+                    closeCutConfirmModal();
+                    return;
+                }
+
+                const allRows = data.rows || [];
+                const totalAll = allRows.length;
+
+                const activeFilters = getActiveFilters(sheetName);
+                const hasManualFilters = Object.keys(activeFilters).length > 0;
+
+                let forceFilter = null;
+                if (state.autoMinus30Enabled) {
+                    const meta = data._meta || {};
+                    let masaAktifIdx = meta.masaAktifIdx !== undefined ? meta.masaAktifIdx : -1;
+                    if (masaAktifIdx === -1) {
+                        for (let i = 0; i < data.headers.length; i++) {
+                            const h = data.headers[i].toString().trim().toLowerCase();
+                            if (h === 'masa aktif') { masaAktifIdx = i; break; }
+                        }
+                    }
+                    if (masaAktifIdx >= 0) {
+                        forceFilter = {
+                            colIdx: masaAktifIdx,
+                            type: 'range',
+                            mode: 'between',
+                            min: null,
+                            max: -30,
+                        };
+                    }
+                }
+
+                const hasAnyFilter = hasManualFilters || forceFilter !== null;
+
+                let keepRows = [];
+                if (hasAnyFilter) {
+                    keepRows = allRows.filter(row => {
+                        for (const colIdxStr in activeFilters) {
+                            const colIdx = parseInt(colIdxStr);
+                            const filterInfo = activeFilters[colIdx];
+                            const cellVal = (row[colIdx] !== undefined && row[colIdx] !== null) ? String(row[
+                                colIdx]) : '';
+                            if (filterInfo.type === 'exact') {
+                                const allowedValues = filterInfo.values;
+                                if (allowedValues.size === 0) continue;
+                                if (!allowedValues.has(cellVal)) {
+                                    return false;
+                                }
+                            } else if (filterInfo.type === 'range') {
+                                const numVal = parseMasaAktifValue(cellVal);
+                                if (numVal === null) {
+                                    if (filterInfo.min !== null || filterInfo.max !== null) return false;
+                                    continue;
+                                }
+                                const mode = filterInfo.mode || 'between';
+                                const minVal = filterInfo.min;
+                                const maxVal = filterInfo.max;
+                                if (mode === 'above') {
+                                    if (minVal === null) continue;
+                                    if (numVal <= minVal) return false;
+                                } else if (mode === 'below') {
+                                    if (minVal === null) continue;
+                                    if (numVal >= minVal) return false;
+                                } else if (mode === 'between') {
+                                    if (minVal !== null && numVal < minVal) return false;
+                                    if (maxVal !== null && numVal > maxVal) return false;
+                                } else if (mode === 'equals') {
+                                    if (minVal === null) continue;
+                                    if (numVal !== minVal) return false;
+                                }
+                            }
+                        }
+                        if (forceFilter) {
+                            const cellVal = (row[forceFilter.colIdx] !== undefined && row[forceFilter.colIdx] !==
+                                null) ? String(row[forceFilter.colIdx]) : '';
+                            const numVal = parseMasaAktifValue(cellVal);
+                            if (numVal === null) return false;
+                            if (forceFilter.max !== null && numVal > forceFilter.max) return false;
+                            if (forceFilter.min !== null && numVal < forceFilter.min) return false;
+                        }
+                        return true;
+                    });
+                } else {
+                    keepRows = [];
+                }
+
+                const keepCount = keepRows.length;
+                const deleteCount = totalAll - keepCount;
+
+                if (deleteCount === 0) {
+                    showToast('ℹ️', 'Tidak ada data yang akan dihapus.');
+                    closeCutConfirmModal();
+                    return;
+                }
+
+                if (!confirm(`✂️ Yakin akan menghapus ${formatNumber(deleteCount)} baris yang tidak sesuai filter? Data yang dihapus TIDAK DAPAT DIKEMBALIKAN!`)) {
+                    return;
+                }
+
+                data.rows = keepRows;
+
+                const noKeywords = ['no', 'nomor', 'id', 'urut', '#'];
+                const headers = data.headers || [];
+                let noIdx = headers.findIndex(h =>
+                    noKeywords.includes((h || '').toString().toLowerCase().trim())
+                );
+                if (noIdx === -1) {
+                    headers.unshift('No');
+                    data.rows = data.rows.map(row => [null, ...row]);
+                    noIdx = 0;
+                }
+                data.rows = data.rows.map((row, index) => {
+                    const newRow = [...row];
+                    newRow[noIdx] = index + 1;
+                    return newRow;
+                });
+                state.sheets[sheetName].headers = headers;
+                state.sheets[sheetName].rows = data.rows;
+
+                saveSheetToFirebase(sheetName);
+
+                state.sortState.column = null;
+                state.sortState.direction = null;
+                saveAppStateToFirebase();
+
+                renderSheet(sheetName);
+
+                closeCutConfirmModal();
+                showToast('✂️', `Berhasil menghapus ${formatNumber(deleteCount)} baris, ${formatNumber(keepCount)} baris tersisa.`);
+            }
+
+            // ============================================================
+            //  PEJABAT LIST MODAL (GLOBAL)
+            // ============================================================
+            function openPejabatListModal() {
+                renderPejabatList();
+                pejabatListModal.classList.add('open');
+                pejabatAddInput.value = '';
+                pejabatAddInput.focus();
+            }
+
+            function closePejabatListModal() {
+                pejabatListModal.classList.remove('open');
+            }
+
+            function renderPejabatList() {
+                const items = Array.from(state.pejabatList).sort();
+
+                pejabatListCount.textContent = `👤 ${items.length} entri (global)`;
+                pejabatListInfo.textContent = 'Berlaku untuk semua sheet';
+                pejabatModalCounter.textContent = `(${items.length} No Layanan)`;
+
+                if (items.length === 0) {
+                    pejabatListContainer.innerHTML = `
+                        <div class="pejabat-empty">
+                            <span class="big-icon">📭</span>
+                            Belum ada No Layanan yang terdaftar sebagai Pejabat
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                items.forEach(val => {
+                    html += `
+                        <div class="pejabat-item" data-value="${escapeHtml(val)}">
+                            <span class="pejabat-value">${escapeHtml(val)}</span>
+                            <div class="pejabat-actions">
+                                <button class="btn-delete-pejabat" data-value="${escapeHtml(val)}" title="Hapus dari daftar Pejabat">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                pejabatListContainer.innerHTML = html;
+
+                pejabatListContainer.querySelectorAll('.btn-delete-pejabat').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const val = this.dataset.value;
+                        removePejabat(val);
+                    });
+                });
+            }
+
+            function addPejabat() {
+                const input = pejabatAddInput;
+                const val = input.value.trim();
+                if (!val) {
+                    showToast('⚠️', 'Masukkan No Layanan.');
+                    return;
+                }
+
+                if (state.pejabatList.has(val)) {
+                    showToast('ℹ️', `"${val}" sudah terdaftar sebagai Pejabat.`);
+                    input.value = '';
+                    input.focus();
+                    return;
+                }
+
+                state.pejabatList.add(val);
+                savePejabatListToFirebase();
+                renderPejabatList();
+                if (state.currentSheet) renderSheet(state.currentSheet);
+                updatePejabatStatus();
+                updatePejabatBadge();
+                showToast('✅', `"${val}" ditambahkan ke daftar Pejabat (global).`);
+                input.value = '';
+                input.focus();
+            }
+
+            function removePejabat(val) {
+                if (!state.pejabatList.has(val)) return;
+
+                if (!confirm(`Hapus "${val}" dari daftar Pejabat?`)) return;
+
+                state.pejabatList.delete(val);
+                savePejabatListToFirebase();
+                renderPejabatList();
+                if (state.currentSheet) renderSheet(state.currentSheet);
+                updatePejabatStatus();
+                updatePejabatBadge();
+                showToast('🗑️', `"${val}" dihapus dari daftar Pejabat.`);
+            }
+
+            function bulkAddPejabat() {
+                const text = pejabatBulkInput.value;
+                if (!text.trim()) {
+                    showToast('⚠️', 'Masukkan daftar No Layanan.');
+                    return;
+                }
+
+                const values = text.split(/[\n,;\s]+/)
+                    .map(s => s.trim())
+                    .filter(s => s.length > 0);
+
+                if (values.length === 0) {
+                    showToast('⚠️', 'Tidak ada No Layanan yang valid.');
+                    return;
+                }
+
+                let added = 0;
+                values.forEach(v => {
+                    if (!state.pejabatList.has(v)) {
+                        state.pejabatList.add(v);
+                        added++;
+                    }
+                });
+
+                if (added === 0) {
+                    showToast('ℹ️', `Semua ${values.length} No Layanan sudah terdaftar.`);
+                } else {
+                    savePejabatListToFirebase();
+                    renderPejabatList();
+                    if (state.currentSheet) renderSheet(state.currentSheet);
+                    updatePejabatStatus();
+                    updatePejabatBadge();
+                    showToast('✅', `Berhasil menambahkan ${added} No Layanan ke daftar Pejabat.`);
+                }
+                pejabatBulkInput.value = '';
+            }
+
+            function bulkClearPejabat() {
+                if (state.pejabatList.size === 0) {
+                    showToast('ℹ️', 'Daftar Pejabat sudah kosong.');
+                    return;
+                }
+
+                if (!confirm(`Hapus SEMUA (${state.pejabatList.size}) No Layanan dari daftar Pejabat?`)) return;
+
+                state.pejabatList.clear();
+                savePejabatListToFirebase();
+                renderPejabatList();
+                if (state.currentSheet) renderSheet(state.currentSheet);
+                updatePejabatStatus();
+                updatePejabatBadge();
+                showToast('🧹', 'Semua daftar Pejabat telah dikosongkan.');
+            }
+
+            // ============================================================
+            //  TOGGLE FUNCTIONS (Auto -30 via localStorage)
+            // ============================================================
+            function toggleAutoMinus30(checked) {
+                state.autoMinus30Enabled = checked;
+                saveLocalAutoMinus30(checked);
+                if (state.autoMinus30Enabled) {
+                    autoMinus30Toggle.classList.add('active');
+                    state.sortState.column = null;
+                    state.sortState.direction = null;
+                    saveAppStateToFirebase();
+                } else {
+                    autoMinus30Toggle.classList.remove('active');
+                }
+                if (state.currentSheet && state.sheets[state.currentSheet]) {
+                    renderSheet(state.currentSheet);
+                }
+                updateAutoMinus30Status();
+                if (state.autoMinus30Enabled) {
+                    showToast('🔻', 'Auto -30 aktif: menampilkan Masa Aktif <= -30, diurutkan maks ke min');
+                } else {
+                    showToast('ℹ️', 'Auto -30 dinonaktifkan');
+                }
+            }
+
+            // ============================================================
             //  EVENT LISTENERS
             // ============================================================
             fileInput.addEventListener('change', function(e) {
@@ -5408,17 +6136,6 @@
                 }
             });
 
-            sheetSelect.addEventListener('change', function() {
-                const selected = this.value;
-                if (selected && state.sheets[selected]) {
-                    state.currentSheet = selected;
-                    state.sortState.column = null;
-                    state.sortState.direction = null;
-                    saveAppStateToFirebase();
-                    loadSheet(selected);
-                }
-            });
-
             manageSheetsBtn.addEventListener('click', openManageSheetsModal);
 
             manageSheetsCloseBtn.addEventListener('click', closeManageSheetsModal);
@@ -5452,16 +6169,8 @@
                 }
             });
 
-            autoFitCheckbox.addEventListener('change', function() {
-                toggleAutoFit(this.checked);
-            });
-
             autoMinus30Checkbox.addEventListener('change', function() {
                 toggleAutoMinus30(this.checked);
-            });
-
-            labelPejabatCheckbox.addEventListener('change', function() {
-                toggleLabelPejabat(this.checked);
             });
 
             queueCancelBtn.addEventListener('click', function() {
@@ -5542,20 +6251,84 @@
                 saveAppStateToFirebase();
             });
 
+            // ---- CUT DATA ----
+            cutDataBtn.addEventListener('click', openCutConfirmModal);
+
+            cutCancelBtn.addEventListener('click', closeCutConfirmModal);
+            cutConfirmBtn.addEventListener('click', executeCutData);
+
+            cutConfirmModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCutConfirmModal();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (!cutConfirmModal.classList.contains('open')) return;
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!cutConfirmBtn.disabled) executeCutData();
+                }
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeCutConfirmModal();
+                }
+            });
+
+            // ---- PEJABAT LIST ----
+            pejabatListBtn.addEventListener('click', openPejabatListModal);
+
+            pejabatListCloseBtn.addEventListener('click', closePejabatListModal);
+            pejabatListModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePejabatListModal();
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (!pejabatListModal.classList.contains('open')) return;
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closePejabatListModal();
+                }
+                if (e.key === 'Enter' && document.activeElement === pejabatAddInput) {
+                    e.preventDefault();
+                    addPejabat();
+                }
+            });
+
+            pejabatAddBtn.addEventListener('click', addPejabat);
+
+            pejabatAddInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addPejabat();
+                }
+            });
+
+            pejabatBulkAddBtn.addEventListener('click', bulkAddPejabat);
+            pejabatBulkClearBtn.addEventListener('click', bulkClearPejabat);
+
             // ============================================================
             //  INIT
             // ============================================================
             setStatus(false, 'Menghubungkan ke Firebase...');
-
             updateConnectionUI(false);
 
+            autoMinus30Checkbox.checked = state.autoMinus30Enabled;
+            if (state.autoMinus30Enabled) autoMinus30Toggle.classList.add('active');
+            else autoMinus30Toggle.classList.remove('active');
+
+            updateAutoMinus30Status();
+
             console.log('📊 Pengelola Excel + Firebase Realtime Database');
-            console.log('📋 Kelola Sheet: hapus & rename sheet melalui tombol "Kelola Sheet"');
-            console.log('👤 Fitur Label Pejabat: aktifkan toggle, lalu klik 3x pada baris user');
+            console.log('📋 Sheet aktif disimpan LOKAL per perangkat (localStorage) — tidak mengganggu tim lain');
+            console.log('👤 Daftar Pejabat GLOBAL & REALTIME — berlaku untuk semua sheet, sinkron antar perangkat');
             console.log('💬 Copy WA: 2 opsi — dengan/tanpa label Pejabat');
             console.log('📱 Copy WA: Versi 1 (KODE POS) & Versi 2 (Sederhana)');
-            console.log('☁️ Data disimpan di Firebase Realtime Database');
+            console.log('✂️ Cut Data: hapus data yang tidak sesuai filter (permanen)');
+            console.log('☁️ Data sheet di Firebase, pejabat di Firebase dengan path terpisah');
             console.log('📡 Status online/offline otomatis');
+            console.log('✅ Auto Fit selalu aktif — data tampil rapih tanpa toggle');
 
         })();
     </script>
