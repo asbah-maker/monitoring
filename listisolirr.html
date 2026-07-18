@@ -28,15 +28,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem 1rem;
+            padding: 1.2rem 0.8rem;
         }
         .app {
             max-width: 1400px;
             width: 100%;
             background: white;
-            border-radius: 32px;
-            box-shadow: 0 20px 60px rgba(0, 20, 40, 0.10);
-            padding: 2rem 2rem 2rem 2rem;
+            border-radius: 28px;
+            box-shadow: 0 16px 48px rgba(0, 20, 40, 0.08);
+            padding: 1.2rem 1.2rem 1.2rem 1.2rem;
             transition: all 0.2s;
         }
         /* ----- HEADER ----- */
@@ -45,39 +45,39 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1.8rem;
+            gap: 0.6rem;
+            margin-bottom: 1.2rem;
         }
         .app-header h1 {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             font-weight: 600;
             color: #0b1e33;
             letter-spacing: -0.3px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
         .app-header h1 span {
             background: #eef3fa;
-            padding: 0.15rem 1rem;
+            padding: 0.1rem 0.8rem;
             border-radius: 40px;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 400;
             color: #2a4b6e;
         }
         .badge-status {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             background: #e9edf4;
-            padding: 0.35rem 1.2rem;
+            padding: 0.2rem 1rem;
             border-radius: 40px;
             color: #1d3b5c;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.4rem;
         }
         .badge-status .dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: #7f8fa3;
             display: inline-block;
@@ -109,10 +109,10 @@
         .connection-status {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.75rem;
+            gap: 0.4rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            padding: 0.2rem 1rem 0.2rem 0.8rem;
+            padding: 0.15rem 0.8rem 0.15rem 0.6rem;
             border-radius: 40px;
             background: #eef3fa;
             transition: all 0.3s;
@@ -129,8 +129,8 @@
             color: #a93226;
         }
         .connection-status .conn-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             display: inline-block;
             transition: background 0.3s;
@@ -144,18 +144,19 @@
         }
         .connection-status .conn-label {
             font-weight: 500;
+            font-size: 0.7rem;
         }
 
-        /* ----- UPLOAD ZONE ----- */
+        /* ----- UPLOAD ZONE (lebih kecil) ----- */
         .upload-zone {
-            border: 2.5px dashed #cdd9e8;
-            border-radius: 24px;
-            padding: 2.5rem 1.5rem;
+            border: 2px dashed #cdd9e8;
+            border-radius: 16px;
+            padding: 1.2rem 0.8rem;
             text-align: center;
             background: #fafcff;
             transition: background 0.2s, border-color 0.2s;
             cursor: pointer;
-            margin-bottom: 1.8rem;
+            margin-bottom: 1rem;
         }
         .upload-zone:hover {
             background: #f0f6ff;
@@ -166,29 +167,29 @@
             border-color: #2f6bb0;
         }
         .upload-zone .icon {
-            font-size: 3.5rem;
+            font-size: 2.2rem;
             line-height: 1;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.1rem;
         }
         .upload-zone h3 {
             font-weight: 500;
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: #1a314a;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.1rem;
         }
         .upload-zone p {
             color: #5c738b;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
         .upload-zone .browse-btn {
             display: inline-block;
-            margin-top: 0.9rem;
+            margin-top: 0.5rem;
             background: #1d3b5c;
             color: white;
-            padding: 0.6rem 2.2rem;
+            padding: 0.4rem 1.8rem;
             border-radius: 40px;
             font-weight: 500;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             border: none;
             transition: background 0.2s;
             cursor: pointer;
@@ -199,16 +200,17 @@
         .upload-zone input[type="file"] {
             display: none;
         }
+
         /* ----- QUEUE STATUS BAR ----- */
         .queue-bar {
             display: none;
             align-items: center;
-            gap: 1rem;
+            gap: 0.6rem;
             flex-wrap: wrap;
             background: #eef3fa;
             border-radius: 40px;
-            padding: 0.4rem 1.2rem 0.4rem 1.2rem;
-            margin-bottom: 1.2rem;
+            padding: 0.3rem 1rem 0.3rem 1rem;
+            margin-bottom: 0.8rem;
             border: 1px solid #d7e1ed;
         }
         .queue-bar.show {
@@ -217,34 +219,34 @@
         .queue-bar .queue-progress {
             font-weight: 500;
             color: #1d3b5c;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
         .queue-bar .queue-progress strong {
             color: #0b1e33;
         }
         .queue-bar .queue-file-name {
             color: #2a4b6e;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             background: white;
-            padding: 0.15rem 1rem;
+            padding: 0.1rem 0.8rem;
             border-radius: 40px;
             flex: 1;
-            min-width: 120px;
+            min-width: 100px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .queue-bar .queue-status-text {
             color: #5c738b;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
         }
         .queue-bar .queue-cancel-btn {
             background: none;
             border: none;
             color: #b0c4db;
             cursor: pointer;
-            font-size: 1.1rem;
-            padding: 0 0.3rem;
+            font-size: 1rem;
+            padding: 0 0.2rem;
             transition: color 0.2s;
         }
         .queue-bar .queue-cancel-btn:hover {
@@ -254,63 +256,64 @@
             background: #1d3b5c;
             color: white;
             border-radius: 40px;
-            padding: 0.1rem 0.8rem;
-            font-size: 0.75rem;
+            padding: 0.05rem 0.6rem;
+            font-size: 0.65rem;
             font-weight: 600;
         }
-        /* ----- SHEET BAR (tanpa dropdown sheet) ----- */
+
+        /* ----- SHEET BAR ----- */
         .sheet-bar {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            gap: 0.8rem 1.5rem;
-            margin-bottom: 1.2rem;
-            padding: 0.4rem 0 0.6rem 0;
+            gap: 0.5rem 1rem;
+            margin-bottom: 0.8rem;
+            padding: 0.3rem 0 0.4rem 0;
             border-bottom: 1px solid #e6edf5;
         }
         .sheet-bar .left {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.6rem;
             flex-wrap: wrap;
         }
         .sheet-bar .stats {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #3b5a7a;
             background: #eef3fa;
-            padding: 0.2rem 1.1rem;
+            padding: 0.15rem 0.9rem;
             border-radius: 40px;
             white-space: nowrap;
         }
         .sheet-bar .file-name {
             background: #1d3b5c;
             color: white;
-            padding: 0.2rem 1.4rem;
+            padding: 0.15rem 1rem;
             border-radius: 40px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
             white-space: nowrap;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
         .sheet-bar .file-name .sheet-icon {
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         .btn-manage-sheets {
             background: #1d3b5c;
             color: white;
             border: none;
             border-radius: 40px;
-            padding: 0.3rem 1.2rem;
-            font-size: 0.85rem;
+            padding: 0.2rem 1rem;
+            font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;
             transition: background 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.3rem;
             white-space: nowrap;
         }
         .btn-manage-sheets:hover {
@@ -320,26 +323,26 @@
             background: none;
             border: none;
             color: #b0c4db;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
-            padding: 0 0.3rem;
+            padding: 0 0.2rem;
             transition: color 0.2s;
         }
         .btn-delete-sheet:hover {
             color: #c0392b;
         }
 
-        /* ----- AUTO -30 TOGGLE (localStorage) ----- */
+        /* ----- AUTO -30 TOGGLE ----- */
         .auto-minus30-toggle {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
+            gap: 0.4rem;
+            font-size: 0.8rem;
             color: #1f3c5a;
             cursor: pointer;
             user-select: none;
             background: #eef3fa;
-            padding: 0.2rem 0.8rem 0.2rem 0.8rem;
+            padding: 0.15rem 0.6rem 0.15rem 0.6rem;
             border-radius: 40px;
             transition: background 0.2s;
             border: 1px solid transparent;
@@ -354,8 +357,8 @@
         .auto-minus30-toggle .switch {
             position: relative;
             display: inline-block;
-            width: 36px;
-            height: 20px;
+            width: 32px;
+            height: 18px;
             flex-shrink: 0;
         }
         .auto-minus30-toggle .switch input {
@@ -377,8 +380,8 @@
         .auto-minus30-toggle .slider::before {
             content: "";
             position: absolute;
-            height: 14px;
-            width: 14px;
+            height: 12px;
+            width: 12px;
             left: 3px;
             bottom: 3px;
             background: white;
@@ -390,16 +393,16 @@
             background: #c0392b;
         }
         .auto-minus30-toggle input:checked+.slider::before {
-            transform: translateX(16px);
+            transform: translateX(14px);
         }
         .auto-minus30-toggle .label-text {
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #c0392b;
         }
         .auto-minus30-toggle .label-text .icon {
-            font-size: 1rem;
-            margin-right: 0.1rem;
+            font-size: 0.9rem;
+            margin-right: 0.05rem;
         }
 
         /* ----- DAFTAR PEJABAT BUTTON ----- */
@@ -408,14 +411,14 @@
             color: white;
             border: none;
             border-radius: 40px;
-            padding: 0.3rem 1.2rem;
-            font-size: 0.85rem;
+            padding: 0.2rem 1rem;
+            font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;
             transition: background 0.2s, transform 0.15s;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.3rem;
             white-space: nowrap;
         }
         .btn-pejabat-list:hover {
@@ -428,8 +431,8 @@
         .btn-pejabat-list .badge-count {
             background: rgba(255, 255, 255, 0.25);
             border-radius: 40px;
-            padding: 0.05rem 0.6rem;
-            font-size: 0.7rem;
+            padding: 0.02rem 0.5rem;
+            font-size: 0.6rem;
             font-weight: 600;
         }
 
@@ -439,14 +442,14 @@
             color: white;
             border: none;
             border-radius: 40px;
-            padding: 0.3rem 1.2rem;
-            font-size: 0.85rem;
+            padding: 0.2rem 1rem;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s, transform 0.15s;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.3rem;
             white-space: nowrap;
         }
         .btn-cut-data:hover {
@@ -465,19 +468,19 @@
         /* ----- TABLE WRAPPER ----- */
         .table-wrapper {
             overflow-x: auto;
-            border-radius: 16px;
+            border-radius: 14px;
             border: 1px solid #e2eaf3;
             background: white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-            max-height: 520px;
+            max-height: 460px;
             overflow-y: auto;
             position: relative;
         }
         .table-wrapper table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9rem;
-            min-width: 500px;
+            font-size: 0.85rem;
+            min-width: 420px;
             table-layout: auto;
         }
         .table-wrapper table td,
@@ -486,7 +489,7 @@
             white-space: normal;
             overflow-wrap: break-word;
             vertical-align: top;
-            padding: 0.6rem 0.8rem;
+            padding: 0.4rem 0.6rem;
             max-width: 100%;
         }
         .table-wrapper table th {
@@ -496,7 +499,7 @@
             background: #f0f5fd;
             color: #17334f;
             font-weight: 600;
-            padding: 0.8rem 1rem;
+            padding: 0.5rem 0.8rem;
             text-align: left;
             border-bottom: 2px solid #d7e1ed;
             white-space: normal;
@@ -506,7 +509,7 @@
             position: relative;
         }
         .table-wrapper td {
-            padding: 0.6rem 1rem;
+            padding: 0.4rem 0.8rem;
             border-bottom: 1px solid #e6edf5;
             color: #1e354e;
             vertical-align: middle;
@@ -525,13 +528,13 @@
         .table-wrapper .empty-msg {
             text-align: center;
             color: #7c92ab;
-            padding: 3rem 1rem;
-            font-size: 1rem;
+            padding: 2rem 1rem;
+            font-size: 0.95rem;
         }
         .table-wrapper .empty-msg .big-icon {
-            font-size: 2.6rem;
+            font-size: 2.2rem;
             display: block;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.2rem;
         }
         .table-wrapper th.col-masa-aktif {
             background: #e8f0fe;
@@ -564,7 +567,7 @@
             background: #f8faff;
         }
 
-        /* ----- PEJABAT ROW STYLING (via No Layanan) ----- */
+        /* ----- PEJABAT ROW STYLING ----- */
         .table-wrapper tr.pejabat-row td {
             background: #fde8e8 !important;
             border-left: 4px solid #c0392b;
@@ -586,24 +589,24 @@
             display: inline-block;
             background: #c0392b;
             color: white;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             font-weight: 700;
-            padding: 0.1rem 0.5rem;
+            padding: 0.05rem 0.4rem;
             border-radius: 12px;
-            margin-left: 0.4rem;
+            margin-left: 0.3rem;
             letter-spacing: 0.3px;
             vertical-align: middle;
             text-transform: uppercase;
         }
         .pejabat-badge .icon {
-            font-size: 0.65rem;
-            margin-right: 0.1rem;
+            font-size: 0.6rem;
+            margin-right: 0.05rem;
         }
 
         .sort-indicator {
             display: inline-block;
-            margin-left: 4px;
-            font-size: 0.7rem;
+            margin-left: 3px;
+            font-size: 0.65rem;
             color: #8aa0b8;
             transition: color 0.2s;
         }
@@ -619,7 +622,7 @@
         .th-content {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.3rem;
             justify-content: space-between;
             width: 100%;
         }
@@ -628,14 +631,15 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             cursor: default;
+            font-size: 0.8rem;
         }
         .filter-btn {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #8aa0b8;
-            padding: 0 0.15rem;
+            padding: 0 0.1rem;
             border-radius: 4px;
             transition: all 0.2s;
             flex-shrink: 0;
@@ -655,10 +659,10 @@
             right: -6px;
             background: #1d3b5c;
             color: white;
-            font-size: 0.5rem;
+            font-size: 0.45rem;
             border-radius: 50%;
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -669,8 +673,8 @@
             border: none;
             cursor: pointer;
             color: #8aa0b8;
-            padding: 0 0.15rem;
-            font-size: 0.8rem;
+            padding: 0 0.1rem;
+            font-size: 0.7rem;
             transition: color 0.2s;
             flex-shrink: 0;
             line-height: 1;
@@ -681,6 +685,7 @@
         .sort-header-btn.active {
             color: #1d3b5c;
         }
+
         /* ----- FILTER DROPDOWN ----- */
         .filter-dropdown {
             display: none;
@@ -692,11 +697,11 @@
             border: 1px solid #d7e1ed;
             border-radius: 12px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-            min-width: 240px;
-            max-width: 320px;
-            max-height: 400px;
+            min-width: 200px;
+            max-width: 280px;
+            max-height: 360px;
             z-index: 100;
-            padding: 0.8rem 0.8rem 0.6rem;
+            padding: 0.6rem 0.6rem 0.4rem;
             overflow: hidden;
             flex-direction: column;
         }
@@ -704,13 +709,13 @@
             display: flex;
         }
         .filter-dropdown .filter-search {
-            padding: 0.3rem 0.6rem;
+            padding: 0.2rem 0.5rem;
             border: 1px solid #d7e1ed;
             border-radius: 8px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             width: 100%;
             outline: none;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.3rem;
             background: #fafcff;
         }
         .filter-dropdown .filter-search:focus {
@@ -720,15 +725,15 @@
         .filter-dropdown .filter-list {
             flex: 1;
             overflow-y: auto;
-            max-height: 180px;
-            margin-bottom: 0.4rem;
+            max-height: 150px;
+            margin-bottom: 0.3rem;
         }
         .filter-dropdown .filter-list .filter-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.15rem 0.2rem;
-            font-size: 0.85rem;
+            gap: 0.4rem;
+            padding: 0.1rem 0.2rem;
+            font-size: 0.8rem;
             color: #1a314a;
             cursor: pointer;
             border-radius: 4px;
@@ -739,8 +744,8 @@
         }
         .filter-dropdown .filter-list .filter-item input[type="checkbox"] {
             accent-color: #1d3b5c;
-            width: 14px;
-            height: 14px;
+            width: 13px;
+            height: 13px;
             cursor: pointer;
             flex-shrink: 0;
         }
@@ -752,21 +757,21 @@
         }
         .filter-dropdown .filter-list .filter-item .filter-count {
             color: #8aa0b8;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             flex-shrink: 0;
         }
         .filter-dropdown .filter-actions {
             display: flex;
-            gap: 0.4rem;
+            gap: 0.3rem;
             flex-wrap: wrap;
-            padding-top: 0.4rem;
+            padding-top: 0.3rem;
             border-top: 1px solid #e6edf5;
         }
         .filter-dropdown .filter-actions button {
-            padding: 0.2rem 0.8rem;
+            padding: 0.15rem 0.6rem;
             border-radius: 20px;
             border: none;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             cursor: pointer;
             transition: background 0.2s;
             font-weight: 500;
@@ -802,28 +807,29 @@
         }
         .filter-dropdown .filter-empty {
             color: #8aa0b8;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-align: center;
-            padding: 0.5rem 0;
+            padding: 0.3rem 0;
         }
+
         /* ----- RANGE FILTER ----- */
         .filter-dropdown .range-controls {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
+            gap: 0.4rem;
+            margin-bottom: 0.3rem;
         }
         .filter-dropdown .range-mode-group {
             display: flex;
-            gap: 0.3rem;
+            gap: 0.2rem;
             flex-wrap: wrap;
         }
         .filter-dropdown .range-mode-group .mode-btn {
-            padding: 0.15rem 0.6rem;
+            padding: 0.1rem 0.5rem;
             border-radius: 12px;
             border: 1px solid #d7e1ed;
             background: #fafcff;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             cursor: pointer;
             transition: all 0.2s;
             color: #3b5a7a;
@@ -839,20 +845,20 @@
         .filter-dropdown .range-input-group {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.3rem;
             flex-wrap: wrap;
         }
         .filter-dropdown .range-input-group label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #5c738b;
             font-weight: 500;
         }
         .filter-dropdown .range-input-group input[type="number"] {
-            width: 70px;
-            padding: 0.2rem 0.4rem;
+            width: 60px;
+            padding: 0.15rem 0.3rem;
             border: 1px solid #d7e1ed;
             border-radius: 6px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             outline: none;
             background: #fafcff;
         }
@@ -861,14 +867,14 @@
             box-shadow: 0 0 0 2px rgba(47, 107, 176, 0.1);
         }
         .filter-dropdown .range-input-group .range-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #5c738b;
         }
         .filter-dropdown .range-info {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #8aa0b8;
             text-align: center;
-            padding: 0.1rem 0;
+            padding: 0.05rem 0;
         }
         .table-wrapper.has-filter th .filter-btn {
             color: #1d3b5c;
@@ -876,14 +882,15 @@
         .table-wrapper th.col-masa-aktif .sort-header-btn.active {
             color: #0a3d6b;
         }
+
         /* ----- FOOTER ----- */
         .app-footer {
-            margin-top: 1.6rem;
+            margin-top: 1rem;
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #7a92ac;
-            gap: 1.5rem;
+            gap: 1rem;
             flex-wrap: wrap;
         }
         .app-footer strong {
@@ -891,9 +898,10 @@
         }
         .app-footer .footer-right {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
             flex-wrap: wrap;
         }
+
         /* ===== MODAL UMUM ===== */
         .modal-overlay {
             display: none;
@@ -911,10 +919,10 @@
         }
         .modal-box {
             background: white;
-            border-radius: 28px;
-            max-width: 540px;
+            border-radius: 24px;
+            max-width: 520px;
             width: 100%;
-            padding: 2rem 2rem 1.8rem;
+            padding: 1.6rem 1.6rem 1.4rem;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
             animation: modalIn 0.25s ease;
         }
@@ -929,29 +937,29 @@
             }
         }
         .modal-box h2 {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #0b1e33;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.1rem;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.4rem;
         }
         .modal-box .sub {
             color: #5c738b;
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
         }
         .modal-box .file-preview {
             background: #f4f8fe;
-            border-radius: 12px;
-            padding: 0.6rem 1rem;
-            margin-bottom: 1.2rem;
-            font-size: 0.9rem;
+            border-radius: 10px;
+            padding: 0.4rem 0.8rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.85rem;
             color: #1d3b5c;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.4rem;
             word-break: break-all;
         }
         .modal-box .file-preview span {
@@ -961,50 +969,50 @@
             background: #1d3b5c;
             color: white;
             border-radius: 40px;
-            padding: 0.05rem 0.7rem;
-            font-size: 0.7rem;
+            padding: 0.02rem 0.6rem;
+            font-size: 0.65rem;
             font-weight: 600;
             margin-left: auto;
             flex-shrink: 0;
         }
         .modal-box .form-group {
-            margin-bottom: 1.2rem;
+            margin-bottom: 0.8rem;
         }
         .modal-box .form-group label {
             display: block;
             font-weight: 500;
             color: #1f3c5a;
-            margin-bottom: 0.3rem;
-            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+            font-size: 0.85rem;
         }
         .modal-box .form-group .radio-group {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
             flex-wrap: wrap;
-            margin-top: 0.2rem;
+            margin-top: 0.1rem;
         }
         .modal-box .form-group .radio-group label {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             font-weight: 400;
             cursor: pointer;
             color: #1a314a;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
         .modal-box .form-group .radio-group input[type="radio"] {
             accent-color: #1d3b5c;
-            width: 17px;
-            height: 17px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
         }
         .modal-box .form-group select,
         .modal-box .form-group input[type="text"] {
             width: 100%;
-            padding: 0.6rem 1rem;
+            padding: 0.4rem 0.8rem;
             border: 1px solid #cad5e3;
-            border-radius: 12px;
-            font-size: 0.95rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
             color: #0b1e33;
             background: white;
             outline: none;
@@ -1024,15 +1032,15 @@
         .modal-box .modal-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 0.8rem;
-            margin-top: 1.8rem;
+            gap: 0.6rem;
+            margin-top: 1.2rem;
             flex-wrap: wrap;
         }
         .modal-box .modal-actions button {
-            padding: 0.6rem 1.8rem;
+            padding: 0.4rem 1.4rem;
             border-radius: 40px;
             font-weight: 500;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             border: none;
             cursor: pointer;
             transition: background 0.2s;
@@ -1077,23 +1085,24 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        /* ----- ROW SELECTION MODAL ----- */
+
+        /* ----- ROW SELECT MODAL (dengan filter upload) ----- */
         .row-select-modal .modal-box {
             max-width: 440px;
         }
         .row-select-modal .modal-box .row-options {
             display: flex;
-            gap: 1.2rem;
-            margin: 1.2rem 0 0.8rem 0;
+            gap: 0.8rem;
+            margin: 0.6rem 0 0.6rem 0;
             flex-wrap: wrap;
         }
         .row-select-modal .modal-box .row-options label {
             flex: 1;
-            min-width: 120px;
+            min-width: 100px;
             background: #f4f8fe;
             border: 2px solid #d7e1ed;
-            border-radius: 16px;
-            padding: 1rem 1.2rem;
+            border-radius: 14px;
+            padding: 0.6rem 0.8rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
@@ -1102,7 +1111,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.1rem;
         }
         .row-select-modal .modal-box .row-options label:hover {
             border-color: #7f9bc0;
@@ -1110,16 +1119,16 @@
         }
         .row-select-modal .modal-box .row-options label input[type="radio"] {
             accent-color: #1d3b5c;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
         }
         .row-select-modal .modal-box .row-options label .row-label {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
         }
         .row-select-modal .modal-box .row-options label .row-desc {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #5c738b;
             font-weight: 400;
         }
@@ -1130,29 +1139,102 @@
         .row-select-modal .modal-box .file-count-badge {
             background: #eef3fa;
             border-radius: 40px;
-            padding: 0.2rem 1rem;
-            font-size: 0.8rem;
+            padding: 0.1rem 0.8rem;
+            font-size: 0.75rem;
             color: #1d3b5c;
             display: inline-block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.2rem;
         }
-        /* ----- COPY WA OPTION MODAL ----- */
+
+        /* Filter upload di row select */
+        .upload-filter-group {
+            margin: 0.6rem 0 0.4rem 0;
+            padding: 0.6rem 0.8rem;
+            background: #f4f8fe;
+            border-radius: 12px;
+            border: 1px solid #d7e1ed;
+        }
+        .upload-filter-group .filter-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1d3b5c;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .upload-filter-group .filter-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .upload-filter-group .filter-options label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: #1a314a;
+            cursor: pointer;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            background: white;
+            border: 1.5px solid #d7e1ed;
+            transition: all 0.2s;
+        }
+        .upload-filter-group .filter-options label:hover {
+            border-color: #7f9bc0;
+        }
+        .upload-filter-group .filter-options label.selected {
+            border-color: #1d3b5c;
+            background: #e3edfc;
+        }
+        .upload-filter-group .filter-options label input[type="radio"] {
+            accent-color: #1d3b5c;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+        .upload-filter-group .filter-options label .filter-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.02rem 0.4rem;
+            border-radius: 10px;
+        }
+        .upload-filter-group .filter-options label .filter-badge.nunggak {
+            background: #c0392b;
+            color: white;
+        }
+        .upload-filter-group .filter-options label .filter-badge.full {
+            background: #2b8c5e;
+            color: white;
+        }
+        .upload-filter-group .filter-desc {
+            font-size: 0.7rem;
+            color: #5c738b;
+            margin-top: 0.2rem;
+            font-style: italic;
+        }
+
+        /* ===== MODAL TARGET SHEET ===== */
+        .modal-overlay#modalOverlay .modal-box {
+            max-width: 480px;
+        }
+
+        /* ===== COPY WA OPTION MODAL ===== */
         .copy-wa-modal .modal-box {
-            max-width: 440px;
+            max-width: 420px;
         }
         .copy-wa-modal .modal-box .wa-options {
             display: flex;
-            gap: 1rem;
-            margin: 1.2rem 0 0.8rem 0;
+            gap: 0.8rem;
+            margin: 0.8rem 0 0.6rem 0;
             flex-wrap: wrap;
         }
         .copy-wa-modal .modal-box .wa-options label {
             flex: 1;
-            min-width: 160px;
+            min-width: 140px;
             background: #f4f8fe;
             border: 2px solid #d7e1ed;
-            border-radius: 16px;
-            padding: 1.2rem 1rem;
+            border-radius: 14px;
+            padding: 0.8rem 0.8rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
@@ -1161,7 +1243,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.1rem;
         }
         .copy-wa-modal .modal-box .wa-options label:hover {
             border-color: #7f9bc0;
@@ -1169,16 +1251,16 @@
         }
         .copy-wa-modal .modal-box .wa-options label input[type="radio"] {
             accent-color: #1d3b5c;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
         }
         .copy-wa-modal .modal-box .wa-options label .wa-label {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
         }
         .copy-wa-modal .modal-box .wa-options label .wa-desc {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #5c738b;
             font-weight: 400;
         }
@@ -1190,29 +1272,30 @@
             display: inline-block;
             background: #c0392b;
             color: white;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             font-weight: 700;
-            padding: 0.1rem 0.6rem;
+            padding: 0.05rem 0.5rem;
             border-radius: 12px;
-            margin-top: 0.2rem;
+            margin-top: 0.1rem;
         }
         .copy-wa-modal .modal-box .wa-count-badge {
             background: #eef3fa;
             border-radius: 40px;
-            padding: 0.2rem 1rem;
-            font-size: 0.8rem;
+            padding: 0.1rem 0.8rem;
+            font-size: 0.75rem;
             color: #1d3b5c;
             display: inline-block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.2rem;
         }
-        /* ===== MODAL MANAGE SHEETS (dengan pemilihan sheet) ===== */
+
+        /* ===== MODAL MANAGE SHEETS ===== */
         .manage-sheets-modal .modal-box {
-            max-width: 580px;
+            max-width: 540px;
         }
         .manage-sheets-modal .modal-box .sheet-list {
-            max-height: 400px;
+            max-height: 340px;
             overflow-y: auto;
-            margin: 0.5rem 0 1rem 0;
+            margin: 0.3rem 0 0.8rem 0;
             border: 1px solid #e6edf5;
             border-radius: 12px;
             overflow: hidden;
@@ -1220,8 +1303,8 @@
         .manage-sheets-modal .modal-box .sheet-list .sheet-item {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            padding: 0.6rem 1rem;
+            gap: 0.6rem;
+            padding: 0.4rem 0.8rem;
             border-bottom: 1px solid #e6edf5;
             transition: background 0.15s;
             background: white;
@@ -1237,7 +1320,7 @@
             flex: 1;
             font-weight: 500;
             color: #1d3b5c;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1252,13 +1335,13 @@
             flex: 1;
             border: 1px solid #cad5e3;
             border-radius: 8px;
-            padding: 0.2rem 0.6rem;
-            font-size: 0.95rem;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.85rem;
             font-weight: 500;
             color: #1d3b5c;
             outline: none;
             background: #fafcff;
-            min-width: 80px;
+            min-width: 70px;
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name-input:focus {
             border-color: #2f6bb0;
@@ -1266,7 +1349,7 @@
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-actions {
             display: flex;
-            gap: 0.3rem;
+            gap: 0.2rem;
             flex-shrink: 0;
             align-items: center;
         }
@@ -1274,8 +1357,8 @@
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 0.9rem;
-            padding: 0.2rem 0.4rem;
+            font-size: 0.8rem;
+            padding: 0.15rem 0.3rem;
             border-radius: 6px;
             transition: background 0.2s, color 0.2s;
             color: #8aa0b8;
@@ -1311,9 +1394,9 @@
         .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-badge-current {
             background: #2b8c5e;
             color: white;
-            font-size: 0.55rem;
+            font-size: 0.5rem;
             font-weight: 700;
-            padding: 0.1rem 0.6rem;
+            padding: 0.05rem 0.5rem;
             border-radius: 12px;
             text-transform: uppercase;
             flex-shrink: 0;
@@ -1323,8 +1406,8 @@
             color: white;
             border: none;
             border-radius: 20px;
-            padding: 0.15rem 0.9rem;
-            font-size: 0.7rem;
+            padding: 0.1rem 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s;
@@ -1340,46 +1423,55 @@
         .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-rename-group {
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.2rem;
             flex: 1;
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-empty {
-            padding: 2rem 1rem;
+            padding: 1.5rem 1rem;
             text-align: center;
             color: #8aa0b8;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
         .manage-sheets-modal .modal-box .sheet-list .sheet-empty .big-icon {
-            font-size: 2rem;
+            font-size: 1.8rem;
             display: block;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.2rem;
         }
         .manage-sheets-modal .modal-box .sheet-count-badge {
             background: #eef3fa;
             border-radius: 40px;
-            padding: 0.15rem 1rem;
-            font-size: 0.8rem;
+            padding: 0.1rem 0.8rem;
+            font-size: 0.75rem;
             color: #1d3b5c;
             display: inline-block;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.1rem;
         }
-        /* ===== MODAL DAFTAR PEJABAT ===== */
+        .manage-sheets-modal .modal-box .modal-actions .btn-danger-outline {
+            background: transparent;
+            color: #c0392b;
+            border: 1.5px solid #c0392b;
+        }
+        .manage-sheets-modal .modal-box .modal-actions .btn-danger-outline:hover {
+            background: #fde8e8;
+        }
+
+        /* ===== MODAL DAFTAR PEJABAT (dengan scroll) ===== */
         .pejabat-list-modal .modal-box {
-            max-width: 520px;
+            max-width: 480px;
         }
         .pejabat-list-modal .modal-box .pejabat-list-container {
-            max-height: 300px;
+            max-height: 220px;
             overflow-y: auto;
-            margin: 0.5rem 0 1rem 0;
+            margin: 0.3rem 0 0.8rem 0;
             border: 1px solid #e6edf5;
             border-radius: 12px;
-            overflow: hidden;
+            overflow-y: auto;
         }
         .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            padding: 0.5rem 1rem;
+            gap: 0.6rem;
+            padding: 0.35rem 0.8rem;
             border-bottom: 1px solid #e6edf5;
             transition: background 0.15s;
             background: white;
@@ -1394,7 +1486,7 @@
             flex: 1;
             font-weight: 500;
             color: #1d3b5c;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-family: 'Courier New', monospace;
             min-width: 0;
             overflow: hidden;
@@ -1403,15 +1495,15 @@
         }
         .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item .pejabat-actions {
             display: flex;
-            gap: 0.4rem;
+            gap: 0.3rem;
             flex-shrink: 0;
         }
         .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-item .pejabat-actions button {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 1rem;
-            padding: 0.2rem 0.4rem;
+            font-size: 0.9rem;
+            padding: 0.15rem 0.3rem;
             border-radius: 6px;
             transition: background 0.2s, color 0.2s;
             color: #8aa0b8;
@@ -1422,39 +1514,39 @@
             background: #fde8e8;
         }
         .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-empty {
-            padding: 2rem 1rem;
+            padding: 1.5rem 1rem;
             text-align: center;
             color: #8aa0b8;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
         .pejabat-list-modal .modal-box .pejabat-list-container .pejabat-empty .big-icon {
-            font-size: 2rem;
+            font-size: 1.8rem;
             display: block;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.2rem;
         }
         .pejabat-list-modal .modal-box .pejabat-count-badge {
             background: #eef3fa;
             border-radius: 40px;
-            padding: 0.15rem 1rem;
-            font-size: 0.8rem;
+            padding: 0.1rem 0.8rem;
+            font-size: 0.75rem;
             color: #1d3b5c;
             display: inline-block;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.1rem;
         }
         .pejabat-list-modal .modal-box .add-pejabat-section {
             display: flex;
-            gap: 0.6rem;
+            gap: 0.4rem;
             flex-wrap: wrap;
-            margin: 0.8rem 0 0.4rem 0;
+            margin: 0.5rem 0 0.3rem 0;
             align-items: center;
         }
         .pejabat-list-modal .modal-box .add-pejabat-section input[type="text"] {
             flex: 1;
-            min-width: 150px;
-            padding: 0.5rem 0.8rem;
+            min-width: 120px;
+            padding: 0.35rem 0.6rem;
             border: 1px solid #cad5e3;
             border-radius: 10px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             outline: none;
             background: white;
             transition: border 0.2s, box-shadow 0.2s;
@@ -1468,11 +1560,12 @@
             color: white;
             border: none;
             border-radius: 40px;
-            padding: 0.45rem 1.4rem;
+            padding: 0.3rem 1.2rem;
             font-weight: 500;
             cursor: pointer;
             transition: background 0.2s;
             white-space: nowrap;
+            font-size: 0.8rem;
         }
         .pejabat-list-modal .modal-box .add-pejabat-section .btn-add-pejabat:hover {
             background: #6c3483;
@@ -1482,19 +1575,19 @@
             cursor: not-allowed;
         }
         .pejabat-list-modal .modal-box .bulk-add-section {
-            margin: 0.6rem 0 0.2rem 0;
+            margin: 0.4rem 0 0.1rem 0;
         }
         .pejabat-list-modal .modal-box .bulk-add-section textarea {
             width: 100%;
-            padding: 0.5rem 0.8rem;
+            padding: 0.4rem 0.6rem;
             border: 1px solid #cad5e3;
             border-radius: 10px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-family: 'Courier New', monospace;
             outline: none;
             background: white;
             resize: vertical;
-            min-height: 60px;
+            min-height: 50px;
             transition: border 0.2s, box-shadow 0.2s;
         }
         .pejabat-list-modal .modal-box .bulk-add-section textarea:focus {
@@ -1503,16 +1596,16 @@
         }
         .pejabat-list-modal .modal-box .bulk-add-section .bulk-actions {
             display: flex;
-            gap: 0.6rem;
+            gap: 0.4rem;
             flex-wrap: wrap;
-            margin-top: 0.3rem;
+            margin-top: 0.2rem;
         }
         .pejabat-list-modal .modal-box .bulk-add-section .bulk-actions button {
-            padding: 0.25rem 1rem;
+            padding: 0.15rem 0.8rem;
             border-radius: 40px;
             border: none;
             font-weight: 500;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             cursor: pointer;
             transition: background 0.2s;
         }
@@ -1531,31 +1624,31 @@
             background: #d5dee9;
         }
         .pejabat-list-modal .modal-box .pejabat-hint {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #8aa0b8;
-            margin-top: 0.3rem;
-            padding: 0.3rem 0.6rem;
+            margin-top: 0.2rem;
+            padding: 0.2rem 0.6rem;
             background: #f4f8fe;
             border-radius: 8px;
         }
 
         /* ===== MODAL KONFIRMASI CUT DATA ===== */
         .cut-confirm-modal .modal-box {
-            max-width: 480px;
+            max-width: 440px;
         }
         .cut-confirm-modal .modal-box .cut-stats {
             background: #f4f8fe;
             border-radius: 12px;
-            padding: 1rem 1.2rem;
-            margin: 0.8rem 0 1.2rem 0;
+            padding: 0.8rem 1rem;
+            margin: 0.6rem 0 0.8rem 0;
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
+            gap: 0.2rem;
         }
         .cut-confirm-modal .modal-box .cut-stats .stat-row {
             display: flex;
             justify-content: space-between;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: #1d3b5c;
         }
         .cut-confirm-modal .modal-box .cut-stats .stat-row .stat-label {
@@ -1573,89 +1666,91 @@
         }
         .cut-confirm-modal .modal-box .warning-text {
             color: #c0392b;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 500;
-            margin-top: 0.2rem;
-            padding: 0.4rem 0.8rem;
+            margin-top: 0.1rem;
+            padding: 0.3rem 0.6rem;
             background: #fde8e8;
             border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
         .cut-confirm-modal .modal-box .filter-list-preview {
-            max-height: 120px;
+            max-height: 80px;
             overflow-y: auto;
             background: #fafcff;
             border: 1px solid #e6edf5;
             border-radius: 8px;
-            padding: 0.4rem 0.8rem;
-            margin: 0.4rem 0 0.6rem 0;
-            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            margin: 0.2rem 0 0.4rem 0;
+            font-size: 0.75rem;
             color: #3b5a7a;
         }
         .cut-confirm-modal .modal-box .filter-list-preview .filter-tag {
             display: inline-block;
             background: #eef3fa;
-            padding: 0.05rem 0.6rem;
+            padding: 0.02rem 0.5rem;
             border-radius: 12px;
-            margin: 0.1rem 0.2rem;
-            font-size: 0.75rem;
+            margin: 0.05rem 0.1rem;
+            font-size: 0.7rem;
         }
+
         /* ----- TOAST ----- */
         .toast {
             position: fixed;
-            bottom: 2rem;
-            right: 2rem;
+            bottom: 1.5rem;
+            right: 1.5rem;
             background: #1d3b5c;
             color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 16px;
+            padding: 0.6rem 1.2rem;
+            border-radius: 14px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             z-index: 2000;
             transform: translateY(120%);
             transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
             opacity: 0;
-            max-width: 400px;
+            max-width: 360px;
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.6rem;
         }
         .toast.show {
             transform: translateY(0);
             opacity: 1;
         }
         .toast .toast-icon {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
         }
         .toast .toast-close {
             background: none;
             border: none;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 1.2rem;
+            font-size: 1rem;
             cursor: pointer;
-            padding: 0 0.2rem;
-            margin-left: 0.3rem;
+            padding: 0 0.1rem;
+            margin-left: 0.2rem;
             transition: color 0.2s;
         }
         .toast .toast-close:hover {
             color: white;
         }
+
         /* ----- COPY WA BUTTON ----- */
         .btn-copy-wa {
             background: #25D366;
             color: white;
             border: none;
             border-radius: 40px;
-            padding: 0.4rem 1.2rem;
-            font-size: 0.85rem;
+            padding: 0.3rem 1rem;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s, transform 0.15s;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.3rem;
             white-space: nowrap;
         }
         .btn-copy-wa:hover {
@@ -1671,10 +1766,10 @@
             transform: none;
         }
         .copy-version-select {
-            padding: 0.2rem 0.8rem 0.2rem 1rem;
+            padding: 0.15rem 0.6rem 0.15rem 0.8rem;
             border-radius: 40px;
             border: 1px solid #cad5e3;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             background: white;
             outline: none;
             cursor: pointer;
@@ -1683,30 +1778,31 @@
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%233b5779' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 0.6rem center;
-            padding-right: 1.8rem;
+            background-position: right 0.4rem center;
+            padding-right: 1.6rem;
         }
         .copy-version-select:focus {
             border-color: #2f6bb0;
             box-shadow: 0 0 0 2px rgba(47, 107, 176, 0.12);
         }
+
         /* ----- RESPONSIVE ----- */
         @media (max-width: 640px) {
             .app {
-                padding: 1.2rem 0.8rem;
+                padding: 0.8rem 0.6rem;
             }
             .app-header h1 {
-                font-size: 1.3rem;
+                font-size: 1.1rem;
             }
             .app-header h1 span {
-                font-size: 0.65rem;
-                padding: 0.1rem 0.6rem;
+                font-size: 0.6rem;
+                padding: 0.05rem 0.5rem;
             }
             .upload-zone {
-                padding: 1.8rem 1rem;
+                padding: 0.8rem 0.5rem;
             }
             .upload-zone .icon {
-                font-size: 2.6rem;
+                font-size: 1.8rem;
             }
             .sheet-bar {
                 flex-direction: column;
@@ -1716,18 +1812,18 @@
                 flex-wrap: wrap;
             }
             .table-wrapper table {
-                font-size: 0.8rem;
-                min-width: 360px;
+                font-size: 0.75rem;
+                min-width: 320px;
             }
             .table-wrapper th,
             .table-wrapper td {
-                padding: 0.45rem 0.6rem;
+                padding: 0.3rem 0.4rem;
             }
             .modal-box {
-                padding: 1.5rem 1.2rem;
+                padding: 1.2rem 0.8rem;
             }
             .modal-box .form-group .radio-group {
-                gap: 0.8rem;
+                gap: 0.6rem;
             }
             .modal-box .modal-actions {
                 flex-direction: column-reverse;
@@ -1740,15 +1836,15 @@
                 display: none;
             }
             .auto-minus30-toggle .label-text {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
             }
             .auto-minus30-toggle .switch {
-                width: 30px;
-                height: 18px;
+                width: 28px;
+                height: 16px;
             }
             .auto-minus30-toggle .slider::before {
-                height: 12px;
-                width: 12px;
+                height: 10px;
+                width: 10px;
                 left: 3px;
                 bottom: 3px;
             }
@@ -1756,16 +1852,16 @@
                 transform: translateX(12px);
             }
             .btn-pejabat-list {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.8rem;
+                font-size: 0.7rem;
+                padding: 0.15rem 0.7rem;
             }
             .btn-cut-data {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.9rem;
+                font-size: 0.7rem;
+                padding: 0.15rem 0.7rem;
             }
             .queue-bar {
                 flex-wrap: wrap;
-                padding: 0.4rem 0.8rem;
+                padding: 0.3rem 0.6rem;
             }
             .queue-bar .queue-file-name {
                 flex-basis: 100%;
@@ -1773,7 +1869,7 @@
             }
             .app-footer {
                 flex-direction: column;
-                gap: 0.5rem;
+                gap: 0.3rem;
             }
             .toast {
                 left: 1rem;
@@ -1782,20 +1878,20 @@
                 max-width: none;
             }
             .filter-dropdown {
-                min-width: 180px;
-                max-width: 260px;
-                left: -40px;
+                min-width: 160px;
+                max-width: 220px;
+                left: -30px;
             }
             .filter-dropdown .range-input-group input[type="number"] {
-                width: 55px;
+                width: 50px;
             }
             .btn-copy-wa {
-                font-size: 0.75rem;
-                padding: 0.3rem 0.9rem;
+                font-size: 0.7rem;
+                padding: 0.2rem 0.7rem;
             }
             .copy-version-select {
-                font-size: 0.7rem;
-                padding: 0.15rem 1.6rem 0.15rem 0.8rem;
+                font-size: 0.65rem;
+                padding: 0.1rem 1.4rem 0.1rem 0.6rem;
             }
             .row-select-modal .modal-box .row-options {
                 flex-direction: column;
@@ -1810,14 +1906,14 @@
                 min-width: unset;
             }
             .connection-status .conn-label {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
             }
             .connection-status {
-                padding: 0.15rem 0.6rem 0.15rem 0.5rem;
+                padding: 0.1rem 0.5rem 0.1rem 0.4rem;
             }
             .manage-sheets-modal .modal-box .sheet-list .sheet-item {
                 flex-wrap: wrap;
-                gap: 0.4rem;
+                gap: 0.3rem;
             }
             .manage-sheets-modal .modal-box .sheet-list .sheet-item .sheet-name {
                 flex-basis: 100%;
@@ -1830,11 +1926,11 @@
                 margin-left: auto;
             }
             .btn-manage-sheets {
-                font-size: 0.75rem;
-                padding: 0.2rem 0.8rem;
+                font-size: 0.7rem;
+                padding: 0.15rem 0.7rem;
             }
             .cut-confirm-modal .modal-box .cut-stats .stat-row {
-                font-size: 0.85rem;
+                font-size: 0.8rem;
             }
             .pejabat-list-modal .modal-box .add-pejabat-section {
                 flex-direction: column;
@@ -1847,12 +1943,19 @@
                 flex-direction: column;
             }
             .sheet-bar .file-name {
-                font-size: 0.8rem;
-                padding: 0.15rem 1rem;
+                font-size: 0.75rem;
+                padding: 0.1rem 0.8rem;
             }
             .manage-sheets-modal .modal-box .sheet-list .sheet-item .btn-set-active {
-                font-size: 0.6rem;
-                padding: 0.1rem 0.6rem;
+                font-size: 0.55rem;
+                padding: 0.05rem 0.5rem;
+            }
+            .upload-filter-group .filter-options {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+            .upload-filter-group .filter-options label {
+                width: 100%;
             }
         }
         @media (max-width: 420px) {
@@ -1868,24 +1971,27 @@
                 justify-content: center;
             }
             .filter-dropdown {
-                min-width: 160px;
-                max-width: 220px;
-                left: -60px;
+                min-width: 140px;
+                max-width: 190px;
+                left: -50px;
             }
             .filter-dropdown .range-mode-group .mode-btn {
-                font-size: 0.6rem;
-                padding: 0.1rem 0.4rem;
+                font-size: 0.55rem;
+                padding: 0.05rem 0.3rem;
             }
             .filter-dropdown .range-input-group input[type="number"] {
-                width: 45px;
+                width: 40px;
             }
             .btn-cut-data {
-                font-size: 0.7rem;
-                padding: 0.2rem 0.7rem;
+                font-size: 0.65rem;
+                padding: 0.1rem 0.6rem;
             }
             .btn-pejabat-list {
-                font-size: 0.7rem;
-                padding: 0.2rem 0.7rem;
+                font-size: 0.65rem;
+                padding: 0.1rem 0.6rem;
+            }
+            .pejabat-list-modal .modal-box .pejabat-list-container {
+                max-height: 160px;
             }
         }
     </style>
@@ -1899,7 +2005,7 @@
                 📂 Pengelola Excel
                 <span>.xlsx .xls</span>
             </h1>
-            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
                 <!-- Connection Status -->
                 <div class="connection-status offline" id="connectionStatus">
                     <span class="conn-dot"></span>
@@ -1911,7 +2017,7 @@
                 </div>
             </div>
         </div>
-        <!-- UPLOAD ZONE -->
+        <!-- UPLOAD ZONE (lebih kecil) -->
         <div class="upload-zone" id="uploadZone">
             <div class="icon">📄</div>
             <h3>Seret &amp; letakkan file Excel di sini</h3>
@@ -1927,7 +2033,7 @@
             <span class="queue-status-text" id="queueStatusText">⏳ Menunggu konfirmasi...</span>
             <button class="queue-cancel-btn" id="queueCancelBtn" title="Batalkan semua antrian">✕</button>
         </div>
-        <!-- SHEET BAR (tanpa dropdown sheet) -->
+        <!-- SHEET BAR -->
         <div class="sheet-bar" id="sheetBar" style="display:none;">
             <div class="left">
                 <span class="file-name" id="fileNameDisplay">
@@ -1937,20 +2043,18 @@
                     📋 Kelola Sheet
                 </button>
                 <button class="btn-delete-sheet" id="clearFiltersBtn" title="Hapus semua filter" style="color:#7f8fa3;">🧹</button>
-                <!-- TOMBOL CUT DATA -->
                 <button class="btn-cut-data" id="cutDataBtn" title="Potong/hapus data yang TIDAK sesuai filter">
                     ✂️ Cut Data
                 </button>
-                <!-- TOMBOL DAFTAR PEJABAT -->
                 <button class="btn-pejabat-list" id="pejabatListBtn" title="Kelola daftar No Layanan yang ditandai sebagai Pejabat">
                     👤 Daftar Pejabat
                     <span class="badge-count" id="pejabatBadgeCount">0</span>
                 </button>
                 <span class="stats" id="rowCount">0 baris</span>
             </div>
-            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
-                <!-- AUTO -30 TOGGLE (localStorage) -->
-                <label class="auto-minus30-toggle" id="autoMinus30Toggle" title="Filter otomatis Masa Aktif <= -30 & sort descending (local perangkat)">
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+                <!-- AUTO -30 TOGGLE -->
+                <label class="auto-minus30-toggle" id="autoMinus30Toggle" title="Filter otomatis Masa Aktif <= -30 & Status Pembayaran = NUNGGAK, sort descending">
                     <span class="label-text"><span class="icon">🔻</span> Auto -30</span>
                     <span class="switch">
                         <input type="checkbox" id="autoMinus30Checkbox" />
@@ -1997,17 +2101,17 @@
         </div>
     </div>
 
-    <!-- ===== MODAL ROW SELECTION ===== -->
+    <!-- ===== MODAL ROW SELECTION + FILTER UPLOAD ===== -->
     <div class="modal-overlay row-select-modal" id="rowSelectModal">
         <div class="modal-box">
             <h2>
-                📌 Pilih Baris Header
-                <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="rowSelectCounter"></span>
+                📌 Pilih Baris Header &amp; Filter
+                <span style="font-size:0.7rem;font-weight:400;color:#5c738b;margin-left:auto;" id="rowSelectCounter"></span>
             </h2>
-            <p class="sub" id="rowSelectSubText">Tentukan baris mana yang akan digunakan sebagai <strong>header</strong> (judul kolom) saat membaca file Excel.</p>
-            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.2rem;">
+            <p class="sub" id="rowSelectSubText">Tentukan baris header dan pilih filter data saat upload.</p>
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.1rem;">
                 <span class="file-count-badge" id="rowSelectFileCount">📎 0 file</span>
-                <span style="font-size:0.8rem;color:#5c738b;" id="rowSelectFileList"></span>
+                <span style="font-size:0.75rem;color:#5c738b;" id="rowSelectFileList"></span>
             </div>
             <div class="row-options" id="rowOptions">
                 <label id="rowOption1" class="selected">
@@ -2021,6 +2125,25 @@
                     <span class="row-desc">Baris kedua sebagai header (baris 1 dilewati)</span>
                 </label>
             </div>
+
+            <!-- FILTER UPLOAD: NUNGGAK / FULL -->
+            <div class="upload-filter-group" id="uploadFilterGroup">
+                <span class="filter-label">🧹 Filter Data Saat Upload</span>
+                <div class="filter-options" id="uploadFilterOptions">
+                    <label id="filterOptionNunggak" class="selected">
+                        <input type="radio" name="uploadFilter" value="nunggak" checked />
+                        <span class="filter-badge nunggak">NUNGGAK</span>
+                        <span style="font-size:0.75rem;">Hanya data dengan Status Pembayaran = NUNGGAK</span>
+                    </label>
+                    <label id="filterOptionFull">
+                        <input type="radio" name="uploadFilter" value="full" />
+                        <span class="filter-badge full">FULL</span>
+                        <span style="font-size:0.75rem;">Semua data (tanpa cut)</span>
+                    </label>
+                </div>
+                <div class="filter-desc" id="uploadFilterDesc">📌 Pilih <strong>NUNGGAK</strong> untuk menyaring data yang akan diupload, atau <strong>FULL</strong> untuk upload semua data.</div>
+            </div>
+
             <div class="modal-actions">
                 <button class="btn-secondary" id="rowSelectCancelBtn">Batal</button>
                 <button class="btn-primary" id="rowSelectConfirmBtn">✅ Proses</button>
@@ -2033,7 +2156,7 @@
         <div class="modal-box">
             <h2>
                 📥 Pilih Tujuan Sheet
-                <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="modalCounter"></span>
+                <span style="font-size:0.7rem;font-weight:400;color:#5c738b;margin-left:auto;" id="modalCounter"></span>
             </h2>
             <p class="sub" id="modalSubText">Data dari file akan ditambahkan ke sheet yang dipilih.</p>
             <div class="file-preview">
@@ -2076,12 +2199,12 @@
         <div class="modal-box">
             <h2>
                 💬 Copy WhatsApp
-                <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="copyWaCounter"></span>
+                <span style="font-size:0.7rem;font-weight:400;color:#5c738b;margin-left:auto;" id="copyWaCounter"></span>
             </h2>
             <p class="sub" id="copyWaSubText">Pilih opsi penyalinan data ke format WhatsApp.</p>
-            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.2rem;">
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.1rem;">
                 <span class="wa-count-badge" id="copyWaCount">📊 0 baris</span>
-                <span style="font-size:0.8rem;color:#5c738b;" id="copyWaInfo"></span>
+                <span style="font-size:0.75rem;color:#5c738b;" id="copyWaInfo"></span>
             </div>
             <div class="wa-options" id="waOptions">
                 <label id="waOptionWithLabel" class="selected">
@@ -2102,17 +2225,17 @@
         </div>
     </div>
 
-    <!-- ===== MODAL MANAGE SHEETS (dengan pemilihan sheet) ===== -->
+    <!-- ===== MODAL MANAGE SHEETS ===== -->
     <div class="modal-overlay manage-sheets-modal" id="manageSheetsModal">
         <div class="modal-box">
             <h2>
                 📋 Kelola Sheet
-                <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="manageSheetsCounter"></span>
+                <span style="font-size:0.7rem;font-weight:400;color:#5c738b;margin-left:auto;" id="manageSheetsCounter"></span>
             </h2>
             <p class="sub">Kelola semua sheet: <strong>pilih</strong> sheet yang ditampilkan, <strong>hapus</strong>, atau <strong>ubah nama</strong> sheet.</p>
-            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.3rem;">
                 <span class="sheet-count-badge" id="manageSheetsCount">📑 0 sheet</span>
-                <span style="font-size:0.8rem;color:#5c738b;" id="manageSheetsInfo"></span>
+                <span style="font-size:0.75rem;color:#5c738b;" id="manageSheetsInfo"></span>
             </div>
             <div class="sheet-list" id="sheetListContainer">
                 <div class="sheet-empty">
@@ -2121,23 +2244,25 @@
                 </div>
             </div>
             <div class="modal-actions">
+                <button class="btn-danger-outline" id="deleteAllSheetsBtn" title="Hapus SEMUA sheet">🗑️ Hapus Semua Sheet</button>
                 <button class="btn-secondary" id="manageSheetsCloseBtn">Tutup</button>
             </div>
         </div>
     </div>
 
-    <!-- ===== MODAL DAFTAR PEJABAT ===== -->
+    <!-- ===== MODAL DAFTAR PEJABAT (dengan scroll) ===== -->
     <div class="modal-overlay pejabat-list-modal" id="pejabatListModal">
         <div class="modal-box">
             <h2>
                 👤 Daftar Pejabat
-                <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="pejabatModalCounter"></span>
+                <span style="font-size:0.7rem;font-weight:400;color:#5c738b;margin-left:auto;" id="pejabatModalCounter"></span>
             </h2>
             <p class="sub">Daftar <strong>No Layanan</strong> yang akan ditandai sebagai <strong>Pejabat</strong> (warna merah + label). Data ini <strong>bersifat global</strong> untuk semua sheet dan tersimpan di Firebase secara realtime.</p>
-            <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.3rem;">
                 <span class="pejabat-count-badge" id="pejabatListCount">👤 0 entri</span>
-                <span style="font-size:0.8rem;color:#5c738b;" id="pejabatListInfo"></span>
+                <span style="font-size:0.75rem;color:#5c738b;" id="pejabatListInfo"></span>
             </div>
+            <!-- SCROLLABLE LIST -->
             <div class="pejabat-list-container" id="pejabatListContainer">
                 <div class="pejabat-empty">
                     <span class="big-icon">📭</span>
@@ -2170,7 +2295,7 @@
         <div class="modal-box">
             <h2>
                 ✂️ Potong Data
-                <span style="font-size:0.8rem;font-weight:400;color:#5c738b;margin-left:auto;" id="cutModalCounter"></span>
+                <span style="font-size:0.7rem;font-weight:400;color:#5c738b;margin-left:auto;" id="cutModalCounter"></span>
             </h2>
             <p class="sub" id="cutModalSubText">Data yang <strong>TIDAK</strong> sesuai filter akan dihapus secara permanen.</p>
             <div class="cut-stats" id="cutStats">
@@ -2191,7 +2316,7 @@
                 <div class="warning-text">
                     ⚠️ Data yang dihapus <strong>tidak dapat dikembalikan</strong>!
                 </div>
-                <div style="margin-top:0.5rem;font-size:0.85rem;color:#5c738b;">
+                <div style="margin-top:0.3rem;font-size:0.8rem;color:#5c738b;">
                     <strong>Filter aktif:</strong>
                     <div class="filter-list-preview" id="cutFilterList"></div>
                 </div>
@@ -2357,6 +2482,9 @@
             const rowSelectConfirmBtn = document.getElementById('rowSelectConfirmBtn');
             const rowSelectCancelBtn = document.getElementById('rowSelectCancelBtn');
             const rowOptions = document.getElementById('rowOptions');
+            const uploadFilterOptions = document.getElementById('uploadFilterOptions');
+            const filterOptionNunggak = document.getElementById('filterOptionNunggak');
+            const filterOptionFull = document.getElementById('filterOptionFull');
 
             const modalOverlay = document.getElementById('modalOverlay');
             const modalFileName = document.getElementById('modalFileName');
@@ -2388,8 +2516,8 @@
             const manageSheetsInfo = document.getElementById('manageSheetsInfo');
             const sheetListContainer = document.getElementById('sheetListContainer');
             const manageSheetsCloseBtn = document.getElementById('manageSheetsCloseBtn');
+            const deleteAllSheetsBtn = document.getElementById('deleteAllSheetsBtn');
 
-            // Pejabat List Modal
             const pejabatListModal = document.getElementById('pejabatListModal');
             const pejabatModalCounter = document.getElementById('pejabatModalCounter');
             const pejabatListCount = document.getElementById('pejabatListCount');
@@ -2402,7 +2530,6 @@
             const pejabatBulkClearBtn = document.getElementById('pejabatBulkClearBtn');
             const pejabatListCloseBtn = document.getElementById('pejabatListCloseBtn');
 
-            // Cut confirm modal
             const cutConfirmModal = document.getElementById('cutConfirmModal');
             const cutModalCounter = document.getElementById('cutModalCounter');
             const cutModalSubText = document.getElementById('cutModalSubText');
@@ -2426,7 +2553,6 @@
 
             const state = {
                 sheets: {},
-                // pejabatList GLOBAL (tidak per sheet)
                 pejabatList: new Set(),
                 filters: {},
                 currentSheet: loadCurrentSheetFromLocal(),
@@ -2434,6 +2560,7 @@
                 autoMinus30Enabled: localSettings.autoMinus30,
                 copyVersion: 2,
                 pendingFileData: null,
+                uploadFilter: 'nunggak', // 'nunggak' or 'full'
             };
 
             const queue = {
@@ -2456,10 +2583,9 @@
             // ============================================================
             const FIREBASE_PATH_SHEETS = 'sheets';
             const FIREBASE_PATH_APPSTATE = 'appState';
-            const FIREBASE_PATH_PEJABAT = 'pejabatList'; // path terpisah untuk global
+            const FIREBASE_PATH_PEJABAT = 'pejabatList';
 
             function loadAllDataFromFirebase() {
-                // Load sheets
                 db.ref(FIREBASE_PATH_SHEETS).once('value', (snap) => {
                     const data = snap.val() || {};
                     firebaseSheets = data;
@@ -2469,7 +2595,6 @@
                     syncFirebaseToState();
                 });
 
-                // Load appState
                 db.ref(FIREBASE_PATH_APPSTATE).once('value', (snap) => {
                     const data = snap.val() || {};
                     firebaseAppState = data;
@@ -2479,7 +2604,6 @@
                     syncAppStateToState();
                 });
 
-                // Load pejabatList GLOBAL
                 db.ref(FIREBASE_PATH_PEJABAT).once('value', (snap) => {
                     const data = snap.val() || [];
                     state.pejabatList = new Set(data);
@@ -2490,20 +2614,17 @@
                     console.warn('Gagal load pejabatList:', err);
                 });
 
-                // Listener realtime untuk pejabatList
                 db.ref(FIREBASE_PATH_PEJABAT).on('value', (snap) => {
                     const data = snap.val() || [];
                     state.pejabatList = new Set(data);
                     updatePejabatStatus();
                     updatePejabatBadge();
                     if (state.currentSheet) renderSheet(state.currentSheet);
-                    // Jika modal pejabat terbuka, refresh daftar
                     if (pejabatListModal.classList.contains('open')) {
                         renderPejabatList();
                     }
                 });
 
-                // Listener untuk sheets (realtime)
                 db.ref(FIREBASE_PATH_SHEETS).on('value', (snap) => {
                     const data = snap.val() || {};
                     firebaseSheets = data;
@@ -2531,8 +2652,6 @@
                         rows: sheetData.rows || [],
                         _meta: sheetData._meta || {},
                     };
-                    // PEJABAT TIDAK LAGI DISIMPAN DI SHEET — menggunakan global
-                    // Ambil filters dari sheet (tetap per sheet)
                     const fData = sheetData.filters || {};
                     for (const [key, val] of Object.entries(fData)) {
                         const fKey = sheetName + '|' + key;
@@ -2552,7 +2671,6 @@
 
                 updateSheetSelectInternal();
 
-                // Cek currentSheet dari localStorage
                 let targetSheet = state.currentSheet;
                 if (targetSheet && !state.sheets[targetSheet]) {
                     targetSheet = null;
@@ -2630,8 +2748,6 @@
                 const sheetData = state.sheets[sheetName];
                 if (!sheetData) return;
 
-                // PEJABAT TIDAK LAGI DISIMPAN DI SHEET — sudah global
-
                 const filtersObj = {};
                 const prefix = sheetName + '|';
                 for (const [key, f] of Object.entries(state.filters)) {
@@ -2653,7 +2769,6 @@
                     rows: sheetData.rows || [],
                     _meta: sheetData._meta || {},
                     filters: filtersObj,
-                    // pejabatList dihapus
                 };
 
                 db.ref(FIREBASE_PATH_SHEETS + '/' + sheetName).set(payload)
@@ -2671,7 +2786,6 @@
                     });
             }
 
-            // Fungsi simpan pejabat global
             function savePejabatListToFirebase() {
                 if (!isOnline) {
                     showToast('⚠️', 'Offline — perubahan pejabat tidak tersimpan');
@@ -2707,7 +2821,6 @@
                     .then((snap) => {
                         const data = snap.val();
                         if (!data) throw new Error('Sheet "' + oldName + '" tidak ditemukan.');
-                        // Hapus pejabatList dari data (jika ada) karena sekarang global
                         delete data.pejabatList;
                         return db.ref(FIREBASE_PATH_SHEETS + '/' + newName).set(data)
                             .then(() => {
@@ -2832,7 +2945,7 @@
             }
 
             // ============================================================
-            //  AUTO-FIT DYNAMIC (tanpa toggle, selalu aktif)
+            //  AUTO-FIT DYNAMIC
             // ============================================================
             function getTextWidth(text, font) {
                 if (!text) return 0;
@@ -2877,7 +2990,7 @@
 
                 const computedStyle = window.getComputedStyle(ths[0] || document.body);
                 const font = computedStyle.font || '14px "Segoe UI", Roboto, sans-serif';
-                const paddingTotal = 24;
+                const paddingTotal = 20;
 
                 const maxWidths = columnTexts.map(texts => {
                     let maxW = 0;
@@ -2888,8 +3001,8 @@
                     return maxW + paddingTotal;
                 });
 
-                const MIN_COL_WIDTH = 60;
-                const MAX_COL_WIDTH = 400;
+                const MIN_COL_WIDTH = 50;
+                const MAX_COL_WIDTH = 350;
                 const finalWidths = maxWidths.map(w => {
                     let clamped = Math.max(MIN_COL_WIDTH, w);
                     return Math.min(MAX_COL_WIDTH, clamped);
@@ -2921,7 +3034,7 @@
             }
 
             // ============================================================
-            //  READ FILE DATA
+            //  READ FILE DATA (dengan deteksi Status Pembayaran)
             // ============================================================
             function readFileData(file, headerRow) {
                 return new Promise((resolve, reject) => {
@@ -2978,6 +3091,7 @@
                             let finalHeaders = cleanHeaders;
                             let finalRows = filteredRows;
 
+                            // Deteksi kolom
                             let namaIdx = -1;
                             const namaVariants = ['nama', 'name', 'Nama', 'Name', 'NAMA'];
                             for (let i = 0; i < finalHeaders.length; i++) {
@@ -3049,6 +3163,34 @@
                                 }
                             }
 
+                            // === DETEKSI STATUS PEMBAYARAN (untuk filter NUNGGAK) ===
+                            let statusPembayaranIdx = -1;
+                            const spVariants = [
+                                'status pembayaran', 'status_pembayaran', 'pembayaran',
+                                'status bayar', 'status_bayar', 'statusbayar',
+                                'payment status', 'payment', 'status payment',
+                                'status', 'Status Pembayaran', 'STATUS PEMBAYARAN',
+                                'statusbayar', 'status bayar', 'bayar', 'payment'
+                            ];
+                            for (let i = 0; i < finalHeaders.length; i++) {
+                                const h = finalHeaders[i].toString().trim().toLowerCase();
+                                if (spVariants.some(v => h === v.toLowerCase() || h.includes(v.toLowerCase()))) {
+                                    statusPembayaranIdx = i;
+                                    break;
+                                }
+                            }
+                            // Jika tidak ditemukan, coba cari dengan kata kunci lebih longgar
+                            if (statusPembayaranIdx === -1) {
+                                for (let i = 0; i < finalHeaders.length; i++) {
+                                    const h = finalHeaders[i].toString().trim().toLowerCase();
+                                    if (h.includes('pembayaran') || h.includes('bayar') || h.includes('payment')) {
+                                        statusPembayaranIdx = i;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Kolom Masa Aktif & SRB/SYN
                             const masaAktifCol = [];
                             const srbSynCol = [];
                             for (let r = 0; r < finalRows.length; r++) {
@@ -3113,6 +3255,8 @@
                             const finalNoTelpIdx = (noTelpIdx >= 0) ? adjustIdx(noTelpIdx) : -1;
                             const finalNoLayananIdx = (noLayananIdx >= 0) ? adjustIdx(noLayananIdx) : -1;
                             const finalKodePosIdx = (kodePosIdx >= 0) ? adjustIdx(kodePosIdx) : -1;
+                            const finalStatusPembayaranIdx = (statusPembayaranIdx >= 0) ? adjustIdx(statusPembayaranIdx) :
+                            -1;
 
                             const numbered = ensureNoColumn(finalHeaders, finalRows, 1);
                             finalHeaders = numbered.headers;
@@ -3133,6 +3277,7 @@
                                     noTelpIdx: finalNoTelpIdx,
                                     noLayananIdx: finalNoLayananIdx,
                                     kodePosIdx: finalKodePosIdx,
+                                    statusPembayaranIdx: finalStatusPembayaranIdx,
                                 }
                             });
                         } catch (err) {
@@ -3394,10 +3539,16 @@
                 rowSelectFileList.textContent = names.length > 60 ? names.substring(0, 60) + '…' : names;
                 rowSelectCounter.textContent = `(${count} file)`;
                 rowSelectSubText.innerHTML =
-                    `Tentukan baris mana yang akan digunakan sebagai <strong>header</strong> (judul kolom) saat membaca file Excel. Pilihan berlaku untuk <strong>semua ${count} file</strong>.`;
+                    `Tentukan baris header dan pilih filter data saat upload. Pilihan berlaku untuk <strong>semua ${count} file</strong>.`;
                 document.querySelector('input[name="headerRow"][value="0"]').checked = true;
                 rowOption1.classList.add('selected');
                 rowOption2.classList.remove('selected');
+
+                // Reset filter option ke NUNGGAK
+                document.querySelector('input[name="uploadFilter"][value="nunggak"]').checked = true;
+                filterOptionNunggak.classList.add('selected');
+                filterOptionFull.classList.remove('selected');
+
                 rowSelectModal.classList.add('open');
             }
 
@@ -3412,12 +3563,40 @@
                     return;
                 }
                 const headerRow = parseInt(selected.value, 10);
+
+                const filterSelected = document.querySelector('input[name="uploadFilter"]:checked');
+                const uploadFilter = filterSelected ? filterSelected.value : 'full';
+                state.uploadFilter = uploadFilter;
+
                 const files = queue.pendingFileObjects;
                 queue.pendingFileObjects = [];
                 const promises = files.map(file => readFileData(file, headerRow));
                 Promise.all(promises)
                     .then(results => {
+                        let filteredCount = 0;
+                        let totalRows = 0;
                         results.forEach(result => {
+                            // Terapkan filter NUNGGAK jika dipilih
+                            const meta = result._meta || {};
+                            const spIdx = meta.statusPembayaranIdx;
+                            let rows = result.rows;
+                            if (state.uploadFilter === 'nunggak' && spIdx >= 0 && spIdx < result.headers
+                            .length) {
+                                const originalRows = rows.length;
+                                rows = rows.filter(row => {
+                                    const val = (row[spIdx] !== undefined && row[spIdx] !== null) ?
+                                        String(row[spIdx]).trim().toUpperCase() : '';
+                                    return val === 'NUNGGAK';
+                                });
+                                filteredCount += originalRows - rows.length;
+                                totalRows += rows.length;
+                                result.rows = rows;
+                            } else if (state.uploadFilter === 'nunggak' && spIdx === -1) {
+                                // Tidak ada kolom Status Pembayaran -> warning tapi tetap lanjut
+                                showToast('⚠️',
+                                    `Kolom "Status Pembayaran" tidak ditemukan di "${result.fileName}", filter NUNGGAK tidak diterapkan.`
+                                    );
+                            }
                             queue.files.push({
                                 file: null,
                                 fileName: result.fileName,
@@ -3433,7 +3612,10 @@
                         } else {
                             updateQueueUI();
                         }
-                        showToast('📌', `Menggunakan Baris ${headerRow + 1} sebagai header untuk ${results.length} file`);
+                        const filterMsg = state.uploadFilter === 'nunggak' ?
+                            ` (NUNGGAK: ${filteredCount} baris difilter, ${totalRows} baris tersisa)` :
+                            ` (FULL: semua data)`;
+                        showToast('📌', `Menggunakan Baris ${headerRow + 1} sebagai header${filterMsg}`);
                     })
                     .catch(err => {
                         console.error(err);
@@ -3458,6 +3640,17 @@
                 if (radio) {
                     radio.checked = true;
                     document.querySelectorAll('#rowOptions label').forEach(l => l.classList.remove('selected'));
+                    label.classList.add('selected');
+                }
+            });
+
+            uploadFilterOptions.addEventListener('click', function(e) {
+                const label = e.target.closest('label');
+                if (!label) return;
+                const radio = label.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    document.querySelectorAll('#uploadFilterOptions label').forEach(l => l.classList.remove('selected'));
                     label.classList.add('selected');
                 }
             });
@@ -3573,8 +3766,9 @@
                 modalFileCounter.textContent = `${index + 1}/${total}`;
                 modalCounter.textContent = `(${index + 1} dari ${total})`;
                 const headerRowUsed = state.pendingFileData?.headerRowUsed ?? 0;
+                const filterMsg = state.uploadFilter === 'nunggak' ? ' (filter NUNGGAK aktif)' : ' (FULL)';
                 modalSubText.textContent =
-                    `Data dari file akan ditambahkan ke sheet yang dipilih. (Header: Baris ${headerRowUsed + 1})`;
+                    `Data dari file akan ditambahkan ke sheet yang dipilih. (Header: Baris ${headerRowUsed + 1}${filterMsg})`;
 
                 const existingNames = getSheetNames();
                 const hasExisting = existingNames.length > 0;
@@ -3713,7 +3907,6 @@
                         });
                         existing.rows = existing.rows.concat(adjustedNewRows);
                         state.sheets[targetSheetName] = existing;
-                        // PEJABAT GLOBAL — tidak perlu inisialisasi per sheet
                         saveSheetToFirebase(targetSheetName);
                         updateSheetSelectInternal();
                         state.currentSheet = targetSheetName;
@@ -3741,7 +3934,6 @@
                             rows: finalRows,
                             _meta: _meta || {},
                         };
-                        // PEJABAT GLOBAL — tidak perlu inisialisasi per sheet
                         const fKey = targetSheetName + '|';
                         for (let i = 0; i < finalHeaders.length; i++) {
                             const key = fKey + i;
@@ -4040,6 +4232,7 @@
                     let noTelpIdx = -1;
                     let noLayananIdx = -1;
                     let kodePosIdx = -1;
+                    let statusPembayaranIdx = -1;
 
                     if (meta.masaAktifIdx !== undefined && meta.masaAktifIdx >= 0 && meta.masaAktifIdx < headers.length) {
                         masaAktifIdx = meta.masaAktifIdx;
@@ -4058,6 +4251,10 @@
                     }
                     if (meta.kodePosIdx !== undefined && meta.kodePosIdx >= 0 && meta.kodePosIdx < headers.length) {
                         kodePosIdx = meta.kodePosIdx;
+                    }
+                    if (meta.statusPembayaranIdx !== undefined && meta.statusPembayaranIdx >= 0 && meta
+                        .statusPembayaranIdx < headers.length) {
+                        statusPembayaranIdx = meta.statusPembayaranIdx;
                     }
 
                     if (masaAktifIdx === -1) {
@@ -4099,8 +4296,16 @@
                             if (kodeKeywords.some(k => h === k)) { kodePosIdx = i; break; }
                         }
                     }
+                    if (statusPembayaranIdx === -1) {
+                        const spKeywords = ['status pembayaran', 'status_pembayaran', 'pembayaran', 'status bayar',
+                            'status_bayar', 'bayar', 'payment'
+                        ];
+                        for (let i = 0; i < headers.length; i++) {
+                            const h = headers[i].toString().trim().toLowerCase();
+                            if (spKeywords.some(k => h === k || h.includes(k))) { statusPembayaranIdx = i; break; }
+                        }
+                    }
 
-                    // --- Ambil daftar Pejabat GLOBAL ---
                     const pejabatSet = state.pejabatList;
 
                     let forceFilter = null;
@@ -4122,8 +4327,10 @@
                     const activeFilters = getActiveFilters(sheetName);
                     const hasManualFilters = Object.keys(activeFilters).length > 0;
                     let filteredRows = rows;
+
                     if (hasManualFilters || forceFilter) {
                         filteredRows = rows.filter(row => {
+                            // Filter manual
                             for (const colIdxStr in activeFilters) {
                                 const colIdx = parseInt(colIdxStr);
                                 const filterInfo = activeFilters[colIdx];
@@ -4159,6 +4366,7 @@
                                     }
                                 }
                             }
+                            // Force filter (Auto -30)
                             if (forceFilter) {
                                 const cellVal = (row[forceFilter.colIdx] !== undefined && row[forceFilter.colIdx] !==
                                     null) ? String(row[forceFilter.colIdx]) : '';
@@ -4171,13 +4379,22 @@
                         });
                     }
 
+                    // === AUTO -30 juga filter Status Pembayaran = NUNGGAK ===
+                    if (state.autoMinus30Enabled && statusPembayaranIdx >= 0) {
+                        filteredRows = filteredRows.filter(row => {
+                            const val = (row[statusPembayaranIdx] !== undefined && row[statusPembayaranIdx] !==
+                                null) ?
+                                String(row[statusPembayaranIdx]).trim().toUpperCase() : '';
+                            return val === 'NUNGGAK';
+                        });
+                    }
+
                     let effectiveSort = state.sortState;
                     if (forceSort) {
                         effectiveSort = forceSort;
                     }
                     const sortedRows = applySortWithOverride(filteredRows, headers, masaAktifIdx, effectiveSort);
 
-                    // ---- Cek Pejabat berdasarkan No Layanan (GLOBAL) ----
                     const showPejabat = true;
                     let displayHeaders = [];
                     let displayRows = [];
@@ -4215,6 +4432,7 @@
                     const actualNamaIdx = namaIdx >= 0 ? namaIdx + labelColOffset : -1;
                     const actualSrbSynIdx = srbSynIdx >= 0 ? srbSynIdx + labelColOffset : -1;
                     const actualNoLayananIdx = noLayananIdx >= 0 ? noLayananIdx + labelColOffset : -1;
+                    const actualStatusPembayaranIdx = statusPembayaranIdx >= 0 ? statusPembayaranIdx + labelColOffset : -1;
 
                     let theadHtml = '<tr>';
                     for (let i = 0; i < actualHeaders.length; i++) {
@@ -4228,7 +4446,8 @@
                         if (i === 1) cls += ' col-label';
 
                         const isFiltered = isColumnFiltered(sheetName, i - labelColOffset) || (forceFilter && (i -
-                            labelColOffset) === masaAktifIdx);
+                            labelColOffset) === masaAktifIdx) ||
+                            (state.autoMinus30Enabled && (i - labelColOffset) === statusPembayaranIdx);
                         const filterActiveClass = isFiltered ? 'active' : '';
                         const isMasaAktif = (i === actualMasaAktifIdx);
                         const isSorted = (effectiveSort.column === (i - labelColOffset) && effectiveSort.direction !==
@@ -4311,6 +4530,7 @@
                         let msg = 'Tidak ada data';
                         if (hasManualFilters || forceFilter) msg = 'Tidak ada data yang cocok dengan filter';
                         if (forceFilter && !hasManualFilters) msg = 'Tidak ada data dengan Masa Aktif <= -30';
+                        if (state.autoMinus30Enabled && statusPembayaranIdx >= 0) msg += ' dan Status Pembayaran = NUNGGAK';
                         tableBody.innerHTML = `
                             <tr><td colspan="${actualHeaders.length}" class="empty-msg">
                                 <span class="big-icon">🔍</span>
@@ -4382,7 +4602,10 @@
                         const parts = [];
                         if (hasManualFilters) parts.push('filter manual');
                         if (forceFilter) parts.push('Auto -30');
+                        if (state.autoMinus30Enabled && statusPembayaranIdx >= 0) parts.push('NUNGGAK');
                         filterInfo = ` (difilter: ${parts.join(' + ')} dari ${rows.length} baris)`;
+                    } else if (state.autoMinus30Enabled && statusPembayaranIdx >= 0) {
+                        filterInfo = ` (difilter: NUNGGAK dari ${rows.length} baris)`;
                     }
                     const sortInfo = effectiveSort.column !== null ? ` · diurutkan` : '';
                     rowCount.textContent =
@@ -4393,7 +4616,6 @@
 
                     attachFilterAndSortEvents(sheetName, masaAktifIdx, forceSort, labelColOffset);
 
-                    // === Terapkan auto-fit dinamis (selalu aktif) ===
                     applyAutoFitDynamic();
 
                     updateFilterStatus();
@@ -4402,7 +4624,8 @@
                     updatePejabatBadge();
 
                     data._filteredRows = actualRows;
-                    data._hasFilters = hasManualFilters || forceFilter !== null;
+                    data._hasFilters = hasManualFilters || forceFilter !== null || (state.autoMinus30Enabled &&
+                        statusPembayaranIdx >= 0);
                     data._sortState = { column: effectiveSort.column, direction: effectiveSort.direction };
                     data._autoMinus30Active = state.autoMinus30Enabled;
                     data._indices = {
@@ -4412,6 +4635,7 @@
                         noTelpIdx: noTelpIdx >= 0 ? noTelpIdx + labelColOffset : -1,
                         noLayananIdx: noLayananIdx >= 0 ? noLayananIdx + labelColOffset : -1,
                         kodePosIdx: kodePosIdx >= 0 ? kodePosIdx + labelColOffset : -1,
+                        statusPembayaranIdx: actualStatusPembayaranIdx,
                         labelColOffset: labelColOffset,
                         showPejabat: true,
                     };
@@ -4840,7 +5064,7 @@
             }
 
             // ============================================================
-            //  SHEET MANAGEMENT (tanpa dropdown utama)
+            //  SHEET MANAGEMENT
             // ============================================================
             function updateSheetSelectInternal() {
                 const names = getSheetNames();
@@ -4906,7 +5130,7 @@
             }
 
             // ============================================================
-            //  MANAGE SHEETS MODAL (dengan pemilihan sheet)
+            //  MANAGE SHEETS MODAL
             // ============================================================
             function openManageSheetsModal() {
                 renderManageSheetsList();
@@ -4964,7 +5188,6 @@
                 });
                 container.innerHTML = html;
 
-                // Event: Tampilkan sheet
                 container.querySelectorAll('.btn-set-active').forEach(btn => {
                     btn.addEventListener('click', function(e) {
                         e.stopPropagation();
@@ -4973,7 +5196,6 @@
                     });
                 });
 
-                // Event: klik pada nama sheet juga bisa switch
                 container.querySelectorAll('.sheet-name').forEach(el => {
                     el.addEventListener('click', function() {
                         const sheetName = this.textContent.trim();
@@ -5240,6 +5462,54 @@
                     });
             }
 
+            // ---- HAPUS SEMUA SHEET ----
+            function deleteAllSheets() {
+                const names = getSheetNames();
+                if (names.length === 0) {
+                    showToast('ℹ️', 'Tidak ada sheet untuk dihapus.');
+                    return;
+                }
+                if (!confirm(`⚠️ Hapus SEMUA ${names.length} sheet beserta seluruh datanya? Tindakan ini TIDAK DAPAT DIBATALKAN!`))
+                    return;
+                if (!confirm('Yakin? Data akan hilang permanen.')) return;
+
+                const promises = names.map(name => deleteSheetFromFirebase(name));
+                Promise.all(promises)
+                    .then(() => {
+                        state.sheets = {};
+                        state.filters = {};
+                        state.currentSheet = null;
+                        saveCurrentSheetToLocal(null);
+                        state.sortState.column = null;
+                        state.sortState.direction = null;
+                        saveAppStateToFirebase();
+
+                        tableHead.innerHTML = '';
+                        tableBody.innerHTML = `
+                            <tr><td colspan="1" class="empty-msg">
+                                <span class="big-icon">📊</span>
+                                Unggah file Excel untuk mulai mengelola data
+                            </td></tr>
+                        `;
+                        rowCount.textContent = '0 baris';
+                        cellCount.textContent = '';
+                        sheetBar.style.display = 'none';
+                        setStatus(false, 'Belum ada sheet');
+                        updateSheetCount();
+                        updateFilterStatus();
+                        updateAutoMinus30Status();
+                        updatePejabatStatus();
+                        closeManageSheetsModal();
+                        showToast('🗑️', `Berhasil menghapus ${names.length} sheet.`);
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        showToast('❌', 'Gagal menghapus sheet: ' + err.message);
+                    });
+            }
+
+            deleteAllSheetsBtn.addEventListener('click', deleteAllSheets);
+
             function updateSheetCount() {
                 const names = getSheetNames();
                 sheetCount.textContent = `📑 ${names.length} sheet`;
@@ -5280,7 +5550,7 @@
                     return;
                 }
 
-                const pejabatSet = state.pejabatList; // GLOBAL
+                const pejabatSet = state.pejabatList;
                 const meta = data._meta || {};
                 let noLayananIdx = meta.noLayananIdx !== undefined ? meta.noLayananIdx : -1;
                 if (noLayananIdx === -1) {
@@ -5350,7 +5620,7 @@
                 const headers = data.headers || [];
                 const meta = data._meta || {};
                 const indices = data._indices || {};
-                const pejabatSet = state.pejabatList; // GLOBAL
+                const pejabatSet = state.pejabatList;
 
                 if (!rows || rows.length === 0) {
                     showToast('⚠️', 'Tidak ada data yang cocok dengan filter.');
@@ -5533,7 +5803,8 @@
                                     }
                                 }
 
-                                lines.push(`${itemIdx + 1}. = ${formatItem(noTelp, brand, idPelanggan, hari, isPejabat)}`);
+                                lines.push(
+                                    `${itemIdx + 1}. = ${formatItem(noTelp, brand, idPelanggan, hari, isPejabat)}`);
                             });
                             if (sortedKode.indexOf(kode) < sortedKode.length - 1) {
                                 lines.push('');
@@ -5568,7 +5839,8 @@
                                 }
                             }
 
-                            lines.push(`${itemIdx + 1}. = ${formatItem(noTelp, brand, idPelanggan, hari, isPejabat)}`);
+                            lines.push(
+                                `${itemIdx + 1}. = ${formatItem(noTelp, brand, idPelanggan, hari, isPejabat)}`);
                         });
 
                         if (sortedKeys.indexOf(brandKey) < sortedKeys.length - 1) {
@@ -5711,6 +5983,28 @@
                     keepRows = [];
                 }
 
+                // Tambahan filter NUNGGAK untuk auto -30
+                if (state.autoMinus30Enabled) {
+                    const meta = data._meta || {};
+                    let spIdx = meta.statusPembayaranIdx !== undefined ? meta.statusPembayaranIdx : -1;
+                    if (spIdx === -1) {
+                        for (let i = 0; i < data.headers.length; i++) {
+                            const h = data.headers[i].toString().trim().toLowerCase();
+                            if (h.includes('pembayaran') || h.includes('bayar') || h.includes('payment')) {
+                                spIdx = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (spIdx >= 0) {
+                        keepRows = keepRows.filter(row => {
+                            const val = (row[spIdx] !== undefined && row[spIdx] !== null) ?
+                                String(row[spIdx]).trim().toUpperCase() : '';
+                            return val === 'NUNGGAK';
+                        });
+                    }
+                }
+
                 const keepCount = keepRows.length;
                 const deleteCount = totalAll - keepCount;
 
@@ -5721,7 +6015,7 @@
                 const filterListEl = document.getElementById('cutFilterList');
                 const noFilterWarning = document.getElementById('cutNoFilterWarning');
 
-                if (hasAnyFilter) {
+                if (hasAnyFilter || state.autoMinus30Enabled) {
                     noFilterWarning.style.display = 'none';
                     let filterDesc = [];
                     for (const colIdxStr in activeFilters) {
@@ -5753,7 +6047,28 @@
                     }
                     if (forceFilter) {
                         const headerName = data.headers[forceFilter.colIdx] || 'Kolom ' + (forceFilter.colIdx + 1);
-                        filterDesc.push(`<span class="filter-tag" style="background:#fde8e8;">${escapeHtml(headerName)} ≤ -30 (Auto -30)</span>`);
+                        filterDesc.push(
+                            `<span class="filter-tag" style="background:#fde8e8;">${escapeHtml(headerName)} ≤ -30 (Auto -30)</span>`
+                            );
+                    }
+                    if (state.autoMinus30Enabled) {
+                        const meta = data._meta || {};
+                        let spIdx = meta.statusPembayaranIdx !== undefined ? meta.statusPembayaranIdx : -1;
+                        if (spIdx === -1) {
+                            for (let i = 0; i < data.headers.length; i++) {
+                                const h = data.headers[i].toString().trim().toLowerCase();
+                                if (h.includes('pembayaran') || h.includes('bayar') || h.includes('payment')) {
+                                    spIdx = i;
+                                    break;
+                                }
+                            }
+                        }
+                        if (spIdx >= 0) {
+                            const headerName = data.headers[spIdx] || 'Kolom ' + (spIdx + 1);
+                            filterDesc.push(
+                                `<span class="filter-tag" style="background:#fde8e8;">${escapeHtml(headerName)} = NUNGGAK (Auto -30)</span>`
+                                );
+                        }
                     }
                     filterListEl.innerHTML = filterDesc.length > 0 ? filterDesc.join(' ') :
                         '<span style="color:#8aa0b8;">Tidak ada filter spesifik</span>';
@@ -5872,6 +6187,28 @@
                     });
                 } else {
                     keepRows = [];
+                }
+
+                // Tambahan NUNGGAK untuk auto -30
+                if (state.autoMinus30Enabled) {
+                    const meta = data._meta || {};
+                    let spIdx = meta.statusPembayaranIdx !== undefined ? meta.statusPembayaranIdx : -1;
+                    if (spIdx === -1) {
+                        for (let i = 0; i < data.headers.length; i++) {
+                            const h = data.headers[i].toString().trim().toLowerCase();
+                            if (h.includes('pembayaran') || h.includes('bayar') || h.includes('payment')) {
+                                spIdx = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (spIdx >= 0) {
+                        keepRows = keepRows.filter(row => {
+                            const val = (row[spIdx] !== undefined && row[spIdx] !== null) ?
+                                String(row[spIdx]).trim().toUpperCase() : '';
+                            return val === 'NUNGGAK';
+                        });
+                    }
                 }
 
                 const keepCount = keepRows.length;
@@ -6067,7 +6404,7 @@
             }
 
             // ============================================================
-            //  TOGGLE FUNCTIONS (Auto -30 via localStorage)
+            //  TOGGLE FUNCTIONS (Auto -30)
             // ============================================================
             function toggleAutoMinus30(checked) {
                 state.autoMinus30Enabled = checked;
@@ -6085,7 +6422,7 @@
                 }
                 updateAutoMinus30Status();
                 if (state.autoMinus30Enabled) {
-                    showToast('🔻', 'Auto -30 aktif: menampilkan Masa Aktif <= -30, diurutkan maks ke min');
+                    showToast('🔻', 'Auto -30 aktif: Masa Aktif <= -30 & Status Pembayaran = NUNGGAK, diurutkan maks ke min');
                 } else {
                     showToast('ℹ️', 'Auto -30 dinonaktifkan');
                 }
@@ -6329,6 +6666,10 @@
             console.log('☁️ Data sheet di Firebase, pejabat di Firebase dengan path terpisah');
             console.log('📡 Status online/offline otomatis');
             console.log('✅ Auto Fit selalu aktif — data tampil rapih tanpa toggle');
+            console.log('🔄 Auto -30: Masa Aktif <= -30 + Status Pembayaran = NUNGGAK');
+            console.log('📤 Upload filter: NUNGGAK / FULL (pilihan saat pilih header)');
+            console.log('🗑️ Kelola Sheet: tambahan tombol Hapus Semua Sheet');
+            console.log('📜 Daftar Pejabat: scrollable list');
 
         })();
     </script>
