@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V7.3</title>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Monitoring Teknisi Sinyalku</title>
     <style>
         * {
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f6f9;
+            background: #f4f6f9;
             padding: 10px;
             color: #333;
             margin: 0;
-            font-size: 14px;
+            font-size: 14px
         }
         .sync-notification {
             position: fixed;
@@ -24,30 +23,69 @@
             right: 20px;
             padding: 12px 20px;
             border-radius: 8px;
-            font-weight: bold;
+            font-weight: 700;
             z-index: 10000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
             display: flex;
             align-items: center;
             gap: 10px;
             max-width: 300px;
-            animation: slideIn 0.3s ease;
-            opacity: 0.95;
+            animation: slideIn .3s ease;
+            opacity: .95
         }
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 0.95; }
+            from {
+                transform: translateX(100%);
+                opacity: 0
+            }
+            to {
+                transform: translateX(0);
+                opacity: .95
+            }
         }
-        .sync-notification.saving { background-color: #007bff; color: white; border-left: 5px solid #0056b3; }
-        .sync-notification.success { background-color: #28a745; color: white; border-left: 5px solid #1e7e34; }
-        .sync-notification.error { background-color: #dc3545; color: white; border-left: 5px solid #bd2130; }
-        .sync-notification.warning { background-color: #ffc107; color: #212529; border-left: 5px solid #d39e00; }
-        .sync-notification .sync-icon { font-size: 1.2rem; }
-        .sync-notification .sync-close { background: transparent; border: none; color: inherit; font-size: 1.2rem; cursor: pointer; margin-left: auto; }
-        .sync-notification.fade-out { animation: fadeOut 0.5s ease forwards; }
+        .sync-notification.saving {
+            background: #007bff;
+            color: #fff;
+            border-left: 5px solid #0056b3
+        }
+        .sync-notification.success {
+            background: #28a745;
+            color: #fff;
+            border-left: 5px solid #1e7e34
+        }
+        .sync-notification.error {
+            background: #dc3545;
+            color: #fff;
+            border-left: 5px solid #bd2130
+        }
+        .sync-notification.warning {
+            background: #ffc107;
+            color: #212529;
+            border-left: 5px solid #d39e00
+        }
+        .sync-notification .sync-icon {
+            font-size: 1.2rem
+        }
+        .sync-notification .sync-close {
+            background: 0 0;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: auto
+        }
+        .sync-notification.fade-out {
+            animation: fadeOut .5s ease forwards
+        }
         @keyframes fadeOut {
-            from { opacity: 0.95; transform: translateX(0); }
-            to { opacity: 0; transform: translateX(100%); }
+            from {
+                opacity: .95;
+                transform: translateX(0)
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%)
+            }
         }
         .connection-status {
             display: inline-flex;
@@ -55,502 +93,1901 @@
             gap: 5px;
             padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-left: 10px;
+            font-size: .8rem;
+            font-weight: 700;
+            margin-left: 10px
         }
-        .connection-status.connected { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .connection-status.connecting { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .connection-status.disconnected { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .connection-status .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .connection-status.connected .status-dot { background-color: #28a745; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .connection-status.connecting .status-dot { background-color: #ffc107; animation: blink 1.5s infinite; }
-        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .connection-status.disconnected .status-dot { background-color: #dc3545; }
+        .connection-status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb
+        }
+        .connection-status.connecting {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba
+        }
+        .connection-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb
+        }
+        .connection-status .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block
+        }
+        .connection-status.connected .status-dot {
+            background: #28a745;
+            animation: pulse 2s infinite
+        }
+        @keyframes pulse {
+            0% {
+                opacity: 1
+            }
+            50% {
+                opacity: .5
+            }
+            100% {
+                opacity: 1
+            }
+        }
+        .connection-status.connecting .status-dot {
+            background: #ffc107;
+            animation: blink 1.5s infinite
+        }
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1
+            }
+            50% {
+                opacity: .3
+            }
+        }
+        .connection-status.disconnected .status-dot {
+            background: #dc3545
+        }
         #landing-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background: #1a2a3a;
             z-index: 9999;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            overflow-y: auto;
+            overflow-y: auto
         }
         .landing-box {
-            background: white;
+            background: #fff;
             width: 100%;
             max-width: 450px;
             padding: 25px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .3);
+            position: relative
         }
-        .landing-title { font-size: 1.4rem; font-weight: bold; color: #333; margin-bottom: 5px; }
-        .landing-subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+        .landing-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px
+        }
+        .landing-subtitle {
+            color: #666;
+            font-size: .9rem;
+            margin-bottom: 20px
+        }
         .tech-list-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 10px;
-            width: 100%;
+            width: 100%
         }
         .btn-select-team {
-            background: white;
+            background: #fff;
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 10px;
-            font-weight: bold;
+            font-weight: 700;
             color: #333;
             cursor: pointer;
             text-align: center;
-            font-size: 0.95rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s;
+            font-size: .95rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, .05);
+            transition: all .2s
         }
-        .btn-select-team:hover { border-color: #007bff; transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        .btn-select-team:active { background: #f0f7ff; border-color: #007bff; color: #007bff; transform: scale(0.98); }
-        .btn-select-team span { display: block; font-size: 0.8rem; color: #888; margin-top: 3px; font-weight: normal; }
+        .btn-select-team:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, .1)
+        }
+        .btn-select-team:active {
+            background: #f0f7ff;
+            border-color: #007bff;
+            color: #007bff;
+            transform: scale(.98)
+        }
+        .btn-select-team span {
+            display: block;
+            font-size: .8rem;
+            color: #888;
+            margin-top: 3px;
+            font-weight: 400
+        }
+        .btn-select-team.team-inactive {
+            opacity: .4;
+            border-color: #dc3545;
+            pointer-events: none
+        }
         .btn-back-home {
             background: #6c757d;
-            color: white;
+            color: #fff;
             border: none;
             padding: 8px 15px;
             border-radius: 50px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             display: none;
             margin-bottom: 15px;
-            width: 100%;
+            width: 100%
         }
-        .container { max-width: 1000px; margin: 0 auto; width: 100%; display: none; }
-        .header-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; text-align: center; }
-        h1 { color: #2c3e50; margin: 0 0 15px 0; font-size: 1.5rem; line-height: 1.3; }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            display: none
+        }
+        .header-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+            text-align: center
+        }
+        h1 {
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+            font-size: 1.5rem;
+            line-height: 1.3
+        }
         .team-card {
-            background: white;
+            background: #fff;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
             margin-bottom: 20px;
             overflow: hidden;
-            border: 1px solid #e1e4e8;
+            border: 1px solid #e1e4e8
         }
         .team-header {
             padding: 15px;
-            color: white;
-            font-weight: bold;
+            color: #fff;
+            font-weight: 700;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 1rem;
+            flex-wrap: wrap;
+            gap: 8px
         }
-        .bg-blue { background: linear-gradient(135deg, #007bff, #0056b3); }
-        .bg-green { background: linear-gradient(135deg, #28a745, #1e7e34); }
-        .bg-red { background: linear-gradient(135deg, #dc3545, #bd2130); }
-        .bg-orange { background: linear-gradient(135deg, #fd7e14, #e35d0b); }
-        .bg-purple { background: linear-gradient(135deg, #6f42c1, #59359a); }
-        .bg-teal { background: linear-gradient(135deg, #20c997, #198766); }
-        .bg-dark { background: linear-gradient(135deg, #343a40, #23272b); }
-        .job-list { list-style: none; padding: 0; margin: 0; }
-        .job-item { border-bottom: 1px solid #eee; padding: 15px; transition: background 0.3s; }
-        .job-main-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
-        .job-left { display: flex; align-items: flex-start; gap: 12px; flex: 1 1 50%; min-width: 250px; }
-        .status-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; margin-top: 2px; }
+        .team-header .header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            flex: 1;
+            min-width: 120px
+        }
+        .team-header .header-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+        .bg-blue {
+            background: #007bff
+        }
+        .bg-green {
+            background: #28a745
+        }
+        .bg-red {
+            background: #dc3545
+        }
+        .bg-orange {
+            background: #fd7e14
+        }
+        .bg-purple {
+            background: #6f42c1
+        }
+        .bg-teal {
+            background: #20c997
+        }
+        .bg-dark {
+            background: #343a40
+        }
+        .job-list {
+            list-style: none;
+            padding: 0;
+            margin: 0
+        }
+        .job-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px;
+            transition: background .3s
+        }
+        .job-main-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            justify-content: space-between
+        }
+        .job-left {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            flex: 1 1 40%;
+            min-width: 220px
+        }
+        .job-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 1 auto;
+            min-width: 140px
+        }
+        .job-center .tikor-input {
+            width: 120px;
+            padding: 4px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: .75rem;
+            background: #fff;
+            transition: border .2s
+        }
+        .job-center .tikor-input:focus {
+            border-color: #8b5cf6;
+            outline: 0;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, .2)
+        }
+        .job-center .tikor-input.tikor-filled {
+            border-color: #28a745;
+            background: #f0fff4
+        }
+        .job-center .tikor-input.tikor-invalid {
+            border-color: #dc3545;
+            background: #fff5f5
+        }
+        .distance-badge {
+            font-size: .7rem;
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px
+        }
+        .distance-badge.near {
+            background: #d4edda;
+            color: #155724
+        }
+        .distance-badge.far {
+            background: #f8d7da;
+            color: #721c24
+        }
+        .distance-badge.medium {
+            background: #fff3cd;
+            color: #856404
+        }
+        .compass-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 10px 2px 6px;
+            border-radius: 20px;
+            font-size: .7rem;
+            font-weight: 600;
+            background: #e8f0fe;
+            color: #1a73e8;
+            border: 1px solid #c5d8f0;
+            white-space: nowrap;
+            line-height: 1.4
+        }
+        .compass-badge.near {
+            background: #d4edda;
+            color: #155724;
+            border-color: #a5d6a7
+        }
+        .compass-badge.far {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb
+        }
+        .compass-badge.medium {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffeeba
+        }
+        .compass-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            position: relative;
+            display: inline-block;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, .5);
+            transition: border-color .3s
+        }
+        .compass-circle .needle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 10px;
+            background: currentColor;
+            transform-origin: bottom center;
+            transform: translate(-50%, -100%) rotate(0deg);
+            border-radius: 1px;
+            transition: transform .6s cubic-bezier(.34, 1.56, .64, 1)
+        }
+        .compass-circle .needle::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 8px;
+            height: 8px;
+            background: currentColor;
+            border-radius: 50%;
+            opacity: .7
+        }
+        .compass-circle .needle::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 3px solid transparent;
+            border-right: 3px solid transparent;
+            border-top: 4px solid currentColor
+        }
+        .compass-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+            font-size: .65rem
+        }
+        .compass-info .dist {
+            font-weight: 700;
+            font-size: .75rem
+        }
+        .compass-info .dir {
+            font-weight: 500;
+            opacity: .8;
+            font-size: .6rem;
+            letter-spacing: .3px
+        }
+        .compass-arrow {
+            font-size: .8rem;
+            margin: 0 1px
+        }
+        .status-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex-shrink: 0;
+            margin-top: 2px
+        }
         .btn-check-status {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             border: 2px solid #ddd;
-            background: white;
+            background: #fff;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
-            transition: all 0.2s;
-            outline: none;
+            transition: all .2s;
+            outline: 0
         }
-        .btn-check-status:hover { background-color: #f8f9fa; }
-        .btn-check-status.active-success { background-color: #28a745; border-color: #28a745; color: white; }
-        .btn-check-status.active-fail { background-color: #dc3545; border-color: #dc3545; color: white; }
-        .btn-check-status.inactive { opacity: 0.4; transform: scale(0.9); }
-        .customer-info h3 { margin: 0; font-size: 1.05rem; color: #2c3e50; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .customer-info p { margin: 4px 0 0; font-size: 0.9rem; color: #666; }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-top: 4px; }
-        .badge-psb { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
-        .badge-mt { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .badge-isolir { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-        .toggle-btn, .btn-copy { padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; flex: 1; text-align: center; }
-        .toggle-btn { background: #f0f7ff; border: 1px solid #007bff; color: #007bff; }
-        .btn-copy { background: #fff5eb; border: 1px solid #fd7e14; color: #fd7e14; }
-        .btn-copy-team { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; flex: none; display: flex; align-items: center; gap: 5px; }
-        .btn-copy-team:hover { background: rgba(255,255,255,0.3); }
-        .btn-view-stock { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-left: 5px; }
-        .btn-view-stock:hover { background: rgba(0,0,0,0.4); }
-        .btn-sc { background: #e8f0fe; border: 1px solid #1a73e8; color: #1a73e8; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 60px; }
-        .btn-sc:hover { background: #d2e3fc; border-color: #0d62d9; }
-        .job-details { display: none; margin-top: 15px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
-        .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
-        .detail-item { background: white; padding: 8px; border-radius: 4px; border: 1px solid #eee; }
-        .detail-label { font-size: 0.75rem; color: #888; display: block; margin-bottom: 2px; }
-        .detail-value { font-size: 0.95rem; color: #333; font-weight: 500; word-break: break-word; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .manual-input-section { background-color: #fff; border: 1px solid #dfe6ed; padding: 15px; border-radius: 8px; }
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .input-group label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 4px; }
-        .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; }
-        .locked-input { background-color: #e9ecef; color: #495057; cursor: not-allowed; border: 1px solid #ced4da; font-weight: bold; }
-        .modem-selector { background-color: #e8f0fe; border: 1px solid #1a73e8; color: #1a73e8; font-weight: bold; margin-bottom: 10px; width: 100%; padding: 10px; border-radius: 5px; }
-        .btn-back-modem { background-color: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-left: 8px; transition: 0.2s; }
-        .btn-back-modem:disabled { background-color: #adb5bd; cursor: not-allowed; opacity: 0.6; }
-        .progress-container { height: 6px; background: #e9ecef; width: 100%; }
-        .progress-bar { background: #28a745; width: 0%; transition: width 0.4s ease; }
-        .job-item.completed { background-color: #f6fff9; opacity: 0.9; }
-        .job-item.completed .customer-info h3 { text-decoration: line-through; color: #28a745; }
-        .job-item.failed { background-color: #fff5f5; border-left: 4px solid #dc3545; }
-        .job-item.failed .customer-info h3 { color: #dc3545; }
-        .fail-reason-box { background: #ffebee; color: #c62828; padding: 5px 8px; border-radius: 4px; font-size: 0.85rem; margin-top: 5px; display: inline-block; font-weight: bold; border: 1px dashed #ef9a9a; }
-        .success-note-box { background: #e8f5e9; color: #2e7d32; padding: 5px 8px; border-radius: 4px; font-size: 0.85rem; margin-top: 5px; display: inline-block; font-weight: bold; border: 1px dashed #a5d6a7; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); padding-top: 50px; }
-        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 900px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
-        .close-modal { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .table-stock { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-        .table-stock th, .table-stock td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .table-stock th { background-color: #f8f9fa; color: #333; font-weight: bold; }
-        .table-stock tr:nth-child(even) { background-color: #f9f9f9; }
-        .btn-icon-del { background: #ffebee; color: #dc3545; border: 1px solid #dc3545; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; }
-        .btn-icon-return { background: #e8f5e9; color: #28a745; border: 1px solid #28a745; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; }
-        .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-bottom: 2px; }
-        .st-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .st-installed { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; text-decoration: line-through; color: #dc3545; }
-        .olt-view { background: #e9ecef; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block; color: #333; }
-        @media (max-width: 600px) {
-            body { padding: 5px; background-color: #fff; }
-            .container { padding: 0; }
-            .header-section { margin: 15px 5px; }
-            .btn-action-main { width: 100%; margin-bottom: 5px; }
-            .team-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; border-bottom: 2px solid #ddd; margin-bottom: 15px; }
-            .job-main-row { flex-direction: column; align-items: stretch; }
-            .job-left { width: 100%; margin-bottom: 10px; }
-            .action-buttons { width: 100%; justify-content: space-between; }
-            .status-actions { flex-direction: row; justify-content: flex-start; margin-bottom: 10px; }
-            .modal-content { width: 95%; padding: 15px; margin-top: 10px; }
-            .input-grid { grid-template-columns: 1fr; }
-            .tech-list-grid { grid-template-columns: 1fr; }
-            .table-stock { font-size: 0.8rem; }
-            .sync-notification { bottom: 10px; right: 10px; left: 10px; max-width: none; }
+        .btn-check-status:hover {
+            background: #f8f9fa
+        }
+        .btn-check-status.active-success {
+            background: #28a745;
+            border-color: #28a745;
+            color: #fff
+        }
+        .btn-check-status.active-fail {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: #fff
+        }
+        .btn-check-status.inactive {
+            opacity: .4;
+            transform: scale(.9)
+        }
+        .customer-info h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap
+        }
+        .customer-info p {
+            margin: 4px 0 0;
+            font-size: .9rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-top: 4px
+        }
+        .badge-psb {
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #bbdefb
+        }
+        .badge-mt {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba
+        }
+        .badge-isolir {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+        .btn-copy,
+        .btn-history,
+        .toggle-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            text-align: center;
+            border: 1px solid
+        }
+        .btn-history {
+            background: #f3e8ff;
+            border-color: #8b5cf6;
+            color: #6d28d9;
+            flex: 0 1 auto;
+            min-width: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px
+        }
+        .btn-history:hover {
+            background: #ede9fe;
+            border-color: #7c3aed
+        }
+        .btn-history.has-history {
+            background: #8b5cf6;
+            border-color: #7c3aed;
+            color: #fff
+        }
+        .btn-history.has-history:hover {
+            background: #7c3aed
+        }
+        .btn-history.disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            pointer-events: none
+        }
+        .btn-copy {
+            background: #fff5eb;
+            border-color: #fd7e14;
+            color: #fd7e14
+        }
+        .toggle-btn {
+            background: #f0f7ff;
+            border-color: #007bff;
+            color: #007bff
+        }
+        .btn-copy-team {
+            background: rgba(255, 255, 255, .2);
+            border: 1px solid rgba(255, 255, 255, .5);
+            color: #fff;
+            flex: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer
+        }
+        .btn-copy-team:hover {
+            background: rgba(255, 255, 255, .3)
+        }
+        .btn-view-stock {
+            background: rgba(0, 0, 0, .2);
+            border: 1px solid rgba(255, 255, 255, .4);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: .85rem;
+            font-weight: 600;
+            margin-left: 5px
+        }
+        .btn-view-stock:hover {
+            background: rgba(0, 0, 0, .4)
+        }
+        .job-details {
+            display: none;
+            margin-top: 15px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px
+        }
+        .detail-item {
+            background: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            position: relative
+        }
+        .detail-label {
+            font-size: .75rem;
+            color: #888;
+            display: block;
+            margin-bottom: 2px
+        }
+        .detail-value {
+            font-size: .95rem;
+            color: #333;
+            font-weight: 500;
+            word-break: break-word;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+        .manual-input-section {
+            background: #fff;
+            border: 1px solid #dfe6ed;
+            padding: 15px;
+            border-radius: 8px
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+        .input-group label {
+            display: block;
+            font-size: .8rem;
+            color: #666;
+            margin-bottom: 4px
+        }
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem
+        }
+        .locked-input {
+            background: #e9ecef;
+            color: #495057;
+            cursor: not-allowed;
+            border: 1px solid #ced4da;
+            font-weight: 700
+        }
+        .modem-selector {
+            background: #e8f0fe;
+            border: 1px solid #1a73e8;
+            color: #1a73e8;
+            font-weight: 700;
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px
+        }
+        .btn-back-modem {
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: .2s
+        }
+        .btn-back-modem:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+            opacity: .6
+        }
+        .btn-back-modem:not(:disabled):hover {
+            background: #5a6268
+        }
+        .progress-container {
+            height: 6px;
+            background: #e9ecef;
+            width: 100%
+        }
+        .progress-bar {
+            background: #28a745;
+            width: 0%;
+            transition: width .4s ease
+        }
+        .job-item.completed {
+            background: #f6fff9;
+            opacity: .9
+        }
+        .job-item.completed .customer-info h3 {
+            text-decoration: line-through;
+            color: #28a745
+        }
+        .job-item.failed {
+            background: #fff5f5;
+            border-left: 4px solid #dc3545
+        }
+        .job-item.failed .customer-info h3 {
+            color: #dc3545
+        }
+        .fail-reason-box {
+            background: #ffebee;
+            color: #c62828;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: .85rem;
+            margin-top: 5px;
+            display: inline-block;
+            font-weight: 700;
+            border: 1px dashed #ef9a9a
+        }
+        .success-note-box {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: .85rem;
+            margin-top: 5px;
+            display: inline-block;
+            font-weight: 700;
+            border: 1px dashed #a5d6a7
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background: rgba(0, 0, 0, .5);
+            padding-top: 50px
+        }
+        .modal-content {
+            background: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 900px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .3);
+            max-height: 90vh;
+            overflow-y: auto
+        }
+        .modal-content.small {
+            max-width: 480px
+        }
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: 700;
+            cursor: pointer
+        }
+        .form-group {
+            margin-bottom: 12px
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: .9rem;
+            font-weight: 500
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem
+        }
+        .table-stock {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: .85rem
+        }
+        .table-stock th,
+        .table-stock td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left
+        }
+        .table-stock th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 700
+        }
+        .table-stock tr:nth-child(even) {
+            background: #f9f9f9
+        }
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 2px
+        }
+        .st-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba
+        }
+        .st-installed {
+            background: #cce5ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+            text-decoration: line-through
+        }
+        .olt-display-badge {
+            background: #e9ecef;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: #495057;
+            display: inline-block;
+            font-size: .85rem;
+            border: 1px solid #ced4da;
+            letter-spacing: .3px
+        }
+        .olt-display-badge.olt-zt {
+            background: #cce5ff;
+            border-color: #1a73e8;
+            color: #004085
+        }
+        .olt-display-badge.olt-hsgq {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724
+        }
+        .olt-display-badge.olt-epon {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404
+        }
+        .olt-display-badge.olt-unknown {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+            color: #6c757d
+        }
+        .history-badge-count {
+            background: #8b5cf6;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 8px;
+            font-size: .7rem;
+            font-weight: 700;
+            line-height: 1.6;
+            min-width: 20px;
+            text-align: center;
+            display: inline-block
+        }
+        .history-modal-content {
+            max-width: 900px
+        }
+        .history-list-container {
+            max-height: 60vh;
+            overflow-y: auto
+        }
+        .history-entry {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border-left: 4px solid #8b5cf6;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            align-items: center;
+            border: 1px solid #e9ecef;
+            border-left-width: 5px
+        }
+        .history-entry .h-date {
+            font-weight: 700;
+            color: #1e293b;
+            min-width: 100px;
+            font-size: .85rem;
+            background: #e9ecef;
+            padding: 2px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px
+        }
+        .history-entry .h-status {
+            font-weight: 600;
+            font-size: .8rem;
+            padding: 2px 12px;
+            border-radius: 20px;
+            display: inline-block
+        }
+        .history-entry .h-status.selesai {
+            background: #d4edda;
+            color: #155724
+        }
+        .history-entry .h-status.gagal {
+            background: #f8d7da;
+            color: #721c24
+        }
+        .history-entry .h-status.pending {
+            background: #fff3cd;
+            color: #856404
+        }
+        .history-entry .h-tech {
+            font-weight: 600;
+            color: #1a73e8;
+            font-size: .85rem
+        }
+        .history-entry .h-catatan {
+            color: #555;
+            font-size: .8rem;
+            flex: 1;
+            min-width: 120px
+        }
+        .history-entry .h-kategori {
+            font-size: .7rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: #e9ecef
+        }
+        .history-entry .h-kategori.psb {
+            background: #dbeafe;
+            color: #1e40af
+        }
+        .history-entry .h-kategori.kunjungan {
+            background: #fef3c7;
+            color: #92400e
+        }
+        .history-entry .h-kategori.isolir {
+            background: #fee2e2;
+            color: #991b1b
+        }
+        .history-empty {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+            font-style: italic
+        }
+        @media (max-width:600px) {
+            body {
+                padding: 5px;
+                background: #fff
+            }
+            .container {
+                padding: 0
+            }
+            .header-section {
+                margin: 15px 5px
+            }
+            .team-card {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                box-shadow: none;
+                border-bottom: 2px solid #ddd;
+                margin-bottom: 15px
+            }
+            .job-main-row {
+                flex-direction: column;
+                align-items: stretch
+            }
+            .job-left {
+                width: 100%;
+                margin-bottom: 10px
+            }
+            .job-center {
+                width: 100%;
+                justify-content: flex-start
+            }
+            .job-center .tikor-input {
+                width: 100%;
+                max-width: 200px
+            }
+            .action-buttons {
+                width: 100%;
+                justify-content: space-between
+            }
+            .status-actions {
+                flex-direction: row;
+                justify-content: flex-start;
+                margin-bottom: 10px
+            }
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+                margin-top: 10px
+            }
+            .input-grid {
+                grid-template-columns: 1fr
+            }
+            .tech-list-grid {
+                grid-template-columns: 1fr
+            }
+            .table-stock {
+                font-size: .8rem
+            }
+            .sync-notification {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none
+            }
+            .team-header {
+                flex-direction: column;
+                align-items: stretch
+            }
+            .team-header .header-right {
+                justify-content: flex-start;
+                flex-wrap: wrap
+            }
+            .compass-badge {
+                font-size: .6rem;
+                padding: 1px 6px 1px 4px
+            }
+            .compass-circle {
+                width: 20px;
+                height: 20px
+            }
+            .compass-circle .needle {
+                height: 8px
+            }
+            .compass-info .dist {
+                font-size: .65rem
+            }
+            .compass-info .dir {
+                font-size: .5rem
+            }
+            .history-entry {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px
+            }
+            .history-entry .h-date {
+                align-self: flex-start
+            }
         }
     </style>
 </head>
 <body>
 
-<div id="sync-notification-container"></div>
+    <div id="sync-notification-container"></div>
 
-<!-- LANDING -->
-<div id="landing-overlay">
-    <div class="landing-box">
-        <div class="landing-title">👋 Halo, Sinyalku Team!</div>
-        <div class="landing-subtitle">Silakan pilih tim Anda untuk melanjutkan:</div>
-        <div id="loading-text" style="margin-top:20px; color:#888;">Menghubungkan ke database...</div>
-        <div class="tech-list-grid" id="landing-tech-grid" style="display:none;"></div>
-        <div id="landing-empty-msg" style="display:none; color:#999; font-style:italic; margin-top:20px;">Belum ada tiket aktif saat ini.</div>
-    </div>
-</div>
-
-<!-- MAIN APP -->
-<div class="container" id="main-app-container">
-    <div class="header-section">
-        <button class="btn-back-home" id="btn-back-tech" onclick="exitTechMode()">⬅️ Kembali / Ganti Tim</button>
-        <h1>📋 Monitoring Teknisi<br><span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database</span>
-            <div id="connection-status">Connecting to server...</div>
-        </h1>
-    </div>
-    <div id="teams-container"><p style="text-align: center; color: #888;">Memuat data...</p></div>
-</div>
-
-<!-- MODAL STOK MODEM (Tanpa Oper Modem) -->
-<div id="modalStockList" class="modal">
-    <div class="modal-content" style="max-width: 900px;">
-        <span class="close-modal" onclick="closeStockListModal()">&times;</span>
-        <h2 style="margin-top: 0; text-align: center; color: #17a2b8;">📦 Data Stok Modem Tim</h2>
-        <h4 id="stock-list-title" style="text-align: center; margin: 0 0 15px 0; color: #666;"></h4>
-        <div id="stock-stats" style="display:flex; gap:20px; justify-content:center; margin-bottom:10px;"></div>
-        <div style="overflow-x: auto;">
-            <table class="table-stock">
-                <thead>
-                    <tr><th>No</th><th>Serial Number (SN)</th><th>MAC Address</th><th>Kategori</th><th>Status</th><th style="min-width:100px;">Aksi</th></tr>
-                </thead>
-                <tbody id="stock-table-body"></tbody>
-            </table>
-            <div id="stock-empty-msg" style="text-align: center; padding: 20px; color: #999; font-style: italic; display: none;">Belum ada data stok modem.</div>
+    <div id="landing-overlay">
+        <div class="landing-box">
+            <div class="landing-title">👋 Halo, Sinyalku Team!</div>
+            <div class="landing-subtitle">Silakan pilih tim Anda untuk melanjutkan:</div>
+            <div id="loading-text" style="margin-top:20px;color:#888;">Menghubungkan ke database...</div>
+            <div class="tech-list-grid" id="landing-tech-grid" style="display:none;"></div>
+            <div id="landing-empty-msg" style="display:none;color:#999;font-style:italic;margin-top:20px;">Belum ada tiket aktif saat ini.</div>
         </div>
     </div>
-</div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, update, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <div class="container" id="main-app-container">
+        <div class="header-section">
+            <button class="btn-back-home" id="btn-back-tech" onclick="exitTechMode()">⬅️ Kembali / Ganti Tim</button>
+            <h1>📋 MONITORING TEKNISI<br><span style="font-size:.6em;color:green;display:block;margin-top:5px;">Realtime • OLT Selector • History</span>
+                <div id="connection-status">Connecting to server...</div>
+            </h1>
+        </div>
+        <div id="teams-container"><p style="text-align:center;color:#888;">Memuat data...</p></div>
+    </div>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBl7LE5qeMSjsh9lvl_G7OcmwBPSiUQfD8",
-        authDomain: "monitoringteknisiversi1-8d5ad.firebaseapp.com",
-        databaseURL: "https://monitoringteknisiversi1-8d5ad-default-rtdb.firebaseio.com",
-        projectId: "monitoringteknisiversi1-8d5ad",
-        storageBucket: "monitoringteknisiversi1-8d5ad.firebasestorage.app",
-        messagingSenderId: "103072788171",
-        appId: "1:103072788171:web:fb774792586287c485f54e",
-        measurementId: "G-4RLGX0M3NE"
-    };
+    <!-- MODAL STOCK LIST -->
+    <div id="modalStockList" class="modal">
+        <div class="modal-content" style="max-width:900px;">
+            <span class="close-modal" onclick="closeStockListModal()">&times;</span>
+            <h2 style="margin-top:0;text-align:center;color:#17a2b8;">📦 Data Stok Modem Tim</h2>
+            <h4 id="stock-list-title" style="text-align:center;margin:0 0 15px 0;color:#666;"></h4>
+            <div id="stock-stats" style="display:flex;gap:20px;justify-content:center;margin-bottom:10px;"></div>
+            <div style="overflow-x:auto;">
+                <table class="table-stock"><thead><tr><th>No</th><th>Serial Number (SN)</th><th>MAC Address</th><th>Kategori</th><th>Status</th></tr></thead><tbody id="stock-table-body"></tbody></table>
+                <div id="stock-empty-msg" style="text-align:center;padding:20px;color:#999;font-style:italic;display:none;">Belum ada data stok modem.</div>
+            </div>
+        </div>
+    </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const dbRef = ref(db, 'monitoring_teams_master');
+    <!-- MODAL HISTORY -->
+    <div id="modalHistory" class="modal">
+        <div class="modal-content history-modal-content">
+            <span class="close-modal" onclick="closeHistoryModal()">&times;</span>
+            <h2 id="historyModalTitle" style="margin-top:0;color:#6d28d9;">📜 History Tiket</h2>
+            <div id="historyModalSubtitle" style="font-size:.9rem;color:#666;margin-bottom:15px;"></div>
+            <div id="historyListContainer" class="history-list-container"><div class="history-empty">Memuat history...</div></div>
+            <div style="margin-top:15px;text-align:right;">
+                <button class="btn-copy-team" style="background:#6c757d;border-color:#6c757d;padding:6px 20px;font-size:.85rem;" onclick="closeHistoryModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
 
-    let isOnline = navigator.onLine;
-    let isFirebaseConnected = false;
-    let pendingSyncOperations = [];
-    let syncNotificationTimeout = null;
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    const techList = ["Ajis","Bima","Bimo","Dani","Deni","Tomy","Takim","Reza","Pian","Rahmat","Reno","Kholis","Yudha","Rival","Tangguh","Adam","Daniel","Ripan","Hasan","Irfan"];
-    techList.sort();
+        const CFG = {
+            apiKey: "AIzaSyBl7LE5qeMSjsh9lvl_G7OcmwBPSiUQfD8",
+            authDomain: "monitoringteknisiversi1-8d5ad.firebaseapp.com",
+            databaseURL: "https://monitoringteknisiversi1-8d5ad-default-rtdb.firebaseio.com",
+            projectId: "monitoringteknisiversi1-8d5ad",
+            storageBucket: "monitoringteknisiversi1-8d5ad.firebasestorage.app",
+            messagingSenderId: "103072788171",
+            appId: "1:103072788171:web:fb774792586287c485f54e",
+            measurementId: "G-4RLGX0M3NE"
+        };
+        const H_CFG = {
+            apiKey: "AIzaSyCOULi4h6qVwu2UI_anC1ZC8JgE69RjqDM",
+            authDomain: "rekaptiketmonitoring.firebaseapp.com",
+            projectId: "rekaptiketmonitoring",
+            storageBucket: "rekaptiketmonitoring.firebasestorage.app",
+            messagingSenderId: "841047650718",
+            appId: "1:841047650718:web:323a82435e41048fa4268f",
+            measurementId: "G-TVN9Y64LJD"
+        };
 
-    const extraColors = ["bg-orange","bg-purple","bg-teal","bg-dark"];
-    let teams = [];
-    let appMode = 'landing';
-    let selectedTechIndex = -1;
+        const app = initializeApp(CFG);
+        const db = getDatabase(app);
+        const dbRef = ref(db, 'monitoring_teams_master');
 
-    // === SYNC NOTIFICATIONS ===
-    function showSyncNotification(message, type = 'saving', autoClose = true, duration = 3000) {
-        const container = document.getElementById('sync-notification-container');
-        if (syncNotificationTimeout) clearTimeout(syncNotificationTimeout);
-        const notification = document.createElement('div');
-        notification.className = `sync-notification ${type}`;
-        notification.id = `sync-notification-${Date.now()}`;
-        let icon = '⏳';
-        if (type === 'success') icon = '✅';
-        else if (type === 'error') icon = '❌';
-        else if (type === 'warning') icon = '⚠️';
-        else if (type === 'saving') icon = '🔄';
-        notification.innerHTML = `<span class="sync-icon">${icon}</span><span class="sync-message">${message}</span><button class="sync-close" onclick="closeSyncNotification('${notification.id}')">×</button>`;
-        container.appendChild(notification);
-        let finalDuration = duration;
-        if (type === 'success') finalDuration = 1000;
-        if (autoClose && type !== 'saving') {
-            syncNotificationTimeout = setTimeout(() => closeSyncNotification(notification.id), finalDuration);
+        const hApp = initializeApp(H_CFG, 'hApp');
+        const hDb = getDatabase(hApp);
+        const hRef = ref(hDb, 'history_recaps');
+
+        let teams = [],
+            mode = 'landing',
+            selTech = -1,
+            openDetails = new Set(),
+            hCache = null,
+            hLoaded = !1;
+
+        const extraColors = ["bg-orange", "bg-purple", "bg-teal", "bg-dark"];
+
+        function getActive() { return teams.filter(t => t.isActive !== !1); }
+
+        function getTeamNum(t) { const m = (t.teamName || "").match(/Tim\s+(\d+)/i); return m ? parseInt(m[1]) : 99999; }
+
+        function sortActive() { return getActive().sort((a, b) => getTeamNum(a) - getTeamNum(b)); }
+
+        function timeMin(t) {
+            if (!t || t.toUpperCase() === "FLEXIBEL" || t.toUpperCase() === "FLEKSIBEL") return 99999;
+            const l = t.toLowerCase();
+            if (l.includes("pagi")) return 480;
+            if (l.includes("siang")) return 780;
+            if (l.includes("sore")) return 960;
+            if (l.includes("malam")) return 1140;
+            const m = t.match(/(\d{1,2})[:.]?(\d{2})?/);
+            if (m) { let h = parseInt(m[1]),
+                    mn = m[2] ? parseInt(m[2]) : 0; if (h === 12 && l.includes('siang')) h = 12;
+                else if (h === 12 && l.includes('malam')) h = 0;
+                else if (h < 12 && (l.includes('sore') || l.includes('malam'))) h += 12;
+                else if (h < 5 && l.includes('siang')) h += 12; return h * 60 + mn; }
+            return 99999;
         }
-        return notification.id;
-    }
-    window.closeSyncNotification = function(id) {
-        const n = document.getElementById(id);
-        if (n) { n.classList.add('fade-out'); setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 500); }
-    };
 
-    function updateConnectionStatus(status, message) {
-        const el = document.getElementById('connection-status');
-        let sc = 'connecting', txt = message;
-        if (status === 'connected') { sc = 'connected'; if(!message) txt = '✅ Terhubung Online (Data Tersimpan)'; }
-        else if (status === 'disconnected') { sc = 'disconnected'; if(!message) txt = '❌ Terputus dari Server'; }
-        else if (status === 'connecting') { sc = 'connecting'; if(!message) txt = '🔄 Menghubungkan...'; }
-        el.innerHTML = `<span class="connection-status ${sc}"><span class="status-dot"></span> ${txt}</span>`;
-        isFirebaseConnected = (status === 'connected');
-        isOnline = navigator.onLine;
-        if (status === 'disconnected' && appMode !== 'landing') showSyncNotification('Koneksi terputus. Perubahan disimpan lokal.', 'warning', true, 5000);
-        if (status === 'connected' && pendingSyncOperations.length > 0) { showSyncNotification('Koneksi pulih. Menyinkronkan data...', 'saving'); setTimeout(() => retryPendingSyncOperations(), 1000); }
-    }
+        function sortJobs(jobs) { return [...jobs].sort((a, b) => timeMin(a.time) - timeMin(b.time)); }
 
-    function retryPendingSyncOperations() {
-        if (pendingSyncOperations.length === 0 || !isFirebaseConnected) return;
-        showSyncNotification(`Menyinkronkan ${pendingSyncOperations.length} operasi tertunda...`, 'saving');
-        const successfulOps = [];
-        pendingSyncOperations.forEach((op, index) => { try { if(op.type === 'teams') saveDataToFirebaseDirect(); successfulOps.push(index); } catch (error) { console.error(error); } });
-        pendingSyncOperations = pendingSyncOperations.filter((_, index) => !successfulOps.includes(index));
-        if(successfulOps.length > 0) showSyncNotification(`Berhasil sinkron ${successfulOps.length} operasi`, 'success');
-        if(pendingSyncOperations.length > 0) showSyncNotification(`Masih ada ${pendingSyncOperations.length} operasi tertunda`, 'warning');
-    }
+        function numEmoji(n) { const e = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']; return e[n] ||
+                `${n}.`; }
 
-    function addPendingSyncOperation(type) { pendingSyncOperations.push({ type, timestamp: Date.now() }); if(pendingSyncOperations.length > 10) pendingSyncOperations.shift(); try { localStorage.setItem('pending_sync_ops', JSON.stringify(pendingSyncOperations)); } catch(e) {} }
-    function loadPendingSyncOperations() { try { const saved = localStorage.getItem('pending_sync_ops'); if(saved) { pendingSyncOperations = JSON.parse(saved); const oneHourAgo = Date.now() - 3600000; pendingSyncOperations = pendingSyncOperations.filter(op => op.timestamp > oneHourAgo); if(pendingSyncOperations.length > 0 && isFirebaseConnected) setTimeout(() => retryPendingSyncOperations(), 2000); } } catch(e) {} }
-    function saveDataToFirebaseDirect() { return set(dbRef, teams); }
-    function saveDataToFirebase() { const nid = showSyncNotification('Menyimpan data tim...', 'saving', false); saveDataToFirebaseDirect().then(() => { showSyncNotification('Data tim berhasil disinkronkan!', 'success'); closeSyncNotification(nid); pendingSyncOperations = pendingSyncOperations.filter(op => op.type !== 'teams'); }).catch((err) => { showSyncNotification('Gagal sinkron data tim! Disimpan lokal.', 'error'); closeSyncNotification(nid); addPendingSyncOperation('teams'); try { localStorage.setItem('teams_backup', JSON.stringify({ data: teams, timestamp: Date.now() })); } catch(e) {} }); }
-    function loadBackupData() { try { const tb = localStorage.getItem('teams_backup'); if(tb) { const b = JSON.parse(tb); if(Date.now() - b.timestamp < 86400000) { teams = b.data; if(appMode !== 'landing') showSyncNotification('Data lokal dimuat dari backup', 'warning'); } } } catch(e) {} }
+        function esc(s) { if (!s) return ''; return s.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m] ||
+                m)).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, c => c); }
 
-    // === LANDING & MODE ===
-    function renderLandingTeams() {
-        if (appMode !== 'landing') return;
-        const container = document.getElementById('landing-tech-grid');
-        const noMsg = document.getElementById('landing-empty-msg');
-        container.innerHTML = '';
-        container.style.display = 'grid';
-        let hasActiveTeams = false;
-        teams.forEach((team, index) => { if(team.jobs && team.jobs.length > 0) { hasActiveTeams = true; const btn = document.createElement('div'); btn.className = 'btn-select-team'; btn.onclick = () => enterTechMode(index); btn.innerHTML = `${team.teamName}<span>(${team.jobs.length} Tiket)</span>`; container.appendChild(btn); } });
-        noMsg.style.display = hasActiveTeams ? 'none' : 'block';
-    }
-    window.enterTechMode = function(index) { appMode = 'tech'; selectedTechIndex = index; document.getElementById('landing-overlay').style.display = 'none'; document.getElementById('main-app-container').style.display = 'block'; document.getElementById('btn-back-tech').style.display = 'block'; renderJobs(); };
-    window.exitTechMode = function() { appMode = 'landing'; selectedTechIndex = -1; document.getElementById('main-app-container').style.display = 'none'; document.getElementById('landing-overlay').style.display = 'flex'; renderLandingTeams(); };
+        function invUpdate(ti, sn, st) { const t = teams[ti]; if (!t || !t.inventory) return !1; const it = t.inventory.find(i =>
+                i.sn === sn); if (it) { it.status = st; return !0; } return !1; }
 
-    // === FIREBASE LISTENER ===
-    function loadFirebaseData() {
-        updateConnectionStatus('connecting', 'Menghubungkan ke Firebase...');
-        loadBackupData();
-        loadPendingSyncOperations();
-        window.addEventListener('online', () => { updateConnectionStatus('connecting', 'Koneksi pulih, menyinkronkan...'); setTimeout(() => { if(isFirebaseConnected) updateConnectionStatus('connected'); }, 1000); });
-        window.addEventListener('offline', () => { updateConnectionStatus('disconnected', 'Koneksi internet terputus'); showSyncNotification('Anda sedang offline. Perubahan akan disimpan lokal.', 'warning', true, 5000); });
-        const connectedRef = ref(db, ".info/connected");
-        onValue(connectedRef, (snap) => {
-            if(snap.val() === true) {
-                isFirebaseConnected = true; updateConnectionStatus('connected');
-                onValue(dbRef, (snapshot) => {
-                    const data = snapshot.val();
-                    document.getElementById('loading-text').style.display = 'none';
-                    if(data) { teams = data; teams.forEach(t => { if(!t.inventory) t.inventory = []; t.inventory = t.inventory.map(item => { if(!item.status) item.status = 'pending'; return item; }); if(t.jobs) t.jobs.forEach(job => { if(job.oltType === undefined) job.oltType = 'unknown'; }); }); }
-                    else { teams = []; }
-                    renderLandingTeams();
-                    if(appMode === 'tech' && selectedTechIndex !== -1) renderJobs();
-                });
-            } else { isFirebaseConnected = false; updateConnectionStatus('disconnected', 'Terputus dari Firebase'); document.getElementById('loading-text').style.display = 'none'; renderLandingTeams(); }
-        }, (error) => { console.error(error); isFirebaseConnected = false; updateConnectionStatus('disconnected', 'Gagal terhubung ke Firebase'); document.getElementById('loading-text').style.display = 'none'; renderLandingTeams(); });
-    }
+        function saveFB() { return set(dbRef, teams); }
 
-    function getPendingInventory(teamIndex) { const team = teams[teamIndex]; return (team && team.inventory) ? team.inventory.filter(item => item.status === 'pending') : []; }
-    function getModemCategory(sn) { if(!sn) return 'LAINNYA'; const prefix = sn.substring(0,4).toUpperCase(); if(prefix === 'ALCL') return 'NOKIA'; if(prefix === 'FHTT') return 'FH'; return 'LAINNYA'; }
-    function mapOltType(type) { if(type === 'zt') return 'GPON ZTE'; if(type === 'hsgq') return 'GPON HSGQ'; if(type === 'epon') return 'EPON'; return 'BELUM DIKETAHUI'; }
+        function showNotif(msg, type = 'saving', auto = !0, dur = 3000) {
+            const c = document.getElementById('sync-notification-container');
+            if (type === 'success') { c.querySelectorAll('.sync-notification.success').forEach(el => el.remove()); }
+            const n = document.createElement('div');
+            n.className = `sync-notification ${type}`;
+            n.id = `sn-${Date.now()}`;
+            const icon = { saving: '🔄', success: '✅', error: '❌', warning: '⚠️' } [type] || '⏳';
+            n.innerHTML =
+                `<span class="sync-icon">${icon}</span><span class="sync-message">${msg}</span><button class="sync-close" onclick="closeSyncNotification('${n.id}')">×</button>`;
+            c.appendChild(n);
+            if (auto && type !== 'saving') setTimeout(() => closeSyncNotification(n.id), dur);
+            return n.id;
+        }
+        window.closeSyncNotification = function(id) { const n = document.getElementById(id); if (n) { n.classList.add(
+                    'fade-out');
+                setTimeout(() => { if (n.parentNode) n.parentNode.removeChild(n); }, 500); } };
 
-    // === RENDER JOBS (OLT hanya tampil, tidak bisa diubah) ===
-    function renderJobs() {
-        const container = document.getElementById('teams-container');
-        container.innerHTML = '';
-        if (!Array.isArray(teams)) teams = [];
-        teams.sort((a,b) => { const getNum = (str) => { const m = str.match(/Tim\s+(\d+)/i); return m ? parseInt(m[1]) : 99999; }; return getNum(a.teamName) - getNum(b.teamName); });
-        let visibleTeamsCount = 0;
-        teams.forEach((team, tIndex) => {
-            if(tIndex !== selectedTechIndex) return;
-            if(!team.jobs) team.jobs = [];
-            if(!team.inventory) team.inventory = [];
-            if(team.jobs.length === 0) return;
-            visibleTeamsCount++;
-            team.jobs.sort((a,b) => (timeToMinutes(a.time) - timeToMinutes(b.time)));
-            const pendingInv = getPendingInventory(tIndex);
-            const stockCount = pendingInv.length;
-            const teamDiv = document.createElement('div');
-            teamDiv.className = 'team-card';
-            teamDiv.innerHTML = `<div class="team-header ${team.colorClass}"><div style="display:flex; flex-direction:column; align-items:flex-start;"><span>${team.teamName}</span><span style="font-size: 0.75em; opacity: 0.9;">📦 Sisa Stok Pending: ${stockCount} pcs</span></div><div style="display:flex; align-items:center; gap:5px;"><button class="btn-copy-team" onclick="copyTeamSummary(${tIndex}, this)">📑 Rekap</button><button class="btn-view-stock" onclick="openStockListModal(${tIndex})">MODEM</button><span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">0/0</span></div></div><div class="progress-container"><div class="progress-bar" id="progress-${team.id}"></div></div><ul class="job-list" id="list-${team.id}"></ul>`;
-            container.appendChild(teamDiv);
-            const listContainer = document.getElementById(`list-${team.id}`);
-            let modemOptions = `<option value="">-- Pilih Modem dari Stok (${team.inventory.length}) --</option>`;
-            team.inventory.forEach(inv => { const cat = getModemCategory(inv.sn); if(inv.status === 'pending') modemOptions += `<option value="${inv.sn}|${inv.mac}">📦 ${inv.sn} (${cat})</option>`; else modemOptions += `<option value="${inv.sn}|${inv.mac}" disabled style="text-decoration: line-through; color: #dc3545;">📦 ${inv.sn} (${cat}) - Terpasang</option>`; });
-            team.jobs.forEach((job, index) => {
-                const li = document.createElement('li');
-                li.className = 'job-item';
-                const currentStatus = job.status || (job.completed ? 'completed' : 'pending');
-                if(currentStatus === 'completed') li.classList.add('completed');
-                else if(currentStatus === 'failed') li.classList.add('failed');
-                const isPSB = job.tag.toUpperCase().includes("PSB");
-                const tech = job.technical || {};
-                const uniqueId = `details-${team.id}-${index}`;
-                const displayStyle = (window.openDetailIds && window.openDetailIds.has(uniqueId)) ? "block" : "none";
-                let detailHTML = '';
-                if(isPSB) {
-                    detailHTML += `<div class="detail-item"><span class="detail-label">Paket</span><span class="detail-value">${escapeHtml(job.details['Paket'] || '-')}</span></div>`;
-                    detailHTML += `<div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${escapeHtml(job.time || 'FLEXIBEL')}</span></div>`;
-                    detailHTML += `<div class="detail-item"><span class="detail-label">No Layanan (Nolay)</span><span class="detail-value">${escapeHtml(job.details['No Layanan'] || job.details['Layanan'] || '-')}</span></div>`;
-                    // OLT hanya tampil (view-only) - menggunakan span
-                    const oltDisplayText = mapOltType(job.oltType || 'unknown');
-                    detailHTML += `<div class="detail-item"><span class="detail-label">Tipe OLT</span><span class="detail-value"><span class="olt-view">${oltDisplayText}</span></span></div>`;
+        function updConn(st, msg) {
+            const el = document.getElementById('connection-status');
+            const map = {
+                connected: { cls: 'connected', txt: msg || '✅ Terhubung Online' },
+                disconnected: { cls: 'disconnected', txt: msg || '❌ Terputus dari Server' },
+                connecting: { cls: 'connecting', txt: msg || '🔄 Menghubungkan...' }
+            };
+            const d = map[st] || map.connecting;
+            el.innerHTML = `<span class="connection-status ${d.cls}"><span class="status-dot"></span> ${d.txt}</span>`;
+        }
+
+        // === HISTORY ===
+        async function loadHistory() {
+            if (hLoaded) return;
+            try { const s = await get(hRef);
+                hCache = s.exists() ? s.val() : {};
+                hLoaded = !0; } catch (e) { hCache = {};
+                hLoaded = !0; }
+        }
+
+        function isAllowedStatus(s) { if (!s) return !1; const l = s.trim().toLowerCase(); return l === 'selesai' || l ===
+                'pending' || l === 'gagal kunjungan'; }
+
+        function getHistory(no) {
+            if (!hCache || !no) return [];
+            const results = [],
+                keys = Object.keys(hCache).sort().reverse(),
+                search = no.trim();
+            for (const key of keys) {
+                const entry = hCache[key];
+                if (!entry || !entry.data || !Array.isArray(entry.data)) continue;
+                const dateLabel = new Date(parseInt(key)).toLocaleDateString('id-ID', { day: 'numeric', month: 'long',
+                    year: 'numeric' });
+                for (const item of entry.data) {
+                    const status = item.statusPengerjaan || '';
+                    if (!isAllowedStatus(status)) continue;
+                    const fields = ['noLayanan', 'layanan', 'No Layanan', 'No_layanan', 'nolayanan', 'Layanan'];
+                    let found = !1;
+                    for (const f of fields) { const v = item[f]; if (v && typeof v === 'string' && v.trim() === search) {
+                            found = !0; break; } if (v !== undefined && v !== null && String(v).trim() === search) { found =
+                                !0; break; } }
+                    if (!found) {
+                        for (const [k, v] of Object.entries(item)) {
+                            if (v && typeof v === 'string' && v.trim() === search) { const kl = k.toLowerCase(); if (kl
+                                    .includes('layanan') || kl.includes('nolayanan') || kl.includes('no layanan') || kl
+                                    .includes('layanan')) { found = !0; break; } }
+                        }
+                    }
+                    if (found) results.push({ dateLabel, timestamp: parseInt(key), ...item });
+                }
+            }
+            return results;
+        }
+
+        function getHistoryCount(no) {
+            if (!hCache || !no) return 0;
+            let count = 0;
+            const keys = Object.keys(hCache),
+                search = no.trim();
+            for (const key of keys) {
+                const entry = hCache[key];
+                if (!entry || !entry.data || !Array.isArray(entry.data)) continue;
+                for (const item of entry.data) {
+                    const status = item.statusPengerjaan || '';
+                    if (!isAllowedStatus(status)) continue;
+                    const fields = ['noLayanan', 'layanan', 'No Layanan', 'No_layanan', 'nolayanan', 'Layanan'];
+                    let found = !1;
+                    for (const f of fields) { const v = item[f]; if (v && typeof v === 'string' && v.trim() === search) {
+                            found = !0; break; } if (v !== undefined && v !== null && String(v).trim() === search) { found =
+                                !0; break; } }
+                    if (!found) {
+                        for (const [k, v] of Object.entries(item)) {
+                            if (v && typeof v === 'string' && v.trim() === search) { const kl = k.toLowerCase(); if (kl
+                                    .includes('layanan') || kl.includes('nolayanan') || kl.includes('no layanan') || kl
+                                    .includes('layanan')) { found = !0; break; } }
+                        }
+                    }
+                    if (found) count++;
+                }
+            }
+            return count;
+        }
+
+        // === COMPASS ===
+        function bearing(lat1, lon1, lat2, lon2) {
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+            const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
+                Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+            let b = Math.atan2(y, x) * 180 / Math.PI;
+            b = (b + 360) % 360;
+            return b;
+        }
+
+        function cardinal(b) { const d = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'NW']; const idx = Math.round(b / 45) % 8; return d[
+                idx]; }
+
+        function arrow(b) { const a = ['↑', '↗', '→', '↘', '↓', '↙', '↖']; const idx = Math.round(b / 45) % 8; return a[
+            idx]; }
+
+        function fmtDist(m) { if (m === null || m === undefined || isNaN(m)) return '?'; if (m < 10) return `${Math.round(m)}m`; if (
+                m < 1000) return `${Math.round(m)}m`; return `${(m/1000).toFixed(1)}km`; }
+
+        function distCat(m) { if (m === null || m === undefined || isNaN(m)) return 'unknown'; if (m < 500) return 'near'; if (m <
+                3000) return 'medium'; return 'far'; }
+
+        function parseCoord(link) {
+            if (!link || link.trim() === '') return null;
+            const clean = link.trim();
+            let m = clean.match(/[?&]q=([^&]+)/);
+            if (m) { const parts = m[1].split(','); if (parts.length === 2) { const lat = parseFloat(parts[0].trim()),
+                        lng = parseFloat(parts[1].trim()); if (!isNaN(lat) && !isNaN(lng)) return { lat, lng }; } }
+            m = clean.match(/@([-+]?\d+\.\d+),([-+]?\d+\.\d+)/);
+            if (m) { const lat = parseFloat(m[1]),
+                    lng = parseFloat(m[2]); if (!isNaN(lat) && !isNaN(lng)) return { lat, lng }; }
+            m = clean.match(/([-+]?\d+\.\d+)\s*,\s*([-+]?\d+\.\d+)/);
+            if (m) { const lat = parseFloat(m[1]),
+                    lng = parseFloat(m[2]); if (!isNaN(lat) && !isNaN(lng)) return { lat, lng }; }
+            return null;
+        }
+
+        function haversine(lat1, lon1, lat2, lon2) {
+            const R = 6371e3,
+                toRad = d => d * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1),
+                dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        function modemCat(sn) { if (!sn) return 'LAINNYA'; const p = sn.substring(0, 4).toUpperCase(); if (p === 'ALCL')
+                return 'NOKIA'; if (p === 'FHTT') return 'FH'; return 'LAINNYA'; }
+
+        function mapOlt(t) { if (t === 'zt') return 'GPON ZTE'; if (t === 'hsgq') return 'GPON HSGQ'; if (t === 'epon')
+                return 'EPON'; return 'BELUM DIKETAHUI'; }
+
+        // === RENDER LANDING ===
+        function renderLanding() {
+            if (mode !== 'landing') return;
+            const c = document.getElementById('landing-tech-grid'),
+                noMsg = document.getElementById('landing-empty-msg');
+            c.innerHTML = '';
+            c.style.display = 'grid';
+            let has = !1;
+            const active = sortActive();
+            for (const team of active) {
+                const idx = teams.indexOf(team);
+                if (idx === -1) continue;
+                if (team.jobs && team.jobs.length > 0) {
+                    has = !0;
+                    const btn = document.createElement('div');
+                    btn.className = 'btn-select-team';
+                    btn.onclick = () => enterTech(idx);
+                    btn.innerHTML = `${team.teamName}<span>(${team.jobs.length} Tiket)</span>`;
+                    c.appendChild(btn);
+                }
+            }
+            noMsg.style.display = has ? 'none' : 'block';
+        }
+
+        window.enterTech = function(idx) {
+            mode = 'tech';
+            selTech = idx;
+            document.getElementById('landing-overlay').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+            document.getElementById('btn-back-tech').style.display = 'block';
+            renderJobs();
+        };
+
+        window.exitTechMode = function() {
+            mode = 'landing';
+            selTech = -1;
+            document.getElementById('main-app-container').style.display = 'none';
+            document.getElementById('landing-overlay').style.display = 'flex';
+            renderLanding();
+        };
+
+        // === RENDER JOBS ===
+        function renderJobs() {
+            const container = document.getElementById('teams-container');
+            container.innerHTML = '';
+            let toShow = [];
+            if (mode === 'tech') {
+                if (selTech >= 0 && selTech < teams.length) { const t = teams[selTech]; if (t.isActive !== !1) toShow = [
+                        t
+                    ]; }
+            } else toShow = teams;
+            let visible = 0;
+            for (const team of toShow) {
+                const actualIdx = teams.indexOf(team);
+                if (actualIdx === -1) continue;
+                if (!team.jobs) team.jobs = [];
+                if (!team.inventory) team.inventory = [];
+                const locEnabled = team.locationEnabled && team.mainLocation;
+                let jobs = [...team.jobs];
+                if (locEnabled) {
+                    const main = { lat: team.mainLocation.lat, lng: team.mainLocation.lng };
+                    jobs = jobs.map(j => {
+                        let dist = null,
+                            bear = null;
+                        if (j.tikor && j.tikor.lat !== null && j.tikor.lng !== null) {
+                            dist = haversine(main.lat, main.lng, j.tikor.lat, j.tikor.lng);
+                            bear = bearing(main.lat, main.lng, j.tikor.lat, j.tikor.lng);
+                        }
+                        return { ...j, _dist: dist, _bear: bear };
+                    });
+                    jobs.sort((a, b) => { if (a._dist === null && b._dist === null) return 0; if (a._dist === null)
+                            return 1; if (b._dist === null) return -1; return a._dist - b._dist; });
                 } else {
-                    detailHTML += `<div class="detail-item"><span class="detail-label">Kunjungan</span><span class="detail-value">${escapeHtml(job.tag)}</span></div>`;
-                    detailHTML += `<div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${escapeHtml(job.time || 'FLEXIBEL')}</span></div>`;
-                    detailHTML += `<div class="detail-item"><span class="detail-label">Layanan</span><span class="detail-value">${escapeHtml(job.details['Layanan'] || '-')}</span></div>`;
+                    jobs = jobs.map(j => ({ ...j, _dist: null, _bear: null }));
+                    jobs.sort((a, b) => timeMin(a.time) - timeMin(b.time));
                 }
-                const hiddenFields = ["User PPPOE_RADIUS","Pemakaian Bulan Ini (GB)","ODC","ODP","Port ODP","OLT SN/MAC","Last DBM","Last DBM Time","Nama WiFi (SSID)","Sandi WiFi","Keterangan"];
-                for (const [key, value] of Object.entries(job.details)) {
-                    if((isPSB && ['Paket','No Layanan','Layanan'].includes(key)) || (!isPSB && ['Layanan'].includes(key))) continue;
-                    const valStr = (value || "").toString().trim();
-                    if(hiddenFields.includes(key) && (valStr === "" || valStr === "-")) continue;
-                    detailHTML += `<div class="detail-item"><span class="detail-label">${key}</span><span class="detail-value">${escapeHtml(valStr)}</span></div>`;
+                if (jobs.length === 0) continue;
+                visible++;
+
+                const pending = team.inventory.filter(i => i.status === 'pending');
+                const stockCnt = pending.length;
+
+                const div = document.createElement('div');
+                div.className = 'team-card';
+                div.innerHTML = `
+                    <div class="team-header ${team.colorClass}">
+                        <div class="header-left"><span>${team.teamName}</span><span style="font-size:.75em;opacity:.9;">📦 Sisa Stok Pending: ${stockCnt} pcs</span></div>
+                        <div class="header-right">
+                            <button class="btn-copy-team" onclick="copyTeamSummary(${actualIdx})">📑 Rekap</button>
+                            <button class="btn-view-stock" onclick="openStockListModal(${actualIdx})">MODEM</button>
+                            <span id="cnt-${team.id}" style="font-size:.9em;margin-left:5px;">${jobs.length}</span>
+                        </div>
+                    </div>
+                    <div class="progress-container"><div class="progress-bar" id="prog-${team.id}"></div></div>
+                    <ul class="job-list" id="lst-${team.id}"></ul>
+                `;
+                container.appendChild(div);
+                const list = document.getElementById(`lst-${team.id}`);
+
+                let modemOpts =
+                    `<option value="">-- Pilih Modem dari Stok (${team.inventory.length}) --</option>`;
+                for (const inv of team.inventory) {
+                    const cat = modemCat(inv.sn);
+                    if (inv.status === 'pending') modemOpts +=
+                        `<option value="${inv.sn}|${inv.mac}">📦 ${inv.sn} (${cat})</option>`;
+                    else modemOpts +=
+                        `<option value="${inv.sn}|${inv.mac}" disabled style="text-decoration:line-through;color:#dc3545;">📦 ${inv.sn} (${cat}) - Terpasang</option>`;
                 }
-                let formHTML = '';
-                const hasSn = tech.sn && tech.sn.trim() !== "";
-                if(isPSB) {
-                    formHTML = `<div class="manual-input-section"><h4 style="margin:0 0 10px 0; border-bottom:1px solid #eee; padding-bottom:5px;">📝 Input Data Teknis</h4><div style="margin:10px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})" style="flex:1;">${modemOptions}</select><button class="btn-back-modem" id="btn-back-${tIndex}-${index}" data-team="${tIndex}" data-job="${index}" onclick="resetModemData(${tIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button></div><div class="input-grid"><div class="input-group"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${tIndex}-${index}" class="realtime-input" data-key="kabel" data-team="${tIndex}" data-job="${index}" value="${tech.kabel || ''}" placeholder="150m"></div><div class="input-group"><label>Port</label><input type="text" id="port-${tIndex}-${index}" class="realtime-input" data-key="port" data-team="${tIndex}" data-job="${index}" value="${tech.port || ''}" placeholder="2"></div><div class="input-group"><label>Id ODP</label><input type="text" id="odp-${tIndex}-${index}" class="realtime-input" data-key="odp" data-team="${tIndex}" data-job="${index}" value="${tech.odp || ''}" placeholder="ODP-.."></div><div class="input-group" style="grid-column: 1/-1;"><label>Redaman</label><input type="text" id="redaman-${tIndex}-${index}" class="realtime-input" data-key="redaman" data-team="${tIndex}" data-job="${index}" value="${tech.redaman || ''}" placeholder="-18 dBm"></div><div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..."></div></div></div>`;
-                } else {
-                    const replaceStatus = job.replaceModem || 'no';
-                    const displayMtTech = replaceStatus === 'yes' ? 'block' : 'none';
-                    formHTML = `<div class="manual-input-section"><div style="margin:10px 0;"><label style="font-weight:bold; color:#d35400;">🔧 Opsi Perangkat:</label><select style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-weight:bold;" onchange="toggleMtModemInput(${tIndex}, ${index}, this.value)"><option value="no" ${replaceStatus === 'no' ? 'selected' : ''}>❌ Tidak Ganti Modem</option><option value="yes" ${replaceStatus === 'yes' ? 'selected' : ''}>✅ Ganti Modem Baru</option></select></div><div id="mt-tech-${tIndex}-${index}" style="display: ${displayMtTech}; border-top:1px dashed #ccc; padding-top:10px;"><div style="margin:10px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><label style="font-size:0.8rem; color:#007bff; font-weight:bold;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this, ${tIndex}, ${index})" style="flex:1;">${modemOptions}</select><button class="btn-back-modem" id="btn-back-${tIndex}-${index}" data-team="${tIndex}" data-job="${index}" onclick="resetModemData(${tIndex}, ${index})" ${hasSn ? '' : 'disabled'}>↩️ Back</button></div><div class="input-grid"><div class="input-group" style="grid-column: 1/-1;"><label>Kode SN</label><input type="text" id="sn-${tIndex}-${index}" class="realtime-input locked-input" data-key="sn" data-team="${tIndex}" data-job="${index}" value="${tech.sn || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${tIndex}-${index}" class="realtime-input locked-input" data-key="mac" data-team="${tIndex}" data-job="${index}" value="${tech.mac || ''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${tIndex}-${index}" class="realtime-input locked-input" data-key="vlan" data-team="${tIndex}" data-job="${index}" value="${tech.vlan || ''}" placeholder="Otomatis..." readonly></div><div class="input-group" style="grid-column: 1/-1;"><label>Link Speedtest (SC)</label><input type="text" id="linkSC-${tIndex}-${index}" class="realtime-input" data-key="linkSC" data-team="${tIndex}" data-job="${index}" value="${job.linkSC || ''}" placeholder="https://..."></div></div></div></div>`;
+
+                for (let di = 0; di < jobs.length; di++) {
+                    const job = jobs[di];
+                    let oi = -1;
+                    if (job._originalIndex !== undefined) oi = job._originalIndex;
+                    else {
+                        for (let i = 0; i < team.jobs.length; i++) { const j = team.jobs[i]; if (j.name === job.name && j
+                                .address === job.address && j.time === job.time && j.tag === job.tag) { oi = i; break; } }
+                        if (oi === -1) oi = di;
+                    }
+
+                    const li = document.createElement('li');
+                    li.className = 'job-item';
+                    const curStatus = job.status || (job.completed ? 'completed' : 'pending');
+                    if (curStatus === 'completed') li.classList.add('completed');
+                    else if (curStatus === 'failed') li.classList.add('failed');
+
+                    const isPSB = job.tag.toUpperCase().includes("PSB");
+                    const uid = `det-${team.id}-${di}`;
+                    const disp = openDetails.has(uid) ? 'block' : 'none';
+
+                    let compHtml = '';
+                    if (locEnabled && job._dist !== null && job._bear !== null) {
+                        const d = job._dist,
+                            txt = fmtDist(d),
+                            cat = distCat(d),
+                            dir = cardinal(job._bear),
+                            arr = arrow(job._bear);
+                        compHtml = `
+                            <span class="compass-badge ${cat}">
+                                <span class="compass-circle" style="border-color:currentColor;">
+                                    <span class="needle" style="transform:translate(-50%,-100%) rotate(${job._bear}deg);"></span>
+                                </span>
+                                <span class="compass-info"><span class="dist">${txt}</span><span class="dir">${arr} ${dir} (${Math.round(job._bear)}°)</span></span>
+                            </span>`;
+                    } else if (locEnabled && job.tikor && job.tikor.link) compHtml =
+                        `<span class="compass-badge" style="background:#e9ecef;color:#6c757d;border-color:#ced4da;">❓ Tikor invalid</span>`;
+
+                    let detailHTML = '';
+                    if (isPSB) {
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">No Layanan</span><span class="detail-value">${esc(job.details['No Layanan']||'-')}</span></div>`;
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">Paket</span><span class="detail-value">${esc(job.details['Paket']||'-')}</span></div>`;
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${esc(job.time||'FLEXIBEL')}</span></div>`;
+                        const oltType = job.oltType || 'unknown',
+                            oltLabel = mapOlt(oltType);
+                        let oltCls = 'olt-unknown';
+                        if (oltType === 'zt') oltCls = 'olt-zt';
+                        else if (oltType === 'hsgq') oltCls = 'olt-hsgq';
+                        else if (oltType === 'epon') oltCls = 'olt-epon';
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">Tipe OLT</span><span class="detail-value"><span class="olt-display-badge ${oltCls}">${oltLabel}</span></span></div>`;
+                    } else {
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">Kunjungan</span><span class="detail-value">${esc(job.tag)}</span></div>`;
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">Jadwal</span><span class="detail-value">${esc(job.time||'FLEXIBEL')}</span></div>`;
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">No Layanan</span><span class="detail-value">${esc(job.details['Layanan']||job.details['No Layanan']||'-')}</span></div>`;
+                    }
+
+                    const hidden = ["User PPPOE_RADIUS", "Pemakaian Bulan Ini (GB)", "ODC", "ODP", "Port ODP",
+                        "OLT SN/MAC", "Last DBM", "Last DBM Time", "Nama WiFi (SSID)", "Sandi WiFi", "Keterangan",
+                        "Link Lokasi", "Link ODP", "Port ID", "Link foto rumah pelanggan"
+                    ];
+                    let skipKeys = isPSB ? ['No Layanan', 'Paket'] : ['Kunjungan', 'Layanan'];
+                    for (const [k, v] of Object.entries(job.details || {})) {
+                        if (skipKeys.includes(k)) continue;
+                        const vs = (v || "").toString().trim();
+                        if (hidden.includes(k) && (vs === "" || vs === "-")) continue;
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">${esc(k)}</span><span class="detail-value">${esc(vs)}</span></div>`;
+                    }
+
+                    const hasSn = job.technical && job.technical.sn && job.technical.sn.trim() !== "";
+
+                    let formHTML = '';
+                    if (isPSB) {
+                        formHTML =
+                            `<div class="manual-input-section"><h4 style="margin:0 0 10px 0;border-bottom:1px solid #eee;padding-bottom:5px;">📝 Input Data Teknis</h4><div style="margin:10px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><label style="font-size:.8rem;color:#007bff;font-weight:700;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this,${actualIdx},${oi})" style="flex:1;">${modemOpts}</select><button class="btn-back-modem" id="btnb-${actualIdx}-${oi}" data-team="${actualIdx}" data-job="${oi}" onclick="resetModemData(${actualIdx},${oi})" ${hasSn?'':'disabled'}>↩️ Back</button></div><div class="input-grid"><div class="input-group"><label>Kode SN</label><input type="text" id="sn-${actualIdx}-${oi}" class="realtime-input locked-input" data-key="sn" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.sn||''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${actualIdx}-${oi}" class="realtime-input locked-input" data-key="mac" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.mac||''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${actualIdx}-${oi}" class="realtime-input locked-input" data-key="vlan" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.vlan||''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Panjang kabel</label><input type="text" id="kabel-${actualIdx}-${oi}" class="realtime-input" data-key="kabel" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.kabel||''}" placeholder="150m"></div><div class="input-group"><label>Port</label><input type="text" id="port-${actualIdx}-${oi}" class="realtime-input" data-key="port" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.port||''}" placeholder="2"></div><div class="input-group"><label>Id ODP</label><input type="text" id="odp-${actualIdx}-${oi}" class="realtime-input" data-key="odp" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.odp||''}" placeholder="ODP-.."></div><div class="input-group" style="grid-column:1/-1;"><label>Redaman</label><input type="text" id="redaman-${actualIdx}-${oi}" class="realtime-input" data-key="redaman" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.redaman||''}" placeholder="-18 dBm"></div></div></div>`;
+                    } else {
+                        const rep = job.replaceModem || 'no';
+                        const dispMt = rep === 'yes' ? 'block' : 'none';
+                        formHTML =
+                            `<div class="manual-input-section"><div style="margin:10px 0;"><label style="font-weight:700;color:#d35400;">🔧 Opsi Perangkat:</label><select style="width:100%;padding:8px;border-radius:5px;border:1px solid #ccc;font-weight:700;" onchange="toggleMtModemInput(${actualIdx},${oi},this.value)"><option value="no" ${rep==='no'?'selected':''}>❌ Tidak Ganti Modem</option><option value="yes" ${rep==='yes'?'selected':''}>✅ Ganti Modem Baru</option></select></div><div id="mt-${actualIdx}-${oi}" style="display:${dispMt};border-top:1px dashed #ccc;padding-top:10px;"><div style="margin:10px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><label style="font-size:.8rem;color:#007bff;font-weight:700;">📦 Ambil Modem dari Stok:</label><select class="modem-selector" onchange="fillModemData(this,${actualIdx},${oi})" style="flex:1;">${modemOpts}</select><button class="btn-back-modem" id="btnb-${actualIdx}-${oi}" data-team="${actualIdx}" data-job="${oi}" onclick="resetModemData(${actualIdx},${oi})" ${hasSn?'':'disabled'}>↩️ Back</button></div><div class="input-grid"><div class="input-group" style="grid-column:1/-1;"><label>Kode SN</label><input type="text" id="sn-${actualIdx}-${oi}" class="realtime-input locked-input" data-key="sn" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.sn||''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac</label><input type="text" id="mac-${actualIdx}-${oi}" class="realtime-input locked-input" data-key="mac" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.mac||''}" placeholder="Otomatis..." readonly></div><div class="input-group"><label>Mac vlan (+1)</label><input type="text" id="vlan-${actualIdx}-${oi}" class="realtime-input locked-input" data-key="vlan" data-team="${actualIdx}" data-job="${oi}" value="${job.technical?.vlan||''}" placeholder="Otomatis..." readonly></div></div></div></div>`;
+                    }
+
+                    const layID = job.details?.['No Layanan'] || job.details?.['Layanan'] || '';
+                    const failNote = job.failureNote ?
+                        `<div class="fail-reason-box">⛔ ${esc(job.failureNote)}</div>` : '';
+                    const succNote = (job.status === 'completed' && job.completionNote) ?
+                        `<div class="success-note-box">📝 ${esc(job.completionNote)}</div>` : '';
+
+                    let histBtn = '';
+                    let histBadge = '';
+                    if (layID && layID.trim() !== '' && layID !== '-') {
+                        const hc = getHistoryCount(layID);
+                        if (hc > 0) histBadge = `<span class="history-badge-count">${hc}</span>`;
+                        histBtn =
+                            `<button class="btn-history ${hc>0?'has-history':''}" onclick="openHistoryModal('${esc(layID)}','${esc(job.name||'')}')" title="Lihat history tiket">📜 ${histBadge}</button>`;
+                    } else histBtn =
+                        `<button class="btn-history disabled" style="opacity:.4;cursor:not-allowed;pointer-events:none;" title="Tidak ada No Layanan">📜</button>`;
+
+                    const addrHtml = `<p>📍 ${esc(job.address)}</p>`;
+
+                    li.innerHTML = `
+                        <div class="job-main-row">
+                            <div class="job-left">
+                                <div class="status-actions">
+                                    <button class="btn-check-status ${curStatus==='completed'?'active-success':(curStatus==='failed'?'inactive':'')}" onclick="toggleJobStatus(${actualIdx},${oi},'completed')" title="Selesai">✅</button>
+                                    <button class="btn-check-status ${curStatus==='failed'?'active-fail':(curStatus==='completed'?'inactive':'')}" onclick="toggleJobStatus(${actualIdx},${oi},'failed')" title="Gagal">❌</button>
+                                </div>
+                                <div class="customer-info">
+                                    <h3>${esc(job.name)} <span class="badge ${job.tagClass}">${esc(job.tag)}</span></h3>
+                                    <div style="font-weight:700;color:#d35400;font-size:.85rem;margin-top:3px;display:flex;flex-wrap:wrap;align-items:center;gap:4px;">
+                                        🕒 ${esc(job.time||'FLEXIBEL')}
+                                        ${layID?`<span style="color:#28a745;margin-left:8px;">🆔 ${esc(layID)}</span>`:''}
+                                        ${compHtml}
+                                    </div>
+                                    ${failNote}${succNote}${addrHtml}
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn-copy" onclick="copyData(${actualIdx},${oi},this)">📋 Copy</button>
+                                <button class="toggle-btn" onclick="toggleDetails('${uid}')">🔽 Detail</button>
+                                ${histBtn}
+                            </div>
+                        </div>
+                        <div id="${uid}" class="job-details" style="display:${disp};">
+                            <div class="detail-grid">${detailHTML}</div>
+                            ${formHTML}
+                        </div>
+                    `;
+                    list.appendChild(li);
+
+                    const inputs = li.querySelectorAll('.realtime-input');
+                    for (const inp of inputs) {
+                        inp.addEventListener('change', (e) => {
+                            const key = e.target.getAttribute('data-key');
+                            if (key) {
+                                if (!teams[actualIdx].jobs[oi].technical) teams[actualIdx].jobs[oi]
+                                    .technical = {};
+                                teams[actualIdx].jobs[oi].technical[key] = e.target.value;
+                                saveFB();
+                            }
+                        });
+                    }
                 }
-                const layID = job.details['No Layanan'] || job.details['Layanan'] || '';
-                const failureNote = job.failureNote ? `<div class="fail-reason-box">⛔ ${escapeHtml(job.failureNote)}</div>` : '';
-                const successNote = (job.status === 'completed' && job.completionNote) ? `<div class="success-note-box">📝 ${escapeHtml(job.completionNote)}</div>` : '';
-                let scButton = '';
-                if(job.linkSC) scButton = `<button class="btn-sc" onclick="window.open('${job.linkSC}', '_blank')" title="Buka Link Speedtest">📊 SC</button>`;
-                li.innerHTML = `<div class="job-main-row"><div class="job-left"><div class="status-actions"><button class="btn-check-status ${currentStatus === 'completed' ? 'active-success' : (currentStatus === 'failed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'completed')" title="Selesai">✅</button><button class="btn-check-status ${currentStatus === 'failed' ? 'active-fail' : (currentStatus === 'completed' ? 'inactive' : '')}" onclick="toggleJobStatus(${tIndex}, ${index}, 'failed')" title="Gagal">❌</button></div><div class="customer-info"><h3>${escapeHtml(job.name)} <span class="badge ${job.tagClass}">${escapeHtml(job.tag)}</span></h3><div style="font-weight:bold; color:#d35400; font-size:0.85rem; margin-top:3px;">🕒 ${escapeHtml(job.time || 'FLEXIBEL')}${layID ? `<span style="color:#28a745; margin-left:8px;">🆔 ${escapeHtml(layID)}</span>` : ''}</div>${failureNote}${successNote}<p>📍 ${escapeHtml(job.address)}</p></div></div><div class="action-buttons"><button class="btn-copy" onclick="copyData(${tIndex}, ${index}, this)">📋 Copy</button><button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>${scButton}</div></div><div id="${uniqueId}" class="job-details" style="display: ${displayStyle};"><div class="detail-grid">${detailHTML}</div>${formHTML}</div>`;
-                listContainer.appendChild(li);
-                const inputs = li.querySelectorAll('.realtime-input');
-                inputs.forEach(input => { input.addEventListener('change', (e) => { const key = e.target.getAttribute('data-key'); if(key) { if(key === 'linkSC') teams[tIndex].jobs[index][key] = e.target.value; else { if(!teams[tIndex].jobs[index].technical) teams[tIndex].jobs[index].technical = {}; teams[tIndex].jobs[index].technical[key] = e.target.value; } saveDataToFirebase(); } }); });
+                updateProgress(team.id, jobs);
+            }
+            if (visible === 0) container.innerHTML =
+                `<div style="text-align:center;padding:40px;color:#999;font-style:italic;">👋 Belum ada tiket aktif di tim ini.</div>`;
+        }
+
+        function updateProgress(tid, jobs) {
+            const total = jobs.length,
+                done = jobs.filter(j => j.status === 'completed' || j.completed === !0).length;
+            const pct = total === 0 ? 0 : (done / total) * 100;
+            const bar = document.getElementById(`prog-${tid}`),
+                txt = document.getElementById(`cnt-${tid}`);
+            if (bar) bar.style.width = pct + '%';
+            if (txt) txt.innerText = `${done}/${total} Selesai`;
+        }
+
+        // === TOGGLE JOB STATUS ===
+        window.toggleJobStatus = function(ti, ji, st) {
+            const job = teams[ti].jobs[ji];
+            const old = job.status || (job.completed ? 'completed' : 'pending');
+            const isPSB = job.tag.toUpperCase().includes("PSB");
+            if (old === st) {
+                job.status = 'pending';
+                job.completed = !1;
+                job.completedAt = null;
+                if (old === 'failed') job.failureNote = null;
+                if (old === 'completed') job.completionNote = null;
+            } else {
+                if (st === 'completed') {
+                    if (isPSB) {
+                        let cur = job.details['No Layanan'] || "";
+                        if (!cur || cur.trim() === "") {
+                            const inp = prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", "");
+                            if (inp === null) return;
+                            const v = inp.trim();
+                            if (!/^\d+$/.test(v)) { alert("❌ Error: No Layanan harus format angka!"); return; }
+                            job.details['No Layanan'] = v;
+                        }
+                    } else {
+                        const note = prompt("✅ TIKET SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):", job
+                            .completionNote || "");
+                        if (note === null) return;
+                        job.completionNote = note;
+                    }
+                    job.status = 'completed';
+                    job.completed = !0;
+                    job.completedAt = new Date().toLocaleString('id-ID');
+                    job.failureNote = null;
+                } else if (st === 'failed') {
+                    const note = prompt("⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || "");
+                    if (note === null) return;
+                    if (note.trim() === "") { alert("❌ Catatan Gagal wajib diisi!"); return; }
+                    job.status = 'failed';
+                    job.completed = !1;
+                    job.completedAt = null;
+                    job.failureNote = note;
+                    job.completionNote = null;
+                }
+            }
+            saveFB();
+            renderJobs();
+        };
+
+        window.toggleDetails = function(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === "block") { el.style.display = "none";
+                openDetails.delete(id); } else { el.style.display = "block";
+                openDetails.add(id); }
+        };
+
+        // === MODEM FUNCTIONS ===
+        window.fillModemData = function(sel, ti, ji) {
+            const val = sel.value;
+            if (val === "" || val === "manual") return;
+            const parts = val.split("|"),
+                sn = parts[0],
+                mac = parts[1];
+            let vlanMac = "";
+            if (sn.startsWith("ALCL")) vlanMac = "-";
+            else {
+                try {
+                    const sep = mac.includes('-') ? '-' : ':';
+                    const mp = mac.split(sep);
+                    if (mp.length === 6) { let lb = parseInt(mp[5], 16);
+                        lb = (lb + 1) % 256;
+                        mp[5] = lb.toString(16).toUpperCase().padStart(2, '0');
+                        vlanMac = mp.join(sep); } else vlanMac = mac;
+                } catch (e) { vlanMac = mac; }
+            }
+            const snEl = document.getElementById(`sn-${ti}-${ji}`),
+                macEl = document.getElementById(`mac-${ti}-${ji}`),
+                vlanEl = document.getElementById(`vlan-${ti}-${ji}`);
+            if (snEl) snEl.value = sn;
+            if (macEl) macEl.value = mac;
+            if (vlanEl) vlanEl.value = vlanMac;
+            if (!teams[ti].jobs[ji].technical) teams[ti].jobs[ji].technical = {};
+            teams[ti].jobs[ji].technical.sn = sn;
+            teams[ti].jobs[ji].technical.mac = mac;
+            teams[ti].jobs[ji].technical.vlan = vlanMac;
+            if (invUpdate(ti, sn, 'installed')) showNotif(`Modem ${sn} ditandai Terpasang`, 'success');
+            saveFB();
+            const bk = document.getElementById(`btnb-${ti}-${ji}`);
+            if (bk) bk.disabled = !1;
+            renderJobs();
+        };
+
+        window.resetModemData = function(ti, ji) {
+            const job = teams[ti].jobs[ji],
+                tech = job.technical || {},
+                sn = tech.sn;
+            if (!sn) return;
+            if (invUpdate(ti, sn, 'pending')) showNotif(`Modem ${sn} dikembalikan ke stok (pending)`, 'success');
+            if (job.technical) { job.technical.sn = '';
+                job.technical.mac = '';
+                job.technical.vlan = ''; }
+            saveFB();
+            renderJobs();
+        };
+
+        window.toggleMtModemInput = function(ti, ji, val) {
+            teams[ti].jobs[ji].replaceModem = val;
+            if (val === 'no' && teams[ti].jobs[ji].technical) teams[ti].jobs[ji].technical = {};
+            saveFB();
+            renderJobs();
+        };
+
+        // === STOCK LIST ===
+        window.openStockListModal = function(ti) {
+            const team = teams[ti],
+                tbody = document.getElementById('stock-table-body'),
+                title = document.getElementById('stock-list-title'),
+                empty = document.getElementById('stock-empty-msg');
+            title.innerText = team.teamName;
+            tbody.innerHTML = '';
+            const inv = team.inventory || [];
+            const pend = inv.filter(i => i.status === 'pending').length,
+                inst = inv.filter(i => i.status === 'installed').length;
+            document.getElementById('stock-stats').innerHTML =
+                `<span>⏳ Pending: ${pend}</span> <span style="text-decoration:line-through;color:#dc3545;">✅ Terpasang: ${inst}</span>`;
+            if (!inv || inv.length === 0) { empty.style.display = 'block'; } else { empty.style.display = 'none';
+                inv.forEach((it, idx) => { const tr = document.createElement('tr'); const cat = modemCat(it.sn); const stText =
+                        it.status === 'pending' ? 'Pending' : 'Terpasang';
+                    const stCls = it.status === 'pending' ? 'st-pending' : 'st-installed';
+                    tr.innerHTML =
+                        `<td>${idx+1}</td><td>${it.sn}</td><td>${it.mac}</td><td>${cat}</td><td><span class="status-badge ${stCls}">${stText}</span></td>`;
+                    tbody.appendChild(tr); }); }
+            document.getElementById('modalStockList').style.display = 'block';
+        };
+
+        window.closeStockListModal = function() { document.getElementById('modalStockList').style.display = 'none'; };
+
+        // === COPY ===
+        async function copyClip(text, btn, msg = "✅ Tersalin!") {
+            let ok = !1;
+            if (navigator.clipboard && navigator.clipboard.writeText) { try { await navigator.clipboard.writeText(text);
+                    ok = !0; } catch (e) {} }
+            if (!ok) { try { const ta = document.createElement("textarea");
+                    ta.value = text;
+                    ta.style.cssText = "position:fixed;left:-9999px";
+                    document.body.appendChild(ta);
+                    ta.select();
+                    if (document.execCommand('copy')) ok = !0;
+                    document.body.removeChild(ta); } catch (e) {} }
+            if (ok) showNotif(msg, 'success');
+            else alert("Gagal menyalin ke clipboard");
+        }
+
+        function fmtMac(s) { if (!s || s === '-' || s.trim() === "") return '-'; let c = s.replace(/[^a-fA-F0-9]/g, "")
+                .toUpperCase(); if (c.length > 2) return c.match(/.{1,2}/g).join(':'); return c; }
+
+        window.copyData = function(ti, ji, btn) {
+            const team = teams[ti],
+                job = teams[ti].jobs[ji],
+                d = job.details || {},
+                tech = job.technical || {},
+                isPSB = job.tag.toUpperCase().includes("PSB");
+            let txt = "";
+            if (isPSB) {
+                const snV = tech.sn || '-',
+                    macV = fmtMac(tech.mac),
+                    vlanV = fmtMac(tech.vlan),
+                    kabV = tech.kabel || '-',
+                    portV = tech.port || '-',
+                    odpV = tech.odp || '-',
+                    redV = tech.redaman || '-',
+                    noL = d['No Layanan'] || '-',
+                    oltD = mapOlt(job.oltType || 'unknown');
+                txt =
+                    `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\nOLT : ${oltD}\n--------------------------------\nNolay Pra-Regist: ${noL}\nJam: ${job.time||'FLEXIBEL'}\nNama Lengkap : ${job.name||'-'}\nAlamat Lengkap : ${job.address||'-'}\nEmail Aktif: ${d['Email']||d['Email Aktif']||'-'}\nNo. Wa: ${d['No WA']||d['No Wa']||d['No Telp']||'-'}\nPaket Layanan : ${d['Paket']||d['Paket Layanan']||'-'}\nReferensi: ${d['Referensi']||'-'}\nNo KTP : ${d['No KTP']||'-'}\nTanggal pemasangan: ${d['Tgl Pasang']||d['Tanggal pemasangan']||d['Tanggal Pemasangan']||'-'}\nFOTO Depan Rumah : \nStatus Rumah : ${d['Status Rumah']||'-'}\nSetuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan']||d['Setuju']||'-'}\n\n--- DATA TEKNIS ---\nkode SN : ${snV}\nMac : ${macV}\nMac vlan : ${vlanV}\nPanjang kabel : ${kabV}\nPort : ${portV}\nId ODP : ${odpV}\nRedaman : ${redV}`;
+            } else {
+                let kat = job.tag || 'KUNJUNGAN';
+                if (kat.toUpperCase().includes('ISOLIR')) kat = 'ISOLIR';
+                else kat = 'KUNJUNGAN';
+                let txt2 =
+                    `TEKNISI : ${team.teamName}\nKATEGORI : ${kat}\n--------------------------------\nJam: ${job.time||'-'}\nKunjungan: ${job.tag||'-'}\nNama Pelanggan: ${job.name||'-'}\nNo Layanan: ${d['Layanan']||d['No Layanan']||'-'}\nMasa Aktif s-d: ${d['Masa Aktif s-d']||d['Masa Aktif s/d']||d['Masa Aktif']||'-'}\nNo Telp: ${d['No Telp']||d['No Telp.']||'-'}\nTanggal Daftar: ${d['Tanggal Daftar']||'-'}\nAlamat: ${job.address||'-'}\n`;
+                const fields = [
+                    { key: 'Nama WiFi (SSID)', label: 'Nama WiFi (SSID)' },
+                    { key: 'Sandi WiFi', label: 'Sandi WiFi' },
+                    { key: 'Last DBM', label: 'Last DBM' },
+                    { key: 'OLT SN-MAC', label: 'OLT SN-MAC' },
+                    { key: 'Link Lokasi', label: 'Link Lokasi' },
+                    { key: 'Link ODP', label: 'Link ODP' },
+                    { key: 'Port ID', label: 'Port ID' },
+                    { key: 'Link foto rumah pelanggan', label: 'Link foto rumah pelanggan' }
+                ];
+                for (const f of fields) { let v = d[f.key] || '-'; if (v === '-' || v === '' || v.trim() === '') continue;
+                    txt2 += `${f.label}: ${v}\n`; }
+                if (job.replaceModem === 'yes') { const snN = tech.sn || '-',
+                        macN = tech.mac || '-',
+                        vlanN = tech.vlan || '-'; if (snN !== '-' && snN.trim() !== '') txt2 +=
+                        `\n--- GANTI MODEM BARU ---\nSN : ${snN}\nMAC : ${macN}\nVLAN : ${vlanN}`; }
+                txt = txt2;
+            }
+            copyClip(txt, btn);
+        };
+
+        window.copyTeamSummary = function(ti) {
+            const team = teams[ti];
+            if (!team) return;
+            const jobs = sortJobs(team.jobs || []);
+            let txt = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`;
+            jobs.forEach((job, idx) => {
+                const lay = job.details?.['No Layanan'] || job.details?.['Layanan'] || '-';
+                const time = job.time || 'FLEXIBEL';
+                const icon = numEmoji(idx + 1);
+                let stLine = "",
+                    failLine = "",
+                    noteSuf = "";
+                if (job.status === 'completed' || (job.completed && !job.status)) { if (job.completionNote) noteSuf =
+                        ` (${job.completionNote})`;
+                    stLine = `✅ STATUS: SELESAI${noteSuf}`; } else if (job.status === 'failed') { stLine =
+                        `⛔ STATUS: GAGAL KUNJUNGAN`; if (job.failureNote) failLine =
+                        `\n📝 Ket: ${job.failureNote}`; } else stLine = `⏳ STATUS: PENDING`;
+                txt +=
+                    `${icon} ${job.name.toUpperCase()} (${job.tag})\n${stLine}${failLine}\n🆔 ${lay} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`;
             });
-            updateProgressUI(team.id, team.jobs);
-        });
-        if(visibleTeamsCount === 0) container.innerHTML = '<div style="text-align:center; padding:40px; color:#999; font-style:italic;">👋 Belum ada tiket aktif untuk tim ini.</div>';
-    }
+            copyClip(txt, null, "✅ Rekap tim tersalin!");
+        };
 
-    function timeToMinutes(timeStr) { if(!timeStr || timeStr.toUpperCase() === "FLEXIBEL") return 99999; const lower = timeStr.toLowerCase(); if(lower.includes("pagi")) return 480; if(lower.includes("siang")) return 780; if(lower.includes("sore")) return 960; if(lower.includes("malam")) return 1140; const match = timeStr.match(/(\d{1,2})[:.]?(\d{2})?/); if(match) { let hour = parseInt(match[1]); const minute = match[2] ? parseInt(match[2]) : 0; if(hour === 12 && lower.includes('siang')) hour = 12; else if(hour === 12 && lower.includes('malam')) hour = 0; else if(hour < 12 && lower.includes('sore')) hour += 12; else if(hour < 12 && lower.includes('malam')) hour += 12; else if(hour < 5 && lower.includes('siang')) hour += 12; return hour*60+minute; } return 99999; }
-    function updateProgressUI(teamId, jobs) { const total = jobs.length; const completed = jobs.filter(j => j.status === 'completed' || j.completed === true).length; const percent = (total===0)?0:(completed/total)*100; const bar = document.getElementById(`progress-${teamId}`); const txt = document.getElementById(`count-${teamId}`); if(bar) bar.style.width = percent+'%'; if(txt) txt.innerText = `${completed}/${total} Selesai`; }
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m) { if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m; }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) { return c; }); }
+        // === HISTORY MODAL ===
+        let curHistoryNo = '';
 
-    // === TOGGLE STATUS ===
-    window.toggleJobStatus = function(tIndex, jobIndex, newStatus) {
-        const job = teams[tIndex].jobs[jobIndex];
-        const oldStatus = job.status || (job.completed ? 'completed' : 'pending');
-        const isPSB = job.tag.toUpperCase().includes("PSB");
-        if(oldStatus === newStatus) { job.status = 'pending'; job.completed = false; job.completedAt = null; if(oldStatus === 'failed') job.failureNote = null; if(oldStatus === 'completed') job.completionNote = null; }
-        else { if(newStatus === 'completed') { if(isPSB) { let currentNo = job.details['No Layanan'] || ""; if(!currentNo || currentNo.trim() === "") { let inputLayanan = prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", ""); if(inputLayanan === null) return; inputLayanan = inputLayanan.trim(); if(!/^\d+$/.test(inputLayanan)) { alert("❌ Error: No Layanan harus format angka!"); return; } job.details['No Layanan'] = inputLayanan; } } else { let note = prompt("✅ TIKET SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):", job.completionNote || ""); if(note === null) return; job.completionNote = note; } job.status = 'completed'; job.completed = true; job.completedAt = new Date().toLocaleString('id-ID'); job.failureNote = null; } else if(newStatus === 'failed') { let note = prompt("⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || ""); if(note === null) return; if(note.trim() === "") { alert("❌ Catatan Gagal wajib diisi!"); return; } job.status = 'failed'; job.completed = false; job.completedAt = null; job.failureNote = note; job.completionNote = null; } }
-        saveDataToFirebase(); updateProgressUI(teams[tIndex].id, teams[tIndex].jobs); renderJobs();
-    };
-    window.toggleDetails = function(id) { const el = document.getElementById(id); if(el.style.display === "block") { el.style.display = "none"; if(!window.openDetailIds) window.openDetailIds = new Set(); window.openDetailIds.delete(id); } else { el.style.display = "block"; if(!window.openDetailIds) window.openDetailIds = new Set(); window.openDetailIds.add(id); } };
+        window.openHistoryModal = function(no, name) {
+            if (!no || no.trim() === '' || no === '-') { showNotif('Tiket ini tidak memiliki No Layanan untuk dicari history',
+                    'warning'); return; }
+            curHistoryNo = no.trim();
+            const title = document.getElementById('historyModalTitle'),
+                sub = document.getElementById('historyModalSubtitle'),
+                cont = document.getElementById('historyListContainer');
+            title.textContent = `📜 History Tiket: ${curHistoryNo}`;
+            sub.textContent =
+                `Menampilkan semua riwayat untuk No Layanan "${curHistoryNo}" — ${name?'Nama: '+name:''}`;
+            cont.innerHTML = '<div class="history-empty">Memuat history...</div>';
+            document.getElementById('modalHistory').style.display = 'block';
+            if (!hLoaded) { loadHistory().then(() => renderHistory(curHistoryNo)).catch(() => cont.innerHTML =
+                    '<div class="history-empty">❌ Gagal memuat data history</div>'); } else renderHistory(curHistoryNo);
+        };
 
-    // === INVENTORY STATUS ===
-    function updateInventoryStatus(teamIdx, sn, newStatus) { const team = teams[teamIdx]; if(!team || !team.inventory) return false; const item = team.inventory.find(inv => inv.sn === sn); if(item) { item.status = newStatus; return true; } return false; }
-    window.fillModemData = function(selectEl, teamIdx, jobIdx) { const val = selectEl.value; if(val === "" || val === "manual") return; const parts = val.split("|"); const sn = parts[0]; const mac = parts[1]; let vlanMac = ""; if(sn.startsWith("ALCL")) vlanMac = "-"; else { try { const sep = mac.includes('-') ? '-' : ':'; const macParts = mac.split(sep); if(macParts.length === 6) { let lastByte = parseInt(macParts[5], 16); lastByte = (lastByte + 1) % 256; let newLastPart = lastByte.toString(16).toUpperCase().padStart(2,'0'); macParts[5] = newLastPart; vlanMac = macParts.join(sep); } else vlanMac = mac; } catch(e) { vlanMac = mac; } } const snEl = document.getElementById(`sn-${teamIdx}-${jobIdx}`); const macEl = document.getElementById(`mac-${teamIdx}-${jobIdx}`); const vlanEl = document.getElementById(`vlan-${teamIdx}-${jobIdx}`); if(snEl) snEl.value = sn; if(macEl) macEl.value = mac; if(vlanEl) vlanEl.value = vlanMac; if(!teams[teamIdx].jobs[jobIdx].technical) teams[teamIdx].jobs[jobIdx].technical = {}; teams[teamIdx].jobs[jobIdx].technical['sn'] = sn; teams[teamIdx].jobs[jobIdx].technical['mac'] = mac; teams[teamIdx].jobs[jobIdx].technical['vlan'] = vlanMac; if(updateInventoryStatus(teamIdx, sn, 'installed')) showSyncNotification(`Modem ${sn} ditandai Terpasang`, 'success'); saveDataToFirebase(); const backBtn = document.getElementById(`btn-back-${teamIdx}-${jobIdx}`); if(backBtn) backBtn.disabled = false; renderJobs(); };
-    window.resetModemData = function(teamIdx, jobIdx) { const job = teams[teamIdx].jobs[jobIdx]; const tech = job.technical || {}; const sn = tech.sn; if(!sn) return; if(updateInventoryStatus(teamIdx, sn, 'pending')) showSyncNotification(`Modem ${sn} dikembalikan ke stok (pending)`, 'success'); if(job.technical) { job.technical.sn = ''; job.technical.mac = ''; job.technical.vlan = ''; } saveDataToFirebase(); renderJobs(); };
-    window.toggleMtModemInput = function(tIndex, jIndex, val) { teams[tIndex].jobs[jIndex].replaceModem = val; if(val === 'no' && teams[tIndex].jobs[jIndex].technical) teams[tIndex].jobs[jIndex].technical = {}; saveDataToFirebase(); renderJobs(); };
+        function renderHistory(no) {
+            const cont = document.getElementById('historyListContainer');
+            const res = getHistory(no);
+            if (res.length === 0) { cont.innerHTML =
+                    `<div class="history-empty">📭 Tidak ada history untuk No Layanan "${esc(no)}"</div>`; return; }
+            let html = '';
+            res.sort((a, b) => b.timestamp - a.timestamp);
+            let n = 1;
+            for (const e of res) {
+                const stCls = e.statusPengerjaan === 'Selesai' ? 'selesai' : (e.statusPengerjaan === 'Gagal Kunjungan' ?
+                    'gagal' : 'pending');
+                const stLabel = e.statusPengerjaan || 'Pending';
+                let katCls = 'kunjungan';
+                if (e.kategori === 'PSB') katCls = 'psb';
+                else if (e.kategori === 'ISOLIR') katCls = 'isolir';
+                const catatan = e.catatan || '-',
+                    teknisi = e.namaTeknisi || '-',
+                    tiket = e.tiket || '-';
+                html += `
+                    <div class="history-entry">
+                        <span style="font-weight:700;color:#6d28d9;background:#ede9fe;padding:2px 10px;border-radius:20px;font-size:.8rem;min-width:32px;text-align:center;">#${n}</span>
+                        <span class="h-date">📅 ${e.dateLabel}</span>
+                        <span class="h-status ${stCls}">${stLabel}</span>
+                        <span class="h-kategori ${katCls}">${e.kategori||'-'}</span>
+                        <span class="h-tech">👤 ${esc(teknisi)}</span>
+                        <span style="font-size:.75rem;color:#888;">📌 ${esc(tiket)}</span>
+                        <span class="h-catatan">📝 ${esc(catatan)}</span>
+                    </div>`;
+                n++;
+            }
+            cont.innerHTML =
+                `<div style="margin-bottom:12px;font-size:.9rem;color:#555;"><strong>${res.length}</strong> riwayat ditemukan untuk No Layanan <strong>${esc(no)}</strong></div>${html}`;
+        }
 
-    // === STOCK MODAL (tanpa oper modem) ===
-    window.openStockListModal = function(teamIndex) {
-        const team = teams[teamIndex];
-        const tbody = document.getElementById('stock-table-body');
-        const title = document.getElementById('stock-list-title');
-        const emptyMsg = document.getElementById('stock-empty-msg');
-        title.innerText = team.teamName;
-        tbody.innerHTML = '';
-        const inventory = team.inventory || [];
-        const pendingCount = inventory.filter(i => i.status === 'pending').length;
-        const installedCount = inventory.filter(i => i.status === 'installed').length;
-        document.getElementById('stock-stats').innerHTML = `<span>⏳ Pending: ${pendingCount}</span> <span style="text-decoration:line-through; color:#dc3545;">✅ Terpasang: ${installedCount}</span>`;
-        if(!inventory || inventory.length === 0) { emptyMsg.style.display = 'block'; }
-        else { emptyMsg.style.display = 'none'; inventory.forEach((item, idx) => { const tr = document.createElement('tr'); const category = getModemCategory(item.sn); const statusText = item.status === 'pending' ? 'Pending' : 'Terpasang'; const statusClass = item.status === 'pending' ? 'st-pending' : 'st-installed'; let actionBtns = ''; if(item.status === 'installed') { actionBtns += `<button class="btn-icon-return" onclick="returnModemToPending(${teamIndex}, '${item.sn}')" title="Kembalikan ke Pending">↩️ Back</button>`; } // Oper modem dihapus sesuai permintaan
-            tr.innerHTML = `<td>${idx+1}</td><td>${item.sn}</td><td>${item.mac}</td><td>${category}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionBtns}</td>`;
-            tbody.appendChild(tr);
-        }); }
-        document.getElementById('modalStockList').style.display = 'block';
-    };
-    window.closeStockListModal = function() { document.getElementById('modalStockList').style.display = "none"; };
-    window.returnModemToPending = function(teamIdx, sn) { if(updateInventoryStatus(teamIdx, sn, 'pending')) { saveDataToFirebase(); openStockListModal(teamIdx); showSyncNotification(`Modem ${sn} dikembalikan ke Pending`, 'success'); } };
+        window.closeHistoryModal = function() { document.getElementById('modalHistory').style.display = 'none';
+            curHistoryNo = ''; };
 
-    // === COPY ===
-    async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") { let success = false; if(navigator.clipboard && navigator.clipboard.writeText) { try { await navigator.clipboard.writeText(text); success = true; } catch(err) {} } if(!success) { try { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); if(successful) success = true; } catch(err) {} } if(success && btnElement) { const originalText = btnElement.innerHTML; const originalBg = btnElement.style.backgroundColor; btnElement.innerHTML = successMsg; btnElement.style.backgroundColor = "#28a745"; setTimeout(() => { btnElement.innerHTML = originalText; btnElement.style.backgroundColor = originalBg; }, 2000); } else if(success) alert(successMsg); }
-    window.copyData = async function(teamIndex, jobIndex, btn) { const team = teams[teamIndex]; const job = teams[teamIndex].jobs[jobIndex]; const d = job.details; const tech = job.technical || {}; const isPSB = job.tag.toUpperCase().includes("PSB"); let textToCopy = ""; const checkVal = (val) => val && val.toString().trim() !== "" && val.toString().trim() !== "-"; const oltText = `OLT : ${mapOltType(job.oltType || 'unknown')}`; if(isPSB) { const snVal = tech.sn || '-'; const macVal = formatMacForCopy(tech.mac); const vlanVal = formatMacForCopy(tech.vlan); const kabelVal = tech.kabel || '-'; const portVal = tech.port || '-'; const odpVal = tech.odp || '-'; const redamanVal = tech.redaman || '-'; const noLayanan = d['No Layanan'] || d['Layanan']; const isCompleted = job.status === 'completed' || (job.completed && !job.status); let header = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n${oltText}\n--------------------------------`; let layananLine = ''; if(noLayanan && !isCompleted) layananLine = `Nolay Pra-Regist: ${noLayanan}\n`; let body = `Jam: ${job.time}\nNama Lengkap : ${job.name}\nAlamat Lengkap : ${job.address}\nEmail Aktif: ${d['Email'] || '-'}\nNo. Wa: ${d['No WA'] || d['No Telp'] || '-'}\nPaket Layanan : ${d['Paket'] || '-'}\nReferensi: ${d['Referensi'] || '-'}\nNo KTP : ${d['No KTP'] || '-'}\nTanggal pemasangan: ${d['Tgl Pasang'] || '-'}\nFOTO Depan Rumah : \nStatus Rumah : ${d['Status Rumah'] || '-'}\nSetuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || '-'}\n\n--- DATA TEKNIS ---\nkode SN : ${snVal}\nMac : ${macVal}\nMac vlan : ${vlanVal}\nPanjang kabel : ${kabelVal}\nPort : ${portVal}\nId ODP : ${odpVal}\nRedaman : ${redamanVal}`; textToCopy = header + '\n' + layananLine + body; }
-        else { textToCopy = `TEKNISI : ${team.teamName}\nKATEGORI : ${job.tag}\n--------------------------------\nJam: ${job.time}\nKunjungan: ${job.tag}\nNama Pelanggan: ${job.name}`; if(d['Layanan']) textToCopy += `\nNo Layanan: ${d['Layanan']}`; if(d['Masa Aktif s/d']) textToCopy += `\nMasa Aktif s/d: ${d['Masa Aktif s/d']}`; if(d['No Telp']) textToCopy += `\nNo Telp.: ${d['No Telp']}`; if(d['Tgl Daftar']) textToCopy += `\nTanggal Daftar: ${d['Tgl Daftar']}`; if(d['Coverage']) textToCopy += `\nCoverage: ${d['Coverage']}`; if(job.address) textToCopy += `\nAlamat: ${job.address}`; if(checkVal(d['User PPPOE_RADIUS'])) textToCopy += `\nUser PPPOE_RADIUS: ${d['User PPPOE_RADIUS']}`; if(checkVal(d['Pemakaian Bulan Ini (GB)'])) textToCopy += `\nPemakaian Bulan Ini (GB): ${d['Pemakaian Bulan Ini (GB)']}`; if(checkVal(d['ODC'])) textToCopy += `\nODC: ${d['ODC']}`; if(checkVal(d['ODP'])) textToCopy += `\nODP: ${d['ODP']}`; if(checkVal(d['Port ODP'])) textToCopy += `\nPort ODP: ${d['Port ODP']}`; if(checkVal(d['OLT SN/MAC'])) textToCopy += `\nOLT SN/MAC: ${d['OLT SN/MAC']}`; if(checkVal(d['Last DBM'])) textToCopy += `\nLast DBM: ${d['Last DBM']}`; if(checkVal(d['Last DBM Time'])) textToCopy += `\nLast DBM Time: ${d['Last DBM Time']}`; if(checkVal(d['Nama WiFi (SSID)'])) textToCopy += `\nNama WiFi (SSID): ${d['Nama WiFi (SSID)']}`; if(checkVal(d['Sandi WiFi'])) textToCopy += `\nSandi WiFi: ${d['Sandi WiFi']}`; if(checkVal(d['Keterangan'])) textToCopy += `\nKeterangan: ${d['Keterangan']}`; if(d['Router']) textToCopy += `\nRouter: ${d['Router']}`; if(job.replaceModem === 'yes' && tech.sn) { const macVal = formatMacForCopy(tech.mac); const vlanVal = formatMacForCopy(tech.vlan); textToCopy += `\n\n--- GANTI MODEM BARU ---\nSN : ${tech.sn}\nMAC : ${macVal}\nVLAN : ${vlanVal}`; } }
-        copyToClipboard(textToCopy, btn); };
-    function formatMacForCopy(input) { if(!input || input === '-' || input.trim() === "") return '-'; let clean = input.replace(/[^a-fA-F0-9]/g, "").toUpperCase(); if(clean.length > 2) return clean.match(/.{1,2}/g).join(':'); return clean; }
-    window.copyTeamSummary = function(tIndex, btn) { const team = teams[tIndex]; let text = `📋 REKAP ${team.teamName.toUpperCase()}\n\n`; team.jobs.forEach((job, index) => { const layID = job.details['No Layanan'] || job.details['Layanan'] || '-'; const time = job.time || 'FLEXIBEL'; const numIcon = getNumberEmoji(index+1); let statusLine = "", failureLine = "", noteSuffix = ""; if(job.status === 'completed' || (job.completed && !job.status)) { if(job.completionNote) noteSuffix = ` (${job.completionNote})`; statusLine = `✅ STATUS: SELESAI${noteSuffix}`; } else if(job.status === 'failed') { statusLine = `⛔ STATUS: GAGAL KUNJUNGAN`; if(job.failureNote) failureLine = `\n📝 Ket: ${job.failureNote}`; } else statusLine = `⏳ STATUS: PENDING`; let oltLine = ''; if(job.tag.toUpperCase().includes("PSB")) oltLine = `\n🖧 OLT: ${mapOltType(job.oltType || 'unknown')}`; text += `${numIcon} ${job.name.toUpperCase()} (${job.tag})\n${statusLine}${failureLine}${oltLine}\n🆔 ${layID} | 🕒 ${time}\n📍 ${job.address}\n----------------------------------------------\n`; }); copyToClipboard(text, btn, "✅ Disalin!"); };
-    function getNumberEmoji(n) { const emojis = ['0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟']; return emojis[n] || `${n}.`; }
-    window.onclick = function(event) { if(event.target == document.getElementById("modalStockList")) closeStockListModal(); }
+        // === LOAD FIREBASE ===
+        function loadFBData() {
+            updConn('connecting', 'Menghubungkan ke Firebase...');
+            loadHistory();
+            const connRef = ref(db, ".info/connected");
+            onValue(connRef, (snap) => {
+                if (snap.val() === !0) {
+                    updConn('connected');
+                    onValue(dbRef, (snapshot) => {
+                        const data = snapshot.val();
+                        document.getElementById('loading-text').style.display = 'none';
+                        if (data) {
+                            teams = data;
+                            teams.forEach(t => { if (t.isActive === undefined) t.isActive = !0; if (!t
+                                    .inventory) t.inventory = []; t.inventory = t.inventory.map(it => { if (!
+                                        it.status) it.status = 'pending'; return it; }); if (t.jobs) t
+                                    .jobs.forEach(j => { if (j.oltType === undefined) j.oltType =
+                                        'unknown'; if (j.tikor === undefined) j.tikor = null; }); if (!
+                                    t.mainLocation) t.mainLocation = null; if (t.locationEnabled ===
+                                    undefined) t.locationEnabled = !1; });
+                        } else teams = [];
+                        renderLanding();
+                        if (mode === 'tech' && selTech !== -1) renderJobs();
+                    });
+                } else { updConn('disconnected', 'Terputus dari Firebase');
+                    document.getElementById('loading-text').style.display = 'none';
+                    renderLanding(); }
+            }, (e) => { console.error(e);
+                updConn('disconnected', 'Gagal terhubung ke Firebase');
+                document.getElementById('loading-text').style.display = 'none';
+                renderLanding(); });
+        }
 
-    loadFirebaseData();
-</script>
+        window.onclick = function(e) {
+            if (e.target == document.getElementById("modalStockList")) closeStockListModal();
+            if (e.target == document.getElementById("modalHistory")) closeHistoryModal();
+        };
+
+        loadFBData();
+    </script>
 </body>
 </html>
