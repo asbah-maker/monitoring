@@ -684,7 +684,107 @@
             color: #64748b;
         }
 
-        /* Mobile */
+        /* ===== PROGRESS MODAL UNTUK OPER TEKNISI ===== */
+        #progressModal .modal-box {
+            max-width: 480px;
+            text-align: center;
+        }
+        #progressModal .progress-bar-wrapper {
+            width: 100%;
+            height: 24px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 16px 0 10px 0;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+        #progressModal .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0f6e3f, #34d399);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        #progressModal .progress-text {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #064e3b;
+            margin: 6px 0 4px 0;
+        }
+        #progressModal .progress-sub {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        #progressModal .progress-detail {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 10px;
+            max-height: 160px;
+            overflow-y: auto;
+            text-align: left;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        #progressModal .progress-detail .item {
+            padding: 3px 0;
+            border-bottom: 1px solid #f1f3f5;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        #progressModal .progress-detail .item:last-child {
+            border-bottom: none;
+        }
+        #progressModal .progress-detail .item .status-ok {
+            color: #0f6e3f;
+            font-weight: 700;
+        }
+        #progressModal .progress-detail .item .status-err {
+            color: #b91c1c;
+            font-weight: 700;
+        }
+        #progressModal .modal-actions {
+            margin-top: 20px;
+        }
+
+        /* ===== DATE PICKER DI LAPORAN TEKNISI ===== */
+        .tech-date-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            background: #f0fdf4;
+            padding: 12px 20px;
+            border-radius: 32px;
+            border: 1px solid #a7f3d0;
+            margin-bottom: 16px;
+        }
+        .tech-date-row label {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #065f46;
+        }
+        .tech-date-row input[type="date"] {
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
+            background: white;
+            font-weight: 600;
+            color: #065f46;
+        }
+        .tech-date-row input[type="date"]:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+        .tech-date-row .date-help {
+            font-size: 0.7rem;
+            color: #6b7280;
+        }
+
         @media (max-width: 720px) {
             body {
                 padding: 20px 16px;
@@ -721,6 +821,14 @@
                 width: 30px;
                 height: 30px;
             }
+            .tech-date-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .tech-date-row input[type="date"] {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -733,7 +841,7 @@
                 <button id="lockToggleBtn" class="lock-toggle-btn locked">🔒 Kunci</button>
             </span>
         </div>
-        <div class="sub">⚡ Realtime · MODEM DI GUDANG UTAMA + Oper (Pembagian ke Teknisi) | + Laporan Non IKR</strong></div>
+        <div class="sub">⚡ Realtime · MODEM DI GUDANG UTAMA + Oper (Pembagian ke Teknisi) | + Laporan Non IKR</div>
 
         <div class="stats-grid" id="statsSummary"></div>
 
@@ -753,7 +861,15 @@
             <!-- LAPORAN TEKNISI MULTI TANGGAL (TERPASANG) -->
             <div class="technician-card protected-card">
                 <div class="technician-title">👨‍🔧 Laporan Teknisi - Pasang Massal</div>
-                <div class="technician-desc">Tempel laporan dengan 📅, setiap SN akan mengambil tanggal dari baris 📅 terdekat.</div>
+                <div class="technician-desc">Tempel laporan dari web monitoring teknisi. Gunakan <strong>📅 Tanggal Monitoring</strong> di bawah untuk seluruh modem dalam laporan ini.</div>
+
+                <!-- DATE PICKER -->
+                <div class="tech-date-row">
+                    <label for="monitoringDateInput">📅 Tanggal Monitoring:</label>
+                    <input type="date" id="monitoringDateInput">
+                    <span class="date-help">↳ Gunakan tanggal yang sama dengan setting di web monitoring teknisi.</span>
+                </div>
+
                 <textarea id="techReportInput" rows="6" class="tech-textarea" placeholder="📋 *REKAP MODEM TEKNISI*
 📅 5/4/2026
 1. alclb45b8a95 [TERPASANG]
@@ -849,6 +965,26 @@
         </div>
     </div>
 
+    <!-- ===== PROGRESS MODAL UNTUK OPER TEKNISI ===== -->
+    <div id="progressModal" class="modal-overlay">
+        <div class="modal-box">
+            <div style="display:flex; align-items:center; gap:12px; justify-content:center; margin-bottom:4px;">
+                <span style="font-size:2rem;">🚀</span>
+                <h3 style="margin:0;" id="progressModalTitle">Memproses Modem...</h3>
+            </div>
+            <p style="font-size:0.85rem; color:#4b5563;" id="progressModalSub">Mohon tunggu, sedang memproses modem.</p>
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0 / 0</div>
+            <div class="progress-sub" id="progressSub">⏳ Sedang memproses...</div>
+            <div class="progress-detail" id="progressDetail"></div>
+            <div class="modal-actions" id="progressModalActions" style="display:none;">
+                <button id="progressCloseBtn" class="primary">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== PORT COLOR MODAL (dipicu oleh SPACE di search) ===== -->
     <div id="portColorModal" class="modal-overlay">
         <div class="modal-box">
@@ -930,7 +1066,7 @@
 
         let allModems = [];
         let activeSearchResults = null;
-        let autoSearchActive = true; // <--- AKTIF SECARA DEFAULT
+        let autoSearchActive = true;
         let isConnected = true;
         let pendingOperData = null;
         let pendingNonIkrData = null;
@@ -939,9 +1075,9 @@
         let isLocked = true;
         const LOCK_PASSWORD = "0789";
 
+        // ===== DAFTAR TEKNISI NON IKR =====
         const daftarTeknisiNonIkr = ["Ajis", "Bima", "Bimo", "Dani", "Deni", "Tomy", "Takim", "Reza", "Pian", "Rahmat", "Reno",
-            "Kholis", "Rival",
-            "Tangguh", "Daniel", "Hasan", "Irfan"
+            "Kholis", "Rival", "Tangguh", "Daniel", "Hasan", "Irfan"
         ];
 
         // ===== PORT COLOR MODAL STATE =====
@@ -949,16 +1085,42 @@
             isOpen: false,
             currentSn: null,
             selectedColor: null,
-            // Queue of SNs to process (from search tokens)
             queue: [],
             currentQueueIndex: 0,
-            // The raw input value before space was pressed
             inputBeforeSpace: '',
-            // The token that was just typed (the SN)
             currentToken: '',
-            // The full search input value
             fullInput: ''
         };
+
+        // ===== PROGRESS MODAL STATE =====
+        let progressModalState = {
+            isOpen: false,
+            total: 0,
+            processed: 0,
+            errors: [],
+            successes: [],
+            isComplete: false,
+            onComplete: null
+        };
+
+        // ===== DATE MONITORING =====
+        // Default ke hari ini
+        let monitoringDate = new Date().toISOString().split('T')[0]; // format YYYY-MM-DD
+
+        function formatIndonesianDateFromDateInput(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return null;
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            const dateObj = new Date(year, month, day);
+            if (isNaN(dateObj.getTime())) return null;
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober",
+                "November", "Desember"
+            ];
+            return `${day} ${months[month]} ${year}`;
+        }
 
         function normalizeMac(macRaw) {
             if (!macRaw || macRaw.trim() === "") return "00:00:00:00:00:00";
@@ -1195,9 +1357,67 @@
             refreshDisplay();
         }
 
-        // ===================== PORT COLOR MODAL (SPACE TRIGGER) =====================
+        // ===== PROGRESS MODAL =====
+        function openProgressModal(total, title = "🚀 Memproses Modem...", sub = "Mohon tunggu, sedang memproses modem.") {
+            progressModalState.isOpen = true;
+            progressModalState.total = total;
+            progressModalState.processed = 0;
+            progressModalState.errors = [];
+            progressModalState.successes = [];
+            progressModalState.isComplete = false;
+
+            document.getElementById('progressModalTitle').textContent = title;
+            document.getElementById('progressModalSub').textContent = sub;
+            document.getElementById('progressBarFill').style.width = '0%';
+            document.getElementById('progressText').textContent = `0 / ${total}`;
+            document.getElementById('progressSub').textContent = '⏳ Sedang memproses...';
+            document.getElementById('progressDetail').innerHTML = '';
+            document.getElementById('progressModalActions').style.display = 'none';
+
+            document.getElementById('progressModal').classList.add('active');
+        }
+
+        function updateProgressModal(processed, statusText = null, detailItem = null) {
+            progressModalState.processed = processed;
+            const total = progressModalState.total;
+            const percent = total > 0 ? (processed / total) * 100 : 0;
+            document.getElementById('progressBarFill').style.width = `${Math.min(percent, 100)}%`;
+            document.getElementById('progressText').textContent = `${processed} / ${total}`;
+
+            if (statusText) {
+                document.getElementById('progressSub').textContent = statusText;
+            }
+
+            if (detailItem) {
+                const detailEl = document.getElementById('progressDetail');
+                const div = document.createElement('div');
+                div.className = 'item';
+                const statusClass = detailItem.status === 'success' ? 'status-ok' : 'status-err';
+                const icon = detailItem.status === 'success' ? '✅' : '❌';
+                div.innerHTML = `<span>${icon} ${escapeHtml(detailItem.sn)}</span><span class="${statusClass}">${detailItem.message}</span>`;
+                detailEl.appendChild(div);
+                detailEl.scrollTop = detailEl.scrollHeight;
+            }
+
+            // Jika sudah selesai
+            if (processed >= total && total > 0) {
+                progressModalState.isComplete = true;
+                document.getElementById('progressSub').textContent = '✅ Selesai!';
+                document.getElementById('progressModalActions').style.display = 'flex';
+                if (progressModalState.onComplete) {
+                    progressModalState.onComplete();
+                }
+            }
+        }
+
+        function closeProgressModal() {
+            document.getElementById('progressModal').classList.remove('active');
+            progressModalState.isOpen = false;
+            progressModalState.onComplete = null;
+        }
+
+        // ===== PORT COLOR MODAL (SPACE TRIGGER) =====
         function openPortColorModal(sn, fullInputValue, tokenBeforeSpace) {
-            // Check if SN exists and is NOKIA
             const modem = allModems.find(m => m.sn.toUpperCase() === sn.toUpperCase());
             if (!modem) {
                 showToast(`❌ SN ${sn} tidak ditemukan di database`, true);
@@ -1214,26 +1434,18 @@
             portColorModalState.fullInput = fullInputValue;
             portColorModalState.currentToken = tokenBeforeSpace;
 
-            // Set display
             document.getElementById('portModalSnDisplay').textContent = `📡 ${sn.toUpperCase()}`;
 
-            // Highlight selected color
             document.querySelectorAll('#portColorOptions .color-btn').forEach(btn => {
                 btn.classList.toggle('selected', btn.dataset.color === portColorModalState.selectedColor);
             });
 
-            // Update hint
             const colorLabels = { neutral: 'Netral', blue: 'Biru', green: 'Hijau' };
             document.getElementById('portColorHint').textContent =
                 `✅ Warna saat ini: ${colorLabels[portColorModalState.selectedColor] || 'Netral'}`;
 
-            // Enable/disable next button
             document.getElementById('portModalNextBtn').disabled = false;
-
-            // Show modal
             document.getElementById('portColorModal').classList.add('active');
-
-            // Focus on the modal
             document.getElementById('portModalNextBtn').focus();
 
             return true;
@@ -1243,7 +1455,6 @@
             document.getElementById('portColorModal').classList.remove('active');
             portColorModalState.isOpen = false;
             portColorModalState.currentSn = null;
-            // Focus back to search input
             document.getElementById('suffixSearchInput').focus();
         }
 
@@ -1255,36 +1466,26 @@
                 return;
             }
 
-            // Save to Firebase
             try {
                 await databaseGudang.ref(`modems/${sn}/portColor`).set(color);
                 const label = color === 'neutral' ? 'Netral' : (color === 'blue' ? 'Biru' : 'Hijau');
                 showToast(`✅ ${sn} → port ${label} disimpan`);
-                // Refresh data
-                // The listener will update automatically, but we force a quick refresh
                 setTimeout(() => refreshDisplay(), 200);
             } catch (err) {
                 showToast('Gagal menyimpan warna: ' + err.message, true);
                 return;
             }
 
-            // Close modal
             closePortColorModal();
 
-            // Move to next space position in search input
-            // The space is already in the input, we just need to put cursor after it
             const input = document.getElementById('suffixSearchInput');
             const currentValue = input.value;
-            // Find the position after the current token + space
-            // We need to find where the token we just processed ends
             const tokenIndex = currentValue.lastIndexOf(portColorModalState.currentToken);
             if (tokenIndex !== -1) {
-                const pos = tokenIndex + portColorModalState.currentToken.length + 1; // +1 for space
+                const pos = tokenIndex + portColorModalState.currentToken.length + 1;
                 input.setSelectionRange(pos, pos);
             }
             input.focus();
-
-            // Recompute search results
             recomputeSearchAndRender();
         }
 
@@ -1294,26 +1495,19 @@
             const value = input.value;
             const cursorPos = input.selectionStart;
 
-            // Only trigger on space key (keyCode 32) and not if modal is already open
             if (e.key !== ' ' || portColorModalState.isOpen) return;
 
-            // Get the token before the space (the SN we just typed)
-            // Find the token that ends at the cursor position
             const beforeCursor = value.substring(0, cursorPos);
             const tokens = beforeCursor.trim().split(/\s+/);
             const currentToken = tokens.length > 0 ? tokens[tokens.length - 1] : '';
 
-            // If no token or token too short, ignore
             if (!currentToken || currentToken.length < 4) return;
 
-            // Check if this token matches a modem (exact or suffix)
-            // First try exact match
             let matchedSn = null;
             const exactMatch = allModems.find(m => m.sn.toUpperCase() === currentToken.toUpperCase());
             if (exactMatch) {
                 matchedSn = exactMatch.sn;
             } else {
-                // Try suffix match (the token is a suffix)
                 const suffixMatches = allModems.filter(m => m.sn.toUpperCase().endsWith(currentToken.toUpperCase()));
                 if (suffixMatches.length === 1) {
                     matchedSn = suffixMatches[0].sn;
@@ -1324,34 +1518,24 @@
             }
 
             if (!matchedSn) {
-                // Not found, just allow the space
                 return;
             }
 
-            // Check if it's a NOKIA modem
             const modem = allModems.find(m => m.sn === matchedSn);
             if (!modem || modem.kategori !== 'NOKIA') {
-                // Non-NOKIA, just allow space with a small hint
                 showToast(`ℹ️ ${matchedSn} bukan NOKIA, lewati tandai port.`, false);
                 return;
             }
 
-            // Prevent default space insertion - we'll insert it ourselves after modal
             e.preventDefault();
 
-            // Open the modal
             const fullInput = value;
             const success = openPortColorModal(matchedSn, fullInput, currentToken);
             if (success) {
-                // Keep the input value as is (with the space we prevented)
-                // We'll add the space after modal closes
                 const newValue = value.substring(0, cursorPos) + ' ' + value.substring(cursorPos);
                 input.value = newValue;
                 input.setSelectionRange(cursorPos + 1, cursorPos + 1);
             } else {
-                // If modal didn't open, just insert the space normally
-                // We need to let the default happen
-                // But we already prevented default, so we insert manually
                 const newValue = value.substring(0, cursorPos) + ' ' + value.substring(cursorPos);
                 input.value = newValue;
                 input.setSelectionRange(cursorPos + 1, cursorPos + 1);
@@ -1410,16 +1594,21 @@
             }
         }
 
-        // ===== OPER KE TEKNISI IKR =====
+        // ===== OPER KE TEKNISI IKR (dengan PROGRESS) =====
         async function processOperToTeknisiWithTeam(modemsList, teamId) {
             const targetTeamIdx = parseInt(teamId, 10);
+            const totalModems = modemsList.length;
+
+            // Buka progress modal
+            openProgressModal(totalModems, "🚀 Oper ke Teknisi IKR",
+                `Memproses ${totalModems} modem ke tim IKR...`);
+
             try {
                 const teamsSnapshot = await teamsTeknisiRef.once('value');
                 let teamsData = teamsSnapshot.val() || [];
                 if (!Array.isArray(teamsData)) teamsData = [];
                 if (targetTeamIdx >= teamsData.length || !teamsData[targetTeamIdx]) {
-                    showToast("Tim tidak valid atau tidak memiliki data", true);
-                    return;
+                    throw new Error("Tim tidak valid atau tidak memiliki data");
                 }
                 const targetTeam = teamsData[targetTeamIdx];
                 const teamName = targetTeam.teamName || `Tim ${targetTeamIdx+1}`;
@@ -1431,94 +1620,181 @@
                 if (!gudangData.lainnya) gudangData.lainnya = [];
                 const serverTimestamp = firebase.database.ServerValue.TIMESTAMP;
 
-                for (const modem of modemsList) {
-                    let gudangCategory = "lainnya";
-                    if (modem.kategori === "NOKIA") gudangCategory = "nokia";
-                    else if (modem.kategori === "FH") gudangCategory = "fh";
+                let processed = 0;
+                const errors = [];
+                const successes = [];
 
-                    const existingIndex = gudangData[gudangCategory].findIndex(item => item.sn === modem.sn);
-                    const modemEntry = {
-                        sn: modem.sn,
-                        mac: modem.mac,
-                        status: 'pending',
-                        teamName: teamName,
-                        teamId: targetTeamIdx,
-                        pendingDate: serverTimestamp,
-                        installedDate: null,
-                        portColor: modem.portColor || 'neutral'
-                    };
-                    if (existingIndex !== -1) {
-                        gudangData[gudangCategory][existingIndex] = { ...gudangData[gudangCategory][existingIndex],
-                            ...modemEntry };
-                    } else {
-                        gudangData[gudangCategory].push(modemEntry);
-                    }
-                }
-                await gudangTeknisiRef.set(gudangData);
-
-                for (let i = 0; i < teamsData.length; i++) {
-                    if (teamsData[i] && teamsData[i].inventory && Array.isArray(teamsData[i].inventory)) {
-                        teamsData[i].inventory = teamsData[i].inventory.filter(inv => !modemsList.some(m => m.sn === inv
-                        .sn));
-                    }
-                }
-                if (!teamsData[targetTeamIdx].inventory) teamsData[targetTeamIdx].inventory = [];
                 for (const modem of modemsList) {
-                    const exists = teamsData[targetTeamIdx].inventory.some(inv => inv.sn === modem.sn);
-                    if (!exists) {
-                        teamsData[targetTeamIdx].inventory.push({
+                    try {
+                        let gudangCategory = "lainnya";
+                        if (modem.kategori === "NOKIA") gudangCategory = "nokia";
+                        else if (modem.kategori === "FH") gudangCategory = "fh";
+
+                        const existingIndex = gudangData[gudangCategory].findIndex(item => item.sn === modem.sn);
+                        const modemEntry = {
                             sn: modem.sn,
                             mac: modem.mac,
                             status: 'pending',
+                            teamName: teamName,
+                            teamId: targetTeamIdx,
                             pendingDate: serverTimestamp,
                             installedDate: null,
-                            teamAssigned: teamName,
                             portColor: modem.portColor || 'neutral'
-                        });
-                    } else {
-                        const invItem = teamsData[targetTeamIdx].inventory.find(inv => inv.sn === modem.sn);
-                        if (invItem) {
-                            invItem.status = 'pending';
-                            invItem.pendingDate = serverTimestamp;
-                            invItem.teamAssigned = teamName;
-                            invItem.portColor = modem.portColor || 'neutral';
+                        };
+                        if (existingIndex !== -1) {
+                            gudangData[gudangCategory][existingIndex] = { ...gudangData[gudangCategory][existingIndex],
+                                ...modemEntry };
+                        } else {
+                            gudangData[gudangCategory].push(modemEntry);
                         }
+
+                        // Update inventory tim
+                        if (!teamsData[targetTeamIdx].inventory) teamsData[targetTeamIdx].inventory = [];
+                        const exists = teamsData[targetTeamIdx].inventory.some(inv => inv.sn === modem.sn);
+                        if (!exists) {
+                            teamsData[targetTeamIdx].inventory.push({
+                                sn: modem.sn,
+                                mac: modem.mac,
+                                status: 'pending',
+                                pendingDate: serverTimestamp,
+                                installedDate: null,
+                                teamAssigned: teamName,
+                                portColor: modem.portColor || 'neutral'
+                            });
+                        } else {
+                            const invItem = teamsData[targetTeamIdx].inventory.find(inv => inv.sn === modem.sn);
+                            if (invItem) {
+                                invItem.status = 'pending';
+                                invItem.pendingDate = serverTimestamp;
+                                invItem.teamAssigned = teamName;
+                                invItem.portColor = modem.portColor || 'neutral';
+                            }
+                        }
+
+                        processed++;
+                        successes.push(modem.sn);
+                        updateProgressModal(processed, `⏳ Memproses ${processed}/${totalModems}...`, {
+                            sn: modem.sn,
+                            status: 'success',
+                            message: 'Berhasil'
+                        });
+                    } catch (err) {
+                        processed++;
+                        errors.push({ sn: modem.sn, error: err.message });
+                        updateProgressModal(processed, `⏳ Memproses ${processed}/${totalModems}...`, {
+                            sn: modem.sn,
+                            status: 'error',
+                            message: 'Gagal: ' + err.message
+                        });
                     }
                 }
+
+                // Simpan perubahan ke Firebase
+                await gudangTeknisiRef.set(gudangData);
                 await teamsTeknisiRef.set(teamsData);
-                showToast(`✅ ${modemsList.length} modem dibagikan ke tim IKR ${teamName} (status PENDING) & gudang pusat teknisi.`);
+
+                // Tampilkan hasil akhir
+                const successCount = successes.length;
+                const errorCount = errors.length;
+                let resultMsg = `✅ ${successCount} modem berhasil dioper ke tim IKR ${teamName}`;
+                if (errorCount > 0) resultMsg += `, ${errorCount} gagal.`;
+                showToast(resultMsg, errorCount > 0);
+
+                // Update progress modal dengan status akhir
+                document.getElementById('progressSub').textContent =
+                    `✅ Selesai! ${successCount} berhasil, ${errorCount} gagal.`;
+                document.getElementById('progressModalActions').style.display = 'flex';
+
+                progressModalState.onComplete = null;
+
+                // Refresh display
+                activeSearchResults = null;
+                document.getElementById("suffixSearchInput").value = "";
+                refreshDisplay();
+
             } catch (err) {
                 console.error(err);
                 showToast("Gagal oper ke teknisi IKR: " + err.message, true);
+                document.getElementById('progressSub').textContent = '❌ Gagal: ' + err.message;
+                document.getElementById('progressModalActions').style.display = 'flex';
+                progressModalState.onComplete = null;
             }
         }
 
+        // ===== OPER KE TEKNISI NON IKR (dengan PROGRESS) =====
         async function processOperToTeknisiNonIkr(modemsList, teknisiName) {
+            const totalModems = modemsList.length;
+
+            openProgressModal(totalModems, "👥 Oper ke Teknisi Non IKR",
+                `Memproses ${totalModems} modem ke teknisi ${teknisiName}...`);
+
             try {
                 const snapshot = await nonIkrRef.once('value');
                 let nonIkrData = snapshot.val() || [];
                 if (!Array.isArray(nonIkrData)) nonIkrData = [];
                 const serverTimestamp = Date.now();
+
+                let processed = 0;
+                const errors = [];
+                const successes = [];
+
                 for (const modem of modemsList) {
-                    const newRetrieval = {
-                        sn: modem.sn,
-                        mac: modem.mac || '00:00:00:00:00:00',
-                        teknisi: teknisiName,
-                        catatan: `Diambil dari gudang utama pada ${new Date(serverTimestamp).toLocaleString('id-ID')}`,
-                        timestamp: serverTimestamp
-                    };
-                    nonIkrData.push(newRetrieval);
+                    try {
+                        const newRetrieval = {
+                            sn: modem.sn,
+                            mac: modem.mac || '00:00:00:00:00:00',
+                            teknisi: teknisiName,
+                            catatan: `Diambil dari gudang utama pada ${new Date(serverTimestamp).toLocaleString('id-ID')}`,
+                            timestamp: serverTimestamp
+                        };
+                        nonIkrData.push(newRetrieval);
+                        processed++;
+                        successes.push(modem.sn);
+                        updateProgressModal(processed, `⏳ Memproses ${processed}/${totalModems}...`, {
+                            sn: modem.sn,
+                            status: 'success',
+                            message: 'Berhasil'
+                        });
+                    } catch (err) {
+                        processed++;
+                        errors.push({ sn: modem.sn, error: err.message });
+                        updateProgressModal(processed, `⏳ Memproses ${processed}/${totalModems}...`, {
+                            sn: modem.sn,
+                            status: 'error',
+                            message: 'Gagal: ' + err.message
+                        });
+                    }
                 }
+
                 await nonIkrRef.set(nonIkrData);
-                showToast(
-                    `✅ ${modemsList.length} modem dibagikan ke teknisi non IKR: ${teknisiName}. Data tersimpan di node nonIkrRetrievals. Stok gudang utama tetap utuh.`
-                    );
+
+                const successCount = successes.length;
+                const errorCount = errors.length;
+                let resultMsg =
+                    `✅ ${successCount} modem berhasil dioper ke teknisi non IKR: ${teknisiName}`;
+                if (errorCount > 0) resultMsg += `, ${errorCount} gagal.`;
+                showToast(resultMsg, errorCount > 0);
+
+                document.getElementById('progressSub').textContent =
+                    `✅ Selesai! ${successCount} berhasil, ${errorCount} gagal.`;
+                document.getElementById('progressModalActions').style.display = 'flex';
+
+                progressModalState.onComplete = null;
+
+                activeSearchResults = null;
+                document.getElementById("suffixSearchInput").value = "";
+                refreshDisplay();
+
             } catch (err) {
                 console.error(err);
                 showToast("Gagal oper ke teknisi non IKR: " + err.message, true);
+                document.getElementById('progressSub').textContent = '❌ Gagal: ' + err.message;
+                document.getElementById('progressModalActions').style.display = 'flex';
+                progressModalState.onComplete = null;
             }
         }
 
+        // ===== SHOW TEAM SELECTION =====
         async function showTeamSelectionForOper(modemsList) {
             const snapshot = await teamsTeknisiRef.once('value');
             let teamsData = snapshot.val() || [];
@@ -1702,7 +1978,7 @@
                 updateConnectionUI(isConnected); });
         }
 
-        // ===== BATCH INPUT & REPORT PASANG =====
+        // ===== BATCH INPUT =====
         async function processBatchInput() {
             if (!isConnected) { showToast("❌ Offline, tidak bisa menambah", true); return; }
             const rawText = document.getElementById("batchModemInput").value;
@@ -1746,80 +2022,110 @@
             } catch (err) { showToast("Gagal batch: " + err.message, true); }
         }
 
-        function parseMultiDateTechnicianReport(text) {
+        // ===== PARSE LAPORAN TEKNISI (MULTI DATE) - MODIFIKASI: GUNAKAN DATE DARI PICKER =====
+        function parseMultiDateTechnicianReport(text, globalDateStr) {
+            // Gunakan globalDateStr untuk semua modem, abaikan 📅 di teks
+            // Tapi tetap ambil data SN dari teks
             const lines = text.split(/\r?\n/);
-            let currentDateFormatted = null;
-            const snDateMap = new Map();
-            const dateGroupCounts = new Map();
-            const dateRegex = /📅\s*(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+            const snList = [];
             const snRegex = /^\s*(?:\d+\.\s+)?([A-Za-z0-9]{5,})\s+.*?\[(TERPASANG)\]/i;
-            for (let line of lines) {
-                const dateMatch = line.match(dateRegex);
-                if (dateMatch) {
-                    const day = parseInt(dateMatch[1], 10);
-                    const month = parseInt(dateMatch[2], 10) - 1;
-                    const year = parseInt(dateMatch[3], 10);
-                    const parsedDate = new Date(year, month, day);
-                    if (!isNaN(parsedDate.getTime())) {
-                        currentDateFormatted = formatIndonesianDate(parsedDate);
-                        if (!dateGroupCounts.has(currentDateFormatted)) dateGroupCounts.set(currentDateFormatted, {
-                            totalSNs: 0,
-                            snList: []
-                        });
+
+            // Konversi globalDateStr ke format Indonesia
+            let installedDateFormatted = null;
+            if (globalDateStr) {
+                const parts = globalDateStr.split('-');
+                if (parts.length === 3) {
+                    const year = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1;
+                    const day = parseInt(parts[2], 10);
+                    const dateObj = new Date(year, month, day);
+                    if (!isNaN(dateObj.getTime())) {
+                        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September",
+                            "Oktober", "November", "Desember"
+                        ];
+                        installedDateFormatted = `${day} ${months[month]} ${year}`;
                     }
-                    continue;
-                }
-                const snMatch = line.match(snRegex);
-                if (snMatch && currentDateFormatted) {
-                    let rawSn = snMatch[1].trim();
-                    const upperSn = rawSn.toUpperCase();
-                    if (!snDateMap.has(upperSn)) {
-                        snDateMap.set(upperSn, currentDateFormatted);
-                        const group = dateGroupCounts.get(currentDateFormatted);
-                        if (group) { group.totalSNs += 1;
-                            group.snList.push(upperSn); }
-                    }
-                } else if (snMatch && !currentDateFormatted) {
-                    throw new Error(`Ditemukan SN ${snMatch[1]} tanpa baris 📅 sebelumnya.`);
                 }
             }
-            if (snDateMap.size === 0) throw new Error("Tidak ada SN dengan status [TERPASANG] yang ditemukan.");
-            return { snDateMap, dateGroupCounts, totalSNs: snDateMap.size };
+
+            // Jika tidak ada date yang valid, gunakan hari ini
+            if (!installedDateFormatted) {
+                const now = new Date();
+                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September",
+                    "Oktober", "November", "Desember"
+                ];
+                installedDateFormatted = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            }
+
+            // Cari semua SN di teks
+            for (let line of lines) {
+                const snMatch = line.match(snRegex);
+                if (snMatch) {
+                    let rawSn = snMatch[1].trim();
+                    const upperSn = rawSn.toUpperCase();
+                    if (!snList.includes(upperSn)) {
+                        snList.push(upperSn);
+                    }
+                }
+            }
+
+            if (snList.length === 0) {
+                throw new Error("Tidak ada SN dengan status [TERPASANG] yang ditemukan.");
+            }
+
+            // Kembalikan: semua SN menggunakan installedDateFormatted yang sama
+            const snDateMap = new Map();
+            for (const sn of snList) {
+                snDateMap.set(sn, installedDateFormatted);
+            }
+
+            return {
+                snDateMap,
+                totalSNs: snList.length,
+                installedDateFormatted
+            };
         }
 
         async function processTechnicianReportWithConfirm() {
             if (!isConnected) { showToast("❌ Sedang offline, tidak bisa memproses laporan", true); return; }
             const raw = document.getElementById("techReportInput").value;
             if (!raw.trim()) { showToast("Masukkan laporan terlebih dahulu", true); return; }
+
+            // Ambil tanggal dari date picker
+            const dateInput = document.getElementById("monitoringDateInput");
+            let globalDateStr = dateInput.value;
+            if (!globalDateStr) {
+                // Jika kosong, gunakan hari ini
+                const now = new Date();
+                globalDateStr = now.toISOString().split('T')[0];
+                dateInput.value = globalDateStr;
+            }
+
             const feedbackSpan = document.getElementById("techFeedback");
-            feedbackSpan.innerHTML = "⏳ Menganalisis laporan multi-tanggal...";
+            feedbackSpan.innerHTML = "⏳ Menganalisis laporan...";
             try {
-                const { snDateMap, dateGroupCounts, totalSNs } = parseMultiDateTechnicianReport(raw);
+                const { snDateMap, totalSNs, installedDateFormatted } = parseMultiDateTechnicianReport(raw, globalDateStr);
+
                 const existingUppercaseSet = new Set(allModems.map(m => m.sn.toUpperCase()));
                 let totalExisting = 0,
                     totalNew = 0;
-                const dateSummary = [];
-                for (let [dateStr, group] of dateGroupCounts.entries()) {
-                    let existingInGroup = 0,
-                        newInGroup = 0;
-                    for (let sn of group.snList) {
-                        if (existingUppercaseSet.has(sn)) existingInGroup++;
-                        else newInGroup++;
-                    }
-                    totalExisting += existingInGroup;
-                    totalNew += newInGroup;
-                    dateSummary.push(`📅 ${dateStr}: ${group.totalSNs} SN (${existingInGroup} sudah, ${newInGroup} baru)`);
+                for (let [sn] of snDateMap.entries()) {
+                    if (existingUppercaseSet.has(sn)) totalExisting++;
+                    else totalNew++;
                 }
+
                 const confirmMsg =
-                    `📊 ANALISIS LAPORAN MULTI TANGGAL\n\n🔢 Total SN: ${totalSNs}\n✅ Sudah terdata: ${totalExisting} (akan diupdate status & tanggal)\n🆕 Baru: ${totalNew} (akan ditambahkan otomatis)\n\n📌 Rincian:\n${dateSummary.join('\n')}\n\nLanjutkan?`;
+                    `📊 ANALISIS LAPORAN\n\n📅 Tanggal Monitoring: ${installedDateFormatted}\n🔢 Total SN: ${totalSNs}\n✅ Sudah terdata: ${totalExisting} (akan diupdate status & tanggal)\n🆕 Baru: ${totalNew} (akan ditambahkan otomatis)\n\nLanjutkan?`;
                 if (!confirm(confirmMsg)) {
                     feedbackSpan.innerHTML = "⚠️ Proses dibatalkan.";
                     setTimeout(() => feedbackSpan.innerHTML = "📄 Tempel laporan multi-tanggal", 3000);
                     return;
                 }
+
                 feedbackSpan.innerHTML = `🚀 Memproses ${totalSNs} SN...`;
                 const updates = {};
                 const serverTimestamp = firebase.database.ServerValue.TIMESTAMP;
+
                 for (let [upperSn, installedDate] of snDateMap.entries()) {
                     const existing = allModems.find(m => m.sn.toUpperCase() === upperSn);
                     if (existing) {
@@ -1837,9 +2143,10 @@
                         };
                     }
                 }
+
                 await databaseGudang.ref().update(updates);
-                showToast(`✅ Laporan berhasil! ${totalExisting} diupdate, ${totalNew} ditambahkan.`);
-                feedbackSpan.innerHTML = `✨ Berhasil diproses (multi-tanggal)`;
+                showToast(`✅ Laporan berhasil! ${totalExisting} diupdate, ${totalNew} ditambahkan. (Tanggal: ${installedDateFormatted})`);
+                feedbackSpan.innerHTML = `✨ Berhasil diproses (${totalSNs} modem, tanggal ${installedDateFormatted})`;
                 document.getElementById("techReportInput").value = "";
                 setTimeout(() => { if (feedbackSpan.innerHTML.includes("✨")) feedbackSpan.innerHTML =
                         "📄 Tempel laporan multi-tanggal, klik tombol analisis"; }, 5000);
@@ -1857,6 +2164,11 @@
         // ===== EVENT LISTENERS =====
         document.addEventListener("DOMContentLoaded", () => {
             startDatabaseListener();
+
+            // Set default date di date picker ke hari ini
+            const dateInput = document.getElementById("monitoringDateInput");
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
 
             // Lock toggle
             document.getElementById("lockToggleBtn").addEventListener("click", toggleLock);
@@ -1945,7 +2257,7 @@
                 if (autoSearchActive) recomputeSearchAndRender();
             });
 
-            // Auto toggle (button sudah dalam keadaan AKTIF secara default)
+            // Auto toggle
             const autoToggle = document.getElementById("autoSearchToggleBtn");
             autoToggle.addEventListener("click", () => {
                 autoSearchActive = !autoSearchActive;
@@ -1969,7 +2281,7 @@
             document.getElementById("processTechReportBtn").addEventListener("click", processTechnicianReportWithConfirm);
             document.getElementById("processNonIkrReportBtn").addEventListener("click", processNonIkrReport);
 
-            // Team modal
+            // Team modal IKR
             document.getElementById("cancelModalBtn").addEventListener("click", () => { document.getElementById(
                     "teamModal").style.display = "none";
                 pendingOperData = null; });
@@ -1981,9 +2293,6 @@
                     await processOperToTeknisiWithTeam(pendingOperData.modems, teamId);
                     pendingOperData = null;
                     document.getElementById("teamModal").style.display = "none";
-                    activeSearchResults = null;
-                    document.getElementById("suffixSearchInput").value = "";
-                    refreshDisplay();
                 }
             });
 
@@ -1999,14 +2308,10 @@
                     await processOperToTeknisiNonIkr(pendingNonIkrData.modems, teknisiName);
                     pendingNonIkrData = null;
                     document.getElementById("teknisiNonIkrModal").style.display = "none";
-                    activeSearchResults = null;
-                    document.getElementById("suffixSearchInput").value = "";
-                    refreshDisplay();
                 }
             });
 
             // ===== PORT COLOR MODAL EVENTS =====
-            // Color selection
             document.querySelectorAll('#portColorOptions .color-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const color = btn.dataset.color;
@@ -2021,16 +2326,12 @@
                 });
             });
 
-            // Next button
             document.getElementById('portModalNextBtn').addEventListener('click', savePortColorAndAdvance);
 
-            // Skip button
             document.getElementById('portModalSkipBtn').addEventListener('click', () => {
                 closePortColorModal();
-                // Focus back to search
                 const input = document.getElementById('suffixSearchInput');
                 input.focus();
-                // Move cursor after the current token + space
                 const val = input.value;
                 const token = portColorModalState.currentToken;
                 if (token) {
@@ -2043,17 +2344,12 @@
                 showToast('⏭ Dilewati', false);
             });
 
-            // Close modal on overlay click
-            document.getElementById('portColorModal').addEventListener('click', (e) => {
-                if (e.target === e.currentTarget) {
-                    // Don't close on overlay click to prevent accidental loss
-                }
-            });
-
-            // Close modal on Escape
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && portColorModalState.isOpen) {
                     closePortColorModal();
+                }
+                if (e.key === 'Escape' && progressModalState.isOpen) {
+                    // Jangan tutup progress modal dengan escape agar tidak mengganggu proses
                 }
             });
 
@@ -2067,14 +2363,26 @@
                     document.getElementById("teknisiNonIkrModal").style.display = "none";
                     pendingNonIkrData = null;
                 }
-                // Don't close portColorModal on overlay click - user must use buttons
+                if (event.target === document.getElementById("passwordModal") && event.target === event.currentTarget) {
+                    hidePasswordModal();
+                }
+                if (event.target === document.getElementById("portColorModal") && event.target === event.currentTarget) {
+                    // Jangan tutup dengan klik di luar
+                }
+                if (event.target === document.getElementById("progressModal") && event.target === event.currentTarget) {
+                    // Jangan tutup dengan klik di luar
+                }
             };
+
+            // Progress close button
+            document.getElementById("progressCloseBtn").addEventListener("click", () => {
+                closeProgressModal();
+            });
 
             // Init lock state
             updateLockUI();
 
-            // ===== PASTIKAN AUTO SEARCH AKTIF SAAT LOAD =====
-            // Jalankan pencarian otomatis jika ada nilai di input
+            // Pastikan auto search aktif
             if (autoSearchActive) {
                 const val = document.getElementById("suffixSearchInput").value;
                 if (val.trim() !== "") {
