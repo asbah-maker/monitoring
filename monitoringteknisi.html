@@ -1768,6 +1768,7 @@
             margin: 15px 0 20px 0;
             font-weight: 500;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
         }
         .global-stat-item {
             display: flex;
@@ -1777,11 +1778,39 @@
             padding: 8px 16px;
             border-radius: 30px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            user-select: none;
+            border: 2px solid transparent;
+        }
+        .global-stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+        }
+        .global-stat-item.active-filter {
+            border-color: #007bff;
+            background: #e8f0fe;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        .global-stat-item .stat-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .global-stat-item .stat-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-left: 2px;
         }
         .global-stat-value {
             font-weight: bold;
             font-size: 1.2rem;
             margin-left: 5px;
+        }
+        .global-stat-item .stat-filter-hint {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            margin-left: 4px;
+            font-weight: 400;
         }
         .olt-select {
             background: white;
@@ -2026,6 +2055,54 @@
             flex-wrap: wrap;
         }
 
+        /* ===== BACKUP MODAL STYLES ===== */
+        .backup-modal-content {
+            max-width: 450px;
+            text-align: center;
+        }
+        .backup-modal-content .backup-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .backup-modal-content .backup-actions .btn-action-main {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+        }
+        .backup-date-display {
+            margin-top: 16px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        .backup-date-display .date-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .backup-date-display .date-value {
+            font-weight: 700;
+            color: #007bff;
+        }
+        .backup-date-display .date-clear {
+            background: none;
+            border: none;
+            color: #dc3545;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 8px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .backup-date-display .date-clear:hover {
+            background: #ffebee;
+        }
+
         @media (max-width: 600px) {
             body {
                 padding: 5px;
@@ -2196,6 +2273,10 @@
             .port-cell {
                 gap: 3px;
             }
+            .backup-modal-content .backup-actions .btn-action-main {
+                font-size: 0.85rem;
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -2224,7 +2305,7 @@
                 <button class="btn-action-main btn-ticket" onclick="openTicketOption()">📝 Buat Tiket</button>
                 <button class="btn-action-main btn-copy-all" onclick="openCopyOption()">📑 Copy Rekap</button>
                 <button class="btn-action-main btn-excel" onclick="openExcelOption()">📊 Download Excel</button>
-                <button class="btn-action-main btn-download" onclick="downloadBackup()">⬇️ Backup JSON</button>
+                <button class="btn-action-main btn-download" onclick="openBackupModal()">⬇️ Backup JSON</button>
                 <button class="btn-action-main btn-upload" onclick="document.getElementById('uploadFile').click()">⬆️ Restore JSON</button>
                 <button class="btn-action-main btn-modem-rekap" onclick="openModemRecapOption()">📡 Rekap Modem</button>
                 <button class="btn-action-main btn-non-ikr" onclick="openNonIkrListModal()">📋 List Modem Non IKR</button>
@@ -2240,21 +2321,49 @@
         </div>
 
         <div id="global-stats-container" class="global-stats-container" style="display: none;">
-            <div class="global-stat-item">
-                <span>📊 Total PSB:</span>
+            <div class="global-stat-item" id="stat-psb" onclick="toggleGlobalFilter('psb')">
+                <span>📊 PSB</span>
                 <span class="global-stat-value" id="global-psb-count">0</span>
+                <span class="stat-filter-hint" id="stat-psb-hint"></span>
             </div>
-            <div class="global-stat-item">
-                <span>🛠️ Total Kunjungan:</span>
+            <div class="global-stat-item" id="stat-mt" onclick="toggleGlobalFilter('mt')">
+                <span>🛠️ Kunjungan</span>
                 <span class="global-stat-value" id="global-mt-count">0</span>
+                <span class="stat-filter-hint" id="stat-mt-hint"></span>
             </div>
-            <div class="global-stat-item">
-                <span>🚫 Total Isolir:</span>
+            <div class="global-stat-item" id="stat-isolir" onclick="toggleGlobalFilter('isolir')">
+                <span>🚫 Isolir</span>
                 <span class="global-stat-value" id="global-isolir-count">0</span>
+                <span class="stat-filter-hint" id="stat-isolir-hint"></span>
             </div>
         </div>
 
         <div id="teams-container"><p style="text-align: center; color: #888;">Memuat data...</p></div>
+    </div>
+
+    <!-- MODAL BACKUP -->
+    <div id="modalBackup" class="modal">
+        <div class="modal-content backup-modal-content">
+            <span class="close-modal" onclick="closeBackupModal()">&times;</span>
+            <h2 style="margin-top:0; color:#28a745;">⬇️ Backup &amp; Monitoring Date</h2>
+            <p style="font-size:0.9rem; color:#666;">Pilih aksi yang ingin dilakukan:</p>
+            <div class="backup-actions">
+                <button class="btn-action-main" style="background-color:#28a745;" onclick="downloadBackupDirect(); closeBackupModal();">
+                    📥 Download Backup JSON
+                </button>
+                <button class="btn-action-main" style="background-color:#17a2b8;" onclick="openDatePicker()">
+                    📅 Tanggal Monitoring
+                </button>
+            </div>
+            <div class="backup-date-display" id="backupDateDisplay">
+                <span class="date-label">📅 Tanggal Monitoring:</span>
+                <span class="date-value" id="backupDateValue">Hari ini</span>
+                <button class="date-clear" onclick="clearCustomDate()" id="clearDateBtn" style="display:none;">✕ Hapus</button>
+            </div>
+            <div style="margin-top:12px; font-size:0.8rem; color:#888;">
+                <span>💡 Tanggal yang dipilih akan digunakan saat <strong>Copy Rekap</strong>.</span>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL COPY OPTION -->
@@ -2550,6 +2659,12 @@
         let operTicketSource = null;
         let apiKeyLoadedFromFirebase = false;
 
+        // ===== CUSTOM DATE FOR MONITORING =====
+        let customMonitoringDate = null; // null = gunakan hari ini
+
+        // ===== GLOBAL FILTER STATE (untuk klik stat) =====
+        let globalFilterCategory = null; // null = all, 'psb', 'mt', 'isolir'
+
         // ===== HISTORY DATA CACHE =====
         let historyDataCache = null;
         let historyDataLoaded = false;
@@ -2738,7 +2853,6 @@
                     const firebaseKey = snapshot.val();
                     if (firebaseKey && typeof firebaseKey === 'string' && firebaseKey.trim().length > 0) {
                         deepseekApiKey = firebaseKey.trim();
-                        // Also save to localStorage for offline cache
                         try { localStorage.setItem('deepseek_api_key', deepseekApiKey); } catch (e) {}
                         document.getElementById('deepseekApiKeyInput').value = deepseekApiKey;
                         updateApiKeyStatusLabel(true);
@@ -2749,7 +2863,6 @@
                         return;
                     }
                 }
-                // Fallback: check localStorage
                 try {
                     const localKey = localStorage.getItem('deepseek_api_key');
                     if (localKey && localKey.trim().length > 0) {
@@ -2759,14 +2872,12 @@
                         document.getElementById('apiKeyStatus').textContent =
                             '⚠️ API Key dimuat dari cache lokal. Simpan ke database untuk digunakan di perangkat lain.';
                         document.getElementById('apiKeyStatus').className = 'key-status warning';
-                        // Push local key to Firebase
                         await set(apiKeyRef, deepseekApiKey);
                         apiKeyLoadedFromFirebase = true;
                         return;
                     }
                 } catch (e) {}
 
-                // No key found
                 deepseekApiKey = '';
                 document.getElementById('deepseekApiKeyInput').value = '';
                 updateApiKeyStatusLabel(false);
@@ -2776,7 +2887,6 @@
                 apiKeyLoadedFromFirebase = true;
             } catch (err) {
                 console.warn('Gagal load API Key dari Firebase:', err);
-                // Fallback to localStorage
                 try {
                     const localKey = localStorage.getItem('deepseek_api_key');
                     if (localKey && localKey.trim().length > 0) {
@@ -2802,7 +2912,6 @@
             }
         }
 
-        // Save API Key to Firebase + localStorage
         window.saveApiKey = async function() {
             const input = document.getElementById('deepseekApiKeyInput');
             const key = input.value.trim();
@@ -2815,7 +2924,6 @@
                 return;
             }
             try {
-                // Save to Firebase
                 await set(apiKeyRef, key);
                 deepseekApiKey = key;
                 try { localStorage.setItem('deepseek_api_key', key); } catch (e) {}
@@ -2826,7 +2934,6 @@
                 showSyncNotification('✅ API Key DeepSeek berhasil disimpan secara realtime!', 'success');
             } catch (err) {
                 console.error('Gagal save API Key ke Firebase:', err);
-                // Still save to localStorage as fallback
                 deepseekApiKey = key;
                 try { localStorage.setItem('deepseek_api_key', key); } catch (e) {}
                 updateApiKeyStatusLabel(true);
@@ -2837,7 +2944,6 @@
             }
         };
 
-        // Clear API Key from Firebase + localStorage
         window.clearApiKey = async function() {
             if (!confirm('Hapus API Key yang tersimpan (dari semua perangkat)?')) return;
             try {
@@ -2851,7 +2957,6 @@
                 showSyncNotification('🗑️ API Key dihapus dari semua perangkat', 'warning');
             } catch (err) {
                 console.error('Gagal clear API Key dari Firebase:', err);
-                // Still clear local
                 deepseekApiKey = '';
                 try { localStorage.removeItem('deepseek_api_key'); } catch (e) {}
                 document.getElementById('deepseekApiKeyInput').value = '';
@@ -2863,7 +2968,6 @@
             }
         };
 
-        // Test API Key
         window.testApiKey = async function() {
             const key = document.getElementById('deepseekApiKeyInput').value.trim() || deepseekApiKey;
             if (!key) {
@@ -2918,10 +3022,8 @@
                 return;
             }
 
-            // Get API Key from input or variable (already loaded from Firebase)
             let apiKey = document.getElementById('deepseekApiKeyInput').value.trim() || deepseekApiKey;
 
-            // If still empty, try to load from Firebase again
             if (!apiKey) {
                 try {
                     const snapshot = await get(apiKeyRef);
@@ -3449,10 +3551,8 @@
             loadBackupData();
             loadPendingSyncOperations();
 
-            // Load API Key from Firebase (realtime)
             loadApiKeyFromFirebase();
 
-            // Also listen for realtime updates on API key
             onValue(apiKeyRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const fbKey = snapshot.val();
@@ -3467,7 +3567,6 @@
                         apiKeyLoadedFromFirebase = true;
                     }
                 } else {
-                    // Key removed from Firebase
                     if (!localStorage.getItem('deepseek_api_key')) {
                         deepseekApiKey = '';
                         document.getElementById('deepseekApiKeyInput').value = '';
@@ -3562,9 +3661,192 @@
             document.getElementById('global-isolir-count').textContent = stats.isolir;
             const container = document.getElementById('global-stats-container');
             if (appMode !== 'landing') { container.style.display = 'flex'; } else { container.style.display = 'none'; }
+
+            // Update active filter highlight
+            document.querySelectorAll('.global-stat-item').forEach(el => el.classList.remove('active-filter'));
+            if (globalFilterCategory) {
+                const idMap = { 'psb': 'stat-psb', 'mt': 'stat-mt', 'isolir': 'stat-isolir' };
+                const target = document.getElementById(idMap[globalFilterCategory]);
+                if (target) target.classList.add('active-filter');
+            }
         }
 
+        // ================================================================
+        // ===== GLOBAL FILTER TOGGLE (klik stat) =====
+        // ================================================================
+
+        window.toggleGlobalFilter = function(category) {
+            if (appMode === 'landing') return;
+            if (appMode === 'tech') {
+                showSyncNotification('⚠️ Filter global hanya untuk Admin', 'warning');
+                return;
+            }
+            if (globalFilterCategory === category) {
+                // Klik lagi -> unfilter
+                globalFilterCategory = null;
+                showSyncNotification('🔓 Filter dibatalkan (Semua kategori)', 'success');
+            } else {
+                globalFilterCategory = category;
+                const labelMap = { 'psb': 'PSB', 'mt': 'Kunjungan', 'isolir': 'Isolir' };
+                showSyncNotification(`🔍 Menampilkan kategori: ${labelMap[category] || category}`, 'success');
+            }
+            renderJobs();
+            updateGlobalStatsDisplay();
+        };
+
+        // ================================================================
+        // ===== BACKUP MODAL & DATE PICKER =====
+        // ================================================================
+
+        window.openBackupModal = function() {
+            document.getElementById('modalBackup').style.display = 'block';
+            updateBackupDateDisplay();
+        };
+
+        window.closeBackupModal = function() {
+            document.getElementById('modalBackup').style.display = 'none';
+        };
+
+        function updateBackupDateDisplay() {
+            const display = document.getElementById('backupDateValue');
+            const clearBtn = document.getElementById('clearDateBtn');
+            if (customMonitoringDate) {
+                const d = new Date(customMonitoringDate);
+                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                    'Oktober', 'November', 'Desember'
+                ];
+                display.textContent = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+                clearBtn.style.display = 'inline';
+            } else {
+                const d = new Date();
+                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                    'Oktober', 'November', 'Desember'
+                ];
+                display.textContent = `Hari ini (${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()})`;
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        window.openDatePicker = function() {
+            const currentDate = customMonitoringDate ? new Date(customMonitoringDate) : new Date();
+            const year = currentDate.getFullYear();
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            const defaultVal = `${year}-${month}-${day}`;
+
+            const input = document.createElement('input');
+            input.type = 'date';
+            input.value = defaultVal;
+            input.style.cssText =
+                'width:100%; padding:12px; font-size:1rem; border:2px solid #17a2b8; border-radius:8px; margin:8px 0;';
+
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'margin-top:12px;';
+            wrapper.innerHTML =
+                `<label style="font-weight:600; font-size:0.9rem; color:#333;">📅 Pilih tanggal monitoring:</label>`;
+            wrapper.appendChild(input);
+
+            const btnWrapper = document.createElement('div');
+            btnWrapper.style.cssText = 'display:flex; gap:10px; margin-top:10px;';
+            const okBtn = document.createElement('button');
+            okBtn.textContent = '✅ Set Tanggal';
+            okBtn.style.cssText =
+                'flex:1; background:#28a745; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;';
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Batal';
+            cancelBtn.style.cssText =
+                'flex:1; background:#6c757d; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;';
+            btnWrapper.appendChild(okBtn);
+            btnWrapper.appendChild(cancelBtn);
+
+            const container = document.createElement('div');
+            container.style.cssText =
+                'background:#f8f9fa; padding:16px; border-radius:10px; border:1px solid #e9ecef; margin-top:8px;';
+            container.appendChild(wrapper);
+            container.appendChild(btnWrapper);
+
+            const modalContent = document.querySelector('#modalBackup .modal-content');
+            const existingPicker = document.getElementById('tempDatePickerContainer');
+            if (existingPicker) existingPicker.remove();
+
+            const pickerContainer = document.createElement('div');
+            pickerContainer.id = 'tempDatePickerContainer';
+            pickerContainer.appendChild(container);
+            modalContent.insertBefore(pickerContainer, document.getElementById('backupDateDisplay'));
+
+            okBtn.onclick = function() {
+                const val = input.value;
+                if (val) {
+                    customMonitoringDate = val;
+                    updateBackupDateDisplay();
+                    showSyncNotification(`📅 Tanggal monitoring diatur ke ${formatDisplayDate(val)}`, 'success');
+                } else {
+                    showSyncNotification('⚠️ Pilih tanggal terlebih dahulu', 'warning');
+                }
+                pickerContainer.remove();
+            };
+
+            cancelBtn.onclick = function() {
+                pickerContainer.remove();
+            };
+        };
+
+        function formatDisplayDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                'Oktober', 'November', 'Desember'
+            ];
+            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
+
+        window.clearCustomDate = function() {
+            customMonitoringDate = null;
+            updateBackupDateDisplay();
+            showSyncNotification('📅 Tanggal monitoring direset ke hari ini', 'warning');
+        };
+
+        function getMonitoringDate() {
+            if (customMonitoringDate) {
+                const d = new Date(customMonitoringDate);
+                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                    'Oktober', 'November', 'Desember'
+                ];
+                return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+            }
+            const d = new Date();
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                'Oktober', 'November', 'Desember'
+            ];
+            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
+
+        // ===== MODIFIED DOWNLOAD BACKUP =====
+        window.downloadBackupDirect = function() {
+            const backupData = {
+                teams: teams,
+                nonIkrRetrievals: nonIkrRetrievals,
+                timestamp: new Date().toISOString(),
+                monitoringDate: customMonitoringDate || new Date().toISOString().split('T')[0]
+            };
+            const jsonStr = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const dateLabel = customMonitoringDate ? customMonitoringDate : new Date().toISOString().slice(0, 10);
+            a.download = `backup_sinyalku_${dateLabel}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showSyncNotification('✅ Backup JSON berhasil diunduh!', 'success');
+        };
+
+        // ================================================================
         // ===== DISTANCE CALCULATION =====
+        // ================================================================
+
         function parseCoordinatesFromLink(link) {
             if (!link || link.trim() === '') return null;
             const clean = link.trim();
@@ -3999,14 +4281,11 @@
         }
 
         // ================================================================
-        // ===== COPY SCHEDULE RECAP =====
+        // ===== COPY SCHEDULE RECAP (with custom date) =====
         // ================================================================
+
         window.copyScheduleRecap = function() {
-            const today = new Date();
-            const day = today.getDate();
-            const month = today.getMonth() + 1;
-            const year = today.getFullYear();
-            const dateStr = `${day}/${month}/${year}`;
+            const dateStr = getMonitoringDate();
 
             let text = `📋 REKAP JADWAL TEKNISI\n📅 ${dateStr}\n\n`;
 
@@ -4060,11 +4339,12 @@
         };
 
         // ================================================================
-        // ===== EXISTING COPY FUNCTIONS =====
+        // ===== EXISTING COPY FUNCTIONS (with custom date) =====
         // ================================================================
 
         window.copyAllSummary = function() {
-            let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
+            const dateStr = getMonitoringDate();
+            let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${dateStr}\n\n`;
             const sortedTeams = getSortedActiveTeams();
             sortedTeams.forEach(team => {
                 if (!team.jobs || team.jobs.length === 0) return;
@@ -4093,7 +4373,8 @@
         };
 
         window.copyAllSummaryV2 = function() {
-            let text = `📋 *REKAP STATUS TIKET*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
+            const dateStr = getMonitoringDate();
+            let text = `📋 *REKAP STATUS TIKET*\n📅 ${dateStr}\n\n`;
             const sortedTeams = getSortedActiveTeams();
 
             sortedTeams.forEach((team) => {
@@ -4248,7 +4529,8 @@
         };
 
         window.copyPSBSummary = function() {
-            let text = `📋 *REKAP PSB BERHASIL*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
+            const dateStr = getMonitoringDate();
+            let text = `📋 *REKAP PSB BERHASIL*\n📅 ${dateStr}\n\n`;
             let count = 0;
             const sortedTeams = getSortedActiveTeams();
             sortedTeams.forEach(team => {
@@ -4272,8 +4554,9 @@
         };
 
         // ================================================================
-        // ===== RENDER JOBS (with Info User button) =====
+        // ===== RENDER JOBS (with Info User button + global filter) =====
         // ================================================================
+
         function renderJobs() {
             const container = document.getElementById('teams-container');
             container.innerHTML = '';
@@ -4322,9 +4605,17 @@
                 const teamFilter = getTeamFilter(actualIndex);
 
                 let filteredJobs = [...team.jobs];
+
+                // Terapkan global filter (dari klik stat)
+                if (globalFilterCategory) {
+                    filteredJobs = filteredJobs.filter(job => getCategoryFromJob(job) === globalFilterCategory);
+                }
+
+                // Terapkan filter per-team
                 if (teamFilter !== 'all') {
                     filteredJobs = filteredJobs.filter(job => getCategoryFromJob(job) === teamFilter);
                 }
+
                 if (appMode === 'tech' && filteredJobs.length === 0) return;
 
                 const isAdmin = (appMode === 'admin');
@@ -4497,7 +4788,6 @@
                     const uniqueId = `details-${team.id}-${displayIndex}`;
                     const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none";
 
-                    // INFO USER BUTTON
                     const infoUserActive = job.infoUserDone ? 'active' : '';
                     const infoUserLabel = job.infoUserDone ? '✓' : 'ℹ️';
 
@@ -5096,9 +5386,8 @@
         window.closeModemRecapOption = function() { document.getElementById('modalModemRecapOption').style.display = 'none'; };
 
         window.copyModemRecap = function(filter) {
-            const today = new Date();
-            const formattedDate = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
-            let header = `📋 *REKAP MODEM TEKNISI*\n📅 ${formattedDate}\n`;
+            const dateStr = getMonitoringDate();
+            let header = `📋 *REKAP MODEM TEKNISI*\n📅 ${dateStr}\n`;
             let filterText = "";
             if (filter === 'all') filterText = "(Semua Status)";
             else if (filter === 'pending') filterText = "(Pending Saja)";
@@ -5367,11 +5656,10 @@
                 renderNonIkrList(); } };
 
         window.copyNonIkrRecap = function() { if (!nonIkrRetrievals.length) { alert("Tidak ada data untuk direkap."); return; }
-            const today = new Date(); const formattedDate =
-                `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`; let recapText =
-                `📋 *REKAP PENGAMBILAN MODEM NON IKR*\n📅 ${formattedDate}\n\n`; nonIkrRetrievals.forEach((item, idx) => { const
-                    category = getModemCategory(item.sn); const status = item.status || 'pending'; const statusText = status ===
-                    'pending' ? 'Pending' : 'Selesai';
+            const dateStr = getMonitoringDate();
+            let recapText = `📋 *REKAP PENGAMBILAN MODEM NON IKR*\n📅 ${dateStr}\n\n`;
+            nonIkrRetrievals.forEach((item, idx) => { const category = getModemCategory(item.sn); const status = item.status ||
+                    'pending'; const statusText = status === 'pending' ? 'Pending' : 'Selesai';
                 recapText += `${idx+1}. SN: ${item.sn} [${category}] - Status: ${statusText}\n`;
                 recapText += `   Teknisi: ${item.teknisi}\n`;
                 recapText += `   Catatan: ${item.catatan || '-'}\n`;
@@ -5624,7 +5912,6 @@
                 const idx = teams.indexOf(team);
                 if (idx !== -1) teamSelect.add(new Option(`${team.teamName} (${team.jobs.length} tiket)`, idx));
             });
-            // Load API Key from Firebase or local
             if (deepseekApiKey) {
                 document.getElementById('deepseekApiKeyInput').value = deepseekApiKey;
                 updateApiKeyStatusLabel(true);
@@ -5632,7 +5919,6 @@
                     '✅ API Key dimuat dari database (realtime). Tersedia untuk semua perangkat.';
                 document.getElementById('apiKeyStatus').className = 'key-status valid';
             } else {
-                // Try to load from localStorage as fallback
                 try {
                     const localKey = localStorage.getItem('deepseek_api_key');
                     if (localKey && localKey.trim().length > 0) {
@@ -6072,47 +6358,6 @@
             }
         };
 
-        window.downloadBackup = function() { const backupData = { teams: teams, nonIkrRetrievals: nonIkrRetrievals,
-                timestamp: new Date().toISOString() }; const jsonStr = JSON.stringify(backupData, null, 2); const blob =
-                new Blob([jsonStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a =
-                document.createElement('a'); a.href = url;
-            a.download =
-                `backup_sinyalku_${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showSyncNotification('✅ Backup JSON berhasil diunduh!', 'success'); };
-
-        window.uploadBackup = function(event) { const file = event.target.files[0]; if (!file) return; const reader =
-                new FileReader(); reader.onload = function(e) { try { const backupData = JSON.parse(e.target.result); if (!
-                        backupData.teams || !Array.isArray(backupData.teams)) throw new Error(
-                        "Format file tidak valid: 'teams' tidak ditemukan atau bukan array."); if (confirm(
-                        "⚠️ Yakin ingin merestore data dari file ini? Data yang ada sekarang akan ditimpa!")) { teams =
-                            backupData.teams;
-                        nonIkrRetrievals = backupData.nonIkrRetrievals || [];
-                        teams.forEach(t => {
-                            if (t.isActive === undefined) t.isActive = true;
-                            if (!t.mainLocation) t.mainLocation = null;
-                            if (t.locationEnabled === undefined) t.locationEnabled = false;
-                            if (t.jobs) t.jobs.forEach(j => { if (j.tikor === undefined) j.tikor =
-                                null; if (j.infoUserDone === undefined) j.infoUserDone =
-                                false; });
-                            if (t.enableTikorOper === undefined) t.enableTikorOper = false;
-                            if (t.inventory) t.inventory.forEach(inv => { if (inv.portColor ===
-                                    undefined) inv.portColor = 'neutral'; });
-                        });
-                        saveDataToFirebaseDirect().then(() => saveNonIkrToFirebase()).then(() => {
-                            showSyncNotification('✅ Restore data berhasil!', 'success');
-                            renderJobs();
-                            renderLandingTeams();
-                        }).catch((err) => {
-                            showSyncNotification('❌ Gagal menyimpan ke Firebase!', 'error');
-                            console.error(err);
-                        }); } } catch (error) { alert("❌ Gagal membaca file JSON: " + error.message); } finally { event
-                        .target.value = ''; } };
-            reader.readAsText(file); };
-
         // ===== CLICK OUTSIDE MODAL =====
         window.onclick = function(event) {
             if (event.target == document.getElementById("modalTicket")) closeCreateTicketModal();
@@ -6129,6 +6374,7 @@
             if (event.target == document.getElementById("modalOperTicket")) closeOperTicketModal();
             if (event.target == document.getElementById("modalHistory")) closeHistoryModal();
             if (event.target == document.getElementById("modalGudangProgress")) closeGudangProgressModal();
+            if (event.target == document.getElementById("modalBackup")) closeBackupModal();
         };
 
         // ===== START =====
