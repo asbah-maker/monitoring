@@ -2361,7 +2361,7 @@
                 <button class="date-clear" onclick="clearCustomDate()" id="clearDateBtn" style="display:none;">✕ Hapus</button>
             </div>
             <div style="margin-top:12px; font-size:0.8rem; color:#888;">
-                <span>💡 Tanggal yang dipilih akan digunakan saat <strong>Copy Rekap</strong>.</span>
+                <span>💡 Tanggal yang dipilih akan digunakan saat <strong>Copy Rekap</strong> dan <strong>Laporan Gudang Modem</strong>.</span>
             </div>
         </div>
     </div>
@@ -3294,6 +3294,164 @@
 
         function checkGudangPin(input) {
             return input === GUDANG_PIN;
+        }
+
+        // ================================================================
+        // ===== HELPER: DAPATKAN TANGGAL MONITORING YANG DIFORMAT =====
+        // ================================================================
+
+        function getMonitoringDateFormatted() {
+            let dateObj;
+            if (customMonitoringDate) {
+                const parts = customMonitoringDate.split('-');
+                if (parts.length === 3) {
+                    const year = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1;
+                    const day = parseInt(parts[2], 10);
+                    dateObj = new Date(year, month, day);
+                    if (isNaN(dateObj.getTime())) {
+                        dateObj = new Date();
+                    }
+                } else {
+                    dateObj = new Date();
+                }
+            } else {
+                dateObj = new Date();
+            }
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober",
+                "November", "Desember"
+            ];
+            return `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+        }
+
+        // ================================================================
+        // ===== LAPORAN KE GUDANG MODEM (dengan tanggal monitoring) =====
+        // ================================================================
+
+        async function sendAllInstalledToGudang() {
+            // Ambil tanggal monitoring yang sudah diformat
+            const monitoringDateStr = getMonitoringDateFormatted();
+
+            let allInstalled = [];
+            teams.forEach(team => {
+                if (!team.inventory) return;
+                team.inventory.forEach(item => {
+                    if (item.status === 'installed') {
+                        let teamName = team.teamName || 'Unknown Team';
+                        allInstalled.push({
+                            sn: item.sn,
+                            mac: item.mac || '00:00:00:00:00:00',
+                            kategori: getModemCategory(item.sn),
+                            portColor: item.portColor || 'neutral',
+                            teamName: teamName,
+                            // 🔥 GANTI: installedDate pakai tanggal monitoring
+                            installedDate: monitoringDateStr
+                        });
+                    }
+                });
+            });
+
+            if (allInstalled.length === 0) {
+                showSyncNotification('⚠️ Tidak ada modem dengan status Terpasang untuk dilaporkan', 'warning');
+                return;
+            }
+
+            // === Tampilkan progress modal ===
+            const modal = document.getElementById('modalGudangProgress');
+            const statusEl = document.getElementById('gudangProgressStatus');
+            const barEl = document.getElementById('gudangProgressBar');
+            const detailEl = document.getElementById('gudangProgressDetail');
+            const resultEl = document.getElementById('gudangResultSummary');
+            resultEl.style.display = 'none';
+            resultEl.innerHTML = '';
+            modal.style.display = 'block';
+            statusEl.textContent = `🔄 Menyiapkan ${allInstalled.length} modem (tanggal ${monitoringDateStr})...`;
+            barEl.style.width = '0%';
+            detailEl.textContent = `0 / ${allInstalled.length} modem`;
+
+            const results = [];
+            let processed = 0;
+
+            try {
+                for (const modem of allInstalled) {
+                    const sn = modem.sn;
+                    const mac = modem.mac;
+                    const kategori = modem.kategori;
+                    const portColor = modem.portColor || 'neutral';
+                    const installedDate = modem.installedDate; // ← sudah pakai monitoringDateStr
+                    const teamName = modem.teamName || 'Unknown';
+
+                    const snapshot = await get(ref(gudangDb, `modems/${sn}`));
+                    const existing = snapshot.val();
+
+                    if (existing) {
+                        await update(ref(gudangDb, `modems/${sn}`), {
+                            status: 'terpasang',
+                            installedDate: installedDate,
+                            portColor: portColor,
+                            mac: existing.mac || mac,
+                            kategori: existing.kategori || kategori,
+                            lastReportedAt: Date.now()
+                        });
+                        results.push({
+                            sn,
+                            status: 'updated',
+                            installedDate,
+                            oldInstalledDate: existing.installedDate || '-'
+                        });
+                    } else {
+                        await set(ref(gudangDb, `modems/${sn}`), {
+                            mac: mac,
+                            kategori: kategori,
+                            status: 'terpasang',
+                            installedDate: installedDate,
+                            portColor: portColor,
+                            createdAt: Date.now(),
+                            lastReportedAt: Date.now()
+                        });
+                        results.push({ sn, status: 'created', installedDate });
+                    }
+
+                    processed++;
+                    const progress = (processed / allInstalled.length) * 100;
+                    barEl.style.width = `${progress}%`;
+                    detailEl.textContent = `${processed} / ${allInstalled.length} modem`;
+                    statusEl.textContent =
+                        `📡 Mengirim ${processed}/${allInstalled.length} ke Gudang Modem (${installedDate})...`;
+                }
+
+                const created = results.filter(r => r.status === 'created').length;
+                const updated = results.filter(r => r.status === 'updated').length;
+                let summaryHtml =
+                    `<div style="font-weight:bold; margin-bottom:8px;">✅ Selesai! ${allInstalled.length} modem dilaporkan ke Gudang Modem</div>`;
+                summaryHtml += `<div>📅 Tanggal laporan: <strong>${monitoringDateStr}</strong></div>`;
+                summaryHtml += `<div>🆕 Baru: ${created} modem</div>`;
+                summaryHtml += `<div>🔄 Diperbarui: ${updated} modem</div>`;
+                summaryHtml += `<hr style="margin:8px 0;">`;
+                summaryHtml +=
+                    `<div style="max-height:120px; overflow-y:auto; font-size:0.8rem;">${results.slice(0, 20).map(r => 
+                        `<div>${r.sn} → ${r.status === 'created' ? '🆕 ditambahkan' : '✅ diperbarui (${r.oldInstalledDate || '-'} → ${r.installedDate})'}</div>`
+                    ).join('')}</div>`;
+                if (results.length > 20) {
+                    summaryHtml += `<div style="color:#888; font-size:0.7rem;">... dan ${results.length - 20} lainnya</div>`;
+                }
+                resultEl.innerHTML = summaryHtml;
+                resultEl.style.display = 'block';
+
+                statusEl.textContent =
+                    `✅ Berhasil mengirim ${allInstalled.length} modem ke Gudang Modem! (Tanggal: ${monitoringDateStr})`;
+                barEl.style.width = '100%';
+                detailEl.textContent = `${allInstalled.length} / ${allInstalled.length} modem`;
+
+                showSyncNotification(`✅ ${allInstalled.length} modem berhasil dilaporkan ke Gudang Modem! (${monitoringDateStr})`,
+                    'success');
+
+            } catch (err) {
+                console.error('Error sending to Gudang Modem:', err);
+                statusEl.textContent = `❌ Gagal: ${err.message}`;
+                barEl.style.width = `${(processed / allInstalled.length) * 100}%`;
+                showSyncNotification('❌ Gagal mengirim laporan ke Gudang Modem: ' + err.message, 'error');
+            }
         }
 
         // ===== HANDLE GUDANG MODEM CLICK =====
@@ -5432,132 +5590,8 @@
         };
 
         // ================================================================
-        // ===== LAPORAN KE GUDANG MODEM =====
+        // ===== LAPORAN KE GUDANG MODEM (sudah di-modifikasi di atas) =====
         // ================================================================
-
-        function formatIndonesianDateFull(date) {
-            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober",
-                "November", "Desember"
-            ];
-            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-        }
-
-        async function sendAllInstalledToGudang() {
-            let allInstalled = [];
-            teams.forEach(team => {
-                if (!team.inventory) return;
-                team.inventory.forEach(item => {
-                    if (item.status === 'installed') {
-                        let teamName = team.teamName || 'Unknown Team';
-                        allInstalled.push({
-                            sn: item.sn,
-                            mac: item.mac || '00:00:00:00:00:00',
-                            kategori: getModemCategory(item.sn),
-                            portColor: item.portColor || 'neutral',
-                            teamName: teamName,
-                            installedDate: formatIndonesianDateFull(new Date())
-                        });
-                    }
-                });
-            });
-
-            if (allInstalled.length === 0) {
-                showSyncNotification('⚠️ Tidak ada modem dengan status Terpasang untuk dilaporkan', 'warning');
-                return;
-            }
-
-            const modal = document.getElementById('modalGudangProgress');
-            const statusEl = document.getElementById('gudangProgressStatus');
-            const barEl = document.getElementById('gudangProgressBar');
-            const detailEl = document.getElementById('gudangProgressDetail');
-            const resultEl = document.getElementById('gudangResultSummary');
-            resultEl.style.display = 'none';
-            resultEl.innerHTML = '';
-            modal.style.display = 'block';
-            statusEl.textContent = `🔄 Menyiapkan ${allInstalled.length} modem...`;
-            barEl.style.width = '0%';
-            detailEl.textContent = `0 / ${allInstalled.length} modem`;
-
-            const results = [];
-            let processed = 0;
-
-            try {
-                for (const modem of allInstalled) {
-                    const sn = modem.sn;
-                    const mac = modem.mac;
-                    const kategori = modem.kategori;
-                    const portColor = modem.portColor || 'neutral';
-                    const installedDate = modem.installedDate || formatIndonesianDateFull(new Date());
-                    const teamName = modem.teamName || 'Unknown';
-
-                    const snapshot = await get(ref(gudangDb, `modems/${sn}`));
-                    const existing = snapshot.val();
-
-                    if (existing) {
-                        await update(ref(gudangDb, `modems/${sn}`), {
-                            status: 'terpasang',
-                            installedDate: installedDate,
-                            portColor: portColor,
-                            mac: existing.mac || mac,
-                            kategori: existing.kategori || kategori,
-                            lastReportedAt: Date.now()
-                        });
-                        results.push({
-                            sn,
-                            status: 'updated',
-                            installedDate,
-                            oldInstalledDate: existing.installedDate || '-'
-                        });
-                    } else {
-                        await set(ref(gudangDb, `modems/${sn}`), {
-                            mac: mac,
-                            kategori: kategori,
-                            status: 'terpasang',
-                            installedDate: installedDate,
-                            portColor: portColor,
-                            createdAt: Date.now(),
-                            lastReportedAt: Date.now()
-                        });
-                        results.push({ sn, status: 'created', installedDate });
-                    }
-
-                    processed++;
-                    const progress = (processed / allInstalled.length) * 100;
-                    barEl.style.width = `${progress}%`;
-                    detailEl.textContent = `${processed} / ${allInstalled.length} modem`;
-                    statusEl.textContent = `📡 Mengirim ${processed}/${allInstalled.length} ke Gudang Modem...`;
-                }
-
-                const created = results.filter(r => r.status === 'created').length;
-                const updated = results.filter(r => r.status === 'updated').length;
-                let summaryHtml =
-                    `<div style="font-weight:bold; margin-bottom:8px;">✅ Selesai! ${allInstalled.length} modem dilaporkan ke Gudang Modem</div>`;
-                summaryHtml += `<div>🆕 Baru: ${created} modem</div>`;
-                summaryHtml += `<div>🔄 Diperbarui: ${updated} modem</div>`;
-                summaryHtml += `<hr style="margin:8px 0;">`;
-                summaryHtml +=
-                    `<div style="max-height:120px; overflow-y:auto; font-size:0.8rem;">${results.slice(0, 20).map(r => 
-                        `<div>${r.sn} → ${r.status === 'created' ? '🆕 ditambahkan' : '✅ diperbarui (${r.oldInstalledDate || '-'} → ${r.installedDate})'}</div>`
-                    ).join('')}</div>`;
-                if (results.length > 20) {
-                    summaryHtml += `<div style="color:#888; font-size:0.7rem;">... dan ${results.length - 20} lainnya</div>`;
-                }
-                resultEl.innerHTML = summaryHtml;
-                resultEl.style.display = 'block';
-
-                statusEl.textContent = `✅ Berhasil mengirim ${allInstalled.length} modem ke Gudang Modem!`;
-                barEl.style.width = '100%';
-                detailEl.textContent = `${allInstalled.length} / ${allInstalled.length} modem`;
-
-                showSyncNotification(`✅ ${allInstalled.length} modem berhasil dilaporkan ke Gudang Modem!`, 'success');
-
-            } catch (err) {
-                console.error('Error sending to Gudang Modem:', err);
-                statusEl.textContent = `❌ Gagal: ${err.message}`;
-                barEl.style.width = `${(processed / allInstalled.length) * 100}%`;
-                showSyncNotification('❌ Gagal mengirim laporan ke Gudang Modem: ' + err.message, 'error');
-            }
-        }
 
         window.closeGudangProgressModal = function() {
             document.getElementById('modalGudangProgress').style.display = 'none';
