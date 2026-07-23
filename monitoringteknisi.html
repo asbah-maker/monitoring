@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Monitoring Teknisi Sinyalku - Inventory Pro V7.5 (OLT Select + AI + Chunk + Kompas + History + ON/OFF Team + Info User)</title>
+    <title>Monitoring Teknisi Sinyalku - Inventory Pro V7.5 (OLT Select + AI + Chunk + Kompas + History + ON/OFF Team + Info User + Port + Gudang Modem)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js">
     </script>
     <style>
@@ -352,6 +352,10 @@
         }
         .btn-non-ikr {
             background-color: #20c997;
+            color: white;
+        }
+        .btn-gudang-modem {
+            background-color: #8b5cf6;
             color: white;
         }
         .btn-action-main:active {
@@ -1585,6 +1589,7 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            vertical-align: middle;
         }
         .table-stock th {
             background-color: #f8f9fa;
@@ -1656,6 +1661,11 @@
             background-color: #6c757d;
             color: white;
             border: 1px solid #545b62;
+        }
+        .st-nonikr {
+            background-color: #f3e8ff;
+            color: #6b21a5;
+            border: 1px solid #d8b4fe;
         }
         .stat-box {
             display: flex;
@@ -1969,6 +1979,53 @@
             background-color: #fd7e14 !important;
         }
 
+        /* ========== PORT INDICATOR STYLES (dari Gudang Modem) ========== */
+        .port-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+            vertical-align: middle;
+            flex-shrink: 0;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+        .port-indicator:hover {
+            transform: scale(1.25);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+        }
+        .port-neutral {
+            background-color: #9ca3af;
+            box-shadow: 0 0 8px rgba(156, 163, 175, 0.5);
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+        .port-blue {
+            background-color: #3b82f6;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+            border-color: #2563eb;
+        }
+        .port-green {
+            background-color: #22c55e;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+            border-color: #16a34a;
+        }
+        .port-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 4px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .port-cell {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
         @media (max-width: 600px) {
             body {
                 padding: 5px;
@@ -2031,7 +2088,11 @@
                 grid-template-columns: 1fr;
             }
             .table-stock {
-                font-size: 0.8rem;
+                font-size: 0.75rem;
+            }
+            .table-stock th,
+            .table-stock td {
+                padding: 5px 4px;
             }
             .sync-notification {
                 bottom: 10px;
@@ -2125,6 +2186,16 @@
             .btn-info-user .info-label {
                 font-size: 0.45rem;
             }
+            .port-indicator {
+                width: 16px;
+                height: 16px;
+            }
+            .port-label {
+                font-size: 0.6rem;
+            }
+            .port-cell {
+                gap: 3px;
+            }
         }
     </style>
 </head>
@@ -2146,7 +2217,7 @@
     <div class="container" id="main-app-container">
         <div class="header-section">
             <button class="btn-back-home" id="btn-back-tech" onclick="exitTechMode()">⬅️ Kembali / Ganti Tim</button>
-            <h1>📋 TES V1 MONITORING<br><span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database • OLT Selector • AI Ticket Generator (Chunk 5) • Kompas • History • ON/OFF Tim • Info User</span>
+            <h1>📋 MONITORING TEKNISI<br><span style="font-size: 0.6em; color: green; display: block; margin-top:5px;">Realtime Database •</span>
                 <div id="connection-status">Connecting to server...</div>
             </h1>
             <div class="btn-group-header" id="admin-menu-group">
@@ -2157,7 +2228,8 @@
                 <button class="btn-action-main btn-upload" onclick="document.getElementById('uploadFile').click()">⬆️ Restore JSON</button>
                 <button class="btn-action-main btn-modem-rekap" onclick="openModemRecapOption()">📡 Rekap Modem</button>
                 <button class="btn-action-main btn-non-ikr" onclick="openNonIkrListModal()">📋 List Modem Non IKR</button>
-                <button class="btn-action-main btn-reset" onclick="resetDatabase()">🔴 Reset Tiket</button>
+                <button class="btn-action-main btn-gudang-modem" onclick="handleGudangModemClick()">📡 Laporan Gudang Modem</button>
+                <button class="btn-action-main btn-reset" onclick="resetDatabaseWithBackup()">🔴 Reset Tiket</button>
                 <input type="file" id="uploadFile" accept=".json" style="display:none;" onchange="uploadBackup(event)">
             </div>
             <div id="admin-team-filter-container" style="display:none; margin-top:10px; width:100%; max-width:400px;">
@@ -2225,13 +2297,26 @@
 
     <!-- MODAL STOCK LIST -->
     <div id="modalStockList" class="modal">
-        <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-content" style="max-width: 1000px;">
             <span class="close-modal" onclick="closeStockListModal()">&times;</span>
             <h2 style="margin-top: 0; text-align: center; color: #17a2b8;">📦 Data Stok Modem Tim</h2>
             <h4 id="stock-list-title" style="text-align: center; margin: 0 0 15px 0; color: #666;"></h4>
-            <div id="stock-stats" style="display:flex; gap:20px; justify-content:center; margin-bottom:10px;"></div>
+            <div id="stock-stats" style="display:flex; gap:20px; justify-content:center; margin-bottom:10px; flex-wrap:wrap;"></div>
             <div style="overflow-x: auto;">
-                <table class="table-stock"><thead><tr><th>No</th><th>Serial Number (SN)</th><th>MAC Address</th><th>Kategori</th><th>Status</th><th style="min-width:140px;">Aksi</th></tr></thead><tbody id="stock-table-body"></tbody></table>
+                <table class="table-stock">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Serial Number (SN)</th>
+                            <th>MAC Address</th>
+                            <th>Kategori</th>
+                            <th>Port</th>
+                            <th>Status</th>
+                            <th style="min-width:140px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stock-table-body"></tbody>
+                </table>
                 <div id="stock-empty-msg" style="text-align: center; padding: 20px; color: #999; font-style: italic; display: none;">Belum ada data stok modem.</div>
                 <div id="duplicate-warning" style="display: none; background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.8rem;">⚠️ <strong>Peringatan:</strong> Terdeteksi duplikasi data modem. Gunakan tombol "Bersihkan Duplikat" untuk menghapus data ganda.</div>
                 <button id="btn-clean-duplicates" style="display: none; width: 100%; margin-top: 10px; background-color: #dc3545; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;" onclick="cleanDuplicateModems()">🗑️ Bersihkan Duplikat</button>
@@ -2303,6 +2388,7 @@
                 <div class="tech-select-wrapper"><label>👤 Teknisi 2 (Opsional)</label><select id="tech-2"><option value="">-- Kosong --</option></select></div>
             </div>
 
+            <!-- ===== API KEY SECTION ===== -->
             <div class="api-key-section">
                 <div class="api-key-toggle" onclick="toggleApiKeySection()">
                     <span class="arrow" id="apiKeyArrow">▶</span>
@@ -2316,7 +2402,7 @@
                         <button class="btn-sm btn-clear-key" onclick="clearApiKey()">🗑️ Hapus</button>
                         <button class="btn-sm btn-test-key" onclick="testApiKey()">🔍 Test</button>
                     </div>
-                    <div class="key-status" id="apiKeyStatus">API Key disimpan di browser lokal. Tidak pernah dikirim ke server lain selain DeepSeek.</div>
+                    <div class="key-status" id="apiKeyStatus">API Key disimpan di database (realtime) dan lokal. Bisa digunakan di semua perangkat.</div>
                 </div>
             </div>
 
@@ -2371,6 +2457,23 @@
         </div>
     </div>
 
+    <!-- MODAL GUDANG MODEM PROGRESS -->
+    <div id="modalGudangProgress" class="modal">
+        <div class="modal-content" style="max-width: 500px; text-align: center;">
+            <span class="close-modal" onclick="closeGudangProgressModal()">&times;</span>
+            <h3 style="margin-top:0; color:#8b5cf6;">📡 Laporan ke Gudang Modem</h3>
+            <div id="gudangProgressContent" style="margin: 20px 0;">
+                <div id="gudangProgressStatus" style="font-size:1rem; margin-bottom:10px;">⏳ Memproses...</div>
+                <div style="width:100%; height:20px; background:#e9ecef; border-radius:10px; overflow:hidden;">
+                    <div id="gudangProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg,#8b5cf6,#6d28d9); transition:width 0.5s ease; border-radius:10px;"></div>
+                </div>
+                <div id="gudangProgressDetail" style="font-size:0.85rem; color:#666; margin-top:8px;">0 / 0 modem</div>
+            </div>
+            <div id="gudangResultSummary" style="display:none; text-align:left; background:#f8fafc; padding:15px; border-radius:8px; margin-top:10px; max-height:200px; overflow-y:auto; font-size:0.85rem;"></div>
+            <button class="btn-action-main" style="background:#6c757d; margin-top:15px; padding:8px 30px;" onclick="closeGudangProgressModal()">Tutup</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, update, onValue, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -2398,14 +2501,31 @@
             measurementId: "G-TVN9Y64LJD"
         };
 
+        // ===== GUDANG MODEM FIREBASE CONFIG =====
+        const gudangFirebaseConfig = {
+            apiKey: "AIzaSyDx807YyV4e12TRpRLqg7WrG-wewh8KEtU",
+            authDomain: "monitoringgudangmodemversi1.firebaseapp.com",
+            databaseURL: "https://monitoringgudangmodemversi1-default-rtdb.firebaseio.com",
+            projectId: "monitoringgudangmodemversi1",
+            storageBucket: "monitoringgudangmodemversi1.firebasestorage.app",
+            messagingSenderId: "612668865089",
+            appId: "1:612668865089:web:e2234f309691f6d85224c0"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const dbRef = ref(db, 'monitoring_teams_master');
         const nonIkrRef = ref(db, 'nonIkrRetrievals');
+        const apiKeyRef = ref(db, 'deepseek_api_key');
 
         const historyApp = initializeApp(historyFirebaseConfig, 'historyApp');
         const historyDb = getDatabase(historyApp);
         const historyRef = ref(historyDb, 'history_recaps');
+
+        // ===== GUDANG MODEM APP =====
+        const gudangApp = initializeApp(gudangFirebaseConfig, 'gudangApp');
+        const gudangDb = getDatabase(gudangApp);
+        const gudangModemsRef = ref(gudangDb, 'modems');
 
         let isOnline = navigator.onLine;
         let isFirebaseConnected = false;
@@ -2428,6 +2548,7 @@
         let teamFilters = new Map();
         let adminTeamFilter = 'all';
         let operTicketSource = null;
+        let apiKeyLoadedFromFirebase = false;
 
         // ===== HISTORY DATA CACHE =====
         let historyDataCache = null;
@@ -2594,21 +2715,95 @@
             return count;
         }
 
-        // ===== DEEPSEEK API KEY MANAGEMENT =====
-        function loadApiKey() {
-            try {
-                const saved = localStorage.getItem('deepseek_api_key');
-                if (saved) {
-                    deepseekApiKey = saved;
-                    document.getElementById('deepseekApiKeyInput').value = saved;
-                    updateApiKeyStatusLabel(true);
-                } else {
-                    updateApiKeyStatusLabel(false);
-                }
-            } catch (e) {}
+        // ================================================================
+        // ===== API KEY MANAGEMENT (REALTIME + FIREBASE) =====
+        // ================================================================
+
+        function updateApiKeyStatusLabel(hasKey) {
+            const label = document.getElementById('apiKeyStatusLabel');
+            if (hasKey) {
+                label.textContent = '✅ API Key terpasang (Realtime)';
+                label.style.color = '#28a745';
+            } else {
+                label.textContent = '⛔ Belum diset';
+                label.style.color = '#dc3545';
+            }
         }
 
-        window.saveApiKey = function() {
+        // Load API Key from Firebase first, then localStorage as fallback
+        async function loadApiKeyFromFirebase() {
+            try {
+                const snapshot = await get(apiKeyRef);
+                if (snapshot.exists()) {
+                    const firebaseKey = snapshot.val();
+                    if (firebaseKey && typeof firebaseKey === 'string' && firebaseKey.trim().length > 0) {
+                        deepseekApiKey = firebaseKey.trim();
+                        // Also save to localStorage for offline cache
+                        try { localStorage.setItem('deepseek_api_key', deepseekApiKey); } catch (e) {}
+                        document.getElementById('deepseekApiKeyInput').value = deepseekApiKey;
+                        updateApiKeyStatusLabel(true);
+                        document.getElementById('apiKeyStatus').textContent =
+                            '✅ API Key dimuat dari database (realtime). Tersedia untuk semua perangkat.';
+                        document.getElementById('apiKeyStatus').className = 'key-status valid';
+                        apiKeyLoadedFromFirebase = true;
+                        return;
+                    }
+                }
+                // Fallback: check localStorage
+                try {
+                    const localKey = localStorage.getItem('deepseek_api_key');
+                    if (localKey && localKey.trim().length > 0) {
+                        deepseekApiKey = localKey.trim();
+                        document.getElementById('deepseekApiKeyInput').value = deepseekApiKey;
+                        updateApiKeyStatusLabel(true);
+                        document.getElementById('apiKeyStatus').textContent =
+                            '⚠️ API Key dimuat dari cache lokal. Simpan ke database untuk digunakan di perangkat lain.';
+                        document.getElementById('apiKeyStatus').className = 'key-status warning';
+                        // Push local key to Firebase
+                        await set(apiKeyRef, deepseekApiKey);
+                        apiKeyLoadedFromFirebase = true;
+                        return;
+                    }
+                } catch (e) {}
+
+                // No key found
+                deepseekApiKey = '';
+                document.getElementById('deepseekApiKeyInput').value = '';
+                updateApiKeyStatusLabel(false);
+                document.getElementById('apiKeyStatus').textContent =
+                    '🔑 Belum ada API Key. Masukkan dan simpan untuk menggunakan AI di semua perangkat.';
+                document.getElementById('apiKeyStatus').className = 'key-status';
+                apiKeyLoadedFromFirebase = true;
+            } catch (err) {
+                console.warn('Gagal load API Key dari Firebase:', err);
+                // Fallback to localStorage
+                try {
+                    const localKey = localStorage.getItem('deepseek_api_key');
+                    if (localKey && localKey.trim().length > 0) {
+                        deepseekApiKey = localKey.trim();
+                        document.getElementById('deepseekApiKeyInput').value = deepseekApiKey;
+                        updateApiKeyStatusLabel(true);
+                        document.getElementById('apiKeyStatus').textContent =
+                            '⚠️ API Key dimuat dari cache lokal (gagal sync ke Firebase).';
+                        document.getElementById('apiKeyStatus').className = 'key-status warning';
+                    } else {
+                        deepseekApiKey = '';
+                        document.getElementById('deepseekApiKeyInput').value = '';
+                        updateApiKeyStatusLabel(false);
+                        document.getElementById('apiKeyStatus').textContent =
+                            '🔑 Belum ada API Key (gagal sync ke Firebase).';
+                        document.getElementById('apiKeyStatus').className = 'key-status';
+                    }
+                } catch (e) {
+                    deepseekApiKey = '';
+                    updateApiKeyStatusLabel(false);
+                }
+                apiKeyLoadedFromFirebase = true;
+            }
+        }
+
+        // Save API Key to Firebase + localStorage
+        window.saveApiKey = async function() {
             const input = document.getElementById('deepseekApiKeyInput');
             const key = input.value.trim();
             if (!key) {
@@ -2619,25 +2814,56 @@
                 showSyncNotification('API Key DeepSeek biasanya diawali dengan "sk-"', 'warning');
                 return;
             }
-            deepseekApiKey = key;
-            try { localStorage.setItem('deepseek_api_key', key); } catch (e) {}
-            updateApiKeyStatusLabel(true);
-            document.getElementById('apiKeyStatus').textContent = '✅ API Key tersimpan dengan aman di browser lokal.';
-            document.getElementById('apiKeyStatus').className = 'key-status valid';
-            showSyncNotification('✅ API Key DeepSeek berhasil disimpan!', 'success');
+            try {
+                // Save to Firebase
+                await set(apiKeyRef, key);
+                deepseekApiKey = key;
+                try { localStorage.setItem('deepseek_api_key', key); } catch (e) {}
+                updateApiKeyStatusLabel(true);
+                document.getElementById('apiKeyStatus').textContent =
+                    '✅ API Key tersimpan di database (realtime) dan lokal. Bisa digunakan di semua perangkat.';
+                document.getElementById('apiKeyStatus').className = 'key-status valid';
+                showSyncNotification('✅ API Key DeepSeek berhasil disimpan secara realtime!', 'success');
+            } catch (err) {
+                console.error('Gagal save API Key ke Firebase:', err);
+                // Still save to localStorage as fallback
+                deepseekApiKey = key;
+                try { localStorage.setItem('deepseek_api_key', key); } catch (e) {}
+                updateApiKeyStatusLabel(true);
+                document.getElementById('apiKeyStatus').textContent =
+                    '⚠️ Gagal menyimpan ke database, tapi tersimpan di cache lokal. Coba lagi nanti.';
+                document.getElementById('apiKeyStatus').className = 'key-status warning';
+                showSyncNotification('⚠️ API Key tersimpan lokal (gagal sync ke database)', 'warning');
+            }
         };
 
-        window.clearApiKey = function() {
-            if (!confirm('Hapus API Key yang tersimpan?')) return;
-            deepseekApiKey = '';
-            try { localStorage.removeItem('deepseek_api_key'); } catch (e) {}
-            document.getElementById('deepseekApiKeyInput').value = '';
-            updateApiKeyStatusLabel(false);
-            document.getElementById('apiKeyStatus').textContent = 'API Key dihapus. Masukkan kembali untuk menggunakan AI.';
-            document.getElementById('apiKeyStatus').className = 'key-status';
-            showSyncNotification('🗑️ API Key dihapus', 'warning');
+        // Clear API Key from Firebase + localStorage
+        window.clearApiKey = async function() {
+            if (!confirm('Hapus API Key yang tersimpan (dari semua perangkat)?')) return;
+            try {
+                await set(apiKeyRef, null);
+                deepseekApiKey = '';
+                try { localStorage.removeItem('deepseek_api_key'); } catch (e) {}
+                document.getElementById('deepseekApiKeyInput').value = '';
+                updateApiKeyStatusLabel(false);
+                document.getElementById('apiKeyStatus').textContent = 'API Key dihapus dari database dan lokal.';
+                document.getElementById('apiKeyStatus').className = 'key-status';
+                showSyncNotification('🗑️ API Key dihapus dari semua perangkat', 'warning');
+            } catch (err) {
+                console.error('Gagal clear API Key dari Firebase:', err);
+                // Still clear local
+                deepseekApiKey = '';
+                try { localStorage.removeItem('deepseek_api_key'); } catch (e) {}
+                document.getElementById('deepseekApiKeyInput').value = '';
+                updateApiKeyStatusLabel(false);
+                document.getElementById('apiKeyStatus').textContent =
+                    '⚠️ Gagal menghapus dari database, tapi sudah dihapus dari lokal.';
+                document.getElementById('apiKeyStatus').className = 'key-status warning';
+                showSyncNotification('⚠️ API Key dihapus lokal (gagal sync ke database)', 'warning');
+            }
         };
 
+        // Test API Key
         window.testApiKey = async function() {
             const key = document.getElementById('deepseekApiKeyInput').value.trim() || deepseekApiKey;
             if (!key) {
@@ -2668,17 +2894,6 @@
             }
         };
 
-        function updateApiKeyStatusLabel(hasKey) {
-            const label = document.getElementById('apiKeyStatusLabel');
-            if (hasKey) {
-                label.textContent = '✅ API Key terpasang';
-                label.style.color = '#28a745';
-            } else {
-                label.textContent = '⛔ Belum diset';
-                label.style.color = '#dc3545';
-            }
-        }
-
         window.toggleApiKeySection = function() {
             const body = document.getElementById('apiKeyBody');
             const arrow = document.getElementById('apiKeyArrow');
@@ -2686,7 +2901,10 @@
             arrow.classList.toggle('open');
         };
 
-        // ===== AI GENERATE (Chunk) =====
+        // ================================================================
+        // ===== DEEPSEEK AI GENERATE (REALTIME API KEY) =====
+        // ================================================================
+
         window.generateWithDeepSeek = async function() {
             const btn = document.getElementById('btnAiGenerate');
             const statusEl = document.getElementById('aiStatus');
@@ -2700,7 +2918,31 @@
                 return;
             }
 
-            let apiKey = deepseekApiKey || document.getElementById('deepseekApiKeyInput').value.trim();
+            // Get API Key from input or variable (already loaded from Firebase)
+            let apiKey = document.getElementById('deepseekApiKeyInput').value.trim() || deepseekApiKey;
+
+            // If still empty, try to load from Firebase again
+            if (!apiKey) {
+                try {
+                    const snapshot = await get(apiKeyRef);
+                    if (snapshot.exists()) {
+                        const fbKey = snapshot.val();
+                        if (fbKey && typeof fbKey === 'string' && fbKey.trim().length > 0) {
+                            apiKey = fbKey.trim();
+                            deepseekApiKey = apiKey;
+                            try { localStorage.setItem('deepseek_api_key', apiKey); } catch (e) {}
+                            document.getElementById('deepseekApiKeyInput').value = apiKey;
+                            updateApiKeyStatusLabel(true);
+                            document.getElementById('apiKeyStatus').textContent =
+                                '✅ API Key dimuat dari database.';
+                            document.getElementById('apiKeyStatus').className = 'key-status valid';
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Gagal load API Key dari Firebase:', e);
+                }
+            }
+
             if (!apiKey) {
                 statusEl.textContent = '⚠️ Masukkan dan simpan API Key DeepSeek di bagian konfigurasi di atas!';
                 statusEl.className = 'ai-status error';
@@ -2907,7 +3149,10 @@
             }
         };
 
+        // ================================================================
         // ===== AI CARD CREATORS =====
+        // ================================================================
+
         function createPSBCardFromAI(ticket, index, container) {
             const card = document.createElement('div');
             card.className = 'preview-card preview-psb';
@@ -2941,6 +3186,28 @@
             for (let i = 0; i < 4; i++) { if ((input.charCodeAt(i) ^ 85) !== ENC_PIN[i]) return false; }
             return true;
         }
+
+        // ===== GUDANG MODEM PIN =====
+        const GUDANG_PIN = "0789";
+
+        function checkGudangPin(input) {
+            return input === GUDANG_PIN;
+        }
+
+        // ===== HANDLE GUDANG MODEM CLICK =====
+        window.handleGudangModemClick = function() {
+            if (appMode !== 'admin') {
+                showSyncNotification('⚠️ Laporan ke Gudang Modem hanya untuk Admin', 'warning');
+                return;
+            }
+            const pin = prompt("🔐 Masukkan Sandi Khusus Gudang Modem:", "");
+            if (pin === null) return;
+            if (!checkGudangPin(pin)) {
+                showSyncNotification('❌ Sandi salah! Akses ditolak.', 'error');
+                return;
+            }
+            sendAllInstalledToGudang();
+        };
 
         function getModemCategory(sn) {
             if (!sn) return 'LAINNYA';
@@ -3173,12 +3440,46 @@
             renderJobs();
         };
 
-        // ===== LOAD FIREBASE =====
+        // ================================================================
+        // ===== LOAD FIREBASE (with API Key realtime) =====
+        // ================================================================
+
         function loadFirebaseData() {
             updateConnectionStatus('connecting', 'Menghubungkan ke Firebase...');
             loadBackupData();
             loadPendingSyncOperations();
-            loadApiKey();
+
+            // Load API Key from Firebase (realtime)
+            loadApiKeyFromFirebase();
+
+            // Also listen for realtime updates on API key
+            onValue(apiKeyRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const fbKey = snapshot.val();
+                    if (fbKey && typeof fbKey === 'string' && fbKey.trim().length > 0) {
+                        deepseekApiKey = fbKey.trim();
+                        try { localStorage.setItem('deepseek_api_key', deepseekApiKey); } catch (e) {}
+                        document.getElementById('deepseekApiKeyInput').value = deepseekApiKey;
+                        updateApiKeyStatusLabel(true);
+                        document.getElementById('apiKeyStatus').textContent =
+                            '✅ API Key dimuat dari database (realtime). Tersedia untuk semua perangkat.';
+                        document.getElementById('apiKeyStatus').className = 'key-status valid';
+                        apiKeyLoadedFromFirebase = true;
+                    }
+                } else {
+                    // Key removed from Firebase
+                    if (!localStorage.getItem('deepseek_api_key')) {
+                        deepseekApiKey = '';
+                        document.getElementById('deepseekApiKeyInput').value = '';
+                        updateApiKeyStatusLabel(false);
+                        document.getElementById('apiKeyStatus').textContent =
+                            '🔑 Belum ada API Key di database.';
+                        document.getElementById('apiKeyStatus').className = 'key-status';
+                    }
+                }
+            }, (error) => {
+                console.warn('Gagal listen API Key:', error);
+            });
 
             loadHistoryData();
 
@@ -3199,8 +3500,11 @@
                             teams.forEach(t => {
                                 if (t.isActive === undefined) t.isActive = true;
                                 if (!t.inventory) t.inventory = [];
-                                t.inventory = t.inventory.map(item => { if (!item.status) item
-                                        .status = 'pending'; return item; });
+                                t.inventory = t.inventory.map(item => {
+                                    if (!item.status) item.status = 'pending';
+                                    if (item.portColor === undefined) item.portColor = 'neutral';
+                                    return item;
+                                });
                                 if (t.jobs) t.jobs.forEach(job => { if (job.oltType === undefined) job
                                         .oltType = 'unknown'; if (job.tikor === undefined) job
                                         .tikor = null; if (job.infoUserDone === undefined) job
@@ -3695,7 +3999,7 @@
         }
 
         // ================================================================
-        // ===== COPY SCHEDULE RECAP (UPDATED FORMAT) =====
+        // ===== COPY SCHEDULE RECAP =====
         // ================================================================
         window.copyScheduleRecap = function() {
             const today = new Date();
@@ -3714,14 +4018,11 @@
 
                 const sortedJobs = sortJobsByTime(team.jobs);
 
-                // Build team header: *TEKNISI : Tim 1: Kholis*
                 let teamDisplay = team.teamName;
-                // If team name doesn't already have "TEKNISI :" prefix, add it
                 const headerPrefix = "TEKNISI : ";
                 if (!teamDisplay.toLowerCase().includes("teknisi")) {
                     teamDisplay = headerPrefix + teamDisplay;
                 } else {
-                    // If it already has "TEKNISI :" somewhere, normalize
                     const idx = teamDisplay.toLowerCase().indexOf("teknisi");
                     if (idx > 0) {
                         teamDisplay = teamDisplay.substring(idx);
@@ -3743,7 +4044,6 @@
                     const time = job.time || "FLEKSIBEL";
                     const kunjungan = job.tag || "-";
 
-                    // Format: {number}. *{name}* | Jam: {time} | Kunjungan: {kunjungan}
                     text += `${jobNumber}. *${jobName}* | Jam: ${time} | Kunjungan: ${kunjungan}\n`;
                     jobNumber++;
                 });
@@ -3760,10 +4060,9 @@
         };
 
         // ================================================================
-        // ===== EXISTING COPY FUNCTIONS (with sorted teams & jobs) =====
+        // ===== EXISTING COPY FUNCTIONS =====
         // ================================================================
 
-        const originalCopyAllSummary = window.copyAllSummary;
         window.copyAllSummary = function() {
             let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
             const sortedTeams = getSortedActiveTeams();
@@ -3793,7 +4092,6 @@
             copyToClipboard(summaryText, null, "✅ Rekap Semua Tiket Tersalin!");
         };
 
-        const originalCopyAllSummaryV2 = window.copyAllSummaryV2;
         window.copyAllSummaryV2 = function() {
             let text = `📋 *REKAP STATUS TIKET*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
             const sortedTeams = getSortedActiveTeams();
@@ -3924,7 +4222,6 @@
             copyToClipboard(text, null, "✅ Rekap V2 Tersalin!");
         };
 
-        const originalCopyTeamSummary = window.copyTeamSummary;
         window.copyTeamSummary = function(tIndex, btn) {
             const team = teams[tIndex];
             if (!team) return;
@@ -3950,7 +4247,6 @@
             copyToClipboard(text, btn, "✅ Disalin!");
         };
 
-        const originalCopyPSBSummary = window.copyPSBSummary;
         window.copyPSBSummary = function() {
             let text = `📋 *REKAP PSB BERHASIL*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n`;
             let count = 0;
@@ -4348,7 +4644,6 @@
                     }
                     addressHtml += `</p>`;
 
-                    // Info User label in the customer info area
                     let infoUserDisplay = '';
                     if (job.infoUserDone) {
                         infoUserDisplay =
@@ -4465,8 +4760,7 @@
                 newValue; else if (fieldType === 'Kunjungan') job.tag = newValue; else if (fieldType === 'layanan') job
                 .details['Layanan'] = newValue;
             saveDataToFirebase();
-            renderJobs();
-        };
+            renderJobs(); };
         window.toggleJobStatus = function(tIndex, jobIndex, newStatus) { const job = teams[tIndex].jobs[jobIndex]; const
                 oldStatus = job.status || (job.completed ? 'completed' : 'pending'); const isPSB = job.tag.toUpperCase()
                 .includes("PSB"); if (oldStatus === newStatus) { job.status = 'pending';
@@ -4553,6 +4847,30 @@
             }
         };
 
+        // ===== PORT COLOR FUNCTION =====
+        window.togglePortColor = function(teamIndex, sn, currentColor) {
+            if (appMode !== 'admin') {
+                showSyncNotification('⚠️ Ubah warna port hanya untuk Admin', 'warning');
+                return;
+            }
+            const team = teams[teamIndex];
+            if (!team || !team.inventory) return;
+            const item = team.inventory.find(inv => inv.sn === sn);
+            if (!item) return;
+
+            let newColor = 'neutral';
+            if (currentColor === 'neutral') newColor = 'blue';
+            else if (currentColor === 'blue') newColor = 'green';
+            else newColor = 'neutral';
+
+            item.portColor = newColor;
+            saveDataToFirebase();
+
+            openStockListModal(teamIndex);
+            const colorLabels = { neutral: 'NETRAL', blue: 'BIRU', green: 'HIJAU' };
+            showSyncNotification(`🎨 Port ${sn} → ${colorLabels[newColor] || newColor.toUpperCase()}`, 'success');
+        };
+
         // ===== MODEM STOCK FUNCTIONS =====
         function updateInventoryStatus(teamIdx, sn, newStatus) { const team = teams[teamIdx]; if (!team || !team.inventory)
                 return false; const item = team.inventory.find(inv => inv.sn === sn); if (item) { item.status = newStatus;
@@ -4616,6 +4934,7 @@
             saveDataToFirebase();
             renderJobs(); };
 
+        // ===== OPEN STOCK LIST MODAL =====
         window.openStockListModal = function(teamIndex) {
             const team = teams[teamIndex];
             const tbody = document.getElementById('stock-table-body');
@@ -4645,6 +4964,27 @@
                     const category = getModemCategory(item.sn);
                     const statusText = item.status === 'pending' ? 'Pending' : 'Terpasang';
                     const statusClass = item.status === 'pending' ? 'st-pending' : 'st-installed';
+
+                    let portHtml = '';
+                    if (category === 'NOKIA') {
+                        const portColor = item.portColor || 'neutral';
+                        let colorClass = 'port-neutral';
+                        let label = 'NETRAL';
+                        if (portColor === 'blue') { colorClass = 'port-blue';
+                            label = 'BIRU'; } else if (portColor === 'green') { colorClass = 'port-green';
+                            label = 'HIJAU'; }
+                        portHtml = `
+                                <div class="port-cell">
+                                    <span class="port-indicator ${colorClass}" 
+                                          onclick="togglePortColor(${teamIndex}, '${escapeHtml(item.sn)}', '${portColor}')" 
+                                          title="Klik untuk ganti warna port (${label})"></span>
+                                    <span class="port-label">${label}</span>
+                                </div>
+                            `;
+                    } else {
+                        portHtml = `<span style="color:#999; font-size:0.7rem;">—</span>`;
+                    }
+
                     let actionBtns = '';
                     if (!isTech) {
                         if (item.status === 'installed') { actionBtns +=
@@ -4655,7 +4995,7 @@
                     if (isAdmin) { actionBtns +=
                             `<button class="btn-icon-del" onclick="deleteStock(${teamIndex}, '${item.sn}')">🗑️</button>`; }
                     tr.innerHTML =
-                        `<td>${idx+1}</td><td>${item.sn}</td><td>${item.mac}</td><td>${category}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionBtns}</td>`;
+                        `<td>${idx+1}</td><td>${item.sn}</td><td>${item.mac}</td><td>${category}</td><td>${portHtml}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${actionBtns}</td>`;
                     tbody.appendChild(tr);
                 });
             }
@@ -4722,6 +5062,7 @@
                 const itemIndex = sourceTeam.inventory.findIndex(inv => inv.sn === currentOperSN);
                 if (itemIndex === -1) { alert('Modem tidak ditemukan'); return; }
                 const [item] = sourceTeam.inventory.splice(itemIndex, 1);
+                if (!item.portColor) item.portColor = 'neutral';
                 targetTeam.inventory.push(item);
                 saveDataToFirebase();
                 showSyncNotification(`Modem ${currentOperSN} dipindahkan ke ${targetTeam.teamName}`, 'success');
@@ -4786,13 +5127,219 @@
                 filtered.forEach((modem, i) => {
                     const category = getModemCategory(modem.sn);
                     let statusLabel = modem.status === 'pending' ? 'PENDING' : 'TERPASANG';
-                    allText += `${i+1}. ${modem.sn} [${category}] [${statusLabel}]\n`;
+                    let portInfo = '';
+                    if (category === 'NOKIA') {
+                        const pc = modem.portColor || 'neutral';
+                        const label = pc === 'blue' ? 'BIRU' : (pc === 'green' ? 'HIJAU' : 'NETRAL');
+                        portInfo = ` [PORT: ${label}]`;
+                    }
+                    allText += `${i+1}. ${modem.sn} [${category}] [${statusLabel}]${portInfo}\n`;
                 });
                 allText += `--------------------\n`;
             });
             if (!hasAny) { allText += "Tidak ada data modem sesuai filter.\n"; } else { allText = allText.replace(
                     /\n--------------------\n$/, '\n'); }
             copyToClipboard(allText, null, "✅ Rekap Modem tersalin!");
+        };
+
+        // ================================================================
+        // ===== LAPORAN KE GUDANG MODEM =====
+        // ================================================================
+
+        function formatIndonesianDateFull(date) {
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober",
+                "November", "Desember"
+            ];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        async function sendAllInstalledToGudang() {
+            let allInstalled = [];
+            teams.forEach(team => {
+                if (!team.inventory) return;
+                team.inventory.forEach(item => {
+                    if (item.status === 'installed') {
+                        let teamName = team.teamName || 'Unknown Team';
+                        allInstalled.push({
+                            sn: item.sn,
+                            mac: item.mac || '00:00:00:00:00:00',
+                            kategori: getModemCategory(item.sn),
+                            portColor: item.portColor || 'neutral',
+                            teamName: teamName,
+                            installedDate: formatIndonesianDateFull(new Date())
+                        });
+                    }
+                });
+            });
+
+            if (allInstalled.length === 0) {
+                showSyncNotification('⚠️ Tidak ada modem dengan status Terpasang untuk dilaporkan', 'warning');
+                return;
+            }
+
+            const modal = document.getElementById('modalGudangProgress');
+            const statusEl = document.getElementById('gudangProgressStatus');
+            const barEl = document.getElementById('gudangProgressBar');
+            const detailEl = document.getElementById('gudangProgressDetail');
+            const resultEl = document.getElementById('gudangResultSummary');
+            resultEl.style.display = 'none';
+            resultEl.innerHTML = '';
+            modal.style.display = 'block';
+            statusEl.textContent = `🔄 Menyiapkan ${allInstalled.length} modem...`;
+            barEl.style.width = '0%';
+            detailEl.textContent = `0 / ${allInstalled.length} modem`;
+
+            const results = [];
+            let processed = 0;
+
+            try {
+                for (const modem of allInstalled) {
+                    const sn = modem.sn;
+                    const mac = modem.mac;
+                    const kategori = modem.kategori;
+                    const portColor = modem.portColor || 'neutral';
+                    const installedDate = modem.installedDate || formatIndonesianDateFull(new Date());
+                    const teamName = modem.teamName || 'Unknown';
+
+                    const snapshot = await get(ref(gudangDb, `modems/${sn}`));
+                    const existing = snapshot.val();
+
+                    if (existing) {
+                        await update(ref(gudangDb, `modems/${sn}`), {
+                            status: 'terpasang',
+                            installedDate: installedDate,
+                            portColor: portColor,
+                            mac: existing.mac || mac,
+                            kategori: existing.kategori || kategori,
+                            lastReportedAt: Date.now()
+                        });
+                        results.push({
+                            sn,
+                            status: 'updated',
+                            installedDate,
+                            oldInstalledDate: existing.installedDate || '-'
+                        });
+                    } else {
+                        await set(ref(gudangDb, `modems/${sn}`), {
+                            mac: mac,
+                            kategori: kategori,
+                            status: 'terpasang',
+                            installedDate: installedDate,
+                            portColor: portColor,
+                            createdAt: Date.now(),
+                            lastReportedAt: Date.now()
+                        });
+                        results.push({ sn, status: 'created', installedDate });
+                    }
+
+                    processed++;
+                    const progress = (processed / allInstalled.length) * 100;
+                    barEl.style.width = `${progress}%`;
+                    detailEl.textContent = `${processed} / ${allInstalled.length} modem`;
+                    statusEl.textContent = `📡 Mengirim ${processed}/${allInstalled.length} ke Gudang Modem...`;
+                }
+
+                const created = results.filter(r => r.status === 'created').length;
+                const updated = results.filter(r => r.status === 'updated').length;
+                let summaryHtml =
+                    `<div style="font-weight:bold; margin-bottom:8px;">✅ Selesai! ${allInstalled.length} modem dilaporkan ke Gudang Modem</div>`;
+                summaryHtml += `<div>🆕 Baru: ${created} modem</div>`;
+                summaryHtml += `<div>🔄 Diperbarui: ${updated} modem</div>`;
+                summaryHtml += `<hr style="margin:8px 0;">`;
+                summaryHtml +=
+                    `<div style="max-height:120px; overflow-y:auto; font-size:0.8rem;">${results.slice(0, 20).map(r => 
+                        `<div>${r.sn} → ${r.status === 'created' ? '🆕 ditambahkan' : '✅ diperbarui (${r.oldInstalledDate || '-'} → ${r.installedDate})'}</div>`
+                    ).join('')}</div>`;
+                if (results.length > 20) {
+                    summaryHtml += `<div style="color:#888; font-size:0.7rem;">... dan ${results.length - 20} lainnya</div>`;
+                }
+                resultEl.innerHTML = summaryHtml;
+                resultEl.style.display = 'block';
+
+                statusEl.textContent = `✅ Berhasil mengirim ${allInstalled.length} modem ke Gudang Modem!`;
+                barEl.style.width = '100%';
+                detailEl.textContent = `${allInstalled.length} / ${allInstalled.length} modem`;
+
+                showSyncNotification(`✅ ${allInstalled.length} modem berhasil dilaporkan ke Gudang Modem!`, 'success');
+
+            } catch (err) {
+                console.error('Error sending to Gudang Modem:', err);
+                statusEl.textContent = `❌ Gagal: ${err.message}`;
+                barEl.style.width = `${(processed / allInstalled.length) * 100}%`;
+                showSyncNotification('❌ Gagal mengirim laporan ke Gudang Modem: ' + err.message, 'error');
+            }
+        }
+
+        window.closeGudangProgressModal = function() {
+            document.getElementById('modalGudangProgress').style.display = 'none';
+        };
+
+        // ================================================================
+        // ===== RESET TIKET WITH BACKUP =====
+        // ================================================================
+
+        window.resetDatabaseWithBackup = function() {
+            let pin = prompt("🔐 Masukkan PIN Admin untuk Reset Tiket + Download Backup:");
+            if (!checkPin(pin)) {
+                if (pin) alert("❌ PIN SALAH! Reset dibatalkan.");
+                return;
+            }
+
+            if (!confirm(
+                    "⚠️ PERINGATAN: Anda akan melakukan reset tiket!\n\n" +
+                    "Langkah:\n" +
+                    "1. 📥 Download backup JSON data saat ini\n" +
+                    "2. 🗑️ Hapus SEMUA tiket, tim, dan stok modem teknisi\n" +
+                    "3. Data Non IKR TIDAK akan terhapus\n\n" +
+                    "Yakin ingin melanjutkan?"
+                )) {
+                return;
+            }
+
+            const nid = showSyncNotification('📥 Mengunduh backup dan mereset...', 'saving', false);
+
+            try {
+                const backupData = {
+                    teams: teams,
+                    nonIkrRetrievals: nonIkrRetrievals,
+                    timestamp: new Date().toISOString(),
+                    note: 'Backup sebelum reset tiket'
+                };
+                const jsonStr = JSON.stringify(backupData, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_sebelum_reset_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showSyncNotification('📥 Backup berhasil diunduh! Melanjutkan reset...', 'warning');
+
+                setTimeout(() => {
+                    teams = [];
+                    try { localStorage.removeItem('teams_backup'); } catch (e) {}
+
+                    saveDataToFirebaseDirect().then(() => {
+                        showSyncNotification('✅ Reset tiket berhasil! Data telah dikosongkan.', 'success');
+                        closeSyncNotification(nid);
+                        renderJobs();
+                        renderLandingTeams();
+                        populateAdminTeamFilter();
+                    }).catch((err) => {
+                        showSyncNotification('❌ Gagal reset data di Firebase! Periksa koneksi.', 'error');
+                        closeSyncNotification(nid);
+                        console.error('Reset error:', err);
+                    });
+                }, 1500);
+
+            } catch (err) {
+                showSyncNotification('❌ Gagal melakukan reset: ' + err.message, 'error');
+                closeSyncNotification(nid);
+                console.error('Reset error:', err);
+            }
         };
 
         // ===== NON IKR =====
@@ -5077,9 +5624,26 @@
                 const idx = teams.indexOf(team);
                 if (idx !== -1) teamSelect.add(new Option(`${team.teamName} (${team.jobs.length} tiket)`, idx));
             });
-            const savedKey = localStorage.getItem('deepseek_api_key') || '';
-            document.getElementById('deepseekApiKeyInput').value = savedKey;
-            if (savedKey) updateApiKeyStatusLabel(true);
+            // Load API Key from Firebase or local
+            if (deepseekApiKey) {
+                document.getElementById('deepseekApiKeyInput').value = deepseekApiKey;
+                updateApiKeyStatusLabel(true);
+                document.getElementById('apiKeyStatus').textContent =
+                    '✅ API Key dimuat dari database (realtime). Tersedia untuk semua perangkat.';
+                document.getElementById('apiKeyStatus').className = 'key-status valid';
+            } else {
+                // Try to load from localStorage as fallback
+                try {
+                    const localKey = localStorage.getItem('deepseek_api_key');
+                    if (localKey && localKey.trim().length > 0) {
+                        document.getElementById('deepseekApiKeyInput').value = localKey;
+                        updateApiKeyStatusLabel(true);
+                        document.getElementById('apiKeyStatus').textContent =
+                            '⚠️ API Key dimuat dari cache lokal. Simpan ke database untuk digunakan di perangkat lain.';
+                        document.getElementById('apiKeyStatus').className = 'key-status warning';
+                    }
+                } catch (e) {}
+            }
             document.getElementById("modalTicket").style.display = "block";
         };
         window.closeCreateTicketModal = function() { document.getElementById("modalTicket").style.display = "none";
@@ -5508,29 +6072,6 @@
             }
         };
 
-        window.resetDatabase = function() {
-            let pin = prompt("🔐 Masukkan PIN untuk reset:");
-            if (!checkPin(pin)) {
-                if (pin) alert("❌ PIN SALAH!");
-                return;
-            }
-            if (confirm(
-                    "⚠️ Yakin ingin mereset SEMUA TIKET, TIM, dan STOK MODEM TEKNISI? Data akan hilang permanen! (Data List Modem Non IKR TIDAK akan terhapus)"
-                    )) {
-                const nid = showSyncNotification('Meriset tiket dan stok tim...', 'saving', false);
-                set(dbRef, []).then(() => {
-                    showSyncNotification('✅ Tiket, tim, dan stok modem teknisi berhasil di-reset! (Data Non IKR tetap aman)',
-                        'success');
-                    closeSyncNotification(nid);
-                    location.reload();
-                }).catch((err) => {
-                    showSyncNotification('❌ Gagal mereset tiket!', 'error');
-                    closeSyncNotification(nid);
-                    alert("Gagal mereset tiket: " + err);
-                });
-            }
-        };
-
         window.downloadBackup = function() { const backupData = { teams: teams, nonIkrRetrievals: nonIkrRetrievals,
                 timestamp: new Date().toISOString() }; const jsonStr = JSON.stringify(backupData, null, 2); const blob =
                 new Blob([jsonStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a =
@@ -5558,6 +6099,8 @@
                                 null; if (j.infoUserDone === undefined) j.infoUserDone =
                                 false; });
                             if (t.enableTikorOper === undefined) t.enableTikorOper = false;
+                            if (t.inventory) t.inventory.forEach(inv => { if (inv.portColor ===
+                                    undefined) inv.portColor = 'neutral'; });
                         });
                         saveDataToFirebaseDirect().then(() => saveNonIkrToFirebase()).then(() => {
                             showSyncNotification('✅ Restore data berhasil!', 'success');
@@ -5585,6 +6128,7 @@
             if (event.target == document.getElementById("modalLocation")) closeLocationModal();
             if (event.target == document.getElementById("modalOperTicket")) closeOperTicketModal();
             if (event.target == document.getElementById("modalHistory")) closeHistoryModal();
+            if (event.target == document.getElementById("modalGudangProgress")) closeGudangProgressModal();
         };
 
         // ===== START =====
