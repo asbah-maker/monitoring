@@ -3344,7 +3344,6 @@
                             kategori: getModemCategory(item.sn),
                             portColor: item.portColor || 'neutral',
                             teamName: teamName,
-                            // 🔥 GANTI: installedDate pakai tanggal monitoring
                             installedDate: monitoringDateStr
                         });
                     }
@@ -3378,7 +3377,7 @@
                     const mac = modem.mac;
                     const kategori = modem.kategori;
                     const portColor = modem.portColor || 'neutral';
-                    const installedDate = modem.installedDate; // ← sudah pakai monitoringDateStr
+                    const installedDate = modem.installedDate;
                     const teamName = modem.teamName || 'Unknown';
 
                     const snapshot = await get(ref(gudangDb, `modems/${sn}`));
@@ -3698,6 +3697,145 @@
             const val = document.getElementById('admin-team-filter-select').value;
             adminTeamFilter = val;
             renderJobs();
+        };
+
+        // ================================================================
+        // ===== UPLOAD BACKUP (RESTORE JSON) =====
+        // ================================================================
+
+        window.uploadBackup = function(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                showSyncNotification('⚠️ Tidak ada file yang dipilih', 'warning');
+                return;
+            }
+
+            // Cek ekstensi file
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                showSyncNotification('⚠️ File harus berekstensi .json', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    
+                    // Validasi struktur data
+                    if (!jsonData.teams || !Array.isArray(jsonData.teams)) {
+                        showSyncNotification('❌ File backup tidak valid: properti "teams" tidak ditemukan atau bukan array', 'error');
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // Konfirmasi sebelum restore
+                    const totalTeams = jsonData.teams.length;
+                    const totalTickets = jsonData.teams.reduce((sum, t) => sum + (t.jobs ? t.jobs.length : 0), 0);
+                    const totalModems = jsonData.teams.reduce((sum, t) => sum + (t.inventory ? t.inventory.length : 0), 0);
+                    const nonIkrCount = jsonData.nonIkrRetrievals ? jsonData.nonIkrRetrievals.length : 0;
+
+                    const confirmMsg = 
+                        `⚠️ PERINGATAN: Restore data akan MENIMPA semua data saat ini!\n\n` +
+                        `📋 Data dalam file backup:\n` +
+                        `   • Tim: ${totalTeams}\n` +
+                        `   • Tiket: ${totalTickets}\n` +
+                        `   • Modem: ${totalModems}\n` +
+                        `   • Non IKR: ${nonIkrCount}\n\n` +
+                        `Yakin ingin melanjutkan?`;
+
+                    if (!confirm(confirmMsg)) {
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // PIN Admin untuk keamanan
+                    const pin = prompt("🔒 Masukkan PIN Admin untuk melanjutkan restore:");
+                    if (!checkPin(pin)) {
+                        if (pin) alert("❌ PIN SALAH! Restore dibatalkan.");
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // Proses restore
+                    const nid = showSyncNotification('🔄 Memulihkan data dari backup...', 'saving', false);
+
+                    // Backup data saat ini dulu (untuk jaga-jaga)
+                    try {
+                        const currentBackup = {
+                            teams: teams,
+                            nonIkrRetrievals: nonIkrRetrievals,
+                            timestamp: new Date().toISOString(),
+                            note: 'Backup otomatis sebelum restore'
+                        };
+                        localStorage.setItem('teams_backup_before_restore', JSON.stringify(currentBackup));
+                    } catch (e) {}
+
+                    // Update data
+                    teams = jsonData.teams;
+                    // Pastikan setiap team punya properti yang diperlukan
+                    teams.forEach((t, idx) => {
+                        if (t.isActive === undefined) t.isActive = true;
+                        if (!t.inventory) t.inventory = [];
+                        t.inventory = t.inventory.map(item => {
+                            if (!item.status) item.status = 'pending';
+                            if (item.portColor === undefined) item.portColor = 'neutral';
+                            return item;
+                        });
+                        if (t.jobs) {
+                            t.jobs.forEach(job => {
+                                if (job.oltType === undefined) job.oltType = 'unknown';
+                                if (job.tikor === undefined) job.tikor = null;
+                                if (job.infoUserDone === undefined) job.infoUserDone = false;
+                            });
+                        }
+                        if (!t.mainLocation) t.mainLocation = null;
+                        if (t.locationEnabled === undefined) t.locationEnabled = false;
+                        if (t.enableTikorOper === undefined) t.enableTikorOper = false;
+                        // Pastikan colorClass ada
+                        if (!t.colorClass) {
+                            const colors = ["bg-orange", "bg-purple", "bg-teal", "bg-dark"];
+                            t.colorClass = colors[idx % colors.length] || "bg-dark";
+                        }
+                    });
+
+                    // Restore nonIkrRetrievals jika ada
+                    if (jsonData.nonIkrRetrievals && Array.isArray(jsonData.nonIkrRetrievals)) {
+                        nonIkrRetrievals = jsonData.nonIkrRetrievals;
+                    }
+
+                    // Simpan ke Firebase
+                    Promise.all([
+                        saveDataToFirebaseDirect(),
+                        saveNonIkrToFirebase()
+                    ]).then(() => {
+                        showSyncNotification(`✅ Restore berhasil! ${totalTeams} tim, ${totalTickets} tiket, ${totalModems} modem dipulihkan.`, 'success');
+                        closeSyncNotification(nid);
+                        renderJobs();
+                        renderLandingTeams();
+                        populateAdminTeamFilter();
+                        if (document.getElementById('modalNonIkrList').style.display === 'block') {
+                            renderNonIkrList();
+                        }
+                    }).catch((err) => {
+                        showSyncNotification('❌ Gagal menyimpan data ke Firebase: ' + err.message, 'error');
+                        closeSyncNotification(nid);
+                        console.error('Restore error:', err);
+                    });
+
+                } catch (parseError) {
+                    showSyncNotification('❌ Gagal parsing file JSON: ' + parseError.message, 'error');
+                    console.error('Parse error:', parseError);
+                    event.target.value = '';
+                }
+            };
+
+            reader.onerror = function() {
+                showSyncNotification('❌ Gagal membaca file', 'error');
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
         };
 
         // ================================================================
