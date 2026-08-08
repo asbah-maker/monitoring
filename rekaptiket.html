@@ -172,6 +172,21 @@
             background: #dc2626;
         }
 
+        .btn-purple {
+            background: #8b5cf6;
+            color: white;
+            box-shadow: 0 6px 14px rgba(139, 92, 246, 0.3);
+        }
+        .btn-purple:hover {
+            background: #7c3aed;
+        }
+
+        .btn-sm {
+            padding: 8px 18px;
+            font-size: 0.8rem;
+            border-radius: 40px;
+        }
+
         .filter-bar {
             display: flex;
             flex-wrap: wrap;
@@ -532,6 +547,10 @@
             max-width: 480px;
         }
 
+        .modal.medium .modal-content {
+            max-width: 820px;
+        }
+
         .close-modal {
             position: sticky;
             top: 0;
@@ -562,6 +581,7 @@
             justify-content: flex-end;
             gap: 12px;
             margin: 16px 0;
+            flex-wrap: wrap;
         }
 
         .stats-summary {
@@ -810,7 +830,6 @@
             }
         }
 
-        /* filter aktif highlight */
         .filter-active .history-item {
             border-left: 4px solid #0ea5e9;
         }
@@ -841,10 +860,113 @@
             text-decoration: underline;
         }
 
-        .filter-bar .btn-sm {
-            padding: 8px 18px;
-            font-size: 0.8rem;
-            border-radius: 40px;
+        /* JSON Monitoring Item */
+        .json-item {
+            background: white;
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 10px;
+            transition: all 0.15s;
+        }
+        .json-item:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+        .json-item .json-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: baseline;
+        }
+        .json-item .json-date {
+            font-weight: 700;
+            background: #f1f5f9;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+        }
+        .json-item .json-size {
+            font-size: 0.75rem;
+            color: #5f7d9c;
+            background: #f8fafc;
+            padding: 2px 12px;
+            border-radius: 20px;
+        }
+        .json-item .json-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .json-item .json-actions button {
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.75rem;
+        }
+        .json-item .json-actions button:hover {
+            background: #f8fafc;
+            transform: scale(0.97);
+            border-color: #94a3b8;
+        }
+        .json-item .json-actions .btn-danger-sm {
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+        .json-item .json-actions .btn-danger-sm:hover {
+            background: #fee2e2;
+        }
+
+        .json-list-container {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .badge-json {
+            display: inline-block;
+            background: #ede9fe;
+            color: #6d28d9;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+
+        .upload-json-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 1.5rem;
+            padding: 30px 20px;
+            text-align: center;
+            margin: 16px 0;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: #fafcff;
+        }
+        .upload-json-area:hover {
+            border-color: #8b5cf6;
+            background: #f5f3ff;
+        }
+        .upload-json-area .icon-big {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .upload-json-area p {
+            color: #5f7d9c;
+            font-weight: 500;
+        }
+        .upload-json-area input[type="file"] {
+            display: none;
         }
     </style>
 </head>
@@ -869,6 +991,7 @@
             <button class="btn btn-warning" onclick="showIndividualTechDatabase()">👤 Database Analisa Per Teknisi</button>
             <button class="btn btn-secondary" id="searchBtn" onclick="openSearchModal()">🔍 Cari No Layanan</button>
             <button class="btn btn-primary" id="refreshAllBtn" onclick="refreshAllRecaps()">🔄 Refresh Semua Data</button>
+            <button class="btn btn-purple" onclick="openJsonMonitoringModal()">📁 JSON Monitoring</button>
         </div>
 
         <!-- ===== FILTER BAR TANGGAL ===== -->
@@ -1031,6 +1154,42 @@
         </div>
     </div>
 
+    <!-- ===== MODAL JSON MONITORING ===== -->
+    <div id="json-monitoring-modal" class="modal medium">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeJsonMonitoringModal()">&times;</span>
+            <h2>📁 Data JSON Monitoring Teknisi</h2>
+            <p style="margin-bottom: 8px; font-size:0.9rem;">
+                <span class="badge-json">🔗 Terintegrasi</span>
+                JSON yang dikirim dari web monitoring teknisi akan tersimpan di sini secara otomatis.
+                <span style="display:block; font-size:0.8rem; color:#5f7d9c; margin-top:4px;">
+                    ⚡ Saat web monitoring mereset data, JSON otomatis terkirim &amp; tersimpan.
+                </span>
+            </p>
+
+            <div class="modal-actions">
+                <div class="upload-area" style="display:inline-block;">
+                    <button class="btn btn-primary btn-sm">📤 Upload JSON Manual</button>
+                    <input type="file" id="jsonMonitoringUploadInput" accept=".json" onchange="handleJsonMonitoringUpload(event)" />
+                </div>
+                <button class="btn btn-success btn-sm" onclick="downloadAllJsonMonitoring()">📦 Download Semua</button>
+                <button class="btn btn-danger btn-sm" onclick="clearAllJsonMonitoring()">🗑️ Hapus Semua</button>
+                <span style="font-size:0.75rem; color:#5f7d9c; margin-left:6px;" id="jsonMonitoringCount"></span>
+            </div>
+
+            <div id="jsonMonitoringFilterInfo" style="font-size:0.8rem; color:#0f4c75; background:#e0edf9; padding:4px 14px; border-radius:40px; display:inline-block; margin-bottom:10px;"></div>
+
+            <div id="json-monitoring-list" class="json-list-container">
+                <div class="empty-state">Memuat data JSON monitoring...</div>
+            </div>
+
+            <p class="note" style="margin-top:12px;">
+                📌 JSON yang tersimpan di sini berasal dari <strong>web monitoring teknisi</strong> saat reset data.
+                Gunakan tombol <strong>Download</strong> untuk mengambil cadangan.
+            </p>
+        </div>
+    </div>
+
     <!-- MODAL JSON OPTIONS -->
     <div id="json-options-modal" class="modal small">
         <div class="modal-content">
@@ -1048,7 +1207,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, get, remove, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCOULi4h6qVwu2UI_anC1ZC8JgE69RjqDM",
@@ -1062,14 +1221,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const historyRef = ref(db, 'history_recaps');
+        const jsonMonitoringRef = ref(db, 'monitoring_json_backup');
         let currentEditKey = null;
         let currentJsonKey = null;
         let lastSearchResults = [];
         let isOnline = true;
 
         // ===== FILTER STATE =====
-        let filterFrom = null; // timestamp (ms) or null
-        let filterTo = null; // timestamp (ms) or null
+        let filterFrom = null;
+        let filterTo = null;
         let filterActive = false;
 
         const DELETE_PIN = "0789";
@@ -1224,10 +1384,8 @@
                     if (isSuccess) statusPengerjaan = 'Selesai';
                     else if (job.status === 'failed') statusPengerjaan = 'Gagal Kunjungan';
 
-                    let tglSelesaiFormatted = '-';
-                    if (statusPengerjaan === 'Selesai') {
-                        tglSelesaiFormatted = rekapDateFormatted;
-                    }
+                    // ★ FIX 1: Tanggal Selesai Kunjungan selalu pakai tanggal rekap (bisa diedit via Edit Tanggal Rekap)
+                    const tglSelesaiFormatted = rekapDateFormatted;
 
                     const nomorTelpon = d['No WA'] || d['No Telp'] || d['No. Wa'] || '-';
                     const alamatLengkap = job.address || '-';
@@ -1324,11 +1482,12 @@
                 statusEl.style.display = 'none';
                 document.getElementById('filterBar').classList.remove('filter-active');
             }
-            // update filter info in modals if open
             const teamInfo = document.getElementById('teamFilterInfo');
             if (teamInfo) teamInfo.textContent = filterActive ? `📅 Filter: ${getFilterDescription()}` : '📅 Semua data';
             const indivInfo = document.getElementById('individualFilterInfo');
             if (indivInfo) indivInfo.textContent = filterActive ? `📅 Filter: ${getFilterDescription()}` : '📅 Semua data';
+            const jsonInfo = document.getElementById('jsonMonitoringFilterInfo');
+            if (jsonInfo) jsonInfo.textContent = filterActive ? `📅 Filter: ${getFilterDescription()}` : '📅 Semua data';
         }
 
         function applyFilter() {
@@ -1344,6 +1503,9 @@
             updateFilterUI();
             showNotification(`✅ Filter aktif: ${getFilterDescription()}`);
             loadHistoryList();
+            if (document.getElementById('json-monitoring-modal').style.display === 'block') {
+                loadJsonMonitoringList();
+            }
         }
 
         function clearFilter() {
@@ -1355,6 +1517,9 @@
             updateFilterUI();
             showNotification('🔓 Filter dilepas, semua data ditampilkan');
             loadHistoryList();
+            if (document.getElementById('json-monitoring-modal').style.display === 'block') {
+                loadJsonMonitoringList();
+            }
         }
 
         // ===== HISTORY LIST =====
@@ -1739,7 +1904,6 @@
             document.getElementById('sum-tim').textContent = '...';
             document.getElementById('sum-tim-pct').textContent = '...';
 
-            // update filter info
             const info = document.getElementById('individualFilterInfo');
             if (info) info.textContent = filterActive ? `📅 Filter: ${getFilterDescription()}` : '📅 Semua data';
 
@@ -2210,15 +2374,32 @@
             lastSearchResults = [];
         };
         window.closeSearchModal = () => document.getElementById('search-modal').style.display = 'none';
+
+        // ★ FIX 2: Copy hasil dengan format yang diminta
         window.copySearchResults = function() {
-            if (!lastSearchResults.length) return;
-            let text = `HASIL PENCARIAN (${lastSearchResults.length})\n`;
-            lastSearchResults.forEach(r => {
-                text +=
-                    `${r.rekapDate} | ${r.noLayanan} | ${r.namaPelanggan} | ${r.tiket} | ${r.kategori} | ${r.statusPengerjaan}\n`;
-            });
-            copyText(text);
+            if (!lastSearchResults.length) {
+                showNotification('Tidak ada hasil untuk disalin');
+                return;
+            }
+            // Format: HASIL PENCARIAN (X)
+            // 6 Agustus 2026 | Teknisi: Kholis | 1393008181 | Wahyu Ramadhanu | PSB (100 ribu + 50-150 ribu survey biaya regist) | PSB | done dengan nolay status aktif: 1393008181
+            let lines = [];
+            lines.push(`HASIL PENCARIAN (${lastSearchResults.length})`);
+            for (const r of lastSearchResults) {
+                // rekapDate sudah dalam format "6 Agustus 2026" dari toLocaleDateString('id-ID')
+                const rekapDate = r.rekapDate || '-';
+                const teknisi = r.namaTeknisi || 'Teknisi';
+                const noLayanan = r.noLayanan || '-';
+                const pelanggan = r.namaPelanggan || '-';
+                const tiket = r.tiket || '-';
+                const kategori = r.kategori || '-';
+                const catatan = r.catatan || '-';
+                lines.push(`${rekapDate} | Teknisi: ${teknisi} | ${noLayanan} | ${pelanggan} | ${tiket} | ${kategori} | ${catatan}`);
+            }
+            const finalText = lines.join('\n');
+            copyText(finalText);
         };
+
         window.downloadSearchResultsExcel = function() {
             if (!lastSearchResults.length) return;
             const ws = XLSX.utils.json_to_sheet(lastSearchResults.map(r => ({
@@ -2345,6 +2526,286 @@
             }
         };
 
+        // ===== JSON MONITORING FEATURE =====
+
+        // Open JSON Monitoring Modal
+        window.openJsonMonitoringModal = function() {
+            if (!checkOnline('JSON Monitoring')) return;
+            document.getElementById('json-monitoring-modal').style.display = 'block';
+            loadJsonMonitoringList();
+            const info = document.getElementById('jsonMonitoringFilterInfo');
+            if (info) info.textContent = filterActive ? `📅 Filter: ${getFilterDescription()}` : '📅 Semua data';
+        };
+
+        window.closeJsonMonitoringModal = function() {
+            document.getElementById('json-monitoring-modal').style.display = 'none';
+        };
+
+        // Load JSON Monitoring List
+        async function loadJsonMonitoringList() {
+            const container = document.getElementById('json-monitoring-list');
+            container.innerHTML = '<div><span class="loading-spinner"></span> Memuat data JSON...</div>';
+
+            try {
+                const snapshot = await get(jsonMonitoringRef);
+                const data = snapshot.val() || {};
+                const keys = Object.keys(data).sort().reverse();
+                let filteredKeys = keys;
+                if (filterActive) {
+                    filteredKeys = keys.filter(k => isKeyInFilter(k));
+                }
+
+                if (filteredKeys.length === 0) {
+                    const msg = filterActive ?
+                        `Tidak ada data JSON dalam rentang filter (${getFilterDescription()}).` :
+                        'Belum ada data JSON dari monitoring teknisi. Upload atau tunggu kiriman otomatis.';
+                    container.innerHTML = `<div class="empty-state">${msg}</div>`;
+                    document.getElementById('jsonMonitoringCount').textContent = '';
+                    return;
+                }
+
+                let html = '';
+                let totalSize = 0;
+                for (const key of filteredKeys) {
+                    const entry = data[key];
+                    const dateObj = new Date(parseInt(key));
+                    const dateLabel = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long',
+                        year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const jsonStr = entry.jsonData || '';
+                    const sizeKB = (jsonStr.length / 1024).toFixed(1);
+                    totalSize += jsonStr.length;
+                    const itemCount = entry.itemCount || 0;
+
+                    html += `<div class="json-item">
+                        <div class="json-info">
+                            <span class="json-date">📅 ${dateLabel}</span>
+                            <span class="json-size">📄 ${sizeKB} KB</span>
+                            <span class="json-size" style="background:#ede9fe; color:#6d28d9;">${itemCount} tiket</span>
+                            <span class="badge-json">🔗 monitoring</span>
+                        </div>
+                        <div class="json-actions">
+                            <button onclick="downloadSingleJson('${key}')">⬇️ Download</button>
+                            <button class="btn-danger-sm" onclick="deleteSingleJson('${key}')">🗑️</button>
+                        </div>
+                    </div>`;
+                }
+
+                const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+                document.getElementById('jsonMonitoringCount').textContent =
+                    `📦 ${filteredKeys.length} file · ${totalSizeMB} MB total`;
+
+                container.innerHTML = html;
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<div class="empty-state">Gagal memuat data JSON</div>';
+            }
+        }
+
+        // Handle JSON upload for monitoring (manual)
+        window.handleJsonMonitoringUpload = async function(event) {
+            if (!checkOnline('Upload JSON Monitoring')) return;
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const jsonStr = e.target.result;
+                        // Validate JSON
+                        let jsonData = JSON.parse(jsonStr);
+                        let teams = null;
+                        if (Array.isArray(jsonData)) teams = jsonData;
+                        else if (jsonData.teams && Array.isArray(jsonData.teams)) teams = jsonData.teams;
+                        else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master))
+                            teams = jsonData.monitoring_teams_master;
+                        else throw new Error('Format JSON tidak dikenali (harus array teams)');
+
+                        if (!teams || !teams.length) throw new Error('Tidak ada data tim');
+
+                        // Count total jobs
+                        let itemCount = 0;
+                        for (const team of teams) {
+                            if (team.jobs) itemCount += team.jobs.length;
+                        }
+
+                        const timestamp = Date.now();
+                        await set(ref(db, `monitoring_json_backup/${timestamp}`), {
+                            jsonData: jsonStr,
+                            uploadedAt: new Date().toISOString(),
+                            source: 'manual_upload',
+                            itemCount: itemCount,
+                            teamsCount: teams.length
+                        });
+
+                        showNotification(`✅ JSON Monitoring berhasil diupload! ${itemCount} tiket tersimpan.`);
+                        event.target.value = '';
+                        loadJsonMonitoringList();
+                    } catch (err) {
+                        showNotification('❌ Gagal: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            } catch (err) {
+                showNotification('❌ Gagal: ' + err.message);
+            }
+        };
+
+        // Download single JSON
+        window.downloadSingleJson = async function(key) {
+            try {
+                const snap = await get(ref(db, `monitoring_json_backup/${key}`));
+                if (!snap.exists()) {
+                    showNotification('Data tidak ditemukan');
+                    return;
+                }
+                const entry = snap.val();
+                const jsonStr = entry.jsonData;
+                if (!jsonStr) {
+                    showNotification('JSON kosong');
+                    return;
+                }
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `monitoring_${new Date(parseInt(key)).toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification('✅ Download JSON selesai');
+            } catch (e) {
+                showNotification('Gagal: ' + e.message);
+            }
+        };
+
+        // Delete single JSON
+        window.deleteSingleJson = async function(key) {
+            if (!checkOnline('Hapus JSON')) return;
+            const pin = prompt("Masukkan PIN untuk menghapus JSON ini:");
+            if (pin !== DELETE_PIN) {
+                showNotification("❌ PIN salah. Penghapusan dibatalkan.");
+                return;
+            }
+            if (confirm(`Hapus JSON monitoring tanggal ${new Date(parseInt(key)).toLocaleDateString('id-ID')}?`)) {
+                await remove(ref(db, `monitoring_json_backup/${key}`));
+                showNotification('✅ JSON dihapus');
+                loadJsonMonitoringList();
+            }
+        };
+
+        // Download all JSON monitoring
+        window.downloadAllJsonMonitoring = async function() {
+            try {
+                const snapshot = await get(jsonMonitoringRef);
+                const data = snapshot.val() || {};
+                const keys = Object.keys(data);
+                if (!keys.length) {
+                    showNotification('Tidak ada data');
+                    return;
+                }
+
+                let allData = [];
+                for (const key of keys) {
+                    const entry = data[key];
+                    try {
+                        const parsed = JSON.parse(entry.jsonData || '[]');
+                        if (Array.isArray(parsed)) {
+                            allData.push({
+                                timestamp: key,
+                                date: new Date(parseInt(key)).toISOString(),
+                                data: parsed
+                            });
+                        }
+                    } catch (e) {}
+                }
+
+                if (!allData.length) {
+                    showNotification('Tidak ada data valid');
+                    return;
+                }
+
+                const exportObj = {
+                    exportedAt: new Date().toISOString(),
+                    totalFiles: allData.length,
+                    files: allData
+                };
+
+                const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `monitoring_all_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification(`✅ Download ${allData.length} file JSON selesai`);
+            } catch (e) {
+                showNotification('Gagal: ' + e.message);
+            }
+        };
+
+        // Clear all JSON monitoring
+        window.clearAllJsonMonitoring = async function() {
+            if (!checkOnline('Hapus semua JSON')) return;
+            const pin = prompt("Masukkan PIN untuk menghapus SEMUA JSON monitoring:");
+            if (pin !== DELETE_PIN) {
+                showNotification("❌ PIN salah.");
+                return;
+            }
+            if (confirm('Hapus SEMUA data JSON monitoring secara permanen?')) {
+                await set(jsonMonitoringRef, null);
+                showNotification('✅ Semua JSON monitoring dihapus');
+                loadJsonMonitoringList();
+            }
+        };
+
+        // ===== AUTO-SAVE JSON FROM MONITORING WEB =====
+        window.saveMonitoringJson = async function(jsonData) {
+            if (!checkOnline('Simpan JSON Monitoring')) return false;
+            try {
+                let teams = null;
+                if (Array.isArray(jsonData)) teams = jsonData;
+                else if (jsonData.teams && Array.isArray(jsonData.teams)) teams = jsonData.teams;
+                else if (jsonData.monitoring_teams_master && Array.isArray(jsonData.monitoring_teams_master))
+                    teams = jsonData.monitoring_teams_master;
+                else throw new Error('Format JSON tidak dikenali');
+
+                if (!teams || !teams.length) throw new Error('Tidak ada data tim');
+
+                let itemCount = 0;
+                for (const team of teams) {
+                    if (team.jobs) itemCount += team.jobs.length;
+                }
+
+                const jsonStr = JSON.stringify(jsonData, null, 2);
+                const timestamp = Date.now();
+
+                await set(ref(db, `monitoring_json_backup/${timestamp}`), {
+                    jsonData: jsonStr,
+                    uploadedAt: new Date().toISOString(),
+                    source: 'monitoring_web_auto',
+                    itemCount: itemCount,
+                    teamsCount: teams.length
+                });
+
+                showNotification(`✅ JSON dari monitoring web tersimpan! ${itemCount} tiket.`);
+                return true;
+            } catch (err) {
+                showNotification('❌ Gagal simpan JSON monitoring: ' + err.message);
+                return false;
+            }
+        };
+
+        // Also listen for Firebase changes to auto-refresh the list
+        onValue(jsonMonitoringRef, (snapshot) => {
+            if (document.getElementById('json-monitoring-modal').style.display === 'block') {
+                loadJsonMonitoringList();
+            }
+        });
+
         // ===== MODAL CLOSE HANDLERS =====
         window.onclick = (e) => {
             if (e.target.classList.contains('modal')) e.target.style.display = 'none';
@@ -2407,7 +2868,8 @@
             if (e.key === 'Enter') document.getElementById('modalSearchBtn')?.click();
         });
 
-        console.log('✅ Sinyalku loaded with date filter.');
+        console.log('✅ Sinyalku loaded with JSON Monitoring feature.');
+        console.log('📌 Web monitoring dapat memanggil window.saveMonitoringJson(data) untuk auto-save JSON.');
     </script>
 </body>
 </html>
