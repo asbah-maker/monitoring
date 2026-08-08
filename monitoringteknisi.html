@@ -453,6 +453,7 @@
             gap: 8px;
             flex: 0 1 auto;
             min-width: 140px;
+            flex-wrap: wrap;
         }
         .job-center .tikor-input {
             width: 120px;
@@ -475,6 +476,26 @@
         .job-center .tikor-input.tikor-invalid {
             border-color: #dc3545;
             background: #fff5f5;
+        }
+        .category-change-dropdown {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #8b5cf6;
+            background: #f8f4ff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #6d28d9;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .category-change-dropdown:hover {
+            background: #ede9fe;
+            border-color: #7c3aed;
+        }
+        .category-change-dropdown:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         .distance-badge {
             font-size: 0.7rem;
@@ -634,7 +655,6 @@
             transform: scale(0.9);
         }
 
-        /* INFO USER BUTTON */
         .btn-info-user {
             width: 32px;
             height: 32px;
@@ -736,7 +756,8 @@
         .btn-delete,
         .btn-copy-team,
         .btn-oper,
-        .btn-history {
+        .btn-history,
+        .btn-ganti-data {
             padding: 8px 12px;
             border-radius: 6px;
             font-size: 0.85rem;
@@ -745,6 +766,15 @@
             white-space: nowrap;
             flex: 1;
             text-align: center;
+        }
+        .btn-ganti-data {
+            background: #e8f0fe;
+            border: 1px solid #1a73e8;
+            color: #1a73e8;
+        }
+        .btn-ganti-data:hover {
+            background: #d2e3fc;
+            border-color: #0d62d9;
         }
         .btn-history {
             background: #f3e8ff;
@@ -888,7 +918,6 @@
             transform: translateX(16px);
         }
 
-        /* ON/OFF TEAM TOGGLE */
         .team-active-toggle {
             display: inline-flex;
             align-items: center;
@@ -1902,7 +1931,6 @@
             color: white;
         }
 
-        /* HISTORY MODAL */
         .history-modal-content {
             max-width: 900px;
         }
@@ -2003,12 +2031,10 @@
             display: inline-block;
         }
 
-        /* JADWAL TEKNISI BUTTON STYLE */
         .btn-schedule {
             background-color: #fd7e14 !important;
         }
 
-        /* ========== PORT INDICATOR STYLES (dari Gudang Modem) ========== */
         .port-indicator {
             display: inline-block;
             width: 20px;
@@ -2055,7 +2081,6 @@
             flex-wrap: wrap;
         }
 
-        /* ===== BACKUP MODAL STYLES ===== */
         .backup-modal-content {
             max-width: 450px;
             text-align: center;
@@ -2101,6 +2126,206 @@
         }
         .backup-date-display .date-clear:hover {
             background: #ffebee;
+        }
+
+        /* GANTI DATA MODAL */
+        .ganti-data-modal .modal-content {
+            max-width: 700px;
+        }
+        .ganti-data-modal textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .ganti-data-modal .btn-ganti-execute {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .ganti-data-modal .btn-ganti-execute:hover {
+            background: #7c3aed;
+        }
+        .ganti-data-modal .btn-ganti-execute:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .ganti-data-modal .ganti-status {
+            font-size: 0.85rem;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: none;
+        }
+        .ganti-data-modal .ganti-status.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .ganti-data-modal .ganti-status.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .ganti-data-modal .ganti-status.info {
+            display: block;
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .ganti-data-modal .ganti-status.warning {
+            display: block;
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        /* custom status rumah */
+        .status-rumah-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .status-rumah-wrapper select {
+            flex: 1;
+            min-width: 120px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .status-rumah-wrapper input {
+            flex: 2;
+            min-width: 120px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        /* Tanggal Pemasangan with date picker */
+        .date-picker-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .date-picker-wrapper input[type="date"] {
+            flex: 1;
+            min-width: 150px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .date-picker-wrapper .btn-today {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .tikor-gmaps-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* category filter in Tikor/Oper mode */
+        .category-filter-bar {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            margin-left: 5px;
+            align-items: center;
+        }
+        .category-filter-bar .filter-label {
+            font-size: 0.65rem;
+            opacity: 0.8;
+            margin-right: 2px;
+        }
+        .cat-filter-btn {
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: transparent;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cat-filter-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .cat-filter-btn.active {
+            background: white;
+            color: #333;
+            border-color: white;
+        }
+
+        /* Custom team 2 teknisi */
+        .custom-tech-select-wrapper {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .custom-tech-select-wrapper select {
+            flex: 1;
+            min-width: 120px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .custom-tech-select-wrapper .btn-add-tech {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .custom-tech-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #e8f0fe;
+            padding: 4px 10px 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1a73e8;
+            border: 1px solid #bbdefb;
+            margin: 2px 4px 2px 0;
+        }
+        .custom-tech-tag .remove-tech {
+            cursor: pointer;
+            color: #dc3545;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-left: 4px;
         }
 
         @media (max-width: 600px) {
@@ -2277,6 +2502,35 @@
                 font-size: 0.85rem;
                 padding: 12px;
             }
+            .status-rumah-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .date-picker-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .date-picker-wrapper input[type="date"] {
+                width: 100%;
+            }
+            .ganti-data-modal .modal-content {
+                padding: 12px;
+            }
+            .category-filter-bar {
+                margin-left: 0;
+                margin-top: 4px;
+                width: 100%;
+                justify-content: center;
+            }
+            .custom-tech-select-wrapper {
+                flex-direction: column;
+            }
+            .custom-tech-select-wrapper select {
+                min-width: unset;
+            }
+            .job-center .category-change-dropdown {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -2363,6 +2617,25 @@
             <div style="margin-top:12px; font-size:0.8rem; color:#888;">
                 <span>💡 Tanggal yang dipilih akan digunakan saat <strong>Copy Rekap</strong> dan <strong>Laporan Gudang Modem</strong>.</span>
             </div>
+            <!-- GLOBAL MAIN LOCATION -->
+            <hr style="margin:20px 0;">
+            <div style="text-align:left;">
+                <h4 style="margin:0 0 8px 0; color:#1a73e8;">📍 Lokasi Utama (Global)</h4>
+                <p style="font-size:0.8rem; color:#666; margin:0 0 8px 0;">Semua Tikor lokasi rumah pelanggan akan mengacu pada koordinat ini.</p>
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label style="font-size:0.8rem;">🔗 Link Google Maps (Tikor)</label>
+                    <input type="text" id="globalMainLocationInput" placeholder="https://www.google.com/maps?q=-6.123456,106.123456 atau maps.app.goo.gl/..." style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;">
+                    <small style="color:#888;">Contoh: https://www.google.com/maps?q=-6.123456,106.123456</small>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn-action-main" style="background:#1a73e8; flex:1; padding:8px;" onclick="saveGlobalMainLocation()">💾 Simpan Lokasi Global</button>
+                    <button class="btn-action-main" style="background:#dc3545; flex:1; padding:8px;" onclick="clearGlobalMainLocation()">🗑️ Hapus Lokasi Global</button>
+                </div>
+                <div id="globalLocationStatus" style="margin-top:10px; padding:10px; border-radius:6px; display:none;"></div>
+                <div id="globalLocationPreview" style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:6px; display:none; font-size:0.85rem;">
+                    <strong>📍 Lokasi Global tersimpan:</strong> <span id="globalLocationPreviewText">-</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2396,10 +2669,47 @@
     <div id="modalExcelOption" class="modal"><div class="modal-content" style="max-width: 450px; text-align: center;"><span class="close-modal" onclick="closeExcelOption()">&times;</span><h3 style="margin-top:0; color:#217346;">📊 Download Laporan Excel</h3><p style="font-size:0.9rem; color:#666;">Pilih jenis data yang ingin diunduh:</p><div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;"><button class="btn-action-main" style="background-color: #007bff;" onclick="downloadExcel('psb')">📄 Download Khusus PSB</button><button class="btn-action-main" style="background-color: #ffc107; color:#333;" onclick="downloadExcel('non_psb')">🛠️ Download Khusus Selain PSB</button><button class="btn-action-main" style="background-color: #217346;" onclick="downloadExcel('all')">🗂️ Download Semua Data</button></div></div></div>
 
     <!-- MODAL TICKET SELECTION -->
-    <div id="modalTicketSelection" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-modal" onclick="closeTicketOption()">&times;</span><h2 style="text-align: center; margin-bottom: 25px;">🛠️ Pilih Aksi</h2><div class="menu-selection-container"><div class="menu-btn" onclick="openCreateTicketModal()"><div class="menu-icon">📝</div><div class="menu-text"><h3>Buat Tiket Baru</h3><p>Input tiket dari pesan WhatsApp (PSB/MT/ISOLIR) atau gunakan AI.</p></div></div><div class="menu-btn" onclick="openEditTechModal()"><div class="menu-icon">👥</div><div class="menu-text"><h3>Edit Personil Tim</h3><p>Ubah nama teknisi 1 atau 2 pada tim yang sudah ada.</p></div></div><div class="menu-btn" onclick="openTransferModal()"><div class="menu-icon">🔄</div><div class="menu-text"><h3>Edit Tiket (Transfer/Lempar)</h3><p>Pindahkan tiket ke tim lain atau buat tim baru dari pecahan tiket.</p></div></div></div></div></div>
+    <div id="modalTicketSelection" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-modal" onclick="closeTicketOption()">&times;</span><h2 style="text-align: center; margin-bottom: 25px;">🛠️ Pilih Aksi</h2><div class="menu-selection-container"><div class="menu-btn" onclick="openCreateTicketModal()"><div class="menu-icon">📝</div><div class="menu-text"><h3>Buat Tiket Baru</h3><p>Input tiket dari pesan WhatsApp (PSB/MT/ISOLIR) atau gunakan AI.</p></div></div><div class="menu-btn" onclick="openEditTechModal()"><div class="menu-icon">👥</div><div class="menu-text"><h3>Edit Personil Tim</h3><p>Ubah nama teknisi 1 atau 2 pada tim yang sudah ada, atau buat tim custom.</p></div></div><div class="menu-btn" onclick="openTransferModal()"><div class="menu-icon">🔄</div><div class="menu-text"><h3>Edit Tiket (Transfer/Lempar)</h3><p>Pindahkan tiket ke tim lain atau buat tim baru dari pecahan tiket.</p></div></div></div></div></div>
 
     <!-- MODAL EDIT TECH -->
-    <div id="modalEditTech" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="close-modal" onclick="closeEditTechModal()">&times;</span><h2 style="text-align: center; color: #007bff;">👥 Edit Personil Tim</h2><div class="form-group"><label>📝 Edit Nama Tim</label><div style="display: flex; gap: 10px;"><input type="text" id="edit-team-name" class="form-control" placeholder="Nama tim baru" style="flex:1;"><button class="btn-add-list" style="background-color: #17a2b8; margin:0; width:auto; padding:8px 15px;" onclick="updateTeamName()">Simpan Nama</button></div></div><hr style="margin: 15px 0;"><div class="form-group"><label>Pilih Tim yang akan diedit:</label><select id="edit-tech-team-select" onchange="loadTeamMembersForEdit()"></select></div><div class="tech-select-container"><div class="tech-select-wrapper"><label>👤 Teknisi 1 (Baru)</label><select id="edit-tech-1"></select></div><div class="tech-select-wrapper"><label>👤 Teknisi 2 (Baru)</label><select id="edit-tech-2"><option value="">-- Kosong --</option></select></div></div><button class="btn-add-list" style="background-color: #007bff;" onclick="saveEditTech()">💾 Simpan Personil</button><hr style="margin: 15px 0;"><button class="btn-add-list" style="background-color: #dc3545;" onclick="deleteTeam()">🗑️ Hapus Tim Ini</button></div></div>
+    <div id="modalEditTech" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="closeEditTechModal()">&times;</span>
+            <h2 style="text-align: center; color: #007bff;">👥 Edit Personil Tim</h2>
+            <!-- CUSTOM TEAM CREATION -->
+            <div style="background:#f0f7ff; border:1px dashed #1a73e8; border-radius:8px; padding:12px; margin-bottom:15px;">
+                <h4 style="margin:0 0 8px 0; color:#1a73e8;">➕ Buat Tim Custom (Tanpa Tiket)</h4>
+                <div style="margin-bottom:8px;">
+                    <label style="font-size:0.8rem; color:#555; display:block; margin-bottom:3px;">Pilih Teknisi (maks 2):</label>
+                    <div class="custom-tech-select-wrapper">
+                        <select id="custom-team-tech-select-1" style="flex:1;">
+                            <option value="">-- Teknisi 1 --</option>
+                        </select>
+                        <select id="custom-team-tech-select-2" style="flex:1;">
+                            <option value="">-- Teknisi 2 (opsional) --</option>
+                        </select>
+                    </div>
+                    <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:4px;" id="custom-team-tech-tags"></div>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                    <div style="flex:2; min-width:160px;">
+                        <label style="font-size:0.75rem; color:#666;">Atau Ketik Nama Custom</label>
+                        <input type="text" id="custom-team-name-input" placeholder="Nama tim custom..." style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <button class="btn-add-list" style="background-color:#17a2b8; margin:0; width:auto; padding:8px 20px; align-self:flex-end;" onclick="createCustomTeam()">➕ Buat Tim</button>
+                </div>
+                <small style="color:#888; display:block; margin-top:4px;">💡 Custom tim tidak akan memiliki nomor urut "Tim X".</small>
+            </div>
+            <hr style="margin: 12px 0;">
+            <div class="form-group"><label>📝 Edit Nama Tim</label><div style="display: flex; gap: 10px;"><input type="text" id="edit-team-name" class="form-control" placeholder="Nama tim baru" style="flex:1;"><button class="btn-add-list" style="background-color: #17a2b8; margin:0; width:auto; padding:8px 15px;" onclick="updateTeamName()">Simpan Nama</button></div></div>
+            <hr style="margin: 15px 0;">
+            <div class="form-group"><label>Pilih Tim yang akan diedit:</label><select id="edit-tech-team-select" onchange="loadTeamMembersForEdit()"></select></div>
+            <div class="tech-select-container"><div class="tech-select-wrapper"><label>👤 Teknisi 1 (Baru)</label><select id="edit-tech-1"></select></div><div class="tech-select-wrapper"><label>👤 Teknisi 2 (Baru)</label><select id="edit-tech-2"><option value="">-- Kosong --</option></select></div></div>
+            <button class="btn-add-list" style="background-color: #007bff;" onclick="saveEditTech()">💾 Simpan Personil</button>
+            <hr style="margin: 15px 0;">
+            <button class="btn-add-list" style="background-color: #dc3545;" onclick="deleteTeam()">🗑️ Hapus Tim Ini</button>
+        </div>
+    </div>
 
     <!-- MODAL TRANSFER TICKET -->
     <div id="modalTransferTicket" class="modal"><div class="modal-content" style="max-width: 600px;"><span class="close-modal" onclick="closeTransferModal()">&times;</span><h2 style="text-align: center; color: #17a2b8;">🔄 Transfer Tiket (Lempar)</h2><div class="form-group" style="background: #e8f4f8; padding: 10px; border-radius: 8px;"><label>1️⃣ Pilih Tim Asal:</label><select id="transfer-source-team" onchange="renderTransferJobs()"></select></div><div id="transfer-job-section" style="display: none;"><label style="font-weight: bold; display: block; margin-bottom: 5px;">2️⃣ Pilih Tiket yang akan dilempar:</label><div id="transfer-job-list" class="transfer-list"></div><div class="form-group" style="background: #e8f4f8; padding: 10px; border-radius: 8px; margin-top: 15px;"><label>3️⃣ Pilih Tim Tujuan:</label><select id="transfer-target-team" onchange="checkNewTeamOption()"><option value="">-- Pilih Tujuan --</option><option value="new_team">➕ BUAT TIM BARU</option></select></div><div id="new-team-input-section" style="display: none; border: 1px dashed #17a2b8; padding: 10px; border-radius: 8px; margin-top: 10px;"><h4 style="margin: 0 0 10px 0; color: #17a2b8;">Buat Tim Baru</h4><div class="tech-select-container"><div class="tech-select-wrapper"><label>👤 Teknisi 1</label><select id="transfer-new-tech-1"></select></div><div class="tech-select-wrapper"><label>👤 Teknisi 2</label><select id="transfer-new-tech-2"><option value="">-- Kosong --</option></select></div></div></div><button class="btn-add-list" style="background-color: #17a2b8; margin-top: 15px;" onclick="processTransfer()">🚀 Proses Transfer Tiket</button></div></div></div>
@@ -2435,28 +2745,6 @@
                 <select id="oper-target-team-select" style="width:100%; padding:8px; margin:5px 0;"></select>
                 <button onclick="executeOperModem()" style="background:#17a2b8; color:white; border:none; padding:8px 15px; border-radius:4px; font-weight:bold;">Kirim Modem</button>
                 <button onclick="cancelOperModem()" style="background:#6c757d; color:white; border:none; padding:8px 15px; border-radius:4px; margin-left:5px;">Batal</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL LOKASI UTAMA (ADMIN ONLY) -->
-    <div id="modalLocation" class="modal">
-        <div class="modal-content small">
-            <span class="close-modal" onclick="closeLocationModal()">&times;</span>
-            <h2 style="margin-top:0; text-align:center; color:#1a73e8;">📍 Lokasi Utama Tim</h2>
-            <p style="font-size:0.85rem; color:#666; text-align:center;">Masukkan link Google Maps untuk lokasi utama tim ini.<br>Tiket akan diurutkan berdasarkan jarak dari lokasi ini + kompas.</p>
-            <div class="form-group">
-                <label>🔗 Link Google Maps (Tikor)</label>
-                <input type="text" id="mainLocationInput" placeholder="https://www.google.com/maps?q=-6.123456,106.123456 atau maps.app.goo.gl/..." style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;">
-                <small style="color:#888;">Contoh: https://www.google.com/maps?q=-6.123456,106.123456</small>
-            </div>
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <button class="btn-action-main" style="background:#1a73e8; flex:1;" onclick="saveMainLocation()">💾 Simpan Lokasi</button>
-                <button class="btn-action-main" style="background:#dc3545; flex:1;" onclick="clearMainLocation()">🗑️ Hapus Lokasi</button>
-            </div>
-            <div id="locationStatus" style="margin-top:12px; padding:10px; border-radius:6px; display:none;"></div>
-            <div id="locationPreview" style="margin-top:12px; padding:10px; background:#f8f9fa; border-radius:6px; display:none; font-size:0.85rem;">
-                <strong>📍 Lokasi tersimpan:</strong> <span id="locationPreviewText">-</span>
             </div>
         </div>
     </div>
@@ -2497,7 +2785,7 @@
                 <div class="tech-select-wrapper"><label>👤 Teknisi 2 (Opsional)</label><select id="tech-2"><option value="">-- Kosong --</option></select></div>
             </div>
 
-            <!-- ===== API KEY SECTION ===== -->
+            <!-- API KEY SECTION -->
             <div class="api-key-section">
                 <div class="api-key-toggle" onclick="toggleApiKeySection()">
                     <span class="arrow" id="apiKeyArrow">▶</span>
@@ -2583,6 +2871,24 @@
         </div>
     </div>
 
+    <!-- MODAL GANTI DATA (untuk Kunjungan/Isolir & PSB) -->
+    <div id="modalGantiData" class="modal ganti-data-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeGantiDataModal()">&times;</span>
+            <h2 style="margin-top:0; color:#8b5cf6;">🔄 Ganti Data Tiket (AI)</h2>
+            <p style="font-size:0.85rem; color:#666;">Paste data baru untuk mengganti semua field tiket ini (kecuali <strong>Kunjungan</strong> dan <strong>Jadwal</strong> untuk MT/ISOLIR; untuk PSB semua field akan diganti).</p>
+            <div class="form-group">
+                <label>📝 Tempel data baru:</label>
+                <textarea id="gantiDataInput" rows="10" placeholder="Paste format tiket baru disini..."></textarea>
+            </div>
+            <div id="gantiDataStatus" class="ganti-status"></div>
+            <button class="btn-ganti-execute" id="btnGantiExecute" onclick="executeGantiData()">🤖 Generate &amp; Ganti Data</button>
+            <div style="margin-top:12px; text-align:right;">
+                <button class="btn-action-main" style="background:#6c757d; padding:6px 20px; font-size:0.85rem;" onclick="closeGantiDataModal()">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, update, onValue, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -2599,7 +2905,6 @@
             measurementId: "G-4RLGX0M3NE"
         };
 
-        // ===== SECOND FIREBASE FOR HISTORY =====
         const historyFirebaseConfig = {
             apiKey: "AIzaSyCOULi4h6qVwu2UI_anC1ZC8JgE69RjqDM",
             authDomain: "rekaptiketmonitoring.firebaseapp.com",
@@ -2610,7 +2915,6 @@
             measurementId: "G-TVN9Y64LJD"
         };
 
-        // ===== GUDANG MODEM FIREBASE CONFIG =====
         const gudangFirebaseConfig = {
             apiKey: "AIzaSyDx807YyV4e12TRpRLqg7WrG-wewh8KEtU",
             authDomain: "monitoringgudangmodemversi1.firebaseapp.com",
@@ -2626,12 +2930,12 @@
         const dbRef = ref(db, 'monitoring_teams_master');
         const nonIkrRef = ref(db, 'nonIkrRetrievals');
         const apiKeyRef = ref(db, 'deepseek_api_key');
+        const globalLocationRef = ref(db, 'global_main_location');
 
         const historyApp = initializeApp(historyFirebaseConfig, 'historyApp');
         const historyDb = getDatabase(historyApp);
         const historyRef = ref(historyDb, 'history_recaps');
 
-        // ===== GUDANG MODEM APP =====
         const gudangApp = initializeApp(gudangFirebaseConfig, 'gudangApp');
         const gudangDb = getDatabase(gudangApp);
         const gudangModemsRef = ref(gudangDb, 'modems');
@@ -2658,18 +2962,43 @@
         let adminTeamFilter = 'all';
         let operTicketSource = null;
         let apiKeyLoadedFromFirebase = false;
-
-        // ===== CUSTOM DATE FOR MONITORING =====
-        let customMonitoringDate = null; // null = gunakan hari ini
-
-        // ===== GLOBAL FILTER STATE (untuk klik stat) =====
-        let globalFilterCategory = null; // null = all, 'psb', 'mt', 'isolir'
-
-        // ===== HISTORY DATA CACHE =====
+        let customMonitoringDate = null;
+        let globalFilterCategory = null;
         let historyDataCache = null;
         let historyDataLoaded = false;
 
-        // ===== COMPASS & BEARING FUNCTIONS =====
+        // ===== GLOBAL MAIN LOCATION =====
+        let globalMainLocation = null;
+
+        // ===== GANTI DATA STATE =====
+        let gantiDataTarget = null;
+
+        // ===== TIKOR/OPER CATEGORY FILTER =====
+        let tikorOperCategoryFilter = 'all';
+
+        // ===== HELPER: Format PSB Address (Neat / Rapih) =====
+        function formatPSBAddress(alamat, rtRw, nomorRumah, patokan, statusHunian) {
+            let addressParts = [];
+            if (alamat && alamat !== '-' && alamat.trim() !== '') addressParts.push(alamat.trim());
+            if (rtRw && rtRw !== '-' && rtRw.trim() !== '') {
+                const rtRwClean = rtRw.replace(/\//g, ' ').replace(/\s+/g, ' ').trim();
+                addressParts.push(`RT ${rtRwClean}`);
+            }
+            if (nomorRumah && nomorRumah !== '-' && nomorRumah.trim() !== '') addressParts.push(`Nomor Rumah: ${nomorRumah}`);
+            if (patokan && patokan !== '-' && patokan.trim() !== '') addressParts.push(`Patokan Lokasi: ${patokan}`);
+            if (statusHunian && statusHunian !== '-' && statusHunian.trim() !== '' && statusHunian !== 'Pribadi') {
+                addressParts.push(`hunian: ${statusHunian}`);
+            }
+
+            let result = addressParts.length > 0 ? addressParts.join(' ') : (alamat || '-');
+            // Clean up extra spaces and punctuation
+            result = result.replace(/[,.]\s*[,.]/g, ',').replace(/\s{2,}/g, ' ').trim();
+            // Remove "kode pos" if present
+            result = result.replace(/kode pos\s*:\s*[^,\s]+/gi, '').replace(/\s+/g, ' ').trim();
+            return result;
+        }
+
+        // ===== COMPASS FUNCTIONS =====
         function calculateBearing(lat1, lon1, lat2, lon2) {
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
@@ -2706,7 +3035,7 @@
             return 'far';
         }
 
-        // ===== HISTORY FUNCTIONS =====
+        // ===== HISTORY =====
         async function loadHistoryData() {
             if (historyDataLoaded) return;
             try {
@@ -2738,12 +3067,10 @@
             for (const key of keys) {
                 const entry = historyDataCache[key];
                 if (!entry || !entry.data || !Array.isArray(entry.data)) continue;
-                const dateLabel = new Date(parseInt(key)).toLocaleDateString('id-ID', { day: 'numeric', month: 'long',
-                    year: 'numeric' });
+                const dateLabel = formatDateFromTimestamp(parseInt(key));
                 for (const item of entry.data) {
                     const status = item.statusPengerjaan || '';
                     if (!isAllowedHistoryStatus(status)) continue;
-
                     const possibleFields = ['noLayanan', 'layanan', 'No Layanan', 'No_layanan', 'nolayanan', 'Layanan'];
                     let found = false;
                     for (const field of possibleFields) {
@@ -2795,7 +3122,6 @@
                 for (const item of entry.data) {
                     const status = item.statusPengerjaan || '';
                     if (!isAllowedHistoryStatus(status)) continue;
-
                     const possibleFields = ['noLayanan', 'layanan', 'No Layanan', 'No_layanan', 'nolayanan', 'Layanan'];
                     let found = false;
                     for (const field of possibleFields) {
@@ -2830,10 +3156,16 @@
             return count;
         }
 
-        // ================================================================
-        // ===== API KEY MANAGEMENT (REALTIME + FIREBASE) =====
-        // ================================================================
+        function formatDateFromTimestamp(ts) {
+            const d = new Date(ts);
+            if (isNaN(d.getTime())) return '-';
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                'Oktober', 'November', 'Desember'
+            ];
+            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
 
+        // ===== API KEY =====
         function updateApiKeyStatusLabel(hasKey) {
             const label = document.getElementById('apiKeyStatusLabel');
             if (hasKey) {
@@ -2845,7 +3177,6 @@
             }
         }
 
-        // Load API Key from Firebase first, then localStorage as fallback
         async function loadApiKeyFromFirebase() {
             try {
                 const snapshot = await get(apiKeyRef);
@@ -2877,7 +3208,6 @@
                         return;
                     }
                 } catch (e) {}
-
                 deepseekApiKey = '';
                 document.getElementById('deepseekApiKeyInput').value = '';
                 updateApiKeyStatusLabel(false);
@@ -3005,10 +3335,7 @@
             arrow.classList.toggle('open');
         };
 
-        // ================================================================
-        // ===== DEEPSEEK AI GENERATE (REALTIME API KEY) =====
-        // ================================================================
-
+        // ===== DEEPSEEK AI GENERATE =====
         window.generateWithDeepSeek = async function() {
             const btn = document.getElementById('btnAiGenerate');
             const statusEl = document.getElementById('aiStatus');
@@ -3097,6 +3424,7 @@
             Untuk PSB, Anda HARUS menggabungkan komponen alamat menjadi SATU field "alamat" dengan format:
             "[Alamat Lengkap Pemasangan] RT [RT] RW [RW] Nomor Rumah:[Nomor Rumah] Patokan Lokasi: [Patokan Lokasi] hunian: [Status Hunian]"
             PENTING: Jika salah satu komponen tidak ada (misal tidak ada Patokan Lokasi), maka HILANGKAN komponen tersebut dari string alamat. Jangan tampilkan "Patokan Lokasi: -" atau sejenisnya. Jangan tampilkan "kode pos" sama sekali.
+            Untuk RT/RW, gunakan format "RT [nomor] RW [nomor]" dengan rapi.
 
             JSON PSB:
             {
@@ -3112,7 +3440,8 @@
                 "ktp": "No KTP (ambil dari No KTP :)",
                 "tgl": "Tanggal pemasangan (ambil dari Tanggal pemasangan :)",
                 "statusRumah": "Status Rumah (ambil dari Status Rumah :)",
-                "setuju": "Setuju berlangganan minimal 1 tahun (ambil dari Setuju berlangganan minimal 1 tahun :)"
+                "setuju": "Setuju berlangganan minimal 1 tahun (ambil dari Setuju berlangganan minimal 1 tahun :)",
+                "linkLokasi": "Link Lokasi (ambil dari Link Lokasi :)"
             }
 
             === FORMAT MT / ISOLIR ===
@@ -3251,9 +3580,7 @@
             }
         };
 
-        // ================================================================
         // ===== AI CARD CREATORS =====
-        // ================================================================
 
         function createPSBCardFromAI(ticket, index, container) {
             const card = document.createElement('div');
@@ -3261,13 +3588,142 @@
             const noLayanan = ticket.noLayanan || ticket.layanan || '-';
             const referensi = ticket.referensi && ticket.referensi.trim() !== '' ? ticket.referensi :
                 'Tidak ada referensi';
+
             let alamat = ticket.alamat || '-';
-            alamat = alamat.replace(/kode pos\s*:\s*[^,\s]+/gi, '').replace(/\s+/g, ' ').trim();
-            alamat = alamat.replace(/[,.]\s*[,.]/g, ',').replace(/\s{2,}/g, ' ');
+            // Clean up using the helper
+            alamat = formatPSBAddress(alamat, '', '', '', '');
+
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            const todayDisplay = formatDateIndoLong(todayStr);
+
+            const currentStatusRumah = ticket.statusRumah || 'Pribadi';
+            const isCustom = currentStatusRumah !== 'Pribadi';
+
+            const linkLokasi = ticket.linkLokasi || '';
+
             card.innerHTML =
-                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:#007bff;">Ticket PSB #${index+1}: ${ticket.nama || '-'}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${ticket.jam || 'FLEXIBEL'}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="PSB"><div class="input-group"><label>No Layanan</label><input type="text" class="bulk-nolayanan" value="${escapeHtml(noLayanan)}" placeholder="Nomor layanan (opsional)"></div><div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${escapeHtml(ticket.nama || '-')}"></div><div class="input-group"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${escapeHtml(alamat)}"></div><div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${escapeHtml(ticket.email || '-')}"></div><div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${escapeHtml(ticket.wa || '-')}"></div><div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${escapeHtml(ticket.paket || '-')}"></div><div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${escapeHtml(referensi)}"></div><div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${escapeHtml(ticket.ktp || '-')}"></div><div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${escapeHtml(ticket.tgl || '-')}"></div><div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${escapeHtml(ticket.statusRumah || '-')}"></div><div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${escapeHtml(ticket.setuju || '-')}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`;
+                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+                <h4 style="color:#007bff;">Ticket PSB #${index+1}: ${ticket.nama || '-'}</h4>
+                <div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${ticket.jam || 'FLEXIBEL'}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div>
+                <div class="preview-grid">
+                    <input type="hidden" class="bulk-type" value="PSB">
+                    <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-nolayanan" value="${escapeHtml(noLayanan)}" placeholder="Nomor layanan (opsional)"></div>
+                    <div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${escapeHtml(ticket.nama || '-')}"></div>
+                    <div class="input-group" style="grid-column:1/-1;"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${escapeHtml(alamat)}"></div>
+                    <div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${escapeHtml(ticket.email || '-')}"></div>
+                    <div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${escapeHtml(ticket.wa || '-')}"></div>
+                    <div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${escapeHtml(ticket.paket || '-')}"></div>
+                    <div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${escapeHtml(referensi)}"></div>
+                    <div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${escapeHtml(ticket.ktp || '-')}"></div>
+                    <div class="input-group"><label>Tanggal pemasangan</label>
+                        <div class="date-picker-wrapper">
+                            <input type="text" class="bulk-tgl-display" value="${todayDisplay}" placeholder="8 Agustus 2026" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:4px;">
+                            <input type="hidden" class="bulk-tgl" value="${ticket.tgl || todayStr}">
+                            <button class="btn-today" onclick="setTodayDate(this)">📅 Hari Ini</button>
+                        </div>
+                    </div>
+                    <div class="input-group"><label>Status Rumah</label>
+                        <div class="status-rumah-wrapper">
+                            <select class="bulk-status-rumah-select" onchange="handleStatusRumahChange(this)">
+                                <option value="Pribadi" ${!isCustom ? 'selected' : ''}>Pribadi</option>
+                                <option value="Custom" ${isCustom ? 'selected' : ''}>Custom</option>
+                            </select>
+                            <input type="text" class="bulk-status-rumah-custom" value="${isCustom ? escapeHtml(currentStatusRumah) : ''}" placeholder="Ketik status custom..." style="display:${isCustom ? 'block' : 'none'};">
+                            <input type="hidden" class="bulk-status-rumah" value="${escapeHtml(currentStatusRumah)}">
+                        </div>
+                    </div>
+                    <div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${escapeHtml(ticket.setuju || '-')}"></div>
+                    <div class="input-group"><label>Tipe OLT</label>
+                        <select class="bulk-olt-type" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px;">
+                            <option value="unknown">BELUM DIKETAHUI</option>
+                            <option value="zt">GPON ZTE</option>
+                            <option value="hsgq">GPON HSGQ</option>
+                            <option value="epon">EPON</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="grid-column:1/-1;"><label>Tikor GMaps (Link Lokasi Rumah)</label>
+                        <input type="text" class="bulk-tikor-gmaps" value="${escapeHtml(linkLokasi)}" placeholder="https://www.google.com/maps?q=...">
+                    </div>
+                    <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
+                </div>`;
             container.appendChild(card);
         }
+
+        // ===== FORMAT DATE INDONESIAN =====
+        function formatDateIndoLong(dateStr) {
+            if (!dateStr || dateStr === '-') return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                'Oktober', 'November', 'Desember'
+            ];
+            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
+
+        function formatDateIndoShort(dateStr) {
+            if (!dateStr || dateStr === '-') return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
+
+        window.setTodayDate = function(btn) {
+            const wrapper = btn.closest('.date-picker-wrapper');
+            const display = wrapper.querySelector('.bulk-tgl-display');
+            const hidden = wrapper.querySelector('.bulk-tgl');
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            const displayStr = formatDateIndoLong(todayStr);
+            if (display) display.value = displayStr;
+            if (hidden) hidden.value = todayStr;
+        };
+
+        window.handleStatusRumahChange = function(select) {
+            const wrapper = select.closest('.status-rumah-wrapper');
+            const customInput = wrapper.querySelector('.bulk-status-rumah-custom');
+            const hidden = wrapper.querySelector('.bulk-status-rumah');
+            if (select.value === 'Custom') {
+                customInput.style.display = 'block';
+                customInput.focus();
+                hidden.value = customInput.value || 'Custom';
+            } else {
+                customInput.style.display = 'none';
+                hidden.value = select.value;
+            }
+            updateAddressHunianFromStatus(wrapper);
+        };
+
+        function updateAddressHunianFromStatus(wrapper) {
+            const card = wrapper.closest('.preview-card');
+            if (!card) return;
+            const statusHidden = wrapper.querySelector('.bulk-status-rumah');
+            const statusVal = statusHidden ? statusHidden.value : 'Pribadi';
+            const alamatInput = card.querySelector('.bulk-alamat');
+            if (!alamatInput) return;
+            let alamat = alamatInput.value;
+            if (alamat.includes('hunian:')) {
+                alamat = alamat.replace(/hunian:\s*[^,]*/i, `hunian: ${statusVal}`);
+            } else {
+                alamat = alamat.trim();
+                if (alamat.length > 0) {
+                    alamat += ` hunian: ${statusVal}`;
+                } else {
+                    alamat = `hunian: ${statusVal}`;
+                }
+            }
+            alamatInput.value = alamat;
+        }
+
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('bulk-status-rumah-custom')) {
+                const wrapper = e.target.closest('.status-rumah-wrapper');
+                const hidden = wrapper.querySelector('.bulk-status-rumah');
+                hidden.value = e.target.value || 'Custom';
+                updateAddressHunianFromStatus(wrapper);
+            }
+        });
 
         function createMTCardFromAI(ticket, index, container, isIsolir) {
             const card = document.createElement('div');
@@ -3276,7 +3732,28 @@
             const layananVal = ticket.layanan || ticket['No Layanan'] || ticket.noLayanan || ticket['layanan'] || '-';
 
             card.innerHTML =
-                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Kunjungan)'} #${index+1}: ${ticket.nama || '-'}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${ticket.jam || 'FLEXIBEL'}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="MT"><div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${escapeHtml(ticket.kunjungan || 'KUNJUNGAN')}" required></div><div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${escapeHtml(ticket.nama || '-')}"></div><div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${escapeHtml(layananVal)}" placeholder="No Layanan"></div><div class="input-group"><label>Masa Aktif s-d</label><input type="text" class="bulk-masa-aktif" value="${escapeHtml(ticket.masaAktif || '-')}"></div><div class="input-group"><label>No Telp</label><input type="text" class="bulk-telp" value="${escapeHtml(ticket.telp || '-')}"></div><div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${escapeHtml(ticket.tglDaftar || '-')}"></div><div class="input-group" style="grid-column: 1/-1;"><label>Alamat</label><input type="text" class="bulk-alamat" value="${escapeHtml(ticket.alamat || '-')}"></div><div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${escapeHtml(ticket.ssid || '-')}"></div><div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${escapeHtml(ticket.sandiWifi || '-')}"></div><div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${escapeHtml(ticket.lastDBM || '-')}"></div><div class="input-group"><label>OLT SN-MAC</label><input type="text" class="bulk-olt-sn" value="${escapeHtml(ticket.oltSnMac || '-')}"></div><div class="input-group"><label>Link Lokasi</label><input type="text" class="bulk-link-lokasi" value="${escapeHtml(ticket.linkLokasi || '-')}"></div><div class="input-group"><label>Link ODP</label><input type="text" class="bulk-link-odp" value="${escapeHtml(ticket.linkOdp || '-')}"></div><div class="input-group"><label>Port ID</label><input type="text" class="bulk-port-id" value="${escapeHtml(ticket.portId || '-')}"></div><div class="input-group" style="grid-column: 1/-1;"><label>Link foto rumah pelanggan</label><input type="text" class="bulk-link-foto" value="${escapeHtml(ticket.linkFoto || '-')}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`;
+                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+                <h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Kunjungan)'} #${index+1}: ${ticket.nama || '-'}</h4>
+                <div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${ticket.jam || 'FLEXIBEL'}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required></div>
+                <div class="preview-grid">
+                    <input type="hidden" class="bulk-type" value="MT">
+                    <div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${escapeHtml(ticket.kunjungan || 'KUNJUNGAN')}" required></div>
+                    <div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${escapeHtml(ticket.nama || '-')}"></div>
+                    <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${escapeHtml(layananVal)}" placeholder="No Layanan"></div>
+                    <div class="input-group"><label>Masa Aktif s-d</label><input type="text" class="bulk-masa-aktif" value="${escapeHtml(ticket.masaAktif || '-')}"></div>
+                    <div class="input-group"><label>No Telp</label><input type="text" class="bulk-telp" value="${escapeHtml(ticket.telp || '-')}"></div>
+                    <div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${escapeHtml(ticket.tglDaftar || '-')}"></div>
+                    <div class="input-group" style="grid-column: 1/-1;"><label>Alamat</label><input type="text" class="bulk-alamat" value="${escapeHtml(ticket.alamat || '-')}"></div>
+                    <div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${escapeHtml(ticket.ssid || '-')}"></div>
+                    <div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${escapeHtml(ticket.sandiWifi || '-')}"></div>
+                    <div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${escapeHtml(ticket.lastDBM || '-')}"></div>
+                    <div class="input-group"><label>OLT SN-MAC</label><input type="text" class="bulk-olt-sn" value="${escapeHtml(ticket.oltSnMac || '-')}"></div>
+                    <div class="input-group"><label>Link Lokasi</label><input type="text" class="bulk-link-lokasi" value="${escapeHtml(ticket.linkLokasi || '-')}"></div>
+                    <div class="input-group"><label>Link ODP</label><input type="text" class="bulk-link-odp" value="${escapeHtml(ticket.linkOdp || '-')}"></div>
+                    <div class="input-group"><label>Port ID</label><input type="text" class="bulk-port-id" value="${escapeHtml(ticket.portId || '-')}"></div>
+                    <div class="input-group" style="grid-column: 1/-1;"><label>Link foto rumah pelanggan</label><input type="text" class="bulk-link-foto" value="${escapeHtml(ticket.linkFoto || '-')}"></div>
+                    <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
+                </div>`;
             container.appendChild(card);
         }
 
@@ -3289,17 +3766,13 @@
             return true;
         }
 
-        // ===== GUDANG MODEM PIN =====
         const GUDANG_PIN = "0789";
 
         function checkGudangPin(input) {
             return input === GUDANG_PIN;
         }
 
-        // ================================================================
-        // ===== HELPER: DAPATKAN TANGGAL MONITORING YANG DIFORMAT =====
-        // ================================================================
-
+        // ===== HELPER =====
         function getMonitoringDateFormatted() {
             let dateObj;
             if (customMonitoringDate) {
@@ -3324,12 +3797,8 @@
             return `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
         }
 
-        // ================================================================
-        // ===== LAPORAN KE GUDANG MODEM (dengan tanggal monitoring) =====
-        // ================================================================
-
+        // ===== LAPORAN GUDANG MODEM =====
         async function sendAllInstalledToGudang() {
-            // Ambil tanggal monitoring yang sudah diformat
             const monitoringDateStr = getMonitoringDateFormatted();
 
             let allInstalled = [];
@@ -3355,7 +3824,6 @@
                 return;
             }
 
-            // === Tampilkan progress modal ===
             const modal = document.getElementById('modalGudangProgress');
             const statusEl = document.getElementById('gudangProgressStatus');
             const barEl = document.getElementById('gudangProgressBar');
@@ -3453,7 +3921,6 @@
             }
         }
 
-        // ===== HANDLE GUDANG MODEM CLICK =====
         window.handleGudangModemClick = function() {
             if (appMode !== 'admin') {
                 showSyncNotification('⚠️ Laporan ke Gudang Modem hanya untuk Admin', 'warning');
@@ -3483,6 +3950,7 @@
             return 'BELUM DIKETAHUI';
         }
 
+        // ===== NOTIFICATION =====
         function showSyncNotification(message, type = 'saving', autoClose = true, duration = 3000) {
             const container = document.getElementById('sync-notification-container');
             if (syncNotificationTimeout) clearTimeout(syncNotificationTimeout);
@@ -3597,12 +4065,10 @@
             } catch (e) {}
         }
 
-        // ===== GET ACTIVE TEAMS =====
         function getActiveTeams() {
             return teams.filter(t => t.isActive !== false);
         }
 
-        // ===== TOGGLE TEAM ACTIVE =====
         window.toggleTeamActive = function(teamIndex, checked) {
             if (appMode !== 'admin') {
                 showSyncNotification('⚠️ Hanya admin yang dapat mengaktifkan/nonaktifkan tim', 'warning');
@@ -3619,7 +4085,6 @@
                 'success');
         };
 
-        // ===== RENDER LANDING =====
         function renderLandingTeams() {
             if (appMode !== 'landing') return;
             const container = document.getElementById('landing-tech-grid');
@@ -3679,7 +4144,6 @@
             renderLandingTeams();
         };
 
-        // ===== ADMIN TEAM FILTER =====
         function populateAdminTeamFilter() {
             const select = document.getElementById('admin-team-filter-select');
             select.innerHTML = '<option value="all">👥 Semua Tim</option>';
@@ -3699,43 +4163,33 @@
             renderJobs();
         };
 
-        // ================================================================
-        // ===== UPLOAD BACKUP (RESTORE JSON) =====
-        // ================================================================
-
+        // ===== UPLOAD BACKUP =====
         window.uploadBackup = function(event) {
             const file = event.target.files[0];
             if (!file) {
                 showSyncNotification('⚠️ Tidak ada file yang dipilih', 'warning');
                 return;
             }
-
-            // Cek ekstensi file
             if (!file.name.toLowerCase().endsWith('.json')) {
                 showSyncNotification('⚠️ File harus berekstensi .json', 'error');
                 event.target.value = '';
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const jsonData = JSON.parse(e.target.result);
-                    
-                    // Validasi struktur data
                     if (!jsonData.teams || !Array.isArray(jsonData.teams)) {
                         showSyncNotification('❌ File backup tidak valid: properti "teams" tidak ditemukan atau bukan array', 'error');
                         event.target.value = '';
                         return;
                     }
-
-                    // Konfirmasi sebelum restore
                     const totalTeams = jsonData.teams.length;
                     const totalTickets = jsonData.teams.reduce((sum, t) => sum + (t.jobs ? t.jobs.length : 0), 0);
                     const totalModems = jsonData.teams.reduce((sum, t) => sum + (t.inventory ? t.inventory.length : 0), 0);
                     const nonIkrCount = jsonData.nonIkrRetrievals ? jsonData.nonIkrRetrievals.length : 0;
 
-                    const confirmMsg = 
+                    const confirmMsg =
                         `⚠️ PERINGATAN: Restore data akan MENIMPA semua data saat ini!\n\n` +
                         `📋 Data dalam file backup:\n` +
                         `   • Tim: ${totalTeams}\n` +
@@ -3749,7 +4203,6 @@
                         return;
                     }
 
-                    // PIN Admin untuk keamanan
                     const pin = prompt("🔒 Masukkan PIN Admin untuk melanjutkan restore:");
                     if (!checkPin(pin)) {
                         if (pin) alert("❌ PIN SALAH! Restore dibatalkan.");
@@ -3757,10 +4210,8 @@
                         return;
                     }
 
-                    // Proses restore
                     const nid = showSyncNotification('🔄 Memulihkan data dari backup...', 'saving', false);
 
-                    // Backup data saat ini dulu (untuk jaga-jaga)
                     try {
                         const currentBackup = {
                             teams: teams,
@@ -3771,9 +4222,7 @@
                         localStorage.setItem('teams_backup_before_restore', JSON.stringify(currentBackup));
                     } catch (e) {}
 
-                    // Update data
                     teams = jsonData.teams;
-                    // Pastikan setiap team punya properti yang diperlukan
                     teams.forEach((t, idx) => {
                         if (t.isActive === undefined) t.isActive = true;
                         if (!t.inventory) t.inventory = [];
@@ -3787,27 +4236,29 @@
                                 if (job.oltType === undefined) job.oltType = 'unknown';
                                 if (job.tikor === undefined) job.tikor = null;
                                 if (job.infoUserDone === undefined) job.infoUserDone = false;
+                                if (job._psbBackup === undefined) job._psbBackup = null;
+                                if (job._nonPsbBackup === undefined) job._nonPsbBackup = null;
                             });
                         }
-                        if (!t.mainLocation) t.mainLocation = null;
-                        if (t.locationEnabled === undefined) t.locationEnabled = false;
-                        if (t.enableTikorOper === undefined) t.enableTikorOper = false;
-                        // Pastikan colorClass ada
                         if (!t.colorClass) {
                             const colors = ["bg-orange", "bg-purple", "bg-teal", "bg-dark"];
                             t.colorClass = colors[idx % colors.length] || "bg-dark";
                         }
                     });
 
-                    // Restore nonIkrRetrievals jika ada
                     if (jsonData.nonIkrRetrievals && Array.isArray(jsonData.nonIkrRetrievals)) {
                         nonIkrRetrievals = jsonData.nonIkrRetrievals;
                     }
 
-                    // Simpan ke Firebase
+                    if (jsonData.globalMainLocation) {
+                        globalMainLocation = jsonData.globalMainLocation;
+                        updateGlobalLocationUI();
+                    }
+
                     Promise.all([
                         saveDataToFirebaseDirect(),
-                        saveNonIkrToFirebase()
+                        saveNonIkrToFirebase(),
+                        globalMainLocation ? set(globalLocationRef, globalMainLocation) : Promise.resolve()
                     ]).then(() => {
                         showSyncNotification(`✅ Restore berhasil! ${totalTeams} tim, ${totalTickets} tiket, ${totalModems} modem dipulihkan.`, 'success');
                         closeSyncNotification(nid);
@@ -3829,25 +4280,31 @@
                     event.target.value = '';
                 }
             };
-
             reader.onerror = function() {
                 showSyncNotification('❌ Gagal membaca file', 'error');
                 event.target.value = '';
             };
-
             reader.readAsText(file);
         };
 
-        // ================================================================
-        // ===== LOAD FIREBASE (with API Key realtime) =====
-        // ================================================================
-
+        // ===== LOAD FIREBASE =====
         function loadFirebaseData() {
             updateConnectionStatus('connecting', 'Menghubungkan ke Firebase...');
             loadBackupData();
             loadPendingSyncOperations();
-
             loadApiKeyFromFirebase();
+
+            onValue(globalLocationRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    globalMainLocation = snapshot.val();
+                    updateGlobalLocationUI();
+                } else {
+                    globalMainLocation = null;
+                    updateGlobalLocationUI();
+                }
+            }, (error) => {
+                console.warn('Gagal listen global location:', error);
+            });
 
             onValue(apiKeyRef, (snapshot) => {
                 if (snapshot.exists()) {
@@ -3900,13 +4357,13 @@
                                     if (item.portColor === undefined) item.portColor = 'neutral';
                                     return item;
                                 });
-                                if (t.jobs) t.jobs.forEach(job => { if (job.oltType === undefined) job
-                                        .oltType = 'unknown'; if (job.tikor === undefined) job
-                                        .tikor = null; if (job.infoUserDone === undefined) job
-                                        .infoUserDone = false; });
-                                if (!t.mainLocation) t.mainLocation = null;
-                                if (t.locationEnabled === undefined) t.locationEnabled = false;
-                                if (t.enableTikorOper === undefined) t.enableTikorOper = false;
+                                if (t.jobs) t.jobs.forEach(job => {
+                                    if (job.oltType === undefined) job.oltType = 'unknown';
+                                    if (job.tikor === undefined) job.tikor = null;
+                                    if (job.infoUserDone === undefined) job.infoUserDone = false;
+                                    if (job._psbBackup === undefined) job._psbBackup = null;
+                                    if (job._nonPsbBackup === undefined) job._nonPsbBackup = null;
+                                });
                             });
                         } else { teams = JSON.parse(JSON.stringify(defaultTeams)); }
                         renderLandingTeams();
@@ -3931,7 +4388,6 @@
                 renderLandingTeams(); });
         }
 
-        // ===== HELPER FUNCTIONS =====
         function getPendingInventory(teamIndex) { const team = teams[teamIndex]; if (!team || !team.inventory) return []; return team
                 .inventory.filter(item => item.status === 'pending'); }
 
@@ -3939,14 +4395,25 @@
             const seen = new Set(); for (const item of team.inventory) { if (seen.has(item.sn)) return true; seen.add(item.sn); }
             return false; }
 
+        // ===== CATEGORY DETECTION - uses tagClass for accurate filtering =====
+        function getCategoryFromJob(job) {
+            if (job.tagClass === 'badge-psb') return 'psb';
+            if (job.tagClass === 'badge-isolir') return 'isolir';
+            return 'mt';
+        }
+
         function calculateGlobalStats() {
             let psb = 0,
                 mt = 0,
                 isolir = 0;
             const activeTeams = getActiveTeams();
             activeTeams.forEach(team => { if (!team.jobs) return;
-                team.jobs.forEach(job => { const tag = job.tag.toUpperCase(); if (tag.includes('PSB')) psb++; else if (tag
-                        .includes('ISOLIR')) isolir++; else mt++; }); });
+                team.jobs.forEach(job => {
+                    const cat = getCategoryFromJob(job);
+                    if (cat === 'psb') psb++;
+                    else if (cat === 'isolir') isolir++;
+                    else mt++;
+                }); });
             return { psb, mt, isolir };
         }
 
@@ -3957,8 +4424,6 @@
             document.getElementById('global-isolir-count').textContent = stats.isolir;
             const container = document.getElementById('global-stats-container');
             if (appMode !== 'landing') { container.style.display = 'flex'; } else { container.style.display = 'none'; }
-
-            // Update active filter highlight
             document.querySelectorAll('.global-stat-item').forEach(el => el.classList.remove('active-filter'));
             if (globalFilterCategory) {
                 const idMap = { 'psb': 'stat-psb', 'mt': 'stat-mt', 'isolir': 'stat-isolir' };
@@ -3967,10 +4432,6 @@
             }
         }
 
-        // ================================================================
-        // ===== GLOBAL FILTER TOGGLE (klik stat) =====
-        // ================================================================
-
         window.toggleGlobalFilter = function(category) {
             if (appMode === 'landing') return;
             if (appMode === 'tech') {
@@ -3978,7 +4439,6 @@
                 return;
             }
             if (globalFilterCategory === category) {
-                // Klik lagi -> unfilter
                 globalFilterCategory = null;
                 showSyncNotification('🔓 Filter dibatalkan (Semua kategori)', 'success');
             } else {
@@ -3990,15 +4450,12 @@
             updateGlobalStatsDisplay();
         };
 
-        // ================================================================
-        // ===== BACKUP MODAL & DATE PICKER =====
-        // ================================================================
-
+        // ===== BACKUP MODAL =====
         window.openBackupModal = function() {
             document.getElementById('modalBackup').style.display = 'block';
             updateBackupDateDisplay();
+            updateGlobalLocationUI();
         };
-
         window.closeBackupModal = function() {
             document.getElementById('modalBackup').style.display = 'none';
         };
@@ -4117,11 +4574,11 @@
             return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
-        // ===== MODIFIED DOWNLOAD BACKUP =====
         window.downloadBackupDirect = function() {
             const backupData = {
                 teams: teams,
                 nonIkrRetrievals: nonIkrRetrievals,
+                globalMainLocation: globalMainLocation,
                 timestamp: new Date().toISOString(),
                 monitoringDate: customMonitoringDate || new Date().toISOString().split('T')[0]
             };
@@ -4139,91 +4596,33 @@
             showSyncNotification('✅ Backup JSON berhasil diunduh!', 'success');
         };
 
-        // ================================================================
-        // ===== DISTANCE CALCULATION =====
-        // ================================================================
+        // ===== GLOBAL LOCATION UI =====
+        function updateGlobalLocationUI() {
+            const input = document.getElementById('globalMainLocationInput');
+            const preview = document.getElementById('globalLocationPreview');
+            const previewText = document.getElementById('globalLocationPreviewText');
+            const status = document.getElementById('globalLocationStatus');
 
-        function parseCoordinatesFromLink(link) {
-            if (!link || link.trim() === '') return null;
-            const clean = link.trim();
-            const qMatch = clean.match(/[?&]q=([^&]+)/);
-            if (qMatch) {
-                const coordStr = qMatch[1];
-                const parts = coordStr.split(',');
-                if (parts.length === 2) {
-                    const lat = parseFloat(parts[0].trim());
-                    const lng = parseFloat(parts[1].trim());
-                    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
-                }
-            }
-            const atMatch = clean.match(/@([-+]?\d+\.\d+),([-+]?\d+\.\d+)/);
-            if (atMatch) {
-                const lat = parseFloat(atMatch[1]);
-                const lng = parseFloat(atMatch[2]);
-                if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
-            }
-            const simpleMatch = clean.match(/([-+]?\d+\.\d+)\s*,\s*([-+]?\d+\.\d+)/);
-            if (simpleMatch) {
-                const lat = parseFloat(simpleMatch[1]);
-                const lng = parseFloat(simpleMatch[2]);
-                if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
-            }
-            return null;
-        }
-
-        function haversineDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
-            const toRad = (deg) => deg * Math.PI / 180;
-            const dLat = toRad(lat2 - lat1);
-            const dLon = toRad(lon2 - lon1);
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
-
-        // ===== LOCATION MODAL =====
-        let currentLocationTeamIndex = null;
-
-        window.openLocationModal = function(teamIndex) {
-            if (appMode !== 'admin') {
-                showSyncNotification('⚠️ Fitur lokasi hanya untuk Admin', 'warning');
-                return;
-            }
-            currentLocationTeamIndex = teamIndex;
-            const team = teams[teamIndex];
-            const input = document.getElementById('mainLocationInput');
-            const preview = document.getElementById('locationPreview');
-            const previewText = document.getElementById('locationPreviewText');
-            const status = document.getElementById('locationStatus');
-
-            input.value = team.mainLocation ? team.mainLocation.link || '' : '';
-            status.style.display = 'none';
-
-            if (team.mainLocation && team.mainLocation.link) {
+            if (globalMainLocation && globalMainLocation.link) {
+                input.value = globalMainLocation.link;
                 preview.style.display = 'block';
-                previewText.textContent = team.mainLocation.link;
+                previewText.textContent = globalMainLocation.link;
+                status.style.display = 'none';
             } else {
+                input.value = '';
                 preview.style.display = 'none';
+                status.style.display = 'none';
             }
+        }
 
-            document.getElementById('modalLocation').style.display = 'block';
-        };
-
-        window.closeLocationModal = function() {
-            document.getElementById('modalLocation').style.display = 'none';
-        };
-
-        window.saveMainLocation = function() {
+        window.saveGlobalMainLocation = async function() {
             if (appMode !== 'admin') {
-                showSyncNotification('⚠️ Hanya admin yang dapat menyimpan lokasi', 'warning');
+                showSyncNotification('⚠️ Hanya admin yang dapat menyimpan lokasi global', 'warning');
                 return;
             }
-            const input = document.getElementById('mainLocationInput');
+            const input = document.getElementById('globalMainLocationInput');
             const link = input.value.trim();
-            const team = teams[currentLocationTeamIndex];
-            const status = document.getElementById('locationStatus');
+            const status = document.getElementById('globalLocationStatus');
 
             if (!link) {
                 status.style.display = 'block';
@@ -4242,91 +4641,57 @@
                 return;
             }
 
-            team.mainLocation = {
+            globalMainLocation = {
                 link: link,
                 lat: coords.lat,
                 lng: coords.lng
             };
-            team.locationEnabled = true;
 
-            saveDataToFirebase();
-            status.style.display = 'block';
-            status.style.background = '#d4edda';
-            status.style.color = '#155724';
-            status.textContent = `✅ Lokasi utama berhasil disimpan! (${coords.lat}, ${coords.lng})`;
+            try {
+                await set(globalLocationRef, globalMainLocation);
+                status.style.display = 'block';
+                status.style.background = '#d4edda';
+                status.style.color = '#155724';
+                status.textContent = `✅ Lokasi global berhasil disimpan! (${coords.lat}, ${coords.lng})`;
 
-            document.getElementById('locationPreview').style.display = 'block';
-            document.getElementById('locationPreviewText').textContent = link;
+                document.getElementById('globalLocationPreview').style.display = 'block';
+                document.getElementById('globalLocationPreviewText').textContent = link;
 
-            showSyncNotification('📍 Lokasi utama berhasil disimpan!', 'success');
-            renderJobs();
+                showSyncNotification('📍 Lokasi global berhasil disimpan!', 'success');
+                renderJobs();
+            } catch (err) {
+                status.style.display = 'block';
+                status.style.background = '#f8d7da';
+                status.style.color = '#721c24';
+                status.textContent = '❌ Gagal menyimpan ke Firebase: ' + err.message;
+                showSyncNotification('❌ Gagal menyimpan lokasi global', 'error');
+            }
         };
 
-        window.clearMainLocation = function() {
+        window.clearGlobalMainLocation = async function() {
             if (appMode !== 'admin') {
-                showSyncNotification('⚠️ Hanya admin yang dapat menghapus lokasi', 'warning');
+                showSyncNotification('⚠️ Hanya admin yang dapat menghapus lokasi global', 'warning');
                 return;
             }
-            if (!confirm('Hapus lokasi utama untuk tim ini?')) return;
-            const team = teams[currentLocationTeamIndex];
-            team.mainLocation = null;
-            team.locationEnabled = false;
-            saveDataToFirebase();
-            document.getElementById('locationPreview').style.display = 'none';
-            document.getElementById('mainLocationInput').value = '';
-            const status = document.getElementById('locationStatus');
-            status.style.display = 'block';
-            status.style.background = '#f8d7da';
-            status.style.color = '#721c24';
-            status.textContent = '🗑️ Lokasi utama telah dihapus.';
-            showSyncNotification('🗑️ Lokasi utama dihapus', 'warning');
-            renderJobs();
+            if (!confirm('Hapus lokasi global?')) return;
+            try {
+                await set(globalLocationRef, null);
+                globalMainLocation = null;
+                document.getElementById('globalLocationPreview').style.display = 'none';
+                document.getElementById('globalMainLocationInput').value = '';
+                const status = document.getElementById('globalLocationStatus');
+                status.style.display = 'block';
+                status.style.background = '#f8d7da';
+                status.style.color = '#721c24';
+                status.textContent = '🗑️ Lokasi global telah dihapus.';
+                showSyncNotification('🗑️ Lokasi global dihapus', 'warning');
+                renderJobs();
+            } catch (err) {
+                showSyncNotification('❌ Gagal menghapus lokasi global: ' + err.message, 'error');
+            }
         };
 
-        window.toggleLocationFilter = function(teamIndex, checked) {
-            if (appMode !== 'admin') {
-                showSyncNotification('⚠️ Hanya admin yang dapat mengatur filter lokasi', 'warning');
-                const cb = document.getElementById(`loc-toggle-${teams[teamIndex]?.id}`);
-                if (cb) cb.checked = false;
-                return;
-            }
-            const team = teams[teamIndex];
-            if (!team.mainLocation) {
-                showSyncNotification('⚠️ Setel lokasi utama terlebih dahulu!', 'warning');
-                const cb = document.getElementById(`loc-toggle-${team.id}`);
-                if (cb) cb.checked = false;
-                return;
-            }
-            team.locationEnabled = checked;
-            saveDataToFirebase();
-            renderJobs();
-            showSyncNotification(checked ? '📍 Filter lokasi AKTIF (Kompas + Jarak)' : '📍 Filter lokasi NONAKTIF', 'success');
-        };
-
-        // ===== TOGGLE TIKOR & OPER =====
-        window.toggleTikorOper = function(teamIndex, checked) {
-            if (appMode !== 'admin') {
-                showSyncNotification('⚠️ Hanya admin yang dapat mengatur Tikor/Oper', 'warning');
-                const cb = document.getElementById(`tikor-oper-toggle-${teams[teamIndex]?.id}`);
-                if (cb) cb.checked = false;
-                return;
-            }
-            const team = teams[teamIndex];
-            team.enableTikorOper = checked;
-            saveDataToFirebase();
-            renderJobs();
-            showSyncNotification(checked ? '✅ Tikor & Oper AKTIF untuk tim ini' : '❌ Tikor & Oper NONAKTIF untuk tim ini',
-                'success');
-        };
-
-        // ===== PER-TEAM CATEGORY FILTER =====
-        function getCategoryFromJob(job) {
-            const tag = job.tag.toUpperCase();
-            if (tag.includes('PSB')) return 'psb';
-            if (tag.includes('ISOLIR')) return 'isolir';
-            return 'mt';
-        }
-
+        // ===== CATEGORY FILTER PER TEAM =====
         function getTeamFilter(teamIndex) {
             const key = String(teamIndex);
             if (!teamFilters.has(key)) {
@@ -4356,6 +4721,39 @@
             };
             const teamName = teams[teamIndex]?.teamName || 'Tim';
             showSyncNotification(`🔍 ${teamName}: filter ${filterNames[filter] || filter}`, 'success');
+        };
+
+        // ===== CATEGORY FILTER FOR TIKOR/OPER (Admin only) =====
+        window.setTikorOperCategoryFilter = function(category, btn) {
+            if (appMode !== 'admin') return;
+            tikorOperCategoryFilter = category;
+            const bar = btn.closest('.category-filter-bar');
+            if (bar) {
+                bar.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            renderJobs();
+            const labelMap = { 'all': 'Semua', 'psb': 'PSB', 'mt': 'Kunjungan', 'isolir': 'Isolir' };
+            showSyncNotification(`📂 Filter Tikor/Oper: ${labelMap[category] || 'Semua'}`, 'success');
+        };
+
+        // ===== TIKOR/OPER TOGGLE =====
+        window.toggleTikorOper = function(teamIndex, checked) {
+            if (appMode !== 'admin') {
+                showSyncNotification('⚠️ Hanya admin yang dapat mengatur Tikor/Oper', 'warning');
+                const cb = document.getElementById(`tikor-oper-toggle-${teams[teamIndex]?.id}`);
+                if (cb) cb.checked = false;
+                return;
+            }
+            const team = teams[teamIndex];
+            team.enableTikorOper = checked;
+            if (!checked) {
+                tikorOperCategoryFilter = 'all';
+            }
+            saveDataToFirebase();
+            renderJobs();
+            showSyncNotification(checked ? '✅ Tikor & Oper AKTIF untuk tim ini' : '❌ Tikor & Oper NONAKTIF untuk tim ini',
+                'success');
         };
 
         // ===== OPER TIKET =====
@@ -4440,7 +4838,7 @@
             renderJobs();
         };
 
-        // ===== TOGGLE INFO USER =====
+        // ===== INFO USER =====
         window.toggleInfoUser = function(teamIdx, jobIdx) {
             const job = teams[teamIdx].jobs[jobIdx];
             if (!job) return;
@@ -4450,7 +4848,7 @@
             showSyncNotification(job.infoUserDone ? '✅ Info User ditandai DONE' : '↩️ Info User dibatalkan', 'success');
         };
 
-        // ===== HISTORY MODAL =====
+        // ===== HISTORY =====
         let currentHistoryNoLayanan = '';
 
         window.openHistoryModal = function(noLayanan, jobName) {
@@ -4533,10 +4931,7 @@
             currentHistoryNoLayanan = '';
         };
 
-        // ================================================================
-        // ===== SORTING HELPERS =====
-        // ================================================================
-
+        // ===== SORTING =====
         function getTeamNumber(team) {
             const m = (team.teamName || "").match(/Tim\s+(\d+)/i);
             return m ? parseInt(m[1]) : 99999;
@@ -4576,10 +4971,7 @@
             });
         }
 
-        // ================================================================
-        // ===== COPY SCHEDULE RECAP (with custom date) =====
-        // ================================================================
-
+        // ===== COPY SCHEDULE RECAP =====
         window.copyScheduleRecap = function() {
             const dateStr = getMonitoringDate();
 
@@ -4634,10 +5026,7 @@
             copyToClipboard(text, null, "✅ Rekap Jadwal Teknisi tersalin!");
         };
 
-        // ================================================================
-        // ===== EXISTING COPY FUNCTIONS (with custom date) =====
-        // ================================================================
-
+        // ===== COPY SUMMARY =====
         window.copyAllSummary = function() {
             const dateStr = getMonitoringDate();
             let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${dateStr}\n\n`;
@@ -4683,7 +5072,7 @@
                 text += `TEKNISI : ${team.teamName}\n\n`;
 
                 sortedJobs.forEach((job, jIndex) => {
-                    const isPSB = job.tag.toUpperCase().includes("PSB");
+                    const isPSB = job.tagClass === 'badge-psb';
                     const isCompleted = (job.status === 'completed' || job.completed === true);
                     const isFailed = (job.status === 'failed');
                     const noLayanan = job.details?.['No Layanan'] || job.details?.['Layanan'] || '';
@@ -4728,7 +5117,8 @@
                         block += `Paket Layanan : ${d['Paket'] || d['Paket Layanan'] || '-'}\n`;
                         block += `Referensi: ${d['Referensi'] || '-'}\n`;
                         block += `No KTP : ${d['No KTP'] || '-'}\n`;
-                        block += `Tanggal pemasangan: ${d['Tgl Pasang'] || d['Tanggal pemasangan'] || d['Tanggal Pemasangan'] || '-'}\n`;
+                        const tglPasang = d['Tgl Pasang'] || d['Tanggal pemasangan'] || d['Tanggal Pemasangan'] || '-';
+                        block += `Tanggal pemasangan: ${formatDateIndoLong(tglPasang)}\n`;
                         block += `FOTO Depan Rumah : \n`;
                         block += `Status Rumah : ${d['Status Rumah'] || '-'}\n`;
                         block += `Setuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || d['Setuju'] || '-'}\n`;
@@ -4753,7 +5143,8 @@
                     let detailText = `status: \n${statusText}\n`;
                     const d = job.details || {};
                     detailText += `Jam: ${job.time || '-'}\n`;
-                    detailText += `Kunjungan: ${job.tag || '-'}\n`;
+                    const kunjunganVal = d['Kunjungan'] || job.tag || '-';
+                    detailText += `Kunjungan: ${kunjunganVal}\n`;
                     detailText += `Nama Pelanggan: ${job.name || '-'}\n`;
                     const noLayananMT = d['Layanan'] || d['No Layanan'] || '-';
                     detailText += `No Layanan: ${noLayananMT}\n`;
@@ -4833,7 +5224,7 @@
                 if (!team.jobs) return;
                 const sortedJobs = sortJobsByTime(team.jobs);
                 sortedJobs.forEach(job => {
-                    const isPSB = job.tag.toUpperCase().includes("PSB");
+                    const isPSB = job.tagClass === 'badge-psb';
                     const isCompleted = job.status === 'completed' || (job.completed && !job.status);
                     if (isPSB && isCompleted) {
                         const noLayanan = job.details?.['No Layanan'] || job.details?.['Layanan'] || '-';
@@ -4849,10 +5240,7 @@
             copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!");
         };
 
-        // ================================================================
-        // ===== RENDER JOBS (with Info User button + global filter) =====
-        // ================================================================
-
+        // ===== RENDER JOBS =====
         function renderJobs() {
             const container = document.getElementById('teams-container');
             container.innerHTML = '';
@@ -4902,26 +5290,36 @@
 
                 let filteredJobs = [...team.jobs];
 
-                // Terapkan global filter (dari klik stat)
                 if (globalFilterCategory) {
                     filteredJobs = filteredJobs.filter(job => getCategoryFromJob(job) === globalFilterCategory);
                 }
 
-                // Terapkan filter per-team
                 if (teamFilter !== 'all') {
                     filteredJobs = filteredJobs.filter(job => getCategoryFromJob(job) === teamFilter);
                 }
 
-                if (appMode === 'tech' && filteredJobs.length === 0) return;
-
                 const isAdmin = (appMode === 'admin');
                 const isActive = team.isActive !== false;
+                const enableTikorOper = isAdmin && team.enableTikorOper === true;
 
-                if (appMode === 'tech' && !isActive) return;
+                if (isAdmin && enableTikorOper && tikorOperCategoryFilter !== 'all') {
+                    const filterMap = {
+                        'psb': 'PSB',
+                        'mt': 'KUNJUNGAN',
+                        'isolir': 'ISOLIR'
+                    };
+                    const filterStr = filterMap[tikorOperCategoryFilter] || '';
+                    filteredJobs = filteredJobs.filter(job => {
+                        const tag = job.tag.toUpperCase();
+                        return tag.includes(filterStr);
+                    });
+                }
 
-                const locationEnabled = isAdmin && team.locationEnabled && team.mainLocation;
+                if (appMode === 'tech' && filteredJobs.length === 0) return;
+
+                const locationEnabled = isAdmin && globalMainLocation && globalMainLocation.lat !== null && globalMainLocation.lng !== null;
                 if (locationEnabled) {
-                    const mainCoords = { lat: team.mainLocation.lat, lng: team.mainLocation.lng };
+                    const mainCoords = { lat: globalMainLocation.lat, lng: globalMainLocation.lng };
                     filteredJobs = filteredJobs.map(job => {
                         let distance = null;
                         let bearing = null;
@@ -4956,10 +5354,27 @@
                     teamDiv.classList.add('team-inactive');
                 }
 
-                const locActive = (isAdmin && team.locationEnabled && team.mainLocation) ? 'active' : '';
+                const locActive = (isAdmin && globalMainLocation) ? 'active' : '';
                 const locLabel = '📍';
-                const locText = (isAdmin && team.mainLocation) ? 'Lokasi' : 'Setel Lokasi';
-                const mainLocLink = (isAdmin && team.mainLocation) ? team.mainLocation.link : '';
+                const locText = (isAdmin && globalMainLocation) ? 'Lokasi Global' : 'Setel Lokasi';
+                const mainLocLink = (isAdmin && globalMainLocation) ? globalMainLocation.link : '';
+
+                let categoryFilterHtml = '';
+                if (isAdmin && enableTikorOper) {
+                    const allActive = tikorOperCategoryFilter === 'all' ? 'active' : '';
+                    const psbActive = tikorOperCategoryFilter === 'psb' ? 'active' : '';
+                    const mtActive = tikorOperCategoryFilter === 'mt' ? 'active' : '';
+                    const isolirActive = tikorOperCategoryFilter === 'isolir' ? 'active' : '';
+                    categoryFilterHtml = `
+                            <div class="category-filter-bar">
+                                <span class="filter-label">📂</span>
+                                <button class="cat-filter-btn ${allActive}" onclick="setTikorOperCategoryFilter('all', this)">Semua</button>
+                                <button class="cat-filter-btn ${psbActive}" onclick="setTikorOperCategoryFilter('psb', this)">PSB</button>
+                                <button class="cat-filter-btn ${mtActive}" onclick="setTikorOperCategoryFilter('mt', this)">Kunjungan</button>
+                                <button class="cat-filter-btn ${isolirActive}" onclick="setTikorOperCategoryFilter('isolir', this)">Isolir</button>
+                            </div>
+                        `;
+                }
 
                 const tikorOperToggle = isAdmin ? `
                         <label class="tikor-oper-toggle" title="Aktifkan Tikor &amp; Oper untuk tim ini">
@@ -4968,15 +5383,8 @@
                         </label>
                     ` : '';
 
-                const locationToggle = isAdmin ? `
-                        <label class="location-toggle" title="Aktifkan filter jarak &amp; kompas">
-                            <input type="checkbox" id="loc-toggle-${team.id}" ${team.locationEnabled && team.mainLocation ? 'checked' : ''} onchange="toggleLocationFilter(${actualIndex}, this.checked)">
-                            <span style="font-size:0.65rem;">Jarak + Kompas</span>
-                        </label>
-                    ` : '';
-
                 const locationButton = isAdmin ? `
-                        <button class="btn-location ${locActive}" onclick="openLocationModal(${actualIndex})" title="${mainLocLink || 'Setel lokasi utama'}">
+                        <button class="btn-location ${locActive}" onclick="openBackupModal(); document.getElementById('globalMainLocationInput').focus();" title="${mainLocLink || 'Setel lokasi global'}">
                             ${locLabel} ${locText}
                         </button>
                     ` : '';
@@ -5015,10 +5423,10 @@
                             <div class="header-right">
                                 ${activeToggle}
                                 ${tikorOperToggle}
+                                ${categoryFilterHtml}
                                 <button class="btn-copy-team" onclick="copyTeamSummary(${actualIndex}, this)">📑 Rekap</button>
                                 <button class="btn-view-stock" onclick="openStockListModal(${actualIndex})">MODEM</button>
                                 ${locationButton}
-                                ${locationToggle}
                                 ${filterBarHTML}
                                 <span id="count-${team.id}" style="font-size: 0.9em; margin-left: 5px;">${isAdmin ? (jobCountDisplay + '/' + team.jobs.length) : (jobCountDisplay + '/0')}</span>
                             </div>
@@ -5051,7 +5459,7 @@
                     }
                 });
 
-                const enableTikorOper = isAdmin && team.enableTikorOper === true;
+                const enableTikorOperLocal = isAdmin && team.enableTikorOper === true;
 
                 filteredJobs.forEach((job, displayIndex) => {
                     let originalIndex = -1;
@@ -5080,7 +5488,7 @@
                     if (currentStatus === 'completed') li.classList.add('completed');
                     else if (currentStatus === 'failed') li.classList.add('failed');
 
-                    const isPSB = job.tag.toUpperCase().includes("PSB");
+                    const isPSB = job.tagClass === 'badge-psb';
                     const uniqueId = `details-${team.id}-${displayIndex}`;
                     const displayStyle = openDetailIds.has(uniqueId) ? "block" : "none";
 
@@ -5114,21 +5522,70 @@
                     const tikorClass = (isAdmin && job.tikor && job.tikor.lat !== null && job.tikor.lng !== null) ? 'tikor-filled' :
                         (isAdmin && job.tikor && job.tikor.link ? 'tikor-invalid' : '');
 
+                    // ===== AUTO-FILL TIKOR FROM LINK LOKASI =====
+                    let autoTikorVal = '';
+                    if (!isPSB && isAdmin && job.details && job.details['Link Lokasi'] && job.details['Link Lokasi'] !== '-') {
+                        const linkLokasi = job.details['Link Lokasi'];
+                        const coords = parseCoordinatesFromLink(linkLokasi);
+                        if (coords) {
+                            autoTikorVal = `${coords.lat}, ${coords.lng}`;
+                        } else {
+                            autoTikorVal = linkLokasi;
+                        }
+                        if (!job.tikor || !job.tikor.link || job.tikor.link.trim() === '') {
+                            const coords2 = parseCoordinatesFromLink(linkLokasi);
+                            if (coords2) {
+                                job.tikor = { link: autoTikorVal, lat: coords2.lat, lng: coords2.lng };
+                            } else {
+                                job.tikor = { link: autoTikorVal, lat: null, lng: null };
+                            }
+                            saveDataToFirebase();
+                        }
+                    }
+
+                    const finalTikorVal = (isAdmin && job.tikor) ? job.tikor.link || '' : '';
+                    const finalTikorClass = (isAdmin && job.tikor && job.tikor.lat !== null && job.tikor.lng !== null) ? 'tikor-filled' :
+                        (isAdmin && job.tikor && job.tikor.link ? 'tikor-invalid' : '');
+
                     let tikorHtml = '';
-                    if (isAdmin && enableTikorOper) {
+                    if (isAdmin && enableTikorOperLocal) {
+                        const autoHint = (!isPSB && job.details && job.details['Link Lokasi'] && job.details['Link Lokasi'] !== '-') ?
+                            ` (auto dari Link Lokasi)` : '';
                         tikorHtml = `
                                 <div class="job-center">
-                                    <input type="text" class="tikor-input ${tikorClass}" value="${escapeHtml(tikorVal)}" placeholder="Tikor GMaps..." onchange="updateTikor(${actualIndex}, ${originalIndex}, this)" title="Masukkan link Google Maps untuk lokasi tiket ini">
+                                    <input type="text" class="tikor-input ${finalTikorClass}" value="${escapeHtml(finalTikorVal)}" placeholder="Tikor GMaps..." onchange="updateTikor(${actualIndex}, ${originalIndex}, this)" title="Masukkan link Google Maps untuk lokasi tiket ini${autoHint}">
+                                    ${autoHint ? '<span style="font-size:0.6rem; color:#28a745; font-weight:600;">⏺ auto</span>' : ''}
                                 </div>
                             `;
                     } else {
                         tikorHtml = `<div class="job-center"></div>`;
                     }
 
+                    // ===== GANTI KATEGORI DROPDOWN =====
+                    let categoryChangeHtml = '';
+                    if (isAdmin && enableTikorOperLocal) {
+                        const currentCategory = job.tagClass === 'badge-psb' ? 'PSB' :
+                            (job.tagClass === 'badge-isolir' ? 'ISOLIR' : 'KUNJUNGAN');
+                        categoryChangeHtml = `
+                                <select class="category-change-dropdown" onchange="changeTicketCategory(${actualIndex}, ${originalIndex}, this.value)" title="Ganti Kategori Tiket">
+                                    <option value="PSB" ${currentCategory === 'PSB' ? 'selected' : ''}>PSB</option>
+                                    <option value="KUNJUNGAN" ${currentCategory === 'KUNJUNGAN' ? 'selected' : ''}>KUNJUNGAN</option>
+                                    <option value="ISOLIR" ${currentCategory === 'ISOLIR' ? 'selected' : ''}>ISOLIR</option>
+                                </select>
+                            `;
+                    }
+
                     let operButtonHtml = '';
-                    if (isAdmin && enableTikorOper) {
+                    if (isAdmin && enableTikorOperLocal) {
                         operButtonHtml =
                             `<button class="btn-oper" onclick="openOperTicketModal(${actualIndex}, ${originalIndex})">🔄 Oper</button>`;
+                    }
+
+                    // ===== GANTI DATA BUTTON (untuk PSB dan Non-PSB) =====
+                    let gantiDataButtonHtml = '';
+                    if (isAdmin && enableTikorOperLocal) {
+                        gantiDataButtonHtml =
+                            `<button class="btn-ganti-data" onclick="openGantiDataModal(${actualIndex}, ${originalIndex})">🔄 Ganti Data</button>`;
                     }
 
                     const noLayananForHistory = job.details?.['No Layanan'] || job.details?.['Layanan'] || '';
@@ -5160,9 +5617,17 @@
                             `<div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(actualIndex, originalIndex, 'time', job.time || 'FLEXIBEL')}</div>`;
                         detailHTML +=
                             `<div class="detail-item"><span class="detail-label">Tipe OLT</span><span class="detail-value"><select class="olt-select" onchange="updateJobOltType(${actualIndex}, ${originalIndex}, this.value)" ${appMode === 'tech' && selectedTechIndex !== actualIndex ? 'disabled' : ''}><option value="unknown" ${job.oltType === 'unknown' ? 'selected' : ''}>BELUM DIKETAHUI</option><option value="zt" ${job.oltType === 'zt' ? 'selected' : ''}>GPON ZTE</option><option value="hsgq" ${job.oltType === 'hsgq' ? 'selected' : ''}>GPON HSGQ</option><option value="epon" ${job.oltType === 'epon' ? 'selected' : ''}>EPON</option></select></span></div>`;
-                    } else {
+                        const statusRumahVal = job.details['Status Rumah'] || 'Pribadi';
                         detailHTML +=
-                            `<div class="detail-item"><span class="detail-label">Kunjungan</span>${renderEditableValue(actualIndex, originalIndex, 'Kunjungan', job.tag)}</div>`;
+                            `<div class="detail-item"><span class="detail-label">Status Rumah</span>${renderEditableValueWithStatusRumah(actualIndex, originalIndex, 'statusRumah', statusRumahVal)}</div>`;
+                        const tglPasang = job.details['Tgl Pasang'] || job.details['Tanggal pemasangan'] || job.details['Tanggal Pemasangan'] || '-';
+                        const tglDisplay = formatDateIndoLong(tglPasang);
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">Tanggal Pemasangan</span>${renderEditableValueWithDate(actualIndex, originalIndex, 'tglPasang', tglPasang, tglDisplay)}</div>`;
+                    } else {
+                        const kunjunganVal = job.details['Kunjungan'] || job.tag || '-';
+                        detailHTML +=
+                            `<div class="detail-item"><span class="detail-label">Kunjungan</span>${renderEditableValue(actualIndex, originalIndex, 'Kunjungan', kunjunganVal)}</div>`;
                         detailHTML +=
                             `<div class="detail-item"><span class="detail-label">Jadwal</span>${renderEditableValue(actualIndex, originalIndex, 'time', job.time || 'FLEXIBEL')}</div>`;
                         detailHTML +=
@@ -5174,7 +5639,7 @@
                         "Link Lokasi", "Link ODP", "Port ID", "Link foto rumah pelanggan"
                     ];
                     let skipKeys = [];
-                    if (isPSB) skipKeys = ['No Layanan', 'Paket', 'Layanan'];
+                    if (isPSB) skipKeys = ['No Layanan', 'Paket', 'Layanan', 'Status Rumah', 'Tgl Pasang', 'Tanggal pemasangan', 'Tanggal Pemasangan'];
                     else skipKeys = ['Kunjungan', 'Layanan'];
                     for (const [key, value] of Object.entries(job.details)) {
                         if (skipKeys.includes(key)) continue;
@@ -5236,6 +5701,11 @@
                             `<span style="display:inline-flex; align-items:center; gap:4px; background:#d4edda; color:#155724; font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:12px; border:1px solid #c3e6cb; margin-left:6px;">✓ Info User</span>`;
                     }
 
+                    let jobCenterHtml = tikorHtml;
+                    if (categoryChangeHtml) {
+                        jobCenterHtml = `<div class="job-center">${finalTikorVal ? `<input type="text" class="tikor-input ${finalTikorClass}" value="${escapeHtml(finalTikorVal)}" placeholder="Tikor GMaps..." onchange="updateTikor(${actualIndex}, ${originalIndex}, this)" title="Masukkan link Google Maps untuk lokasi tiket ini">` : `<input type="text" class="tikor-input" value="" placeholder="Tikor GMaps..." onchange="updateTikor(${actualIndex}, ${originalIndex}, this)" title="Masukkan link Google Maps untuk lokasi tiket ini">`} ${categoryChangeHtml}</div>`;
+                    }
+
                     li.innerHTML = `
                             <div class="job-main-row">
                                 <div class="job-left">
@@ -5256,12 +5726,12 @@
                                         ${failureNote}${successNote}${addressHtml}
                                     </div>
                                 </div>
-                                ${tikorHtml}
+                                ${jobCenterHtml}
                                 <div class="action-buttons">
                                     <button class="btn-copy" onclick="copyData(${actualIndex}, ${originalIndex}, this)">📋 Copy</button>
                                     <button class="toggle-btn" onclick="toggleDetails('${uniqueId}')">🔽 Detail</button>
                                     ${historyBtnHtml}
-                                    ${scButton}${operButtonHtml}${delButton}
+                                    ${scButton}${operButtonHtml}${gantiDataButtonHtml}${delButton}
                                 </div>
                             </div>
                             <div id="${uniqueId}" class="job-details" style="display: ${displayStyle};">
@@ -5304,6 +5774,355 @@
             updateGlobalStatsDisplay();
         }
 
+        // ===== GANTI KATEGORI TIKET dengan backup data =====
+        window.changeTicketCategory = async function(teamIdx, jobIdx, newCategory) {
+            if (appMode !== 'admin') {
+                showSyncNotification('⚠️ Ganti kategori hanya untuk Admin', 'warning');
+                return;
+            }
+            const job = teams[teamIdx].jobs[jobIdx];
+            if (!job) return;
+
+            // Determine current category using tagClass
+            let currentCategory = 'KUNJUNGAN';
+            if (job.tagClass === 'badge-psb') currentCategory = 'PSB';
+            else if (job.tagClass === 'badge-isolir') currentCategory = 'ISOLIR';
+
+            if (currentCategory === newCategory) {
+                showSyncNotification(`ℹ️ Kategori sudah ${newCategory}`, 'warning');
+                return;
+            }
+
+            // ---- CASE 1: Kunjungan ↔ Isolir (just change badge, KEEP text unchanged) ----
+            if ((currentCategory === 'KUNJUNGAN' || currentCategory === 'ISOLIR') &&
+                (newCategory === 'KUNJUNGAN' || newCategory === 'ISOLIR')) {
+                // IMPORTANT: DO NOT change job.tag, DO NOT change job.details['Kunjungan']
+                // Only change the badge/color
+                if (newCategory === 'ISOLIR') {
+                    job.tagClass = 'badge-isolir';
+                    // If tag doesn't contain ISOLIR, we leave it as-is per user request
+                    // The user wants the text to stay exactly the same
+                } else {
+                    job.tagClass = 'badge-mt';
+                    // If tag contains ISOLIR, we leave it as-is per user request
+                }
+                // The Kunjungan field in details should NOT be modified
+                saveDataToFirebase();
+                renderJobs();
+                showSyncNotification(`✅ Kategori diubah dari ${currentCategory} menjadi ${newCategory} (teks Kunjungan & Jadwal tetap)`, 'success');
+                return;
+            }
+
+            // ---- CASE 2: PSB ↔ non-PSB (use backups + AI) ----
+            const isTargetPSB = (newCategory === 'PSB');
+            const isCurrentPSB = (currentCategory === 'PSB');
+
+            // Step 1: Save current data to the appropriate backup
+            if (isCurrentPSB) {
+                job._psbBackup = {
+                    details: job.details ? { ...job.details } : {},
+                    tag: job.tag,
+                    tagClass: job.tagClass,
+                    name: job.name,
+                    address: job.address,
+                    time: job.time
+                };
+            } else {
+                job._nonPsbBackup = {
+                    details: job.details ? { ...job.details } : {},
+                    tag: job.tag,
+                    tagClass: job.tagClass,
+                    name: job.name,
+                    address: job.address,
+                    time: job.time
+                };
+            }
+
+            // Step 2: Check if we have backup for the target category
+            if (isTargetPSB && job._psbBackup) {
+                const backup = job._psbBackup;
+                job.details = backup.details ? { ...backup.details } : {};
+                job.tag = backup.tag || 'PSB';
+                job.tagClass = backup.tagClass || 'badge-psb';
+                job.name = backup.name || job.name || '-';
+                job.address = backup.address || job.address || '-';
+                job.time = backup.time || job.time || 'FLEXIBEL';
+                job._psbBackup = null;
+                saveDataToFirebase();
+                renderJobs();
+                showSyncNotification(`✅ Kategori diubah ke PSB (data dipulihkan dari backup)`, 'success');
+                return;
+            } else if (!isTargetPSB && job._nonPsbBackup) {
+                const backup = job._nonPsbBackup;
+                job.details = backup.details ? { ...backup.details } : {};
+                job.tag = backup.tag || (newCategory === 'ISOLIR' ? 'KUNJUNGAN ISOLIR' : 'KUNJUNGAN');
+                job.tagClass = backup.tagClass || (newCategory === 'ISOLIR' ? 'badge-isolir' : 'badge-mt');
+                job.name = backup.name || job.name || '-';
+                job.address = backup.address || job.address || '-';
+                job.time = backup.time || job.time || 'FLEXIBEL';
+                job._nonPsbBackup = null;
+                saveDataToFirebase();
+                renderJobs();
+                showSyncNotification(`✅ Kategori diubah ke ${newCategory} (data dipulihkan dari backup)`, 'success');
+                return;
+            }
+
+            // Step 3: No backup - use AI to generate data
+            const nid = showSyncNotification(`🔄 Mengubah kategori ke ${newCategory} (generating with AI)...`, 'saving', false);
+
+            try {
+                const d = job.details || {};
+                const dataToConvert = {
+                    type: isTargetPSB ? 'PSB' : 'MT',
+                    jam: job.time || 'FLEXIBEL',
+                    nama: job.name || '-',
+                    alamat: job.address || '-',
+                    layanan: d['Layanan'] || d['No Layanan'] || '-',
+                    masaAktif: d['Masa Aktif s-d'] || '-',
+                    telp: d['No Telp'] || '-',
+                    tglDaftar: d['Tanggal Daftar'] || '-',
+                    ssid: d['Nama WiFi (SSID)'] || '-',
+                    sandiWifi: d['Sandi WiFi'] || '-',
+                    lastDBM: d['Last DBM'] || '-',
+                    oltSnMac: d['OLT SN-MAC'] || '-',
+                    linkLokasi: d['Link Lokasi'] || '-',
+                    linkOdp: d['Link ODP'] || '-',
+                    portId: d['Port ID'] || '-',
+                    linkFoto: d['Link foto rumah pelanggan'] || '-',
+                    noLayanan: d['No Layanan'] || '-',
+                    email: d['Email'] || d['Email Aktif'] || '-',
+                    wa: d['No WA'] || d['No Wa'] || '-',
+                    paket: d['Paket'] || d['Paket Layanan'] || '-',
+                    referensi: d['Referensi'] || 'Tidak ada referensi',
+                    ktp: d['No KTP'] || '-',
+                    tgl: d['Tgl Pasang'] || d['Tanggal pemasangan'] || '-',
+                    statusRumah: d['Status Rumah'] || 'Pribadi',
+                    setuju: d['Setuju Berlangganan'] || d['Setuju'] || '-',
+                    kunjungan: d['Kunjungan'] || (isTargetPSB ? 'KUNJUNGAN' : (newCategory === 'ISOLIR' ? 'KUNJUNGAN ISOLIR' : 'KUNJUNGAN'))
+                };
+
+                const prompt = `
+                    Ubah data tiket berikut dari kategori "${currentCategory}" menjadi "${newCategory}".
+                    Data yang ada:
+                    ${JSON.stringify(dataToConvert, null, 2)}
+
+                    ${isTargetPSB ? `
+                    Format PSB yang diharapkan:
+                    {
+                        "type": "PSB",
+                        "jam": "waktu kunjungan",
+                        "noLayanan": "Nomor Layanan",
+                        "nama": "Nama Lengkap",
+                        "alamat": "Alamat Lengkap (gabungan)",
+                        "email": "Email Aktif",
+                        "wa": "No. WA",
+                        "paket": "Paket Layanan",
+                        "referensi": "Referensi",
+                        "ktp": "No KTP",
+                        "tgl": "Tanggal pemasangan",
+                        "statusRumah": "Status Rumah",
+                        "setuju": "Setuju berlangganan minimal 1 tahun"
+                    }
+                    ` : `
+                    Format ${newCategory} yang diharapkan:
+                    {
+                        "type": "MT",
+                        "jam": "waktu kunjungan",
+                        "kunjungan": "Kunjungan ${newCategory === 'ISOLIR' ? '(harus mengandung kata ISOLIR)' : ''}",
+                        "nama": "Nama Pelanggan",
+                        "layanan": "No Layanan",
+                        "masaAktif": "Masa Aktif s-d",
+                        "telp": "No Telp",
+                        "tglDaftar": "Tanggal Daftar",
+                        "alamat": "Alamat",
+                        "ssid": "Nama WiFi (SSID)",
+                        "sandiWifi": "Sandi WiFi",
+                        "lastDBM": "Last DBM",
+                        "oltSnMac": "OLT SN-MAC",
+                        "linkLokasi": "Link Lokasi",
+                        "linkOdp": "Link ODP",
+                        "portId": "Port ID",
+                        "linkFoto": "Link foto rumah pelanggan"
+                    }
+                    `}
+
+                    ${newCategory === 'ISOLIR' ? 'Pastikan field "kunjungan" mengandung kata "ISOLIR".' : ''}
+                    ${newCategory === 'KUNJUNGAN' ? 'Pastikan field "kunjungan" mengandung kata "KUNJUNGAN" (tanpa ISOLIR).' : ''}
+
+                    Kembalikan HANYA JSON: { "ticket": { ... } }.
+                    JANGAN tambahkan teks lain di luar JSON.
+                `;
+
+                let apiKey = document.getElementById('deepseekApiKeyInput').value.trim() || deepseekApiKey;
+                if (!apiKey) {
+                    try {
+                        const snapshot = await get(apiKeyRef);
+                        if (snapshot.exists()) {
+                            const fbKey = snapshot.val();
+                            if (fbKey && typeof fbKey === 'string' && fbKey.trim().length > 0) {
+                                apiKey = fbKey.trim();
+                                deepseekApiKey = apiKey;
+                                try { localStorage.setItem('deepseek_api_key', apiKey); } catch (e) {}
+                                document.getElementById('deepseekApiKeyInput').value = apiKey;
+                                updateApiKeyStatusLabel(true);
+                            }
+                        }
+                    } catch (e) {}
+                }
+
+                if (!apiKey) {
+                    showSyncNotification('⚠️ Masukkan API Key DeepSeek di konfigurasi!', 'warning');
+                    closeSyncNotification(nid);
+                    return;
+                }
+
+                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [
+                            { role: 'system', content: 'Anda adalah asisten AI pengolah tiket internet.' },
+                            { role: 'user', content: prompt }
+                        ],
+                        temperature: 0.1,
+                        max_tokens: 2000,
+                        stream: false
+                    })
+                });
+
+                if (!response.ok) {
+                    let errText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errText.substring(0, 200)}`);
+                }
+
+                const data = await response.json();
+                const content = data.choices?.[0]?.message?.content || '';
+
+                let jsonStr = content;
+                const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+                if (jsonMatch) jsonStr = jsonMatch[1];
+                else {
+                    const braceMatch = content.match(/\{[\s\S]*\}/);
+                    if (braceMatch) jsonStr = braceMatch[0];
+                }
+
+                const parsed = JSON.parse(jsonStr);
+                const newData = parsed.ticket || parsed;
+
+                if (!newData) {
+                    throw new Error('Respons AI tidak valid');
+                }
+
+                const oldOltType = job.oltType || 'unknown';
+                const oldTechnical = job.technical || {};
+                const oldLinkSC = job.linkSC || '';
+                const oldTikor = job.tikor || null;
+                const oldInfoUserDone = job.infoUserDone || false;
+                const oldReplaceModem = job.replaceModem || 'no';
+                const oldStatus = job.status || 'pending';
+                const oldCompleted = job.completed || false;
+                const oldCompletedAt = job.completedAt || null;
+                const oldFailureNote = job.failureNote || null;
+                const oldCompletionNote = job.completionNote || null;
+
+                let newDetails = {};
+                if (isTargetPSB) {
+                    newDetails = {
+                        "No Layanan": newData.noLayanan || '-',
+                        "Paket": newData.paket || '-',
+                        "Email": newData.email || '-',
+                        "No WA": newData.wa || '-',
+                        "Referensi": newData.referensi || 'Tidak ada referensi',
+                        "No KTP": newData.ktp || '-',
+                        "Status Rumah": newData.statusRumah || 'Pribadi',
+                        "Setuju Berlangganan": newData.setuju || '-',
+                        "Tgl Pasang": newData.tgl || '-'
+                    };
+                } else {
+                    newDetails = {
+                        "Layanan": newData.layanan || '-',
+                        "Masa Aktif s-d": newData.masaAktif || '-',
+                        "No Telp": newData.telp || '-',
+                        "Tanggal Daftar": newData.tglDaftar || '-',
+                        "Nama WiFi (SSID)": newData.ssid || '-',
+                        "Sandi WiFi": newData.sandiWifi || '-',
+                        "Last DBM": newData.lastDBM || '-',
+                        "OLT SN-MAC": newData.oltSnMac || '-',
+                        "Link Lokasi": newData.linkLokasi || '-',
+                        "Link ODP": newData.linkOdp || '-',
+                        "Port ID": newData.portId || '-',
+                        "Link foto rumah pelanggan": newData.linkFoto || '-'
+                    };
+                    const kunjunganVal = newData.kunjungan || (newCategory === 'ISOLIR' ? 'KUNJUNGAN ISOLIR' : 'KUNJUNGAN');
+                    newDetails["Kunjungan"] = kunjunganVal;
+                }
+
+                job.name = newData.nama || job.name || '-';
+                if (isTargetPSB) {
+                    // Clean up address using the helper
+                    const rawAlamat = newData.alamat || job.address || '-';
+                    job.address = formatPSBAddress(rawAlamat, '', '', '', newData.statusRumah || '');
+                } else {
+                    job.address = newData.alamat || job.address || '-';
+                }
+                job.time = newData.jam || job.time || 'FLEXIBEL';
+                job.status = oldStatus;
+                job.completed = oldCompleted;
+                job.completedAt = oldCompletedAt;
+                job.failureNote = oldFailureNote;
+                job.completionNote = oldCompletionNote;
+                job.oltType = oldOltType;
+                job.technical = oldTechnical;
+                job.linkSC = oldLinkSC;
+                job.tikor = oldTikor;
+                job.infoUserDone = oldInfoUserDone;
+                job.replaceModem = oldReplaceModem;
+                job.details = newDetails;
+
+                if (isTargetPSB) {
+                    const paket = newData.paket || '150rb';
+                    job.tag = `PSB (${paket})`;
+                    job.tagClass = 'badge-psb';
+                } else if (newCategory === 'ISOLIR') {
+                    job.tag = `KUNJUNGAN ISOLIR`;
+                    job.tagClass = 'badge-isolir';
+                } else {
+                    job.tag = `KUNJUNGAN`;
+                    job.tagClass = 'badge-mt';
+                }
+
+                if (!isTargetPSB && job.details['Link Lokasi'] && job.details['Link Lokasi'] !== '-') {
+                    const linkLokasi = job.details['Link Lokasi'];
+                    const coords = parseCoordinatesFromLink(linkLokasi);
+                    if (coords) {
+                        job.tikor = { link: `${coords.lat}, ${coords.lng}`, lat: coords.lat, lng: coords.lng };
+                    } else {
+                        job.tikor = { link: linkLokasi, lat: null, lng: null };
+                    }
+                }
+
+                if (isTargetPSB) {
+                    job._psbBackup = null;
+                } else {
+                    job._nonPsbBackup = null;
+                }
+
+                saveDataToFirebase();
+                renderJobs();
+                closeSyncNotification(nid);
+                showSyncNotification(`✅ Kategori berhasil diubah ke ${newCategory}!`, 'success');
+
+            } catch (error) {
+                console.error('Ganti kategori error:', error);
+                closeSyncNotification(nid);
+                showSyncNotification(`❌ Gagal mengubah kategori: ${error.message}`, 'error');
+            }
+        };
+
         function updateProgressUI(teamId, jobs) { const total = jobs.length; const completed = jobs.filter(j => j.status ===
                 'completed' || j.completed === true).length; const percent = (total === 0) ? 0 : (completed / total) * 100;
             const bar = document.getElementById(`progress-${teamId}`); const txt = document.getElementById(
@@ -5316,6 +6135,75 @@
             }
             return `<span class="detail-value">${escapeHtml(value)}</span>`;
         }
+
+        function renderEditableValueWithStatusRumah(teamIdx, jobIdx, fieldType, value) {
+            if (appMode === 'admin') {
+                const isCustom = value !== 'Pribadi';
+                return `<span class="detail-value">
+                            <select onchange="editStatusRumahWithAddress(${teamIdx}, ${jobIdx}, this.value)" style="padding:4px 8px; border-radius:4px; border:1px solid #ced4da;">
+                                <option value="Pribadi" ${!isCustom ? 'selected' : ''}>Pribadi</option>
+                                <option value="Custom" ${isCustom ? 'selected' : ''}>Custom</option>
+                            </select>
+                            <input type="text" id="statusRumahCustom-${teamIdx}-${jobIdx}" value="${isCustom ? escapeHtml(value) : ''}" placeholder="Ketik status custom..." style="padding:4px 8px; border-radius:4px; border:1px solid #ced4da; ${isCustom ? '' : 'display:none;'}" onchange="editStatusRumahWithAddress(${teamIdx}, ${jobIdx}, this.value)">
+                            <button class="edit-icon" onclick="editStatusRumahWithAddress(${teamIdx}, ${jobIdx}, prompt('Masukkan Status Rumah baru:', '${escapeHtml(value)}'))" title="Edit">✏️</button>
+                        </span>`;
+            }
+            return `<span class="detail-value">${escapeHtml(value)}</span>`;
+        }
+
+        function renderEditableValueWithDate(teamIdx, jobIdx, fieldType, rawValue, displayValue) {
+            if (appMode === 'admin') {
+                return `<span class="detail-value">
+                            <span>${escapeHtml(displayValue)}</span>
+                            <button class="edit-icon" onclick="editDateField(${teamIdx}, ${jobIdx}, 'tglPasang')" title="Edit Tanggal">✏️</button>
+                        </span>`;
+            }
+            return `<span class="detail-value">${escapeHtml(displayValue)}</span>`;
+        }
+
+        window.editDateField = function(teamIdx, jobIdx, fieldType) {
+            if (appMode !== 'admin') return;
+            const job = teams[teamIdx].jobs[jobIdx];
+            const currentVal = job.details['Tgl Pasang'] || job.details['Tanggal pemasangan'] || job.details['Tanggal Pemasangan'] || '';
+            const newVal = prompt('Edit Tanggal Pemasangan (format: 8 Agustus 2026 atau YYYY-MM-DD):', currentVal);
+            if (newVal !== null && newVal.trim() !== '') {
+                const cleaned = newVal.trim();
+                job.details['Tgl Pasang'] = cleaned;
+                job.details['Tanggal pemasangan'] = cleaned;
+                job.details['Tanggal Pemasangan'] = cleaned;
+                saveDataToFirebase();
+                renderJobs();
+                showSyncNotification('✅ Tanggal pemasangan diperbarui', 'success');
+            }
+        };
+
+        window.editStatusRumahWithAddress = function(teamIdx, jobIdx, newValue) {
+            if (appMode !== 'admin') return;
+            const job = teams[teamIdx].jobs[jobIdx];
+            if (!job) return;
+            if (newValue === null || newValue === undefined) return;
+            const val = newValue.trim() || 'Pribadi';
+
+            if (!job.details) job.details = {};
+            job.details['Status Rumah'] = val;
+
+            let address = job.address || '';
+            if (address.includes('hunian:')) {
+                address = address.replace(/hunian:\s*[^,]*/i, `hunian: ${val}`);
+            } else {
+                address = address.trim();
+                if (address.length > 0) {
+                    address += ` hunian: ${val}`;
+                } else {
+                    address = `hunian: ${val}`;
+                }
+            }
+            job.address = address;
+
+            saveDataToFirebase();
+            renderJobs();
+            showSyncNotification(`✅ Status Rumah diubah menjadi "${val}" dan alamat diperbarui`, 'success');
+        };
 
         function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;';
                 if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
@@ -5332,7 +6220,8 @@
                     'Paket'] || '-';
                 promptMessage = 'Edit Paket Layanan:'; } else if (fieldType === 'noLayanan') { currentValue = job.details[
                     'No Layanan'] || '-';
-                promptMessage = 'Edit No Layanan:'; } else if (fieldType === 'Kunjungan') { currentValue = job.tag;
+                promptMessage = 'Edit No Layanan:'; } else if (fieldType === 'Kunjungan') { currentValue = job.details[
+                    'Kunjungan'] || job.tag || '-';
                 promptMessage = 'Edit Kunjungan:'; } else if (fieldType === 'layanan') { currentValue = job.details[
                     'Layanan'] || '-';
                 promptMessage = 'Edit No Layanan:'; }
@@ -5341,38 +6230,65 @@
             newValue = newValue.trim();
             if (newValue === '') newValue = '-';
             if (fieldType === 'time') job.time = newValue;
-            else if (fieldType === 'package') { job.details['Paket'] = newValue; if (job.tag.toUpperCase().includes('PSB'))
+            else if (fieldType === 'package') { job.details['Paket'] = newValue; if (job.tagClass === 'badge-psb')
                     job.tag = `PSB (${newValue})`; } else if (fieldType === 'noLayanan') job.details['No Layanan'] =
-                newValue; else if (fieldType === 'Kunjungan') job.tag = newValue; else if (fieldType === 'layanan') job
-                .details['Layanan'] = newValue;
+                newValue; else if (fieldType === 'Kunjungan') { job.details['Kunjungan'] = newValue;
+                job.tag = newValue; } else if (fieldType === 'layanan') job.details['Layanan'] = newValue;
             saveDataToFirebase();
             renderJobs(); };
-        window.toggleJobStatus = function(tIndex, jobIndex, newStatus) { const job = teams[tIndex].jobs[jobIndex]; const
-                oldStatus = job.status || (job.completed ? 'completed' : 'pending'); const isPSB = job.tag.toUpperCase()
-                .includes("PSB"); if (oldStatus === newStatus) { job.status = 'pending';
+
+        window.toggleJobStatus = function(tIndex, jobIndex, newStatus) {
+            const job = teams[tIndex].jobs[jobIndex];
+            const oldStatus = job.status || (job.completed ? 'completed' : 'pending');
+            const isPSB = job.tagClass === 'badge-psb';
+            if (oldStatus === newStatus) {
+                job.status = 'pending';
                 job.completed = false;
-                job.completedAt = null; if (oldStatus === 'failed') job.failureNote = null; if (oldStatus === 'completed')
-                    job.completionNote = null; } else { if (newStatus === 'completed') { if (isPSB) { let currentNo = job
-                        .details['No Layanan'] || ""; if (!currentNo || currentNo.trim() === "") { let inputLayanan =
-                            prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", ""); if (inputLayanan ===
-                                null) return; inputLayanan = inputLayanan.trim(); if (!/^\d+$/.test(inputLayanan)) { alert(
-                                "❌ Error: No Layanan harus format angka!"); return; } job.details['No Layanan'] =
-                            inputLayanan; } } else { let note = prompt("✅ TIKET SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):",
-                            job.completionNote || ""); if (note === null) return;
-                        job.completionNote = note; }
+                job.completedAt = null;
+                if (oldStatus === 'failed') job.failureNote = null;
+                if (oldStatus === 'completed') job.completionNote = null;
+            } else {
+                if (newStatus === 'completed') {
+                    if (isPSB) {
+                        let currentNo = job.details['No Layanan'] || "";
+                        if (!currentNo || currentNo.trim() === "") {
+                            let inputLayanan = prompt("⚠️ TIKET PSB SELESAI\n\nMasukkan No Layanan (Wajib Angka):", "");
+                            if (inputLayanan === null) return;
+                            inputLayanan = inputLayanan.trim();
+                            if (!/^\d+$/.test(inputLayanan)) {
+                                alert("❌ Error: No Layanan harus format angka!");
+                                return;
+                            }
+                            job.details['No Layanan'] = inputLayanan;
+                        }
+                    } else {
+                        let note = prompt("✅ TIKET SELESAI\n\nMasukkan Laporan/Solusi (Akan muncul di rekap):",
+                            job.completionNote || "");
+                        if (note === null) return;
+                        job.completionNote = note;
+                    }
                     job.status = 'completed';
                     job.completed = true;
                     job.completedAt = new Date().toLocaleString('id-ID');
-                    job.failureNote = null; } else if (newStatus === 'failed') { let note = prompt(
-                        "⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || ""); if (note ===
-                        null) return; if (note.trim() === "") { alert("❌ Catatan Gagal wajib diisi!"); return; }
+                    job.failureNote = null;
+                } else if (newStatus === 'failed') {
+                    let note = prompt("⛔ KUNJUNGAN GAGAL\n\nMasukkan alasan/catatan kenapa gagal:", job.failureNote || "");
+                    if (note === null) return;
+                    if (note.trim() === "") {
+                        alert("❌ Catatan Gagal wajib diisi!");
+                        return;
+                    }
                     job.status = 'failed';
                     job.completed = false;
                     job.completedAt = null;
                     job.failureNote = note;
-                    job.completionNote = null; } }
+                    job.completionNote = null;
+                }
+            }
             saveDataToFirebase();
-            renderJobs(); };
+            renderJobs();
+        };
+
         window.toggleDetails = function(id) { const el = document.getElementById(id); if (el.style.display === "block") { el
                 .style.display = "none";
                 openDetailIds.delete(id); } else { el.style.display = "block";
@@ -5433,7 +6349,7 @@
             }
         };
 
-        // ===== PORT COLOR FUNCTION =====
+        // ===== PORT COLOR =====
         window.togglePortColor = function(teamIndex, sn, currentColor) {
             if (appMode !== 'admin') {
                 showSyncNotification('⚠️ Ubah warna port hanya untuk Admin', 'warning');
@@ -5457,7 +6373,7 @@
             showSyncNotification(`🎨 Port ${sn} → ${colorLabels[newColor] || newColor.toUpperCase()}`, 'success');
         };
 
-        // ===== MODEM STOCK FUNCTIONS =====
+        // ===== MODEM STOCK =====
         function updateInventoryStatus(teamIdx, sn, newStatus) { const team = teams[teamIdx]; if (!team || !team.inventory)
                 return false; const item = team.inventory.find(inv => inv.sn === sn); if (item) { item.status = newStatus;
                 return true; } return false; }
@@ -5520,7 +6436,7 @@
             saveDataToFirebase();
             renderJobs(); };
 
-        // ===== OPEN STOCK LIST MODAL =====
+        // ===== OPEN STOCK LIST =====
         window.openStockListModal = function(teamIndex) {
             const team = teams[teamIndex];
             const tbody = document.getElementById('stock-table-body');
@@ -5727,18 +6643,11 @@
             copyToClipboard(allText, null, "✅ Rekap Modem tersalin!");
         };
 
-        // ================================================================
-        // ===== LAPORAN KE GUDANG MODEM (sudah di-modifikasi di atas) =====
-        // ================================================================
-
         window.closeGudangProgressModal = function() {
             document.getElementById('modalGudangProgress').style.display = 'none';
         };
 
-        // ================================================================
-        // ===== RESET TIKET WITH BACKUP =====
-        // ================================================================
-
+        // ===== RESET TIKET =====
         window.resetDatabaseWithBackup = function() {
             let pin = prompt("🔐 Masukkan PIN Admin untuk Reset Tiket + Download Backup:");
             if (!checkPin(pin)) {
@@ -5763,6 +6672,7 @@
                 const backupData = {
                     teams: teams,
                     nonIkrRetrievals: nonIkrRetrievals,
+                    globalMainLocation: globalMainLocation,
                     timestamp: new Date().toISOString(),
                     note: 'Backup sebelum reset tiket'
                 };
@@ -5843,7 +6753,7 @@
             showSyncNotification("Data berhasil dihapus", "success");
             renderNonIkrList(); };
 
-        // ===== COPY FUNCTIONS =====
+        // ===== COPY TO CLIPBOARD =====
         async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") {
             let success = false;
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -5872,7 +6782,7 @@
             const job = teams[teamIndex].jobs[jobIndex];
             const d = job.details;
             const tech = job.technical || {};
-            const isPSB = job.tag.toUpperCase().includes("PSB");
+            const isPSB = job.tagClass === 'badge-psb';
             let textToCopy = "";
 
             if (isPSB) {
@@ -5884,6 +6794,8 @@
                 const odpVal = tech.odp || '-';
                 const redamanVal = tech.redaman || '-';
                 const noLayanan = d['No Layanan'] || '-';
+                const tglPasang = d['Tgl Pasang'] || d['Tanggal pemasangan'] || d['Tanggal Pemasangan'] || '-';
+                const tglDisplay = formatDateIndoLong(tglPasang);
 
                 textToCopy =
                     `TEKNISI : ${team.teamName}\n` +
@@ -5899,7 +6811,7 @@
                     `Paket Layanan : ${d['Paket'] || d['Paket Layanan'] || '-'}\n` +
                     `Referensi: ${d['Referensi'] || '-'}\n` +
                     `No KTP : ${d['No KTP'] || '-'}\n` +
-                    `Tanggal pemasangan: ${d['Tgl Pasang'] || d['Tanggal pemasangan'] || d['Tanggal Pemasangan'] || '-'}\n` +
+                    `Tanggal pemasangan: ${tglDisplay}\n` +
                     `FOTO Depan Rumah : \n` +
                     `Status Rumah : ${d['Status Rumah'] || '-'}\n` +
                     `Setuju berlangganan minimal 1 tahun: ${d['Setuju Berlangganan'] || d['Setuju'] || '-'}\n` +
@@ -5912,14 +6824,13 @@
                     `Id ODP : ${odpVal}\n` +
                     `Redaman : ${redamanVal}`;
             } else {
-                let kategori = job.tag || 'KUNJUNGAN';
-                if (kategori.toUpperCase().includes('ISOLIR')) kategori = 'ISOLIR';
-                else kategori = 'KUNJUNGAN';
+                let kategori = job.tagClass === 'badge-isolir' ? 'ISOLIR' : 'KUNJUNGAN';
 
                 let text =
                     `TEKNISI : ${team.teamName}\nKATEGORI : ${kategori}\n--------------------------------\n`;
                 text += `Jam: ${job.time || '-'}\n`;
-                text += `Kunjungan: ${job.tag || '-'}\n`;
+                const kunjunganVal = d['Kunjungan'] || job.tag || '-';
+                text += `Kunjungan: ${kunjunganVal}\n`;
                 text += `Nama Pelanggan: ${job.name || '-'}\n`;
                 const noLayanan = d['Layanan'] || d['No Layanan'] || '-';
                 text += `No Layanan: ${noLayanan}\n`;
@@ -5987,7 +6898,7 @@
                 const rawTechName = team.teamName.split(':')[1]?.trim() || team.teamName;
                 const sortedJobs = sortJobsByTime(team.jobs || []);
                 sortedJobs.forEach((job) => {
-                    const isPSB = job.tag.toUpperCase().includes("PSB");
+                    const isPSB = job.tagClass === 'badge-psb';
                     if (mode === 'psb' && !isPSB) return;
                     if (mode === 'non_psb' && isPSB) return;
                     const d = job.details;
@@ -6120,6 +7031,14 @@
                 select.add(new Option(t.teamName + statusLabel, index));
             });
             document.getElementById('edit-team-name').value = '';
+            const customSelect1 = document.getElementById('custom-team-tech-select-1');
+            const customSelect2 = document.getElementById('custom-team-tech-select-2');
+            customSelect1.innerHTML = '<option value="">-- Teknisi 1 --</option>';
+            customSelect2.innerHTML = '<option value="">-- Teknisi 2 (opsional) --</option>';
+            techList.forEach(name => {
+                customSelect1.add(new Option(name, name));
+                customSelect2.add(new Option(name, name));
+            });
             populateTechSelect('edit-tech-1', 'edit-tech-2');
             document.getElementById('modalEditTech').style.display = 'block'; };
         window.closeEditTechModal = function() { document.getElementById('modalEditTech').style.display = 'none'; };
@@ -6135,6 +7054,65 @@
                 if (team.members.length > 1) matchOption(t2Select, team.members[1]);
                 else t2Select.value = "";
             } };
+
+        // ===== CUSTOM TEAM CREATION with 2 teknisi =====
+        window.createCustomTeam = function() {
+            if (appMode !== 'admin') {
+                showSyncNotification('⚠️ Hanya admin yang dapat membuat tim custom', 'warning');
+                return;
+            }
+            const techSelect1 = document.getElementById('custom-team-tech-select-1');
+            const techSelect2 = document.getElementById('custom-team-tech-select-2');
+            const customNameInput = document.getElementById('custom-team-name-input');
+            let teamName = customNameInput.value.trim();
+            const selectedTech1 = techSelect1.value;
+            const selectedTech2 = techSelect2.value;
+
+            if (!teamName && !selectedTech1) {
+                alert('Pilih minimal 1 teknisi atau ketik nama custom tim!');
+                return;
+            }
+
+            let members = [];
+            if (selectedTech1) members.push(selectedTech1.toLowerCase());
+            if (selectedTech2 && selectedTech2 !== '') members.push(selectedTech2.toLowerCase());
+            if (members.length === 0 && !teamName) {
+                alert('Pilih minimal 1 teknisi!');
+                return;
+            }
+
+            if (!teamName && members.length > 0) {
+                teamName = members.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(' & ');
+                if (teams.some(t => t.teamName.toLowerCase() === teamName.toLowerCase())) {
+                    alert('Nama tim sudah ada!');
+                    return;
+                }
+            } else if (teamName && teams.some(t => t.teamName.toLowerCase() === teamName.toLowerCase())) {
+                alert('Nama tim sudah ada!');
+                return;
+            }
+
+            const newTeam = {
+                id: Date.now(),
+                teamName: teamName,
+                colorClass: extraColors[teams.length % extraColors.length] || "bg-dark",
+                members: members.length > 0 ? members : [],
+                jobs: [],
+                inventory: [],
+                enableTikorOper: false,
+                isActive: true
+            };
+            teams.push(newTeam);
+            saveDataToFirebase();
+            renderJobs();
+            renderLandingTeams();
+            populateAdminTeamFilter();
+            showSyncNotification(`✅ Tim "${teamName}" berhasil dibuat!`, 'success');
+            customNameInput.value = '';
+            techSelect1.value = '';
+            techSelect2.value = '';
+        };
+
         window.saveEditTech = function() { const teamIdx = document.getElementById('edit-tech-team-select')
             .value; const t1 = document.getElementById('edit-tech-1').value; const t2 = document.getElementById(
                 'edit-tech-2').value; if (teamIdx === "") { alert("Pilih tim dulu!"); return; } if (!t1) { alert(
@@ -6303,37 +7281,78 @@
         function createPSBCard(text, index, container) {
             const jam = getFieldValue(text, 'Jam');
             const nama = getFieldValue(text, 'Nama Lengkap');
-            const alamatLengkap = getFieldValue(text, 'Alamat Lengkap Pemasangan') || getFieldValue(text, 'Alamat Lengkap');
+            let alamatLengkap = getFieldValue(text, 'Alamat Lengkap Pemasangan') || getFieldValue(text, 'Alamat Lengkap');
             const rtRw = getFieldValue(text, 'RT/RW');
             const nomorRumah = getFieldValue(text, 'Nomor Rumah');
             const patokan = getFieldValue(text, 'Patokan Lokasi');
             const statusHunian = getFieldValue(text, 'Status Hunian') || getFieldValue(text, 'Status Rumah');
 
-            let addressParts = [];
-            if (alamatLengkap && alamatLengkap !== '-') addressParts.push(alamatLengkap);
-            if (rtRw && rtRw !== '-') {
-                const rtRwClean = rtRw.replace(/\//g, ' ');
-                addressParts.push(`RT ${rtRwClean}`);
-            }
-            if (nomorRumah && nomorRumah !== '-') addressParts.push(`Nomor Rumah:${nomorRumah}`);
-            if (patokan && patokan !== '-') addressParts.push(`Patokan Lokasi: ${patokan}`);
-            if (statusHunian && statusHunian !== '-') addressParts.push(`hunian: ${statusHunian}`);
-
-            const alamat = addressParts.length > 0 ? addressParts.join(' ') : (getFieldValue(text, 'Alamat') || '-');
+            // Use the helper to format address neatly
+            const finalAlamat = formatPSBAddress(alamatLengkap, rtRw, nomorRumah, patokan, statusHunian);
 
             const email = getFieldValue(text, 'Email Aktif');
             const wa = getFieldValue(text, 'No. Wa') || getFieldValue(text, 'No. WA');
             const paket = getFieldValue(text, 'Paket Layanan');
             const referensi = getFieldValue(text, 'Referensi') || 'Tidak ada referensi';
             const ktp = getFieldValue(text, 'No KTP');
-            const tgl = getFieldValue(text, 'Tanggal pemasangan');
-            const statusRumah = getFieldValue(text, 'Status Rumah');
+            const tgl = getFieldValue(text, 'Tanggal pemasangan') || new Date().toISOString().split('T')[0];
+            const tglDisplay = formatDateIndoLong(tgl);
+            const statusRumah = getFieldValue(text, 'Status Rumah') || 'Pribadi';
             const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun');
             const noLayanan = getFieldValue(text, 'No Layanan') || getFieldValue(text, 'No layanan') || '-';
+            const linkLokasi = getFieldValue(text, 'Link Lokasi') || '';
+
             const card = document.createElement('div');
             card.className = 'preview-card preview-psb';
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayDisplay = formatDateIndoLong(todayStr);
+            const isCustom = statusRumah !== 'Pribadi';
+
             card.innerHTML =
-                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:#007bff;">Ticket PSB #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="PSB"><div class="input-group"><label>No Layanan</label><input type="text" class="bulk-nolayanan" value="${escapeHtml(noLayanan)}" placeholder="Nomor layanan (opsional)"></div><div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${escapeHtml(alamat)}"></div><div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${email}"></div><div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${wa}"></div><div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${paket}"></div><div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${escapeHtml(referensi)}"></div><div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${ktp}"></div><div class="input-group"><label>Tanggal pemasangan</label><input type="text" class="bulk-tgl" value="${tgl}"></div><div class="input-group"><label>Status Rumah</label><input type="text" class="bulk-status-rumah" value="${statusRumah}"></div><div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${setuju}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`;
+                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+                <h4 style="color:#007bff;">Ticket PSB #${index+1}: ${nama}</h4>
+                <div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div>
+                <div class="preview-grid">
+                    <input type="hidden" class="bulk-type" value="PSB">
+                    <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-nolayanan" value="${escapeHtml(noLayanan)}" placeholder="Nomor layanan (opsional)"></div>
+                    <div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${escapeHtml(nama)}"></div>
+                    <div class="input-group" style="grid-column:1/-1;"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${escapeHtml(finalAlamat)}"></div>
+                    <div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${escapeHtml(email)}"></div>
+                    <div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${escapeHtml(wa)}"></div>
+                    <div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${escapeHtml(paket)}"></div>
+                    <div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${escapeHtml(referensi)}"></div>
+                    <div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${escapeHtml(ktp)}"></div>
+                    <div class="input-group"><label>Tanggal pemasangan</label>
+                        <div class="date-picker-wrapper">
+                            <input type="text" class="bulk-tgl-display" value="${tglDisplay}" placeholder="8 Agustus 2026" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:4px;">
+                            <input type="hidden" class="bulk-tgl" value="${tgl || todayStr}">
+                            <button class="btn-today" onclick="setTodayDate(this)">📅 Hari Ini</button>
+                        </div>
+                    </div>
+                    <div class="input-group"><label>Status Rumah</label>
+                        <div class="status-rumah-wrapper">
+                            <select class="bulk-status-rumah-select" onchange="handleStatusRumahChange(this)">
+                                <option value="Pribadi" ${!isCustom ? 'selected' : ''}>Pribadi</option>
+                                <option value="Custom" ${isCustom ? 'selected' : ''}>Custom</option>
+                            </select>
+                            <input type="text" class="bulk-status-rumah-custom" value="${isCustom ? escapeHtml(statusRumah) : ''}" placeholder="Ketik status custom..." style="display:${isCustom ? 'block' : 'none'};">
+                            <input type="hidden" class="bulk-status-rumah" value="${escapeHtml(statusRumah)}">
+                        </div>
+                    </div>
+                    <div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${escapeHtml(setuju)}"></div>
+                    <div class="input-group"><label>Tipe OLT</label>
+                        <select class="bulk-olt-type" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px;">
+                            <option value="unknown">BELUM DIKETAHUI</option>
+                            <option value="zt">GPON ZTE</option>
+                            <option value="hsgq">GPON HSGQ</option>
+                            <option value="epon">EPON</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="grid-column:1/-1;"><label>Tikor GMaps (Link Lokasi Rumah)</label>
+                        <input type="text" class="bulk-tikor-gmaps" value="${escapeHtml(linkLokasi)}" placeholder="https://www.google.com/maps?q=...">
+                    </div>
+                    <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
+                </div>`;
             container.appendChild(card);
         }
 
@@ -6360,10 +7379,32 @@
             const card = document.createElement('div');
             card.className = isIsolir ? 'preview-card preview-isolir' : 'preview-card preview-mt';
             card.innerHTML =
-                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button><h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Kunjungan)'} #${index+1}: ${nama}</h4><div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required></div><div class="preview-grid"><input type="hidden" class="bulk-type" value="MT"><div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${Kunjungan}" required></div><div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${nama}"></div><div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${escapeHtml(noLayanan)}" placeholder="No Layanan"></div><div class="input-group"><label>Masa Aktif s-d</label><input type="text" class="bulk-masa-aktif" value="${masaAktif}"></div><div class="input-group"><label>No Telp</label><input type="text" class="bulk-telp" value="${noTelp}"></div><div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${tglDaftar}"></div><div class="input-group" style="grid-column: 1/-1;"><label>Alamat</label><input type="text" class="bulk-alamat" value="${alamat}"></div><div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${ssid}"></div><div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${sandiWifi}"></div><div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${lastDBM}"></div><div class="input-group"><label>OLT SN-MAC</label><input type="text" class="bulk-olt-sn" value="${oltSnMac}"></div><div class="input-group"><label>Link Lokasi</label><input type="text" class="bulk-link-lokasi" value="${linkLokasi}"></div><div class="input-group"><label>Link ODP</label><input type="text" class="bulk-link-odp" value="${linkOdp}"></div><div class="input-group"><label>Port ID</label><input type="text" class="bulk-port-id" value="${portId}"></div><div class="input-group" style="grid-column: 1/-1;"><label>Link foto rumah pelanggan</label><input type="text" class="bulk-link-foto" value="${linkFoto}"></div><div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div></div>`;
+                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+                <h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Kunjungan)'} #${index+1}: ${nama}</h4>
+                <div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required></div>
+                <div class="preview-grid">
+                    <input type="hidden" class="bulk-type" value="MT">
+                    <div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${escapeHtml(Kunjungan)}" required></div>
+                    <div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${escapeHtml(nama)}"></div>
+                    <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${escapeHtml(noLayanan)}" placeholder="No Layanan"></div>
+                    <div class="input-group"><label>Masa Aktif s-d</label><input type="text" class="bulk-masa-aktif" value="${escapeHtml(masaAktif)}"></div>
+                    <div class="input-group"><label>No Telp</label><input type="text" class="bulk-telp" value="${escapeHtml(noTelp)}"></div>
+                    <div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${escapeHtml(tglDaftar)}"></div>
+                    <div class="input-group" style="grid-column: 1/-1;"><label>Alamat</label><input type="text" class="bulk-alamat" value="${escapeHtml(alamat)}"></div>
+                    <div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${escapeHtml(ssid)}"></div>
+                    <div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${escapeHtml(sandiWifi)}"></div>
+                    <div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${escapeHtml(lastDBM)}"></div>
+                    <div class="input-group"><label>OLT SN-MAC</label><input type="text" class="bulk-olt-sn" value="${escapeHtml(oltSnMac)}"></div>
+                    <div class="input-group"><label>Link Lokasi</label><input type="text" class="bulk-link-lokasi" value="${escapeHtml(linkLokasi)}"></div>
+                    <div class="input-group"><label>Link ODP</label><input type="text" class="bulk-link-odp" value="${escapeHtml(linkOdp)}"></div>
+                    <div class="input-group"><label>Port ID</label><input type="text" class="bulk-port-id" value="${escapeHtml(portId)}"></div>
+                    <div class="input-group" style="grid-column: 1/-1;"><label>Link foto rumah pelanggan</label><input type="text" class="bulk-link-foto" value="${escapeHtml(linkFoto)}"></div>
+                    <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
+                </div>`;
             container.appendChild(card);
         }
 
+        // ===== SAVE BULK TICKETS =====
         window.saveBulkTickets = function() {
             if (!teams || !Array.isArray(teams)) teams = [];
             const previewCards = document.querySelectorAll('.preview-card');
@@ -6419,7 +7460,70 @@
                         return el ? el.value.trim() : '';
                     };
                     const nama = getValue('.bulk-nama');
-                    const alamat = getValue('.bulk-alamat');
+                    let alamat = getValue('.bulk-alamat');
+
+                    const statusRumahEl = card.querySelector('.bulk-status-rumah');
+                    const statusRumah = statusRumahEl ? statusRumahEl.value : 'Pribadi';
+                    if (statusRumah && statusRumah !== 'Pribadi') {
+                        if (!alamat.includes('hunian:')) {
+                            alamat = alamat.trim();
+                            if (alamat.length > 0) {
+                                alamat += ` hunian: ${statusRumah}`;
+                            } else {
+                                alamat = `hunian: ${statusRumah}`;
+                            }
+                        } else {
+                            alamat = alamat.replace(/hunian:\s*[^,]*/i, `hunian: ${statusRumah}`);
+                        }
+                    } else if (statusRumah === 'Pribadi') {
+                        if (alamat.includes('hunian:')) {
+                            alamat = alamat.replace(/hunian:\s*[^,]*/i, '').replace(/\s{2,}/g, ' ').trim();
+                        }
+                    }
+
+                    const oltSelect = card.querySelector('.bulk-olt-type');
+                    const oltType = oltSelect ? oltSelect.value : 'unknown';
+                    const tikorGmaps = getValue('.bulk-tikor-gmaps');
+
+                    const tglDisplay = card.querySelector('.bulk-tgl-display');
+                    const tglHidden = card.querySelector('.bulk-tgl');
+                    let tglVal = tglHidden ? tglHidden.value : '';
+                    if (!tglVal || tglVal === '') {
+                        if (tglDisplay) {
+                            const displayVal = tglDisplay.value.trim();
+                            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                            let found = false;
+                            for (let i = 0; i < months.length; i++) {
+                                if (displayVal.includes(months[i])) {
+                                    const parts = displayVal.split(' ');
+                                    if (parts.length === 3) {
+                                        const day = parseInt(parts[0]);
+                                        const monthIdx = i;
+                                        const year = parseInt(parts[2]);
+                                        if (!isNaN(day) && !isNaN(year)) {
+                                            const d = new Date(year, monthIdx, day);
+                                            if (!isNaN(d.getTime())) {
+                                                tglVal = d.toISOString().split('T')[0];
+                                                found = true;
+                                            }
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                const isoMatch = displayVal.match(/(\d{4})-(\d{2})-(\d{2})/);
+                                if (isoMatch) {
+                                    tglVal = isoMatch[0];
+                                } else {
+                                    tglVal = new Date().toISOString().split('T')[0];
+                                }
+                            }
+                        } else {
+                            tglVal = new Date().toISOString().split('T')[0];
+                        }
+                    }
+
                     let newJob = {};
                     if (type === 'PSB') {
                         const noLayanan = getValue('.bulk-nolayanan');
@@ -6428,23 +7532,35 @@
                         const paket = getValue('.bulk-paket');
                         const referensi = getValue('.bulk-referensi') || 'Tidak ada referensi';
                         const ktp = getValue('.bulk-ktp');
-                        const tgl = getValue('.bulk-tgl');
-                        const statusRumah = getValue('.bulk-status-rumah');
                         const setuju = getValue('.bulk-setuju');
+
+                        let tikorData = null;
+                        if (tikorGmaps) {
+                            const coords = parseCoordinatesFromLink(tikorGmaps);
+                            if (coords) {
+                                tikorData = { link: tikorGmaps, lat: coords.lat, lng: coords.lng };
+                            } else {
+                                tikorData = { link: tikorGmaps, lat: null, lng: null };
+                            }
+                        }
+
+                        // Clean up address using helper
+                        const cleanedAddress = formatPSBAddress(alamat, '', '', '', statusRumah);
+
                         newJob = {
                             completed: false,
                             status: 'pending',
                             completedAt: null,
                             technical: {},
                             linkSC: '',
-                            oltType: 'unknown',
-                            tikor: null,
+                            oltType: oltType,
+                            tikor: tikorData,
                             infoUserDone: false,
                             name: nama || '-',
                             tag: `PSB (${paket || '150rb'})`,
                             tagClass: "badge-psb",
                             time: jam || "FLEXIBEL",
-                            address: alamat || '-',
+                            address: cleanedAddress || '-',
                             details: {
                                 "No Layanan": noLayanan || '-',
                                 "Paket": paket || '-',
@@ -6454,8 +7570,10 @@
                                 "No KTP": ktp || '-',
                                 "Status Rumah": statusRumah || '-',
                                 "Setuju Berlangganan": setuju || '-',
-                                "Tgl Pasang": tgl || '-'
-                            }
+                                "Tgl Pasang": tglVal || '-'
+                            },
+                            _psbBackup: null,
+                            _nonPsbBackup: null
                         };
                     } else {
                         const Kunjungan = getValue('.bulk-Kunjungan');
@@ -6487,6 +7605,17 @@
                         if (linkFoto) details["Link foto rumah pelanggan"] = linkFoto;
 
                         const isIsolir = Kunjungan.toLowerCase().includes('isolir');
+
+                        let tikorData = null;
+                        if (linkLokasi && linkLokasi !== '-') {
+                            const coords = parseCoordinatesFromLink(linkLokasi);
+                            if (coords) {
+                                tikorData = { link: `${coords.lat}, ${coords.lng}`, lat: coords.lat, lng: coords.lng };
+                            } else {
+                                tikorData = { link: linkLokasi, lat: null, lng: null };
+                            }
+                        }
+
                         newJob = {
                             completed: false,
                             status: 'pending',
@@ -6494,7 +7623,7 @@
                             technical: {},
                             linkSC: '',
                             oltType: 'unknown',
-                            tikor: null,
+                            tikor: tikorData,
                             infoUserDone: false,
                             name: nama || '-',
                             tag: Kunjungan || 'KUNJUNGAN',
@@ -6502,7 +7631,9 @@
                             time: jam || "FLEXIBEL",
                             address: alamat || '-',
                             details: details,
-                            replaceModem: 'no'
+                            replaceModem: 'no',
+                            _psbBackup: null,
+                            _nonPsbBackup: null
                         };
                     }
                     teams[targetTeamIndex].jobs.push(newJob);
@@ -6530,6 +7661,336 @@
             }
         };
 
+        // ===== GANTI DATA MODAL (untuk PSB dan Non-PSB) =====
+        window.openGantiDataModal = function(teamIdx, jobIdx) {
+            if (appMode !== 'admin') {
+                showSyncNotification('⚠️ Ganti Data hanya untuk Admin', 'warning');
+                return;
+            }
+            const job = teams[teamIdx].jobs[jobIdx];
+            if (!job) return;
+
+            gantiDataTarget = { teamIdx, jobIdx };
+            const isPSB = job.tagClass === 'badge-psb';
+
+            document.getElementById('gantiDataInput').value = '';
+            document.getElementById('gantiDataStatus').className = 'ganti-status';
+            document.getElementById('gantiDataStatus').textContent = '';
+            document.getElementById('btnGantiExecute').disabled = false;
+            document.getElementById('modalGantiData').style.display = 'block';
+        };
+
+        window.closeGantiDataModal = function() {
+            document.getElementById('modalGantiData').style.display = 'none';
+            gantiDataTarget = null;
+        };
+
+        window.executeGantiData = async function() {
+            const raw = document.getElementById('gantiDataInput').value;
+            if (!raw.trim()) {
+                const statusEl = document.getElementById('gantiDataStatus');
+                statusEl.textContent = '⚠️ Masukkan data tiket terlebih dahulu!';
+                statusEl.className = 'ganti-status error';
+                return;
+            }
+
+            const btn = document.getElementById('btnGantiExecute');
+            const statusEl = document.getElementById('gantiDataStatus');
+            btn.disabled = true;
+            statusEl.textContent = '🔄 Memproses dengan AI...';
+            statusEl.className = 'ganti-status info';
+
+            let apiKey = document.getElementById('deepseekApiKeyInput').value.trim() || deepseekApiKey;
+
+            if (!apiKey) {
+                try {
+                    const snapshot = await get(apiKeyRef);
+                    if (snapshot.exists()) {
+                        const fbKey = snapshot.val();
+                        if (fbKey && typeof fbKey === 'string' && fbKey.trim().length > 0) {
+                            apiKey = fbKey.trim();
+                            deepseekApiKey = apiKey;
+                            try { localStorage.setItem('deepseek_api_key', apiKey); } catch (e) {}
+                            document.getElementById('deepseekApiKeyInput').value = apiKey;
+                            updateApiKeyStatusLabel(true);
+                            document.getElementById('apiKeyStatus').textContent =
+                                '✅ API Key dimuat dari database.';
+                            document.getElementById('apiKeyStatus').className = 'key-status valid';
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Gagal load API Key dari Firebase:', e);
+                }
+            }
+
+            if (!apiKey) {
+                statusEl.textContent = '⚠️ Masukkan dan simpan API Key DeepSeek di konfigurasi!';
+                statusEl.className = 'ganti-status error';
+                btn.disabled = false;
+                return;
+            }
+            if (!apiKey.startsWith('sk-')) {
+                statusEl.textContent = '⚠️ Format API Key tidak valid (harus diawali "sk-")';
+                statusEl.className = 'ganti-status error';
+                btn.disabled = false;
+                return;
+            }
+
+            try {
+                if (!gantiDataTarget) throw new Error('Target tidak ditemukan');
+                const { teamIdx, jobIdx } = gantiDataTarget;
+                const job = teams[teamIdx].jobs[jobIdx];
+                if (!job) throw new Error('Tiket tidak ditemukan');
+
+                const isPSB = job.tagClass === 'badge-psb';
+
+                const systemPrompt = isPSB ?
+                    `Anda adalah asisten AI pengolah tiket internet. Ubah teks mentah menjadi JSON dengan format PSB.
+
+                    === FORMAT PSB ===
+                    Jika teks mengandung "Nama Lengkap :" (ada titik dua), maka formatnya PSB.
+                    Untuk PSB, Anda HARUS menggabungkan komponen alamat menjadi SATU field "alamat" dengan format:
+                    "[Alamat Lengkap Pemasangan] RT [RT] RW [RW] Nomor Rumah:[Nomor Rumah] Patokan Lokasi: [Patokan Lokasi] hunian: [Status Hunian]"
+                    PENTING: Jika salah satu komponen tidak ada (misal tidak ada Patokan Lokasi), maka HILANGKAN komponen tersebut dari string alamat. Jangan tampilkan "Patokan Lokasi: -" atau sejenisnya. Jangan tampilkan "kode pos" sama sekali.
+                    Untuk RT/RW, gunakan format "RT [nomor] RW [nomor]" dengan rapi.
+
+                    JSON PSB:
+                    {
+                        "type": "PSB",
+                        "jam": "waktu kunjungan (ambil dari Jam : atau -)",
+                        "noLayanan": "Nomor Layanan (jika ada, jika tidak '-')",
+                        "nama": "Nama Lengkap (ambil dari Nama Lengkap :)",
+                        "alamat": "HASIL GABUNGAN ALAMAT (sesuai format di atas, tanpa kode pos, tanpa komponen yang tidak ada)",
+                        "email": "Email Aktif (ambil dari Email Aktif :)",
+                        "wa": "No. WA (ambil dari No. WA :)",
+                        "paket": "Paket Layanan (ambil dari Paket Layanan :)",
+                        "referensi": "Referensi (jika tidak ada, gunakan 'Tidak ada referensi')",
+                        "ktp": "No KTP (ambil dari No KTP :)",
+                        "tgl": "Tanggal pemasangan (ambil dari Tanggal pemasangan :)",
+                        "statusRumah": "Status Rumah (ambil dari Status Rumah :)",
+                        "setuju": "Setuju berlangganan minimal 1 tahun (ambil dari Setuju berlangganan minimal 1 tahun :)",
+                        "linkLokasi": "Link Lokasi (ambil dari Link Lokasi :)"
+                    }
+
+                    === ATURAN ===
+                    1. Field "referensi" WAJIB diisi, default "Tidak ada referensi" jika tidak ditemukan.
+                    2. "alamat" HARUS merupakan gabungan dari komponen alamat sesuai format di atas, TANPA "kode pos", dan TANPA komponen yang tidak tersedia.
+                    3. Jika field tidak ditemukan, gunakan "-".
+                    4. Kembalikan HANYA JSON: { "ticket": { ... } }.
+                    5. JANGAN tambahkan teks lain di luar JSON.` :
+                    `Anda adalah asisten AI pengolah tiket internet. Ubah teks mentah menjadi JSON dengan format MT/ISOLIR.
+
+                    === FORMAT MT / ISOLIR ===
+                    {
+                        "type": "MT",
+                        "kunjungan": "isi lengkap Kunjungan (contoh: KUNJUNGAN ISOLIR atau KUNJUNGAN MT)",
+                        "nama": "Nama Pelanggan (ambil dari Nama Pelanggan :)",
+                        "layanan": "No Layanan (ambil SELURUH nilai setelah 'No Layanan :', PERTAHANKAN karakter || jika ada)",
+                        "masaAktif": "Masa Aktif s-d (ambil dari Masa Aktif s-d :)",
+                        "telp": "No Telp (ambil dari No Telp :)",
+                        "tglDaftar": "Tanggal Daftar (ambil dari Tanggal Daftar :)",
+                        "alamat": "Alamat (ambil dari Alamat :)",
+                        "ssid": "Nama WiFi (SSID) (ambil dari Nama WiFi (SSID) :)",
+                        "sandiWifi": "Sandi WiFi (ambil dari Sandi WiFi :)",
+                        "lastDBM": "Last DBM (ambil dari Last DBM :)",
+                        "oltSnMac": "OLT SN-MAC (ambil dari OLT SN-MAC :)",
+                        "linkLokasi": "Link Lokasi (ambil dari Link Lokasi :)",
+                        "linkOdp": "Link ODP (ambil dari Link ODP :)",
+                        "portId": "Port ID (ambil dari Port ID :)",
+                        "linkFoto": "Link foto rumah pelanggan (ambil dari Link foto rumah pelanggan :)"
+                    }
+
+                    === ATURAN ===
+                    1. Field "kunjungan" WAJIB diisi dari teks yang mengandung "Kunjungan :".
+                    2. Field "layanan" WAJIB diisi dari "No Layanan".
+                    3. Jika field tidak ditemukan, gunakan "-".
+                    4. Kembalikan HANYA JSON: { "ticket": { ... } }.
+                    5. JANGAN tambahkan teks lain di luar JSON.`;
+
+                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: raw }
+                        ],
+                        temperature: 0.1,
+                        max_tokens: 2000,
+                        stream: false
+                    })
+                });
+
+                if (!response.ok) {
+                    let errText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errText.substring(0, 200)}`);
+                }
+
+                const data = await response.json();
+                const content = data.choices?.[0]?.message?.content || '';
+
+                let jsonStr = content;
+                const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+                if (jsonMatch) jsonStr = jsonMatch[1];
+                else {
+                    const braceMatch = content.match(/\{[\s\S]*\}/);
+                    if (braceMatch) jsonStr = braceMatch[0];
+                }
+
+                const parsed = JSON.parse(jsonStr);
+                const newData = parsed.ticket || parsed;
+
+                if (!newData) {
+                    throw new Error('Respons AI tidak valid');
+                }
+
+                const oldOltType = job.oltType || 'unknown';
+                const oldTechnical = job.technical || {};
+                const oldLinkSC = job.linkSC || '';
+                const oldTikor = job.tikor || null;
+                const oldInfoUserDone = job.infoUserDone || false;
+                const oldReplaceModem = job.replaceModem || 'no';
+                const oldStatus = job.status || 'pending';
+                const oldCompleted = job.completed || false;
+                const oldCompletedAt = job.completedAt || null;
+                const oldFailureNote = job.failureNote || null;
+                const oldCompletionNote = job.completionNote || null;
+
+                let newDetails = {};
+                if (isPSB) {
+                    const referensi = newData.referensi && newData.referensi.trim() !== '' ? newData.referensi :
+                        'Tidak ada referensi';
+                    newDetails = {
+                        "No Layanan": newData.noLayanan || '-',
+                        "Paket": newData.paket || '-',
+                        "Email": newData.email || '-',
+                        "No WA": newData.wa || '-',
+                        "Referensi": referensi,
+                        "No KTP": newData.ktp || '-',
+                        "Status Rumah": newData.statusRumah || 'Pribadi',
+                        "Setuju Berlangganan": newData.setuju || '-',
+                        "Tgl Pasang": newData.tgl || '-'
+                    };
+                    job.name = newData.nama || job.name || '-';
+                    // Clean up address using helper
+                    const rawAlamat = newData.alamat || job.address || '-';
+                    job.address = formatPSBAddress(rawAlamat, '', '', '', newData.statusRumah || '');
+                    job.time = newData.jam || job.time || 'FLEXIBEL';
+                    job.tag = `PSB (${newData.paket || '150rb'})`;
+                    job.tagClass = 'badge-psb';
+                } else {
+                    newDetails = {
+                        "Layanan": newData.layanan || '-',
+                        "Masa Aktif s-d": newData.masaAktif || '-',
+                        "No Telp": newData.telp || '-',
+                        "Tanggal Daftar": newData.tglDaftar || '-',
+                        "Nama WiFi (SSID)": newData.ssid || '-',
+                        "Sandi WiFi": newData.sandiWifi || '-',
+                        "Last DBM": newData.lastDBM || '-',
+                        "OLT SN-MAC": newData.oltSnMac || '-',
+                        "Link Lokasi": newData.linkLokasi || '-',
+                        "Link ODP": newData.linkOdp || '-',
+                        "Port ID": newData.portId || '-',
+                        "Link foto rumah pelanggan": newData.linkFoto || '-'
+                    };
+                    const kunjunganVal = newData.kunjungan || job.tag || 'KUNJUNGAN';
+                    newDetails["Kunjungan"] = kunjunganVal;
+                    job.name = newData.nama || job.name || '-';
+                    job.address = newData.alamat || job.address || '-';
+                    job.time = newData.jam || job.time || 'FLEXIBEL';
+                    const isIsolir = kunjunganVal.toLowerCase().includes('isolir');
+                    job.tag = kunjunganVal;
+                    job.tagClass = isIsolir ? "badge-isolir" : "badge-mt";
+                }
+
+                job.status = oldStatus;
+                job.completed = oldCompleted;
+                job.completedAt = oldCompletedAt;
+                job.failureNote = oldFailureNote;
+                job.completionNote = oldCompletionNote;
+                job.oltType = oldOltType;
+                job.technical = oldTechnical;
+                job.linkSC = oldLinkSC;
+                job.tikor = oldTikor;
+                job.infoUserDone = oldInfoUserDone;
+                job.replaceModem = oldReplaceModem;
+                job.details = newDetails;
+
+                if (!isPSB && job.details['Link Lokasi'] && job.details['Link Lokasi'] !== '-') {
+                    const linkLokasi = job.details['Link Lokasi'];
+                    const coords = parseCoordinatesFromLink(linkLokasi);
+                    if (coords) {
+                        job.tikor = { link: `${coords.lat}, ${coords.lng}`, lat: coords.lat, lng: coords.lng };
+                    } else {
+                        job.tikor = { link: linkLokasi, lat: null, lng: null };
+                    }
+                }
+
+                saveDataToFirebase();
+                renderJobs();
+
+                statusEl.textContent = '✅ Data berhasil diganti!';
+                statusEl.className = 'ganti-status success';
+                showSyncNotification('✅ Data tiket berhasil diganti dengan AI!', 'success');
+
+                setTimeout(() => {
+                    closeGantiDataModal();
+                }, 1500);
+
+            } catch (error) {
+                console.error('Ganti Data error:', error);
+                statusEl.textContent = `❌ Error: ${error.message}`;
+                statusEl.className = 'ganti-status error';
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        // ===== PARSE COORDINATES =====
+        function parseCoordinatesFromLink(link) {
+            if (!link || link.trim() === '') return null;
+            const clean = link.trim();
+            const qMatch = clean.match(/[?&]q=([^&]+)/);
+            if (qMatch) {
+                const coordStr = qMatch[1];
+                const parts = coordStr.split(',');
+                if (parts.length === 2) {
+                    const lat = parseFloat(parts[0].trim());
+                    const lng = parseFloat(parts[1].trim());
+                    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+                }
+            }
+            const atMatch = clean.match(/@([-+]?\d+\.\d+),([-+]?\d+\.\d+)/);
+            if (atMatch) {
+                const lat = parseFloat(atMatch[1]);
+                const lng = parseFloat(atMatch[2]);
+                if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+            }
+            const simpleMatch = clean.match(/([-+]?\d+\.\d+)\s*,\s*([-+]?\d+\.\d+)/);
+            if (simpleMatch) {
+                const lat = parseFloat(simpleMatch[1]);
+                const lng = parseFloat(simpleMatch[2]);
+                if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+            }
+            return null;
+        }
+
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const toRad = (deg) => deg * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
         // ===== CLICK OUTSIDE MODAL =====
         window.onclick = function(event) {
             if (event.target == document.getElementById("modalTicket")) closeCreateTicketModal();
@@ -6542,11 +8003,11 @@
             if (event.target == document.getElementById("modalModemRecapOption")) closeModemRecapOption();
             if (event.target == document.getElementById("modalPreviewStats")) closePreviewStatsModal();
             if (event.target == document.getElementById("modalNonIkrList")) closeNonIkrListModal();
-            if (event.target == document.getElementById("modalLocation")) closeLocationModal();
             if (event.target == document.getElementById("modalOperTicket")) closeOperTicketModal();
             if (event.target == document.getElementById("modalHistory")) closeHistoryModal();
             if (event.target == document.getElementById("modalGudangProgress")) closeGudangProgressModal();
             if (event.target == document.getElementById("modalBackup")) closeBackupModal();
+            if (event.target == document.getElementById("modalGantiData")) closeGantiDataModal();
         };
 
         // ===== START =====
