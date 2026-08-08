@@ -465,6 +465,35 @@
             transform: none;
         }
 
+        /* ----- COPY PERSEN BUTTON ----- */
+        .btn-copy-persen {
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 0.2rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            white-space: nowrap;
+        }
+        .btn-copy-persen:hover {
+            background: #1a6a9e;
+            transform: scale(1.02);
+        }
+        .btn-copy-persen:active {
+            transform: scale(0.97);
+        }
+        .btn-copy-persen:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* ----- TABLE WRAPPER ----- */
         .table-wrapper {
             overflow-x: auto;
@@ -1007,7 +1036,8 @@
             cursor: pointer;
         }
         .modal-box .form-group select,
-        .modal-box .form-group input[type="text"] {
+        .modal-box .form-group input[type="text"],
+        .modal-box .form-group input[type="number"] {
             width: 100%;
             padding: 0.4rem 0.8rem;
             border: 1px solid #cad5e3;
@@ -1019,7 +1049,8 @@
             transition: border 0.2s, box-shadow 0.2s;
         }
         .modal-box .form-group select:focus,
-        .modal-box .form-group input[type="text"]:focus {
+        .modal-box .form-group input[type="text"]:focus,
+        .modal-box .form-group input[type="number"]:focus {
             border-color: #2f6bb0;
             box-shadow: 0 0 0 3px rgba(47, 107, 176, 0.12);
         }
@@ -1696,7 +1727,117 @@
             font-size: 0.7rem;
         }
 
-        /* ----- TOAST ----- */
+        /* ===== MODAL COPY PERSEN ===== */
+        .copy-persen-modal .modal-box {
+            max-width: 480px;
+        }
+        .copy-persen-modal .modal-box .user-config-list {
+            max-height: 260px;
+            overflow-y: auto;
+            border: 1px solid #e6edf5;
+            border-radius: 12px;
+            padding: 0.4rem 0.6rem;
+            margin: 0.3rem 0 0.6rem 0;
+            background: #fafcff;
+        }
+        .copy-persen-modal .modal-box .user-config-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.2rem;
+            border-bottom: 1px solid #f0f4fa;
+        }
+        .copy-persen-modal .modal-box .user-config-item:last-child {
+            border-bottom: none;
+        }
+        .copy-persen-modal .modal-box .user-config-item .user-label {
+            font-weight: 500;
+            color: #1d3b5c;
+            font-size: 0.8rem;
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+        .copy-persen-modal .modal-box .user-config-item .user-name-input {
+            flex: 1;
+            padding: 0.15rem 0.4rem;
+            border: 1px solid #cad5e3;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            outline: none;
+            background: white;
+            min-width: 60px;
+        }
+        .copy-persen-modal .modal-box .user-config-item .user-name-input:focus {
+            border-color: #2f6bb0;
+            box-shadow: 0 0 0 2px rgba(47, 107, 176, 0.1);
+        }
+        .copy-persen-modal .modal-box .user-config-item .user-persen-input {
+            width: 56px;
+            padding: 0.15rem 0.2rem;
+            border: 1px solid #cad5e3;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+            outline: none;
+            background: white;
+            flex-shrink: 0;
+        }
+        .copy-persen-modal .modal-box .user-config-item .user-persen-input:focus {
+            border-color: #2f6bb0;
+            box-shadow: 0 0 0 2px rgba(47, 107, 176, 0.1);
+        }
+        .copy-persen-modal .modal-box .user-config-item .user-persen-label {
+            font-size: 0.7rem;
+            color: #5c738b;
+            flex-shrink: 0;
+        }
+        .copy-persen-modal .modal-box .user-config-item .user-row-count {
+            font-size: 0.65rem;
+            color: #8aa0b8;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        .copy-persen-modal .modal-box .total-persen {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.15rem 0;
+            border-radius: 8px;
+            background: #f4f8fe;
+            margin: 0.1rem 0 0.3rem 0;
+        }
+        .copy-persen-modal .modal-box .total-persen.valid {
+            color: #2b8c5e;
+        }
+        .copy-persen-modal .modal-box .total-persen.invalid {
+            color: #c0392b;
+        }
+        .copy-persen-modal .modal-box .copy-persen-info {
+            font-size: 0.75rem;
+            color: #5c738b;
+            text-align: center;
+            padding: 0.1rem 0;
+            border-top: 1px solid #e6edf5;
+            margin-top: 0.2rem;
+        }
+        .copy-persen-modal .modal-box .copy-persen-info strong {
+            color: #1d3b5c;
+        }
+        .copy-persen-modal .modal-box .form-group .user-count-select {
+            width: 80px;
+            padding: 0.3rem 0.6rem;
+            border: 1px solid #cad5e3;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            outline: none;
+            background: white;
+        }
+        .copy-persen-modal .modal-box .form-group .user-count-select:focus {
+            border-color: #2f6bb0;
+            box-shadow: 0 0 0 3px rgba(47, 107, 176, 0.12);
+        }
+
+        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 1.5rem;
@@ -1859,6 +2000,10 @@
                 font-size: 0.7rem;
                 padding: 0.15rem 0.7rem;
             }
+            .btn-copy-persen {
+                font-size: 0.7rem;
+                padding: 0.15rem 0.7rem;
+            }
             .queue-bar {
                 flex-wrap: wrap;
                 padding: 0.3rem 0.6rem;
@@ -1957,6 +2102,23 @@
             .upload-filter-group .filter-options label {
                 width: 100%;
             }
+            .copy-persen-modal .modal-box .user-config-item {
+                flex-wrap: wrap;
+            }
+            .copy-persen-modal .modal-box .user-config-item .user-label {
+                min-width: 60px;
+                font-size: 0.75rem;
+            }
+            .copy-persen-modal .modal-box .user-config-item .user-name-input {
+                min-width: 50px;
+                flex: 1 1 80px;
+            }
+            .copy-persen-modal .modal-box .user-config-item .user-persen-input {
+                width: 48px;
+            }
+            .copy-persen-modal .modal-box .user-config-item .user-row-count {
+                font-size: 0.6rem;
+            }
         }
         @media (max-width: 420px) {
             .sheet-bar .left {
@@ -1990,8 +2152,19 @@
                 font-size: 0.65rem;
                 padding: 0.1rem 0.6rem;
             }
+            .btn-copy-persen {
+                font-size: 0.65rem;
+                padding: 0.1rem 0.6rem;
+            }
             .pejabat-list-modal .modal-box .pejabat-list-container {
                 max-height: 160px;
+            }
+            .copy-persen-modal .modal-box .user-config-item .user-name-input {
+                min-width: 40px;
+                flex: 1 1 60px;
+            }
+            .copy-persen-modal .modal-box .user-config-item .user-persen-input {
+                width: 40px;
             }
         }
     </style>
@@ -2069,6 +2242,10 @@
                 <!-- COPY WA BUTTON -->
                 <button class="btn-copy-wa" id="copyWaBtn" title="Salin data ke format WhatsApp">
                     💬 Copy WA
+                </button>
+                <!-- COPY PERSEN BUTTON -->
+                <button class="btn-copy-persen" id="copyPersenBtn" title="Bagi data ke beberapa user berdasarkan persentase">
+                    📊 Copy Persen
                 </button>
             </div>
         </div>
@@ -2333,6 +2510,68 @@
         </div>
     </div>
 
+    <!-- ===== MODAL COPY PERSEN ===== -->
+    <div class="modal-overlay copy-persen-modal" id="copyPersenModal">
+        <div class="modal-box">
+            <h2>
+                📊 Copy Persen — Pembagian Data
+                <span style="font-size:0.7rem;font-weight:400;color:#5c738b;margin-left:auto;" id="copyPersenCounter"></span>
+            </h2>
+            <p class="sub" id="copyPersenSubText">Bagi data isolir ke beberapa user dengan persentase tertentu. Data akan diacak (shuffle) untuk pembagian yang adil.</p>
+
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.3rem;">
+                <span style="font-size:0.75rem;color:#5c738b;" id="copyPersenDataInfo">📊 0 baris tersedia</span>
+            </div>
+
+            <div class="form-group">
+                <label>Jumlah User:</label>
+                <select class="user-count-select" id="userCountSelect">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
+                <span style="font-size:0.75rem;color:#5c738b;margin-left:0.2rem;">user</span>
+            </div>
+
+            <div class="user-config-list" id="userConfigList">
+                <!-- Dynamic user config items -->
+            </div>
+
+            <div class="total-persen valid" id="totalPersenDisplay">Total: 100%</div>
+
+            <div class="form-group" style="margin-top:0.2rem;">
+                <label>Opsi Copy:</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="copyPersenOption" value="withLabel" checked />
+                        👤 Dengan Label Pejabat
+                    </label>
+                    <label>
+                        <input type="radio" name="copyPersenOption" value="withoutLabel" />
+                        📄 Tanpa Label Pejabat
+                    </label>
+                </div>
+            </div>
+
+            <div class="copy-persen-info">
+                💡 <strong>Total data:</strong> <span id="copyPersenTotalRows">0</span> baris akan dibagi ke <span id="copyPersenTotalUsers">2</span> user.
+                <span id="copyPersenShuffleInfo">🔀 Data diacak untuk pembagian adil.</span>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" id="copyPersenCancelBtn">Batal</button>
+                <button class="btn-primary" id="copyPersenConfirmBtn">📋 Copy</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== TOAST ===== -->
     <div class="toast" id="toast">
         <span class="toast-icon" id="toastIcon">✅</span>
@@ -2464,6 +2703,7 @@
             const cutDataBtn = document.getElementById('cutDataBtn');
             const pejabatListBtn = document.getElementById('pejabatListBtn');
             const pejabatBadgeCount = document.getElementById('pejabatBadgeCount');
+            const copyPersenBtn = document.getElementById('copyPersenBtn');
 
             const queueBar = document.getElementById('queueBar');
             const queueProgress = document.getElementById('queueProgress');
@@ -2540,6 +2780,20 @@
             const cutNoFilterWarning = document.getElementById('cutNoFilterWarning');
             const cutCancelBtn = document.getElementById('cutCancelBtn');
             const cutConfirmBtn = document.getElementById('cutConfirmBtn');
+
+            // Copy Persen
+            const copyPersenModal = document.getElementById('copyPersenModal');
+            const copyPersenCounter = document.getElementById('copyPersenCounter');
+            const copyPersenSubText = document.getElementById('copyPersenSubText');
+            const copyPersenDataInfo = document.getElementById('copyPersenDataInfo');
+            const userCountSelect = document.getElementById('userCountSelect');
+            const userConfigList = document.getElementById('userConfigList');
+            const totalPersenDisplay = document.getElementById('totalPersenDisplay');
+            const copyPersenTotalRows = document.getElementById('copyPersenTotalRows');
+            const copyPersenTotalUsers = document.getElementById('copyPersenTotalUsers');
+            const copyPersenShuffleInfo = document.getElementById('copyPersenShuffleInfo');
+            const copyPersenConfirmBtn = document.getElementById('copyPersenConfirmBtn');
+            const copyPersenCancelBtn = document.getElementById('copyPersenCancelBtn');
 
             const toast = document.getElementById('toast');
             const toastIcon = document.getElementById('toastIcon');
@@ -3179,7 +3433,6 @@
                                     break;
                                 }
                             }
-                            // Jika tidak ditemukan, coba cari dengan kata kunci lebih longgar
                             if (statusPembayaranIdx === -1) {
                                 for (let i = 0; i < finalHeaders.length; i++) {
                                     const h = finalHeaders[i].toString().trim().toLowerCase();
@@ -3544,7 +3797,6 @@
                 rowOption1.classList.add('selected');
                 rowOption2.classList.remove('selected');
 
-                // Reset filter option ke NUNGGAK
                 document.querySelector('input[name="uploadFilter"][value="nunggak"]').checked = true;
                 filterOptionNunggak.classList.add('selected');
                 filterOptionFull.classList.remove('selected');
@@ -3576,7 +3828,6 @@
                         let filteredCount = 0;
                         let totalRows = 0;
                         results.forEach(result => {
-                            // Terapkan filter NUNGGAK jika dipilih
                             const meta = result._meta || {};
                             const spIdx = meta.statusPembayaranIdx;
                             let rows = result.rows;
@@ -3592,7 +3843,6 @@
                                 totalRows += rows.length;
                                 result.rows = rows;
                             } else if (state.uploadFilter === 'nunggak' && spIdx === -1) {
-                                // Tidak ada kolom Status Pembayaran -> warning tapi tetap lanjut
                                 showToast('⚠️',
                                     `Kolom "Status Pembayaran" tidak ditemukan di "${result.fileName}", filter NUNGGAK tidak diterapkan.`
                                     );
@@ -4330,7 +4580,6 @@
 
                     if (hasManualFilters || forceFilter) {
                         filteredRows = rows.filter(row => {
-                            // Filter manual
                             for (const colIdxStr in activeFilters) {
                                 const colIdx = parseInt(colIdxStr);
                                 const filterInfo = activeFilters[colIdx];
@@ -4366,7 +4615,6 @@
                                     }
                                 }
                             }
-                            // Force filter (Auto -30)
                             if (forceFilter) {
                                 const cellVal = (row[forceFilter.colIdx] !== undefined && row[forceFilter.colIdx] !==
                                     null) ? String(row[forceFilter.colIdx]) : '';
@@ -4379,7 +4627,6 @@
                         });
                     }
 
-                    // === AUTO -30 juga filter Status Pembayaran = NUNGGAK ===
                     if (state.autoMinus30Enabled && statusPembayaranIdx >= 0) {
                         filteredRows = filteredRows.filter(row => {
                             const val = (row[statusPembayaranIdx] !== undefined && row[statusPembayaranIdx] !==
@@ -6429,6 +6676,562 @@
             }
 
             // ============================================================
+            //  COPY PERSEN FEATURE
+            // ============================================================
+            let persenUserConfig = [];
+
+            function openCopyPersenModal() {
+                const sheetName = state.currentSheet;
+                if (!sheetName || !state.sheets[sheetName]) {
+                    showToast('⚠️', 'Tidak ada sheet yang aktif.');
+                    return;
+                }
+                const data = getSheetData(sheetName);
+                if (!data || !data.rows || data.rows.length === 0) {
+                    showToast('⚠️', 'Sheet kosong, tidak ada data untuk dibagi.');
+                    return;
+                }
+                let rows = data._filteredRows || data.rows;
+                if (!rows || rows.length === 0) {
+                    showToast('⚠️', 'Tidak ada data yang cocok dengan filter.');
+                    return;
+                }
+
+                const totalRows = rows.length;
+                const userCount = parseInt(userCountSelect.value, 10) || 2;
+
+                // Reset config
+                persenUserConfig = [];
+                const equalPercent = Math.floor(100 / userCount);
+                let remainder = 100 - (equalPercent * userCount);
+
+                for (let i = 0; i < userCount; i++) {
+                    let pct = equalPercent;
+                    if (i < remainder) pct++;
+                    persenUserConfig.push({
+                        name: 'User ' + (i + 1),
+                        percent: pct,
+                    });
+                }
+
+                copyPersenDataInfo.textContent = `📊 ${totalRows} baris tersedia untuk dibagi`;
+                copyPersenTotalRows.textContent = totalRows;
+                copyPersenTotalUsers.textContent = userCount;
+
+                renderUserConfig(totalRows);
+                updateTotalPersen();
+
+                copyPersenModal.classList.add('open');
+            }
+
+            function renderUserConfig(totalRows) {
+                const container = userConfigList;
+                const config = persenUserConfig;
+
+                if (config.length === 0) {
+                    container.innerHTML = '<div style="padding:0.5rem;text-align:center;color:#8aa0b8;">Belum ada user.</div>';
+                    return;
+                }
+
+                let html = '';
+                config.forEach((user, idx) => {
+                    const rowCount = Math.round((user.percent / 100) * totalRows);
+                    const displayRows = rowCount > 0 ? rowCount : 0;
+
+                    html += `
+                        <div class="user-config-item" data-index="${idx}">
+                            <span class="user-label">👤 User ${idx + 1}</span>
+                            <input type="text" class="user-name-input" value="${escapeHtml(user.name)}" placeholder="Nama user..." data-index="${idx}" />
+                            <input type="number" class="user-persen-input" value="${user.percent}" min="0" max="100" step="1" data-index="${idx}" />
+                            <span class="user-persen-label">%</span>
+                            <span class="user-row-count">${displayRows} baris</span>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+
+                // Event listeners
+                container.querySelectorAll('.user-name-input').forEach(inp => {
+                    inp.addEventListener('input', function() {
+                        const idx = parseInt(this.dataset.index);
+                        if (!isNaN(idx) && persenUserConfig[idx]) {
+                            persenUserConfig[idx].name = this.value.trim() || ('User ' + (idx + 1));
+                        }
+                    });
+                });
+
+                container.querySelectorAll('.user-persen-input').forEach(inp => {
+                    inp.addEventListener('input', function() {
+                        const idx = parseInt(this.dataset.index);
+                        if (!isNaN(idx) && persenUserConfig[idx]) {
+                            let val = parseFloat(this.value);
+                            if (isNaN(val) || val < 0) val = 0;
+                            if (val > 100) val = 100;
+                            persenUserConfig[idx].percent = Math.round(val);
+                            // Re-render to update row counts and total
+                            const totalRowsVal = parseInt(copyPersenTotalRows.textContent) || 0;
+                            renderUserConfig(totalRowsVal);
+                            updateTotalPersen();
+                            // Re-focus the input that was edited
+                            const newInput = container.querySelector(
+                                `.user-persen-input[data-index="${idx}"]`);
+                            if (newInput) {
+                                newInput.focus();
+                                newInput.setSelectionRange(newInput.value.length, newInput.value.length);
+                            }
+                        }
+                    });
+
+                    inp.addEventListener('blur', function() {
+                        const idx = parseInt(this.dataset.index);
+                        if (!isNaN(idx) && persenUserConfig[idx]) {
+                            let val = parseFloat(this.value);
+                            if (isNaN(val) || val < 0) val = 0;
+                            if (val > 100) val = 100;
+                            persenUserConfig[idx].percent = Math.round(val);
+                            const totalRowsVal = parseInt(copyPersenTotalRows.textContent) || 0;
+                            renderUserConfig(totalRowsVal);
+                            updateTotalPersen();
+                        }
+                    });
+                });
+
+                // Update row counts dynamically when total changes
+                const totalRowsVal = parseInt(copyPersenTotalRows.textContent) || 0;
+                const items = container.querySelectorAll('.user-config-item');
+                items.forEach((item, idx) => {
+                    if (idx < persenUserConfig.length) {
+                        const rowCount = Math.round((persenUserConfig[idx].percent / 100) * totalRowsVal);
+                        const displayRows = rowCount > 0 ? rowCount : 0;
+                        const countSpan = item.querySelector('.user-row-count');
+                        if (countSpan) countSpan.textContent = displayRows + ' baris';
+                    }
+                });
+            }
+
+            function updateTotalPersen() {
+                const total = persenUserConfig.reduce((sum, u) => sum + u.percent, 0);
+                const display = document.getElementById('totalPersenDisplay');
+                if (total === 100) {
+                    display.textContent = '✅ Total: 100%';
+                    display.className = 'total-persen valid';
+                    copyPersenConfirmBtn.disabled = false;
+                } else {
+                    display.textContent = `⚠️ Total: ${total}% (harus 100%)`;
+                    display.className = 'total-persen invalid';
+                    copyPersenConfirmBtn.disabled = true;
+                }
+            }
+
+            function closeCopyPersenModal() {
+                copyPersenModal.classList.remove('open');
+            }
+
+            function confirmCopyPersen() {
+                const total = persenUserConfig.reduce((sum, u) => sum + u.percent, 0);
+                if (total !== 100) {
+                    showToast('⚠️', 'Total persentase harus 100%');
+                    return;
+                }
+
+                // Validate names
+                const emptyName = persenUserConfig.some(u => !u.name || u.name.trim() === '');
+                if (emptyName) {
+                    showToast('⚠️', 'Semua user harus memiliki nama.');
+                    return;
+                }
+
+                const withLabel = document.querySelector('input[name="copyPersenOption"]:checked')?.value === 'withLabel';
+
+                closeCopyPersenModal();
+                performCopyPersen(withLabel);
+            }
+
+            function performCopyPersen(includePejabatLabel) {
+                const sheetName = state.currentSheet;
+                if (!sheetName || !state.sheets[sheetName]) {
+                    showToast('⚠️', 'Tidak ada sheet yang aktif.');
+                    return;
+                }
+                const data = getSheetData(sheetName);
+                if (!data || !data.rows || data.rows.length === 0) {
+                    showToast('⚠️', 'Sheet kosong.');
+                    return;
+                }
+                let rows = data._filteredRows || data.rows;
+                const headers = data.headers || [];
+                const meta = data._meta || {};
+                const indices = data._indices || {};
+                const pejabatSet = state.pejabatList;
+
+                if (!rows || rows.length === 0) {
+                    showToast('⚠️', 'Tidak ada data yang cocok dengan filter.');
+                    return;
+                }
+
+                // Shuffle rows for fair distribution
+                const shuffled = [...rows];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+
+                // Find indices
+                let namaIdx = indices.namaIdx ?? -1;
+                let srbSynIdx = indices.srbSynIdx ?? -1;
+                let masaAktifIdx = indices.masaAktifIdx ?? -1;
+                let noTelpIdx = indices.noTelpIdx ?? -1;
+                let noLayananIdx = indices.noLayananIdx ?? -1;
+                let kodePosIdx = indices.kodePosIdx ?? -1;
+
+                const findHeaderIndex = (keywords) => {
+                    for (let i = 0; i < headers.length; i++) {
+                        const h = headers[i].toString().trim().toLowerCase();
+                        if (keywords.some(k => h === k || h.includes(k))) return i;
+                    }
+                    return -1;
+                };
+
+                if (namaIdx === -1) namaIdx = findHeaderIndex(['nama', 'name']);
+                if (srbSynIdx === -1) srbSynIdx = findHeaderIndex(['srb/syn', 'srb_syn', 'tipe', 'brand']);
+                if (masaAktifIdx === -1) masaAktifIdx = findHeaderIndex(['masa aktif', 'masa_aktif', 'sisa hari']);
+
+                if (noTelpIdx === -1) {
+                    const telpKeywords = [
+                        'no telp', 'notelp', 'no_telp', 'no.telp',
+                        'telepon', 'telp', 'hp', 'phone',
+                        'wa', 'whatsapp', 'mobile', 'handphone',
+                        'kontak', 'nomor', 'no hp', 'nohp', 'no-hp', 'no_hp',
+                        'no telephone', 'no. hp', 'no.hp'
+                    ];
+                    for (let i = 0; i < headers.length; i++) {
+                        const h = headers[i].toString().trim().toLowerCase();
+                        if (telpKeywords.some(k => h.includes(k))) {
+                            noTelpIdx = i;
+                            break;
+                        }
+                    }
+                }
+                if (noLayananIdx === -1) {
+                    const layananKeywords = ['no layanan', 'nolayanan', 'id pelanggan', 'idpel', 'customer id',
+                        'id', 'kode pelanggan', 'no id'
+                    ];
+                    for (let i = 0; i < headers.length; i++) {
+                        const h = headers[i].toString().trim().toLowerCase();
+                        if (layananKeywords.some(k => h.includes(k))) {
+                            noLayananIdx = i;
+                            break;
+                        }
+                    }
+                }
+                if (kodePosIdx === -1) {
+                    const kodeKeywords = ['kode pos', 'kodepos', 'pos', 'zip'];
+                    for (let i = 0; i < headers.length; i++) {
+                        const h = headers[i].toString().trim().toLowerCase();
+                        if (kodeKeywords.some(k => h.includes(k))) {
+                            kodePosIdx = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (noTelpIdx === -1 && noLayananIdx !== -1) {
+                    noTelpIdx = noLayananIdx;
+                }
+                if (noLayananIdx === -1 && noTelpIdx !== -1) {
+                    noLayananIdx = noTelpIdx;
+                }
+                if (kodePosIdx === -1) {
+                    kodePosIdx = noLayananIdx;
+                }
+
+                if (srbSynIdx === -1) {
+                    showToast('⚠️', 'Kolom "SRB/SYN" tidak ditemukan.');
+                    return;
+                }
+                if (masaAktifIdx === -1) {
+                    showToast('⚠️', 'Kolom "Masa Aktif" tidak ditemukan.');
+                    return;
+                }
+                if (namaIdx === -1) {
+                    showToast('⚠️', 'Kolom "Nama" tidak ditemukan.');
+                    return;
+                }
+
+                // Get version from select
+                const version = parseInt(copyVersionSelect.value, 10);
+
+                function getVal(row, idx) {
+                    if (idx === undefined || idx === null || idx < 0 || idx >= row.length) return '';
+                    const v = row[idx];
+                    return (v !== undefined && v !== null) ? String(v).trim() : '';
+                }
+
+                function brandFullName(brand) {
+                    const b = brand.trim().toUpperCase();
+                    if (b === 'SRB') return 'Seratusribuan.net';
+                    if (b === 'SYN') return 'Sinyalku.net';
+                    return brand;
+                }
+
+                function formatItem(noTelp, brand, idPelanggan, hari, isPejabat) {
+                    const telpPart = noTelp ? noTelp : '';
+                    const idPart = idPelanggan ? idPelanggan : '';
+                    let labelPart = '';
+                    if (includePejabatLabel && isPejabat) {
+                        labelPart = ' [PEJABAT]';
+                    }
+                    if (!telpPart) {
+                        return `${brand} ${idPart} hari: ${hari}${labelPart}`;
+                    }
+                    return `${telpPart} ${brand} ${idPart} hari: ${hari}${labelPart}`;
+                }
+
+                // Build user groups by brand
+                const userGroups = {};
+                persenUserConfig.forEach((u, idx) => {
+                    userGroups[idx] = {
+                        name: u.name.trim() || ('User ' + (idx + 1)),
+                        percent: u.percent,
+                        rows: [],
+                        brandGroups: {},
+                    };
+                });
+
+                // Distribute rows based on percentage
+                let totalAssigned = 0;
+                const totalRows = shuffled.length;
+
+                // Calculate exact counts per user
+                const counts = persenUserConfig.map(u => {
+                    const count = Math.round((u.percent / 100) * totalRows);
+                    return count;
+                });
+
+                // Adjust to match total
+                let sumCounts = counts.reduce((a, b) => a + b, 0);
+                let diff = totalRows - sumCounts;
+                if (diff > 0) {
+                    for (let i = 0; i < diff && i < counts.length; i++) {
+                        counts[i]++;
+                    }
+                } else if (diff < 0) {
+                    for (let i = 0; i < Math.abs(diff) && i < counts.length; i++) {
+                        if (counts[i] > 0) counts[i]--;
+                    }
+                }
+
+                // Assign rows
+                let startIdx = 0;
+                for (let i = 0; i < persenUserConfig.length; i++) {
+                    const count = counts[i] || 0;
+                    const endIdx = Math.min(startIdx + count, shuffled.length);
+                    const userRows = shuffled.slice(startIdx, endIdx);
+
+                    // Group by brand
+                    const brandGroups = {};
+                    userRows.forEach(row => {
+                        const brand = getVal(row, srbSynIdx).trim() || '(kosong)';
+                        if (!brandGroups[brand]) brandGroups[brand] = [];
+                        brandGroups[brand].push(row);
+                    });
+
+                    userGroups[i].rows = userRows;
+                    userGroups[i].brandGroups = brandGroups;
+                    startIdx = endIdx;
+                }
+
+                // Generate output
+                const lines = [];
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+                lines.push('=== PEMBAGIAN DATA ISOLIR ===');
+                lines.push(`📅 ${dateStr}`);
+                lines.push(`📊 Total data: ${totalRows} baris`);
+                lines.push('');
+
+                const separatorLine = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+
+                // Sort brands for consistency
+                const brandOrder = ['SYN', 'SRB'];
+
+                // Output per user
+                for (let i = 0; i < persenUserConfig.length; i++) {
+                    const user = userGroups[i];
+                    if (!user || user.rows.length === 0) {
+                        lines.push(separatorLine);
+                        lines.push(`👤 ${user.name} (${user.percent}%) — 0 baris`);
+                        lines.push(separatorLine);
+                        lines.push('(Tidak ada data)');
+                        lines.push('');
+                        continue;
+                    }
+
+                    lines.push(separatorLine);
+                    lines.push(`👤 ${user.name} (${user.percent}%) — ${user.rows.length} baris`);
+                    lines.push(separatorLine);
+                    lines.push('');
+
+                    const brandGroups = user.brandGroups || {};
+                    const sortedBrandKeys = Object.keys(brandGroups).sort((a, b) => {
+                        const ia = brandOrder.indexOf(a);
+                        const ib = brandOrder.indexOf(b);
+                        if (ia !== -1 && ib !== -1) return ia - ib;
+                        if (ia !== -1) return -1;
+                        if (ib !== -1) return 1;
+                        return a.localeCompare(b);
+                    });
+
+                    let itemCounter = 0;
+
+                    // For version 1, we need to group by KODE POS
+                    if (version === 1) {
+                        for (const brandKey of sortedBrandKeys) {
+                            const items = brandGroups[brandKey];
+                            if (!items || items.length === 0) continue;
+
+                            const fullBrand = brandFullName(brandKey);
+                            lines.push(`${brandKey} - ${fullBrand}`);
+                            lines.push('');
+
+                            const kodeGroups = {};
+                            items.forEach(row => {
+                                const kode = getVal(row, kodePosIdx).trim() || '(tanpa kode)';
+                                if (!kodeGroups[kode]) kodeGroups[kode] = [];
+                                kodeGroups[kode].push(row);
+                            });
+
+                            const sortedKode = Object.keys(kodeGroups).sort((a, b) => {
+                                const na = parseFloat(a);
+                                const nb = parseFloat(b);
+                                if (!isNaN(na) && !isNaN(nb)) return na - nb;
+                                return a.localeCompare(b);
+                            });
+
+                            for (const kode of sortedKode) {
+                                const kodeItems = kodeGroups[kode];
+                                lines.push(`*KODE POS: ${kode}*`);
+                                kodeItems.forEach(row => {
+                                    itemCounter++;
+                                    const noTelp = getVal(row, noTelpIdx);
+                                    const brand = brandKey;
+                                    const idPelanggan = getVal(row, noLayananIdx);
+                                    const hari = getVal(row, masaAktifIdx);
+
+                                    let isPejabat = false;
+                                    if (noLayananIdx >= 0 && noLayananIdx < row.length) {
+                                        const noLayananVal = getVal(row, noLayananIdx);
+                                        if (noLayananVal && pejabatSet.has(noLayananVal)) {
+                                            isPejabat = true;
+                                        }
+                                    }
+
+                                    lines.push(
+                                        `${itemCounter}. = ${formatItem(noTelp, brand, idPelanggan, hari, isPejabat)}`
+                                        );
+                                });
+                                if (sortedKode.indexOf(kode) < sortedKode.length - 1) {
+                                    lines.push('');
+                                }
+                            }
+                            if (sortedBrandKeys.indexOf(brandKey) < sortedBrandKeys.length - 1) {
+                                lines.push('');
+                                lines.push('----------------------------------------');
+                                lines.push('');
+                            }
+                        }
+                    } else {
+                        // Version 2: simpler format
+                        for (const brandKey of sortedBrandKeys) {
+                            const items = brandGroups[brandKey];
+                            if (!items || items.length === 0) continue;
+
+                            const fullBrand = brandFullName(brandKey);
+                            lines.push(`${brandKey} - ${fullBrand}`);
+
+                            items.forEach(row => {
+                                itemCounter++;
+                                const noTelp = getVal(row, noTelpIdx);
+                                const brand = brandKey;
+                                const idPelanggan = getVal(row, noLayananIdx);
+                                const hari = getVal(row, masaAktifIdx);
+
+                                let isPejabat = false;
+                                if (noLayananIdx >= 0 && noLayananIdx < row.length) {
+                                    const noLayananVal = getVal(row, noLayananIdx);
+                                    if (noLayananVal && pejabatSet.has(noLayananVal)) {
+                                        isPejabat = true;
+                                    }
+                                }
+
+                                lines.push(
+                                    `${itemCounter}. = ${formatItem(noTelp, brand, idPelanggan, hari, isPejabat)}`);
+                            });
+
+                            if (sortedBrandKeys.indexOf(brandKey) < sortedBrandKeys.length - 1) {
+                                lines.push('');
+                            }
+                        }
+                    }
+
+                    // Ensure lines after each user
+                    if (i < persenUserConfig.length - 1) {
+                        lines.push('');
+                    }
+                }
+
+                // Final separator
+                lines.push('');
+                lines.push(separatorLine);
+                lines.push(`✅ Total: ${totalRows} baris dibagi ke ${persenUserConfig.length} user`);
+
+                // Clean up trailing empty lines
+                while (lines.length > 0 && lines[lines.length - 1] === '') {
+                    lines.pop();
+                }
+
+                const text = lines.join('\n');
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text)
+                        .then(() => {
+                            const labelMsg = includePejabatLabel ? ' (dengan label Pejabat)' : ' (tanpa label Pejabat)';
+                            showToast('✅',
+                                `Pembagian data berhasil disalin ${labelMsg}! ${totalRows} baris dibagi ke ${persenUserConfig.length} user.`
+                                );
+                        })
+                        .catch(() => {
+                            fallbackCopyPersen(text);
+                        });
+                } else {
+                    fallbackCopyPersen(text);
+                }
+            }
+
+            function fallbackCopyPersen(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                textarea.style.top = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('✅', 'Pembagian data berhasil disalin ke clipboard!');
+                } catch (e) {
+                    showToast('❌', 'Gagal menyalin. Silakan salin manual.');
+                    console.error(e);
+                }
+                document.body.removeChild(textarea);
+            }
+
+            // ============================================================
             //  EVENT LISTENERS
             // ============================================================
             fileInput.addEventListener('change', function(e) {
@@ -6645,6 +7448,67 @@
             pejabatBulkAddBtn.addEventListener('click', bulkAddPejabat);
             pejabatBulkClearBtn.addEventListener('click', bulkClearPejabat);
 
+            // ---- COPY PERSEN ----
+            copyPersenBtn.addEventListener('click', openCopyPersenModal);
+
+            copyPersenCancelBtn.addEventListener('click', closeCopyPersenModal);
+
+            copyPersenModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCopyPersenModal();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (!copyPersenModal.classList.contains('open')) return;
+                if (e.key === 'Enter' && document.activeElement !== userCountSelect) {
+                    // Don't auto-confirm on enter for inputs
+                    const active = document.activeElement;
+                    if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT')) {
+                        if (active.classList.contains('user-persen-input') || active.classList.contains(
+                                'user-name-input')) {
+                            return;
+                        }
+                    }
+                    e.preventDefault();
+                    if (!copyPersenConfirmBtn.disabled) confirmCopyPersen();
+                }
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeCopyPersenModal();
+                }
+            });
+
+            userCountSelect.addEventListener('change', function() {
+                const count = parseInt(this.value, 10) || 2;
+                const sheetName = state.currentSheet;
+                if (!sheetName || !state.sheets[sheetName]) return;
+                const data = getSheetData(sheetName);
+                if (!data || !data.rows) return;
+                let rows = data._filteredRows || data.rows;
+                if (!rows || rows.length === 0) return;
+
+                // Reset config
+                persenUserConfig = [];
+                const equalPercent = Math.floor(100 / count);
+                let remainder = 100 - (equalPercent * count);
+
+                for (let i = 0; i < count; i++) {
+                    let pct = equalPercent;
+                    if (i < remainder) pct++;
+                    persenUserConfig.push({
+                        name: 'User ' + (i + 1),
+                        percent: pct,
+                    });
+                }
+
+                copyPersenTotalUsers.textContent = count;
+                renderUserConfig(rows.length);
+                updateTotalPersen();
+            });
+
+            copyPersenConfirmBtn.addEventListener('click', confirmCopyPersen);
+
             // ============================================================
             //  INIT
             // ============================================================
@@ -6670,6 +7534,7 @@
             console.log('📤 Upload filter: NUNGGAK / FULL (pilihan saat pilih header)');
             console.log('🗑️ Kelola Sheet: tambahan tombol Hapus Semua Sheet');
             console.log('📜 Daftar Pejabat: scrollable list');
+            console.log('📊 Copy Persen: bagi data ke user dengan persentase, shuffle, copy dengan/tanpa label');
 
         })();
     </script>
