@@ -2932,6 +2932,12 @@
         const apiKeyRef = ref(db, 'deepseek_api_key');
         const globalLocationRef = ref(db, 'global_main_location');
 
+        // ===== SECOND FIREBASE APP FOR REKAP TIKET (history_recaps & monitoring_json_backup) =====
+        const rekapApp = initializeApp(historyFirebaseConfig, 'rekapApp');
+        const rekapDb = getDatabase(rekapApp);
+        const rekapHistoryRef = ref(rekapDb, 'history_recaps');
+        const rekapJsonMonitoringRef = ref(rekapDb, 'monitoring_json_backup');
+
         const historyApp = initializeApp(historyFirebaseConfig, 'historyApp');
         const historyDb = getDatabase(historyApp);
         const historyRef = ref(historyDb, 'history_recaps');
@@ -5783,7 +5789,6 @@
             const job = teams[teamIdx].jobs[jobIdx];
             if (!job) return;
 
-            // Determine current category using tagClass
             let currentCategory = 'KUNJUNGAN';
             if (job.tagClass === 'badge-psb') currentCategory = 'PSB';
             else if (job.tagClass === 'badge-isolir') currentCategory = 'ISOLIR';
@@ -5793,31 +5798,22 @@
                 return;
             }
 
-            // ---- CASE 1: Kunjungan ↔ Isolir (just change badge, KEEP text unchanged) ----
             if ((currentCategory === 'KUNJUNGAN' || currentCategory === 'ISOLIR') &&
                 (newCategory === 'KUNJUNGAN' || newCategory === 'ISOLIR')) {
-                // IMPORTANT: DO NOT change job.tag, DO NOT change job.details['Kunjungan']
-                // Only change the badge/color
                 if (newCategory === 'ISOLIR') {
                     job.tagClass = 'badge-isolir';
-                    // If tag doesn't contain ISOLIR, we leave it as-is per user request
-                    // The user wants the text to stay exactly the same
                 } else {
                     job.tagClass = 'badge-mt';
-                    // If tag contains ISOLIR, we leave it as-is per user request
                 }
-                // The Kunjungan field in details should NOT be modified
                 saveDataToFirebase();
                 renderJobs();
                 showSyncNotification(`✅ Kategori diubah dari ${currentCategory} menjadi ${newCategory} (teks Kunjungan & Jadwal tetap)`, 'success');
                 return;
             }
 
-            // ---- CASE 2: PSB ↔ non-PSB (use backups + AI) ----
             const isTargetPSB = (newCategory === 'PSB');
             const isCurrentPSB = (currentCategory === 'PSB');
 
-            // Step 1: Save current data to the appropriate backup
             if (isCurrentPSB) {
                 job._psbBackup = {
                     details: job.details ? { ...job.details } : {},
@@ -5838,7 +5834,6 @@
                 };
             }
 
-            // Step 2: Check if we have backup for the target category
             if (isTargetPSB && job._psbBackup) {
                 const backup = job._psbBackup;
                 job.details = backup.details ? { ...backup.details } : {};
@@ -5867,7 +5862,6 @@
                 return;
             }
 
-            // Step 3: No backup - use AI to generate data
             const nid = showSyncNotification(`🔄 Mengubah kategori ke ${newCategory} (generating with AI)...`, 'saving', false);
 
             try {
@@ -6063,7 +6057,6 @@
 
                 job.name = newData.nama || job.name || '-';
                 if (isTargetPSB) {
-                    // Clean up address using the helper
                     const rawAlamat = newData.alamat || job.address || '-';
                     job.address = formatPSBAddress(rawAlamat, '', '', '', newData.statusRumah || '');
                 } else {
@@ -6647,8 +6640,8 @@
             document.getElementById('modalGudangProgress').style.display = 'none';
         };
 
-        // ===== RESET TIKET =====
-        window.resetDatabaseWithBackup = function() {
+        // ===== RESET TIKET with AUTO SEND TO REKAP TIKET (JSON Monitoring) =====
+        window.resetDatabaseWithBackup = async function() {
             let pin = prompt("🔐 Masukkan PIN Admin untuk Reset Tiket + Download Backup:");
             if (!checkPin(pin)) {
                 if (pin) alert("❌ PIN SALAH! Reset dibatalkan.");
@@ -6659,23 +6652,27 @@
                     "⚠️ PERINGATAN: Anda akan melakukan reset tiket!\n\n" +
                     "Langkah:\n" +
                     "1. 📥 Download backup JSON data saat ini\n" +
-                    "2. 🗑️ Hapus SEMUA tiket, tim, dan stok modem teknisi\n" +
-                    "3. Data Non IKR TIDAK akan terhapus\n\n" +
+                    "2. 📤 Kirim JSON ke Rekap Tiket (fitur JSON Monitoring)\n" +
+                    "3. 🗑️ Hapus SEMUA tiket, tim, dan stok modem teknisi\n" +
+                    "4. Data Non IKR TIDAK akan terhapus\n\n" +
                     "Yakin ingin melanjutkan?"
                 )) {
                 return;
             }
 
-            const nid = showSyncNotification('📥 Mengunduh backup dan mereset...', 'saving', false);
+            const nid = showSyncNotification('📥 Mengunduh backup dan mengirim ke Rekap Tiket...', 'saving', false);
 
             try {
+                // 1. Prepare backup data
                 const backupData = {
-                    teams: teams,
+                    teams: JSON.parse(JSON.stringify(teams)),
                     nonIkrRetrievals: nonIkrRetrievals,
                     globalMainLocation: globalMainLocation,
                     timestamp: new Date().toISOString(),
                     note: 'Backup sebelum reset tiket'
                 };
+
+                // 2. Download backup locally
                 const jsonStr = JSON.stringify(backupData, null, 2);
                 const blob = new Blob([jsonStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
@@ -6686,28 +6683,46 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
+                showSyncNotification('📥 Backup berhasil diunduh!', 'success');
 
-                showSyncNotification('📥 Backup berhasil diunduh! Melanjutkan reset...', 'warning');
+                // 3. SEND JSON TO REKAP TIKET (monitoring_json_backup)
+                try {
+                    // Count total jobs
+                    let itemCount = 0;
+                    for (const team of backupData.teams) {
+                        if (team.jobs) itemCount += team.jobs.length;
+                    }
 
-                setTimeout(() => {
-                    teams = [];
-                    try { localStorage.removeItem('teams_backup'); } catch (e) {}
-
-                    saveDataToFirebaseDirect().then(() => {
-                        showSyncNotification('✅ Reset tiket berhasil! Data telah dikosongkan.', 'success');
-                        closeSyncNotification(nid);
-                        renderJobs();
-                        renderLandingTeams();
-                        populateAdminTeamFilter();
-                    }).catch((err) => {
-                        showSyncNotification('❌ Gagal reset data di Firebase! Periksa koneksi.', 'error');
-                        closeSyncNotification(nid);
-                        console.error('Reset error:', err);
+                    const timestamp = Date.now();
+                    await set(ref(rekapDb, `monitoring_json_backup/${timestamp}`), {
+                        jsonData: jsonStr,
+                        uploadedAt: new Date().toISOString(),
+                        source: 'monitoring_web_auto_reset',
+                        itemCount: itemCount,
+                        teamsCount: backupData.teams.length,
+                        monitoringDate: customMonitoringDate || new Date().toISOString().split('T')[0]
                     });
-                }, 1500);
+
+                    showSyncNotification(`✅ JSON berhasil dikirim ke Rekap Tiket! (${itemCount} tiket)`, 'success');
+                } catch (sendErr) {
+                    console.error('Gagal kirim JSON ke Rekap Tiket:', sendErr);
+                    showSyncNotification('⚠️ Gagal mengirim JSON ke Rekap Tiket: ' + sendErr.message, 'warning');
+                }
+
+                // 4. Clear teams
+                teams = [];
+                try { localStorage.removeItem('teams_backup'); } catch (e) {}
+
+                // 5. Save to Firebase
+                await saveDataToFirebaseDirect();
+                showSyncNotification('✅ Reset tiket berhasil! Data telah dikosongkan.', 'success');
+                closeSyncNotification(nid);
+                renderJobs();
+                renderLandingTeams();
+                populateAdminTeamFilter();
 
             } catch (err) {
-                showSyncNotification('❌ Gagal melakukan reset: ' + err.message, 'error');
+                showSyncNotification('❌ Gagal reset data! Periksa koneksi.', 'error');
                 closeSyncNotification(nid);
                 console.error('Reset error:', err);
             }
@@ -7287,7 +7302,6 @@
             const patokan = getFieldValue(text, 'Patokan Lokasi');
             const statusHunian = getFieldValue(text, 'Status Hunian') || getFieldValue(text, 'Status Rumah');
 
-            // Use the helper to format address neatly
             const finalAlamat = formatPSBAddress(alamatLengkap, rtRw, nomorRumah, patokan, statusHunian);
 
             const email = getFieldValue(text, 'Email Aktif');
@@ -7544,7 +7558,6 @@
                             }
                         }
 
-                        // Clean up address using helper
                         const cleanedAddress = formatPSBAddress(alamat, '', '', '', statusRumah);
 
                         newJob = {
@@ -7876,7 +7889,6 @@
                         "Tgl Pasang": newData.tgl || '-'
                     };
                     job.name = newData.nama || job.name || '-';
-                    // Clean up address using helper
                     const rawAlamat = newData.alamat || job.address || '-';
                     job.address = formatPSBAddress(rawAlamat, '', '', '', newData.statusRumah || '');
                     job.time = newData.jam || job.time || 'FLEXIBEL';
