@@ -3138,10 +3138,13 @@
             if (isolirListenersReady) return;
             isolirListenersReady = true;
 
+            // --- FIX: Hapus kondisi 'if (state.currentSheet)' agar renderJobs() selalu dipanggil ---
+            // Sehingga perubahan status isolir dari web list isolir langsung update di tiket teknisi.
             onValue(isolirPejabatRef, (snap) => {
                 const data = snap.val();
                 isolirPejabatList = new Set((data || []).map(v => cleanNoLayanan(v)));
-                if (state.currentSheet) renderJobs();
+                // Langsung panggil renderJobs() tanpa menunggu state.currentSheet
+                renderJobs();
                 updateIsolirConnectionStatus(true);
             }, (err) => {
                 console.warn('Isolir Pejabat listener error:', err);
@@ -3151,7 +3154,7 @@
             onValue(isolirDoneRef, (snap) => {
                 const data = snap.val();
                 isolirDoneList = new Set((data || []).map(v => cleanNoLayanan(v)));
-                if (state.currentSheet) renderJobs();
+                renderJobs();
                 updateIsolirConnectionStatus(true);
             }, (err) => {
                 console.warn('Isolir Done listener error:', err);
@@ -3161,7 +3164,7 @@
             onValue(isolirRemindRef, (snap) => {
                 const data = snap.val();
                 isolirRemindList = new Set((data || []).map(v => cleanNoLayanan(v)));
-                if (state.currentSheet) renderJobs();
+                renderJobs();
                 updateIsolirConnectionStatus(true);
             }, (err) => {
                 console.warn('Isolir Remind listener error:', err);
@@ -3171,7 +3174,7 @@
             onValue(isolirKunjunganRef, (snap) => {
                 const data = snap.val();
                 isolirKunjunganList = new Set((data || []).map(v => cleanNoLayanan(v)));
-                if (state.currentSheet) renderJobs();
+                renderJobs();
                 updateIsolirConnectionStatus(true);
             }, (err) => {
                 console.warn('Isolir Kunjungan listener error:', err);
@@ -3600,6 +3603,8 @@
                 if (m === '&') return '&amp;';
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                if (m === "'") return '&#039;';
                 return m;
             }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) { return c; });
         }
