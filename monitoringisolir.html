@@ -3014,7 +3014,7 @@
         <div class="modal-content">
             <span class="close-modal" onclick="closeGantiDataModal()">&times;</span>
             <h2 style="margin-top:0; color:#8b5cf6;">🔄 Ganti Data Tiket (AI)</h2>
-            <p style="font-size:0.85rem; color:#666;">Paste data baru untuk mengganti semua field tiket ini (kecuali <strong>Kunjungan</strong> dan <strong>Jadwal</strong> untuk MT/ISOLIR; untuk PSB semua field akan diganti).</p>
+            <p style="font-size:0.85rem; color:#666;">Paste data baru untuk mengganti semua field tiket ini (kecuali <strong>Jadwal</strong>; untuk MT/ISOLIR juga <strong>Kunjungan</strong> akan dipertahankan).</p>
             <div class="form-group">
                 <label>📝 Tempel data baru:</label>
                 <textarea id="gantiDataInput" rows="10" placeholder="Paste format tiket baru disini..."></textarea>
@@ -3031,10 +3031,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, update, onValue, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // ================================================================
-        //  FIREBASE CONFIG — SEMUA MENGGUNAKAN SATU PROJECT
-        //  (diganti sesuai permintaan user)
-        // ================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyAf4izysS2XeKis9OnuGI-fKZwOPVcQdB4",
             authDomain: "monitoringisolir.firebaseapp.com",
@@ -3046,7 +3042,6 @@
             measurementId: "G-RMWH3VFZPP"
         };
 
-        // Semua app menggunakan config yang sama, hanya berbeda nama agar tidak konflik
         const mainApp = initializeApp(firebaseConfig, 'mainApp');
         const db = getDatabase(mainApp);
         const dbRef = ref(db, 'monitoring_teams_master');
@@ -3067,7 +3062,6 @@
         const gudangDb = getDatabase(gudangApp);
         const gudangModemsRef = ref(gudangDb, 'modems');
 
-        // ISOLIR LIST APP — tetap pakai config yang sama
         const isolirApp = initializeApp(firebaseConfig, 'isolirApp');
         const isolirDb = getDatabase(isolirApp);
         const isolirPejabatRef = ref(isolirDb, 'pejabatList');
@@ -3075,21 +3069,18 @@
         const isolirRemindRef = ref(isolirDb, 'remindList');
         const isolirKunjunganRef = ref(isolirDb, 'kunjunganList');
 
-        // ===== STATE ISOLIR LISTS =====
         let isolirPejabatList = new Set();
         let isolirDoneList = new Set();
         let isolirRemindList = new Set();
         let isolirKunjunganList = new Set();
         let isolirConnected = false;
 
-        // ===== CLEAN No Layanan (strip || suffix) =====
         function cleanNoLayanan(value) {
             if (!value || typeof value !== 'string') return value;
             const idx = value.indexOf('||');
             return idx !== -1 ? value.substring(0, idx).trim() : value.trim();
         }
 
-        // ===== ISOLIR CONNECTION STATUS UI =====
         const isolirStatusEl = document.getElementById('isolir-connection-status');
 
         function updateIsolirConnectionStatus(connected) {
@@ -3103,7 +3094,6 @@
             }
         }
 
-        // ===== LISTENERS ISOLIR (dengan cleaning) =====
         let isolirListenersReady = false;
 
         function setupIsolirListeners() {
@@ -3160,7 +3150,6 @@
             });
         }
 
-        // ===== SAVE ISOLIR LISTS TO FIREBASE =====
         function saveIsolirListToFirebase(path, list) {
             if (!isolirConnected) {
                 showSyncNotification('⚠️ List Isolir offline — perubahan disimpan lokal', 'warning');
@@ -3181,7 +3170,6 @@
             });
         }
 
-        // ===== TOGGLE ISOLIR STATUS =====
         window.toggleIsolirStatus = function(teamIdx, jobIdx, statusType, event) {
             if (event) event.stopPropagation();
 
@@ -3254,7 +3242,6 @@
             renderJobs();
         };
 
-        // ===== GET ISOLIR STATUS FOR A JOB =====
         function getIsolirStatusForJob(job) {
             if (!job || job.tagClass !== 'badge-isolir') return null;
             let noLayanan = job.details?.['Layanan'] || job.details?.['No Layanan'] || '';
@@ -3285,9 +3272,6 @@
             };
         }
 
-        // ================================================================
-        //  FIREBASE CONNECTION STATUS
-        // ================================================================
         let isOnline = navigator.onLine;
         let isFirebaseConnected = false;
         let pendingSyncOperations = [];
@@ -3319,10 +3303,6 @@
         let gantiDataTarget = null;
         let tikorOperCategoryFilter = 'all';
 
-        // ================================================================
-        //  HELPER FUNCTIONS
-        // ================================================================
-
         function formatPSBAddress(alamat, rtRw, nomorRumah, patokan, statusHunian) {
             let addressParts = [];
             if (alamat && alamat !== '-' && alamat.trim() !== '') addressParts.push(alamat.trim());
@@ -3341,7 +3321,6 @@
             return result;
         }
 
-        // Bearing & compass
         function calculateBearing(lat1, lon1, lat2, lon2) {
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
@@ -3418,7 +3397,6 @@
             return null;
         }
 
-        // HISTORY
         async function loadHistoryData() {
             if (historyDataLoaded) return;
             try {
@@ -3570,9 +3548,6 @@
             }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) { return c; });
         }
 
-        // ================================================================
-        //  API KEY FUNCTIONS
-        // ================================================================
         window.saveApiKey = async function() {
             const input = document.getElementById('deepseekApiKeyInput');
             const key = input.value.trim();
@@ -3742,9 +3717,6 @@
             }
         }
 
-        // ================================================================
-        //  NOTIFICATION
-        // ================================================================
         function showSyncNotification(message, type = 'saving', autoClose = true, duration = 3000) {
             const container = document.getElementById('sync-notification-container');
             if (syncNotificationTimeout) clearTimeout(syncNotificationTimeout);
@@ -3863,9 +3835,6 @@
             return teams.filter(t => t.isActive !== false);
         }
 
-        // ================================================================
-        //  GLOBAL FUNCTIONS
-        // ================================================================
         window.toggleTeamActive = function(teamIndex, checked) {
             if (appMode !== 'admin') {
                 showSyncNotification('⚠️ Hanya admin yang dapat mengaktifkan/nonaktifkan tim', 'warning');
@@ -3923,9 +3892,6 @@
             renderJobs();
         };
 
-        // ================================================================
-        //  LANDING TEAMS
-        // ================================================================
         function renderLandingTeams() {
             if (appMode !== 'landing') return;
             const container = document.getElementById('landing-tech-grid');
@@ -3963,9 +3929,6 @@
             select.value = adminTeamFilter;
         }
 
-        // ================================================================
-        //  CHECK PIN
-        // ================================================================
         const ENC_PIN = [101, 98, 109, 108];
 
         function checkPin(input) {
@@ -3980,9 +3943,6 @@
             return input === GUDANG_PIN;
         }
 
-        // ================================================================
-        //  GUDANG MODEM
-        // ================================================================
         function getModemCategory(sn) {
             if (!sn) return 'LAINNYA';
             const prefix = sn.substring(0, 4).toUpperCase();
@@ -4151,9 +4111,6 @@
             document.getElementById('modalGudangProgress').style.display = 'none';
         };
 
-        // ================================================================
-        //  UPLOAD BACKUP
-        // ================================================================
         window.uploadBackup = function(event) {
             const file = event.target.files[0];
             if (!file) {
@@ -4267,9 +4224,6 @@
             reader.readAsText(file);
         };
 
-        // ================================================================
-        //  BACKUP MODAL
-        // ================================================================
         window.openBackupModal = function() {
             document.getElementById('modalBackup').style.display = 'block';
             updateBackupDateDisplay();
@@ -4392,9 +4346,6 @@
             showSyncNotification('✅ Backup JSON berhasil diunduh!', 'success');
         };
 
-        // ================================================================
-        //  GLOBAL LOCATION
-        // ================================================================
         function updateGlobalLocationUI() {
             const input = document.getElementById('globalMainLocationInput');
             const preview = document.getElementById('globalLocationPreview');
@@ -4482,9 +4433,6 @@
             }
         };
 
-        // ================================================================
-        //  CATEGORY FILTER PER TEAM
-        // ================================================================
         function getTeamFilter(teamIndex) {
             const key = String(teamIndex);
             if (!teamFilters.has(key)) {
@@ -4516,9 +4464,6 @@
             showSyncNotification(`🔍 ${teamName}: filter ${filterNames[filter] || filter}`, 'success');
         };
 
-        // ================================================================
-        //  TIKOR/OPER CATEGORY FILTER
-        // ================================================================
         window.setTikorOperCategoryFilter = function(category, btn) {
             if (appMode !== 'admin') return;
             tikorOperCategoryFilter = category;
@@ -4532,9 +4477,6 @@
             showSyncNotification(`📂 Filter Tikor/Oper: ${labelMap[category] || 'Semua'}`, 'success');
         };
 
-        // ================================================================
-        //  TIKOR/OPER TOGGLE
-        // ================================================================
         window.toggleTikorOper = function(teamIndex, checked) {
             if (appMode !== 'admin') {
                 showSyncNotification('⚠️ Hanya admin yang dapat mengatur Tikor/Oper', 'warning');
@@ -4553,9 +4495,6 @@
                 'success');
         };
 
-        // ================================================================
-        //  OPER TIKET
-        // ================================================================
         window.openOperTicketModal = function(teamIdx, jobIdx) {
             if (appMode !== 'admin') {
                 showSyncNotification('⚠️ Oper tiket hanya untuk Admin', 'warning');
@@ -4606,9 +4545,6 @@
             showSyncNotification(`✅ Tiket berhasil dioper ke ${teams[targetIdx].teamName}`, 'success');
         };
 
-        // ================================================================
-        //  TIKOR INPUT
-        // ================================================================
         window.updateTikor = function(teamIdx, jobIdx, inputEl) {
             if (appMode !== 'admin') {
                 showSyncNotification('⚠️ Hanya admin yang dapat mengedit Tikor', 'warning');
@@ -4636,9 +4572,6 @@
             renderJobs();
         };
 
-        // ================================================================
-        //  INFO USER
-        // ================================================================
         window.toggleInfoUser = function(teamIdx, jobIdx) {
             const job = teams[teamIdx].jobs[jobIdx];
             if (!job) return;
@@ -4648,9 +4581,6 @@
             showSyncNotification(job.infoUserDone ? '✅ Info User ditandai DONE' : '↩️ Info User dibatalkan', 'success');
         };
 
-        // ================================================================
-        //  HISTORY
-        // ================================================================
         let currentHistoryNoLayanan = '';
 
         window.openHistoryModal = function(noLayanan, jobName) {
@@ -4724,9 +4654,6 @@
             currentHistoryNoLayanan = '';
         };
 
-        // ================================================================
-        //  SORTING
-        // ================================================================
         function getTeamNumber(team) {
             const m = (team.teamName || "").match(/Tim\s+(\d+)/i);
             return m ? parseInt(m[1]) : 99999;
@@ -4766,9 +4693,6 @@
             });
         }
 
-        // ================================================================
-        //  COPY SCHEDULE RECAP
-        // ================================================================
         window.copyScheduleRecap = function() {
             const dateStr = getMonitoringDate();
             let text = `📋 REKAP JADWAL TEKNISI\n📅 ${dateStr}\n\n`;
@@ -4812,9 +4736,6 @@
             copyToClipboard(text, null, "✅ Rekap Jadwal Teknisi tersalin!");
         };
 
-        // ================================================================
-        //  COPY SUMMARY
-        // ================================================================
         window.copyAllSummary = function() {
             const dateStr = getMonitoringDate();
             let summaryText = `📋 *MONITORING TEKNISI SINYALKU*\n📅 ${dateStr}\n\n`;
@@ -5010,9 +4931,6 @@
             copyToClipboard(text, null, "✅ Rekap PSB Berhasil disalin!");
         };
 
-        // ================================================================
-        //  COPY TO CLIPBOARD
-        // ================================================================
         async function copyToClipboard(text, btnElement, successMsg = "✅ Tersalin!") {
             let success = false;
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -5035,17 +4953,11 @@
             }
         }
 
-        // ================================================================
-        //  NUMBER EMOJI
-        // ================================================================
         function getNumberEmoji(n) {
             const emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
             return emojis[n] || `${n}.`;
         }
 
-        // ================================================================
-        //  MODAL CONTROLS
-        // ================================================================
         window.openCopyOption = function() { document.getElementById('modalCopyOption').style.display = 'block'; };
         window.closeCopyOption = function() { document.getElementById('modalCopyOption').style.display = 'none'; };
         window.openExcelOption = function() { document.getElementById('modalExcelOption').style.display = 'block'; };
@@ -5058,9 +4970,6 @@
             document.getElementById('modalNonIkrList').style.display = 'block'; };
         window.closeNonIkrListModal = function() { document.getElementById('modalNonIkrList').style.display = 'none'; };
 
-        // ================================================================
-        //  EXCEL DOWNLOAD
-        // ================================================================
         function formatDateIndo(dateStr) {
             if (!dateStr || dateStr === '-' || dateStr === "") return "-";
             const rawDate = dateStr.split(',')[0].trim();
@@ -5175,9 +5084,6 @@
             closeExcelOption();
         };
 
-        // ================================================================
-        //  MODEM RECAP
-        // ================================================================
         window.copyModemRecap = function(filter) {
             const dateStr = getMonitoringDate();
             let header = `📋 *REKAP MODEM TEKNISI*\n📅 ${dateStr}\n`;
@@ -5224,9 +5130,6 @@
             copyToClipboard(allText, null, "✅ Rekap Modem tersalin!");
         };
 
-        // ================================================================
-        //  NON IKR
-        // ================================================================
         function renderNonIkrList() {
             const tbody = document.getElementById('nonIkrTableBody');
             const emptyMsg = document.getElementById('nonIkrEmptyMsg');
@@ -5285,9 +5188,6 @@
             renderNonIkrList();
         };
 
-        // ================================================================
-        //  COPY DATA
-        // ================================================================
         function formatMacForCopy(input) {
             if (!input || input === '-' || input.trim() === "") return '-';
             let clean = input.replace(/[^a-fA-F0-9]/g, "").toUpperCase();
@@ -5383,9 +5283,6 @@
             copyToClipboard(textToCopy, btn);
         };
 
-        // ================================================================
-        //  TICKET CREATE MODAL
-        // ================================================================
         window.openCreateTicketModal = function() {
             closeTicketOption();
             populateTechSelect('tech-1', 'tech-2');
@@ -5438,9 +5335,6 @@
             s2.value = "";
         }
 
-        // ================================================================
-        //  EDIT TECH MODAL
-        // ================================================================
         window.openEditTechModal = function() {
             closeTicketOption();
             const select = document.getElementById('edit-tech-team-select');
@@ -5583,9 +5477,6 @@
             }
         };
 
-        // ================================================================
-        //  TRANSFER MODAL
-        // ================================================================
         window.openTransferModal = function() {
             closeTicketOption();
             const sourceSel = document.getElementById('transfer-source-team');
@@ -5674,9 +5565,6 @@
             closeTransferModal();
         };
 
-        // ================================================================
-        //  PREVIEW GENERATE
-        // ================================================================
         window.generatePreview = function() {
             const raw = document.getElementById('bulk-input-text').value;
             const container = document.getElementById('preview-container');
@@ -5898,9 +5786,6 @@
             container.appendChild(card);
         }
 
-        // ================================================================
-        //  SAVE BULK TICKETS
-        // ================================================================
         window.saveBulkTickets = function() {
             if (!teams || !Array.isArray(teams)) teams = [];
             const previewCards = document.querySelectorAll('.preview-card');
@@ -6158,7 +6043,7 @@
         };
 
         // ================================================================
-        //  GANTI DATA MODAL
+        //  GANTI DATA MODAL — FIXED: preserve Jadwal & Kunjungan
         // ================================================================
         window.openGantiDataModal = function(teamIdx, jobIdx) {
             if (appMode !== 'admin') {
@@ -6234,6 +6119,19 @@
                 const job = teams[teamIdx].jobs[jobIdx];
                 if (!job) throw new Error('Tiket tidak ditemukan');
                 const isPSB = job.tagClass === 'badge-psb';
+
+                // ===== PRESERVE ORIGINAL VALUES =====
+                const preservedTime = job.time; // Jadwal
+                let preservedKunjungan = null;
+                let preservedTag = job.tag;
+                let preservedTagClass = job.tagClass;
+                if (!isPSB) {
+                    // Untuk MT/Isolir, pertahankan Kunjungan (tag + details.Kunjungan)
+                    preservedKunjungan = job.details?.['Kunjungan'] || job.tag || 'KUNJUNGAN';
+                    preservedTag = job.tag;
+                    preservedTagClass = job.tagClass;
+                }
+                // ===== END PRESERVE =====
 
                 const systemPrompt = isPSB ?
                     `Anda adalah asisten AI pengolah tiket internet. Ubah teks mentah menjadi JSON dengan format PSB.
@@ -6369,7 +6267,7 @@
                     job.name = newData.nama || job.name || '-';
                     const rawAlamat = newData.alamat || job.address || '-';
                     job.address = formatPSBAddress(rawAlamat, '', '', '', newData.statusRumah || '');
-                    job.time = newData.jam || job.time || 'FLEXIBEL';
+                    // PERHATIKAN: time dipertahankan (preservedTime) — jangan pakai newData.jam
                     job.tag = `PSB (${newData.paket || '150rb'})`;
                     job.tagClass = 'badge-psb';
                 } else {
@@ -6387,15 +6285,23 @@
                         "Port ID": newData.portId || '-',
                         "Link foto rumah pelanggan": newData.linkFoto || '-'
                     };
-                    const kunjunganVal = newData.kunjungan || job.tag || 'KUNJUNGAN';
-                    newDetails["Kunjungan"] = kunjunganVal;
+                    // PERHATIKAN: Kunjungan dipertahankan (preservedKunjungan) — jangan pakai newData.kunjungan
+                    // Tetapi kita tetap masukkan ke details agar tidak hilang
+                    if (preservedKunjungan) {
+                        newDetails["Kunjungan"] = preservedKunjungan;
+                    } else {
+                        newDetails["Kunjungan"] = job.tag || 'KUNJUNGAN';
+                    }
                     job.name = newData.nama || job.name || '-';
                     job.address = newData.alamat || job.address || '-';
-                    job.time = newData.jam || job.time || 'FLEXIBEL';
-                    const isIsolir = kunjunganVal.toLowerCase().includes('isolir');
-                    job.tag = kunjunganVal;
-                    job.tagClass = isIsolir ? "badge-isolir" : "badge-mt";
+                    // time dipertahankan (preservedTime)
+                    // tag & tagClass dipertahankan (preservedTag, preservedTagClass)
+                    job.tag = preservedTag || preservedKunjungan || 'KUNJUNGAN';
+                    job.tagClass = preservedTagClass || (job.tag.toLowerCase().includes('isolir') ? 'badge-isolir' : 'badge-mt');
                 }
+
+                // Terapkan field yang dipertahankan
+                job.time = preservedTime; // JADWAL tetap
 
                 job.status = oldStatus;
                 job.completed = oldCompleted;
@@ -6410,6 +6316,14 @@
                 job.replaceModem = oldReplaceModem;
                 job.details = newDetails;
 
+                // Untuk MT/ISOLIR, pastikan details.Kunjungan sesuai dengan preservedKunjungan
+                if (!isPSB && preservedKunjungan) {
+                    job.details['Kunjungan'] = preservedKunjungan;
+                    job.tag = preservedTag || preservedKunjungan;
+                    job.tagClass = preservedTagClass || (preservedKunjungan.toLowerCase().includes('isolir') ? 'badge-isolir' :
+                        'badge-mt');
+                }
+
                 if (!isPSB && job.details['Link Lokasi'] && job.details['Link Lokasi'] !== '-') {
                     const linkLokasi = job.details['Link Lokasi'];
                     const coords = parseCoordinatesFromLink(linkLokasi);
@@ -6423,9 +6337,11 @@
                 saveDataToFirebase();
                 renderJobs();
 
-                statusEl.textContent = '✅ Data berhasil diganti!';
+                statusEl.textContent = '✅ Data berhasil diganti! (Jadwal dipertahankan' +
+                    (!isPSB ? ', Kunjungan dipertahankan' : '') + ')';
                 statusEl.className = 'ganti-status success';
-                showSyncNotification('✅ Data tiket berhasil diganti dengan AI!', 'success');
+                showSyncNotification('✅ Data tiket berhasil diganti dengan AI! (Jadwal' +
+                    (!isPSB ? ' & Kunjungan' : '') + ' tetap)', 'success');
 
                 setTimeout(() => {
                     closeGantiDataModal();
@@ -6441,7 +6357,7 @@
         };
 
         // ================================================================
-        //  DEEPSEEK AI GENERATE
+        //  DEEPSEEK AI GENERATE (unchanged)
         // ================================================================
         window.generateWithDeepSeek = async function() {
             const btn = document.getElementById('btnAiGenerate');
@@ -6780,7 +6696,7 @@
         }
 
         // ================================================================
-        //  MODAL STOCK LIST
+        //  STOCK MODAL (unchanged)
         // ================================================================
         window.openStockListModal = function(teamIndex) {
             const team = teams[teamIndex];
@@ -6995,7 +6911,7 @@
         };
 
         // ================================================================
-        //  RESET DATABASE WITH BACKUP
+        //  RESET DATABASE (unchanged)
         // ================================================================
         window.resetDatabaseWithBackup = async function() {
             let pin = prompt("🔐 Masukkan PIN Admin untuk Reset Tiket + Download Backup:");
@@ -7069,7 +6985,7 @@
         };
 
         // ================================================================
-        //  RENDER JOBS — dengan ISOLIR STATUS (sudah fix cleaning)
+        //  RENDER JOBS — with ISOLIR STATUS
         // ================================================================
         function renderJobs() {
             const container = document.getElementById('teams-container');
@@ -7434,7 +7350,7 @@
                             `;
                     }
 
-                    // ===== ISOLIR STATUS (hanya untuk kategori isolir) =====
+                    // ===== ISOLIR STATUS =====
                     let isolirStatusHtml = '';
                     if (isIsolir && isAdmin) {
                         const statusInfo = getIsolirStatusForJob(job);
@@ -7470,7 +7386,6 @@
                                     </span>
                                 `;
                         } else {
-                            // Tidak ada No Layanan
                             isolirStatusHtml = `
                                     <span class="isolir-no-layanan-missing" title="Tidak ada No Layanan, status isolir tidak bisa diupdate">⚠️ No Layanan</span>
                                 `;
@@ -7646,7 +7561,7 @@
         }
 
         // ================================================================
-        //  GLOBAL STATS
+        //  GLOBAL STATS (unchanged)
         // ================================================================
         function getCategoryFromJob(job) {
             if (job.tagClass === 'badge-psb') return 'psb';
@@ -7703,7 +7618,7 @@
         };
 
         // ================================================================
-        //  JOB STATUS TOGGLE
+        //  JOB STATUS (unchanged)
         // ================================================================
         window.toggleJobStatus = function(tIndex, jobIndex, newStatus) {
             const job = teams[tIndex].jobs[jobIndex];
@@ -7809,7 +7724,7 @@
         };
 
         // ================================================================
-        //  RENDER EDITABLE VALUES
+        //  RENDER EDITABLE VALUES (unchanged)
         // ================================================================
         function renderEditableValue(teamIdx, jobIdx, fieldType, value) {
             if (appMode === 'admin') {
@@ -7935,7 +7850,7 @@
         };
 
         // ================================================================
-        //  FILL MODEM DATA
+        //  FILL MODEM DATA (unchanged)
         // ================================================================
         window.fillModemData = function(selectEl, teamIdx, jobIdx) {
             const val = selectEl.value;
@@ -7998,7 +7913,7 @@
         };
 
         // ================================================================
-        //  GANTI KATEGORI TIKET
+        //  GANTI KATEGORI TIKET (unchanged)
         // ================================================================
         window.changeTicketCategory = async function(teamIdx, jobIdx, newCategory) {
             if (appMode !== 'admin') {
@@ -8341,9 +8256,6 @@
             return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
-        // ================================================================
-        //  CLICK OUTSIDE MODAL
-        // ================================================================
         window.onclick = function(event) {
             if (event.target == document.getElementById("modalTicket")) closeCreateTicketModal();
             if (event.target == document.getElementById("modalTicketSelection")) closeTicketOption();
@@ -8371,7 +8283,6 @@
             loadPendingSyncOperations();
             loadApiKeyFromFirebase();
 
-            // Setup isolir listeners
             setupIsolirListeners();
 
             onValue(globalLocationRef, (snapshot) => {
@@ -8476,9 +8387,6 @@
             });
         }
 
-        // ================================================================
-        //  START
-        // ================================================================
         loadFirebaseData();
     </script>
 </body>
