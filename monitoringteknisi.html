@@ -3163,7 +3163,6 @@
         };
 
         // ===== LIST ISOLIR APP CONFIG (separate database for isolir lists) =====
-        // This is the SAME config used by the "List Isolir" web app
         const isolirFirebaseConfig = {
             apiKey: "AIzaSyBjKNRvMvOdvmpmuJHoqLzLQQQ0e_xSX-I",
             authDomain: "listisolir.firebaseapp.com",
@@ -6089,20 +6088,26 @@
                     };
                     const nama = getValue('.bulk-nama');
                     let alamat = getValue('.bulk-alamat');
-                    const statusRumahEl = card.querySelector('.bulk-status-rumah');
-                    const statusRumah = statusRumahEl ? statusRumahEl.value : 'Pribadi';
-                    if (statusRumah && statusRumah.trim() !== '') {
-                        if (!alamat.includes('hunian:')) {
-                            alamat = alamat.trim();
-                            if (alamat.length > 0) {
-                                alamat += ` hunian: ${statusRumah}`;
+
+                    // ===== FIX: Status rumah ONLY for PSB =====
+                    if (type === 'PSB') {
+                        const statusRumahEl = card.querySelector('.bulk-status-rumah');
+                        const statusRumah = statusRumahEl ? statusRumahEl.value : 'Pribadi';
+                        if (statusRumah && statusRumah.trim() !== '') {
+                            if (!alamat.includes('hunian:')) {
+                                alamat = alamat.trim();
+                                if (alamat.length > 0) {
+                                    alamat += ` hunian: ${statusRumah}`;
+                                } else {
+                                    alamat = `hunian: ${statusRumah}`;
+                                }
                             } else {
-                                alamat = `hunian: ${statusRumah}`;
+                                alamat = alamat.replace(/hunian:\s*[^,]*/i, `hunian: ${statusRumah}`);
                             }
-                        } else {
-                            alamat = alamat.replace(/hunian:\s*[^,]*/i, `hunian: ${statusRumah}`);
                         }
                     }
+                    // For MT/ISOLIR: alamat is used as-is, NO status rumah added
+
                     const oltSelect = card.querySelector('.bulk-olt-type');
                     const oltType = oltSelect ? oltSelect.value : 'unknown';
                     const tikorGmaps = getValue('.bulk-tikor-gmaps');
@@ -6158,6 +6163,8 @@
                         const referensi = getValue('.bulk-referensi') || 'Tidak ada referensi';
                         const ktp = getValue('.bulk-ktp');
                         const setuju = getValue('.bulk-setuju');
+                        const statusRumahEl = card.querySelector('.bulk-status-rumah');
+                        const statusRumah = statusRumahEl ? statusRumahEl.value : 'Pribadi';
                         let tikorData = null;
                         if (tikorGmaps) {
                             const coords = parseCoordinatesFromLink(tikorGmaps);
@@ -6238,6 +6245,7 @@
                             }
                         }
 
+                        // MT/ISOLIR: address does NOT get status rumah added
                         newJob = {
                             completed: false,
                             status: 'pending',
