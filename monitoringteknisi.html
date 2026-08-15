@@ -3162,6 +3162,19 @@
             appId: "1:612668865089:web:e2234f309691f6d85224c0"
         };
 
+        // ===== LIST ISOLIR APP CONFIG (separate database for isolir lists) =====
+        // This is the SAME config used by the "List Isolir" web app
+        const isolirFirebaseConfig = {
+            apiKey: "AIzaSyBjKNRvMvOdvmpmuJHoqLzLQQQ0e_xSX-I",
+            authDomain: "listisolir.firebaseapp.com",
+            databaseURL: "https://listisolir-default-rtdb.firebaseio.com",
+            projectId: "listisolir",
+            storageBucket: "listisolir.firebasestorage.app",
+            messagingSenderId: "588243494028",
+            appId: "1:588243494028:web:42fb129700b57194be47a9",
+            measurementId: "G-V297VK6SGM"
+        };
+
         // ================================================================
         //  INITIALIZE APPS
         // ================================================================
@@ -3186,13 +3199,17 @@
         const gudangDb = getDatabase(gudangApp);
         const gudangModemsRef = ref(gudangDb, 'modems');
 
-        const isolirApp = initializeApp(firebaseConfig, 'isolirApp');
+        // ===== ISOLIR APP (separate database - connects to List Isolir web app) =====
+        const isolirApp = initializeApp(isolirFirebaseConfig, 'isolirApp');
         const isolirDb = getDatabase(isolirApp);
         const isolirPejabatRef = ref(isolirDb, 'pejabatList');
         const isolirDoneRef = ref(isolirDb, 'doneList');
         const isolirRemindRef = ref(isolirDb, 'remindList');
         const isolirKunjunganRef = ref(isolirDb, 'kunjunganList');
 
+        // ================================================================
+        //  ISOLIR STATE — using separate database for isolir lists
+        // ================================================================
         let isolirPejabatList = new Set();
         let isolirDoneList = new Set();
         let isolirRemindList = new Set();
@@ -3210,7 +3227,7 @@
         function updateIsolirConnectionStatus(connected) {
             isolirConnected = connected;
             if (connected) {
-                isolirStatusEl.textContent = '🔗 List Isolir: ✅ Terhubung';
+                isolirStatusEl.textContent = '🔗 List Isolir: ✅ Terhubung (sinkron)';
                 isolirStatusEl.style.color = '#28a745';
             } else {
                 isolirStatusEl.textContent = '🔗 List Isolir: ⚠️ Offline (data lokal)';
@@ -3396,6 +3413,11 @@
             };
         }
 
+        // ================================================================
+        //  REST OF THE ORIGINAL CODE (unchanged except isolir Firebase config above)
+        //  All other functions remain exactly as in the original file
+        // ================================================================
+
         let isOnline = navigator.onLine;
         let isFirebaseConnected = false;
         let pendingSyncOperations = [];
@@ -3439,7 +3461,6 @@
             }
             if (nomorRumah && nomorRumah !== '-' && nomorRumah.trim() !== '') addressParts.push(`Nomor Rumah: ${nomorRumah}`);
             if (patokan && patokan !== '-' && patokan.trim() !== '') addressParts.push(`Patokan Lokasi: ${patokan}`);
-            // ALWAYS include hunian status (even for Pribadi)
             if (statusHunian && statusHunian !== '-' && statusHunian.trim() !== '') {
                 addressParts.push(`hunian: ${statusHunian}`);
             }
@@ -4194,17 +4215,14 @@
                 showSyncNotification('❌ Sandi salah! Akses ditolak.', 'error');
                 return;
             }
-            // Initialize date picker
             updateGudangDateDisplay();
             const modal = document.getElementById('modalGudangProgress');
             modal.style.display = 'block';
-            // Reset progress
             document.getElementById('gudangProgressStatus').textContent = '⏳ Siap mengirim...';
             document.getElementById('gudangProgressBar').style.width = '0%';
             document.getElementById('gudangProgressDetail').textContent = '0 / 0 modem';
             document.getElementById('gudangResultSummary').style.display = 'none';
             document.getElementById('gudangResultSummary').innerHTML = '';
-            // Ask user to confirm or change date
             if (!gudangCustomDate && !customMonitoringDate) {
                 const today = new Date();
                 const defaultDate = today.toISOString().split('T')[0];
@@ -4215,7 +4233,6 @@
                     .toISOString().split('T')[0];
                 document.getElementById('gudangDateDisplay').textContent = getGudangDateFormatted();
             }
-            // Add send button
             const progressContent = document.getElementById('gudangProgressContent');
             const existingBtn = progressContent.querySelector('.btn-gudang-send');
             if (existingBtn) existingBtn.remove();
@@ -4239,7 +4256,6 @@
         // ================================================================
         async function sendAllInstalledToGudang() {
             const monitoringDateStr = getGudangDateFormatted();
-            // Build list of installed modems from all teams
             let allInstalled = [];
             teams.forEach(team => {
                 if (!team.inventory) return;
@@ -4287,12 +4303,10 @@
                     const installedDate = modem.installedDate;
                     const teamName = modem.teamName || 'Unknown';
 
-                    // Check if modem already exists in gudang database
                     const snapshot = await get(ref(gudangDb, `modems/${sn}`));
                     const existing = snapshot.val();
 
                     if (existing) {
-                        // Update existing modem
                         await update(ref(gudangDb, `modems/${sn}`), {
                             status: 'terpasang',
                             installedDate: installedDate,
@@ -4308,7 +4322,6 @@
                             oldInstalledDate: existing.installedDate || '-'
                         });
                     } else {
-                        // Create new modem entry
                         await set(ref(gudangDb, `modems/${sn}`), {
                             mac: mac,
                             kategori: kategori,
