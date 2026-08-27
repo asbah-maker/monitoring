@@ -2483,55 +2483,6 @@
             min-width: 110px;
         }
 
-        .gudang-date-picker-section {
-            background: #f0f7ff;
-            border: 1px dashed #1a73e8;
-            border-radius: 8px;
-            padding: 14px;
-            margin: 10px 0;
-            text-align: left;
-        }
-        .gudang-date-picker-section label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #1a73e8;
-            display: block;
-            margin-bottom: 6px;
-        }
-        .gudang-date-picker-section .gudang-date-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .gudang-date-picker-section input[type="date"] {
-            flex: 1;
-            min-width: 160px;
-            padding: 10px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            font-size: 0.95rem;
-        }
-        .gudang-date-picker-section .btn-set-date {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .gudang-date-picker-section .btn-set-date:hover {
-            background: #1e7e34;
-        }
-        .gudang-date-status {
-            font-size: 0.8rem;
-            color: #28a745;
-            margin-top: 4px;
-            font-weight: 500;
-        }
-
         @media (max-width: 600px) {
             body {
                 padding: 5px;
@@ -2757,10 +2708,6 @@
             .date-picker-ticket input[type="date"] {
                 max-width: 100%;
             }
-            .gudang-date-picker-section .gudang-date-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
         }
     </style>
 </head>
@@ -2846,7 +2793,7 @@
                 <button class="date-clear" onclick="clearCustomDate()" id="clearDateBtn" style="display:none;">✕ Hapus</button>
             </div>
             <div style="margin-top:12px; font-size:0.8rem; color:#888;">
-                <span>💡 Tanggal yang dipilih akan digunakan saat <strong>Copy Rekap</strong>, <strong>Laporan Gudang Modem</strong>, dan <strong>set tanggal pasang</strong>.</span>
+                <span>💡 Tanggal yang dipilih akan digunakan saat <strong>Copy Rekap</strong> dan <strong>Laporan Gudang Modem</strong>.</span>
             </div>
             <hr style="margin:20px 0;">
             <div style="text-align:left;">
@@ -3088,17 +3035,6 @@
         <div class="modal-content" style="max-width: 500px; text-align: center;">
             <span class="close-modal" onclick="closeGudangProgressModal()">&times;</span>
             <h3 style="margin-top:0; color:#8b5cf6;">📡 Laporan ke Gudang Modem</h3>
-
-            <!-- DATE PICKER FOR GUDANG REPORT -->
-            <div class="gudang-date-picker-section">
-                <label>📅 Set Tanggal Pasang (Installed Date)</label>
-                <div class="gudang-date-row">
-                    <input type="date" id="gudangDatePicker" value="">
-                    <button class="btn-set-date" onclick="setGudangDateFromPicker()">Set Tanggal</button>
-                </div>
-                <div class="gudang-date-status" id="gudangDateStatus">📅 Menggunakan tanggal monitoring: <span id="gudangDateDisplay">-</span></div>
-            </div>
-
             <div id="gudangProgressContent" style="margin: 20px 0;">
                 <div id="gudangProgressStatus" style="font-size:1rem; margin-bottom:10px;">⏳ Memproses...</div>
                 <div style="width:100%; height:20px; background:#e9ecef; border-radius:10px; overflow:hidden;">
@@ -3130,16 +3066,10 @@
     </div>
 
     <script type="module">
-        // ================================================================
-        //  FIREBASE IMPORTS
-        // ================================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, update, onValue, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // ================================================================
-        //  FIREBASE CONFIGURATIONS
-        // ================================================================
-        // Main Monitoring App Config
+        // ===== MAIN FIREBASE CONFIG (Monitoring Web) =====
         const firebaseConfig = {
             apiKey: "AIzaSyBl7LE5qeMSjsh9lvl_G7OcmwBPSiUQfD8",
             authDomain: "monitoringteknisiversi1-8d5ad.firebaseapp.com",
@@ -3151,32 +3081,19 @@
             measurementId: "G-4RLGX0M3NE"
         };
 
-        // Gudang Modem App Config (separate database)
-        const gudangFirebaseConfig = {
-            apiKey: "AIzaSyDx807YyV4e12TRpRLqg7WrG-wewh8KEtU",
-            authDomain: "monitoringgudangmodemversi1.firebaseapp.com",
-            databaseURL: "https://monitoringgudangmodemversi1-default-rtdb.firebaseio.com",
-            projectId: "monitoringgudangmodemversi1",
-            storageBucket: "monitoringgudangmodemversi1.firebasestorage.app",
-            messagingSenderId: "612668865089",
-            appId: "1:612668865089:web:e2234f309691f6d85224c0"
+        // ===== REKAP WEB FIREBASE CONFIG (for JSON Monitoring integration) =====
+        const rekapFirebaseConfig = {
+            apiKey: "AIzaSyCOULi4h6qVwu2UI_anC1ZC8JgE69RjqDM",
+            authDomain: "rekaptiketmonitoring.firebaseapp.com",
+            databaseURL: "https://rekaptiketmonitoring-default-rtdb.firebaseio.com",
+            projectId: "rekaptiketmonitoring",
+            storageBucket: "rekaptiketmonitoring.firebasestorage.app",
+            messagingSenderId: "841047650718",
+            appId: "1:841047650718:web:323a82435e41048fa4268f",
+            measurementId: "G-TVN9Y64LJD"
         };
 
-        // ===== LIST ISOLIR APP CONFIG (separate database for isolir lists) =====
-        const isolirFirebaseConfig = {
-            apiKey: "AIzaSyBjKNRvMvOdvmpmuJHoqLzLQQQ0e_xSX-I",
-            authDomain: "listisolir.firebaseapp.com",
-            databaseURL: "https://listisolir-default-rtdb.firebaseio.com",
-            projectId: "listisolir",
-            storageBucket: "listisolir.firebasestorage.app",
-            messagingSenderId: "588243494028",
-            appId: "1:588243494028:web:42fb129700b57194be47a9",
-            measurementId: "G-V297VK6SGM"
-        };
-
-        // ================================================================
-        //  INITIALIZE APPS
-        // ================================================================
+        // ===== INITIALIZE APPS =====
         const mainApp = initializeApp(firebaseConfig, 'mainApp');
         const db = getDatabase(mainApp);
         const dbRef = ref(db, 'monitoring_teams_master');
@@ -3184,31 +3101,26 @@
         const apiKeyRef = ref(db, 'deepseek_api_key');
         const globalLocationRef = ref(db, 'global_main_location');
 
-        const rekapApp = initializeApp(firebaseConfig, 'rekapApp');
+        // === REKAP APP (uses rekap web's Firebase) ===
+        const rekapApp = initializeApp(rekapFirebaseConfig, 'rekapApp');
         const rekapDb = getDatabase(rekapApp);
-        const rekapHistoryRef = ref(rekapDb, 'history_recaps');
         const rekapJsonMonitoringRef = ref(rekapDb, 'monitoring_json_backup');
 
         const historyApp = initializeApp(firebaseConfig, 'historyApp');
         const historyDb = getDatabase(historyApp);
         const historyRef = ref(historyDb, 'history_recaps');
 
-        // ===== GUDANG MODEM APP (separate database) =====
-        const gudangApp = initializeApp(gudangFirebaseConfig, 'gudangApp');
+        const gudangApp = initializeApp(firebaseConfig, 'gudangApp');
         const gudangDb = getDatabase(gudangApp);
         const gudangModemsRef = ref(gudangDb, 'modems');
 
-        // ===== ISOLIR APP (separate database - connects to List Isolir web app) =====
-        const isolirApp = initializeApp(isolirFirebaseConfig, 'isolirApp');
+        const isolirApp = initializeApp(firebaseConfig, 'isolirApp');
         const isolirDb = getDatabase(isolirApp);
         const isolirPejabatRef = ref(isolirDb, 'pejabatList');
         const isolirDoneRef = ref(isolirDb, 'doneList');
         const isolirRemindRef = ref(isolirDb, 'remindList');
         const isolirKunjunganRef = ref(isolirDb, 'kunjunganList');
 
-        // ================================================================
-        //  ISOLIR STATE — using separate database for isolir lists
-        // ================================================================
         let isolirPejabatList = new Set();
         let isolirDoneList = new Set();
         let isolirRemindList = new Set();
@@ -3226,7 +3138,7 @@
         function updateIsolirConnectionStatus(connected) {
             isolirConnected = connected;
             if (connected) {
-                isolirStatusEl.textContent = '🔗 List Isolir: ✅ Terhubung (sinkron)';
+                isolirStatusEl.textContent = '🔗 List Isolir: ✅ Terhubung';
                 isolirStatusEl.style.color = '#28a745';
             } else {
                 isolirStatusEl.textContent = '🔗 List Isolir: ⚠️ Offline (data lokal)';
@@ -3412,11 +3324,6 @@
             };
         }
 
-        // ================================================================
-        //  REST OF THE ORIGINAL CODE (unchanged except isolir Firebase config above)
-        //  All other functions remain exactly as in the original file
-        // ================================================================
-
         let isOnline = navigator.onLine;
         let isFirebaseConnected = false;
         let pendingSyncOperations = [];
@@ -3447,9 +3354,6 @@
         let globalMainLocation = null;
         let gantiDataTarget = null;
         let tikorOperCategoryFilter = 'all';
-
-        // ===== GUDANG DATE STATE =====
-        let gudangCustomDate = null;
 
         function formatPSBAddress(alamat, rtRw, nomorRumah, patokan, statusHunian) {
             let addressParts = [];
@@ -3486,7 +3390,7 @@
         }
 
         function getDirectionArrow(bearing) {
-            const arrows = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖'];
+            const arrows = ['↑', '↗', '→', '↘', '↓', '↙', '↖'];
             const index = Math.round(bearing / 45) % 8;
             return arrows[index];
         }
@@ -4130,79 +4034,6 @@
             return `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
         }
 
-        function getGudangDateFormatted() {
-            let dateObj;
-            if (gudangCustomDate) {
-                const parts = gudangCustomDate.split('-');
-                if (parts.length === 3) {
-                    const year = parseInt(parts[0], 10);
-                    const month = parseInt(parts[1], 10) - 1;
-                    const day = parseInt(parts[2], 10);
-                    dateObj = new Date(year, month, day);
-                    if (isNaN(dateObj.getTime())) {
-                        dateObj = new Date();
-                    }
-                } else {
-                    dateObj = new Date();
-                }
-            } else if (customMonitoringDate) {
-                const parts = customMonitoringDate.split('-');
-                if (parts.length === 3) {
-                    const year = parseInt(parts[0], 10);
-                    const month = parseInt(parts[1], 10) - 1;
-                    const day = parseInt(parts[2], 10);
-                    dateObj = new Date(year, month, day);
-                    if (isNaN(dateObj.getTime())) {
-                        dateObj = new Date();
-                    }
-                } else {
-                    dateObj = new Date();
-                }
-            } else {
-                dateObj = new Date();
-            }
-            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober",
-                "November", "Desember"
-            ];
-            return `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
-        }
-
-        // ===== GUDANG DATE PICKER =====
-        window.setGudangDateFromPicker = function() {
-            const picker = document.getElementById('gudangDatePicker');
-            const val = picker.value;
-            if (!val) {
-                showSyncNotification('⚠️ Pilih tanggal terlebih dahulu', 'warning');
-                return;
-            }
-            gudangCustomDate = val;
-            updateGudangDateDisplay();
-            showSyncNotification(`📅 Tanggal pasang gudang diatur ke ${getGudangDateFormatted()}`, 'success');
-        };
-
-        function updateGudangDateDisplay() {
-            const display = document.getElementById('gudangDateDisplay');
-            if (gudangCustomDate) {
-                display.textContent = getGudangDateFormatted();
-            } else if (customMonitoringDate) {
-                display.textContent = getGudangDateFormatted();
-            } else {
-                display.textContent = getGudangDateFormatted();
-            }
-            const picker = document.getElementById('gudangDatePicker');
-            if (gudangCustomDate) {
-                picker.value = gudangCustomDate;
-            } else if (customMonitoringDate) {
-                picker.value = customMonitoringDate;
-            } else {
-                const today = new Date();
-                picker.value = today.toISOString().split('T')[0];
-            }
-        }
-
-        // ================================================================
-        //  LAPORAN GUDANG MODEM - TERINTEGRASI DENGAN GUDANG MODEM APP
-        // ================================================================
         window.handleGudangModemClick = function() {
             if (appMode !== 'admin') {
                 showSyncNotification('⚠️ Laporan ke Gudang Modem hanya untuk Admin', 'warning');
@@ -4214,47 +4045,11 @@
                 showSyncNotification('❌ Sandi salah! Akses ditolak.', 'error');
                 return;
             }
-            updateGudangDateDisplay();
-            const modal = document.getElementById('modalGudangProgress');
-            modal.style.display = 'block';
-            document.getElementById('gudangProgressStatus').textContent = '⏳ Siap mengirim...';
-            document.getElementById('gudangProgressBar').style.width = '0%';
-            document.getElementById('gudangProgressDetail').textContent = '0 / 0 modem';
-            document.getElementById('gudangResultSummary').style.display = 'none';
-            document.getElementById('gudangResultSummary').innerHTML = '';
-            if (!gudangCustomDate && !customMonitoringDate) {
-                const today = new Date();
-                const defaultDate = today.toISOString().split('T')[0];
-                document.getElementById('gudangDatePicker').value = defaultDate;
-                document.getElementById('gudangDateDisplay').textContent = getGudangDateFormatted();
-            } else {
-                document.getElementById('gudangDatePicker').value = gudangCustomDate || customMonitoringDate || new Date()
-                    .toISOString().split('T')[0];
-                document.getElementById('gudangDateDisplay').textContent = getGudangDateFormatted();
-            }
-            const progressContent = document.getElementById('gudangProgressContent');
-            const existingBtn = progressContent.querySelector('.btn-gudang-send');
-            if (existingBtn) existingBtn.remove();
-            const sendBtn = document.createElement('button');
-            sendBtn.className = 'btn-action-main btn-gudang-send';
-            sendBtn.style.cssText = 'background:#8b5cf6; margin-top:10px; width:100%;';
-            sendBtn.textContent = '🚀 Kirim Laporan ke Gudang Modem';
-            sendBtn.onclick = function() {
-                this.disabled = true;
-                this.textContent = '⏳ Mengirim...';
-                sendAllInstalledToGudang().finally(() => {
-                    this.disabled = false;
-                    this.textContent = '🚀 Kirim Laporan ke Gudang Modem';
-                });
-            };
-            progressContent.appendChild(sendBtn);
+            sendAllInstalledToGudang();
         };
 
-        // ================================================================
-        //  SEND ALL INSTALLED TO GUDANG MODEM (using gudangApp)
-        // ================================================================
         async function sendAllInstalledToGudang() {
-            const monitoringDateStr = getGudangDateFormatted();
+            const monitoringDateStr = getMonitoringDateFormatted();
             let allInstalled = [];
             teams.forEach(team => {
                 if (!team.inventory) return;
@@ -4272,12 +4067,10 @@
                     }
                 });
             });
-
             if (allInstalled.length === 0) {
                 showSyncNotification('⚠️ Tidak ada modem dengan status Terpasang untuk dilaporkan', 'warning');
                 return;
             }
-
             const modal = document.getElementById('modalGudangProgress');
             const statusEl = document.getElementById('gudangProgressStatus');
             const barEl = document.getElementById('gudangProgressBar');
@@ -4285,14 +4078,12 @@
             const resultEl = document.getElementById('gudangResultSummary');
             resultEl.style.display = 'none';
             resultEl.innerHTML = '';
-
+            modal.style.display = 'block';
             statusEl.textContent = `🔄 Menyiapkan ${allInstalled.length} modem (tanggal ${monitoringDateStr})...`;
             barEl.style.width = '0%';
             detailEl.textContent = `0 / ${allInstalled.length} modem`;
-
             const results = [];
             let processed = 0;
-
             try {
                 for (const modem of allInstalled) {
                     const sn = modem.sn;
@@ -4301,10 +4092,8 @@
                     const portColor = modem.portColor || 'neutral';
                     const installedDate = modem.installedDate;
                     const teamName = modem.teamName || 'Unknown';
-
                     const snapshot = await get(ref(gudangDb, `modems/${sn}`));
                     const existing = snapshot.val();
-
                     if (existing) {
                         await update(ref(gudangDb, `modems/${sn}`), {
                             status: 'terpasang',
@@ -4332,7 +4121,6 @@
                         });
                         results.push({ sn, status: 'created', installedDate });
                     }
-
                     processed++;
                     const progress = (processed / allInstalled.length) * 100;
                     barEl.style.width = `${progress}%`;
@@ -4340,10 +4128,8 @@
                     statusEl.textContent =
                         `📡 Mengirim ${processed}/${allInstalled.length} ke Gudang Modem (${installedDate})...`;
                 }
-
                 const created = results.filter(r => r.status === 'created').length;
                 const updated = results.filter(r => r.status === 'updated').length;
-
                 let summaryHtml =
                     `<div style="font-weight:bold; margin-bottom:8px;">✅ Selesai! ${allInstalled.length} modem dilaporkan ke Gudang Modem</div>`;
                 summaryHtml += `<div>📅 Tanggal laporan: <strong>${monitoringDateStr}</strong></div>`;
@@ -4359,15 +4145,12 @@
                 }
                 resultEl.innerHTML = summaryHtml;
                 resultEl.style.display = 'block';
-
                 statusEl.textContent =
                     `✅ Berhasil mengirim ${allInstalled.length} modem ke Gudang Modem! (Tanggal: ${monitoringDateStr})`;
                 barEl.style.width = '100%';
                 detailEl.textContent = `${allInstalled.length} / ${allInstalled.length} modem`;
-
                 showSyncNotification(`✅ ${allInstalled.length} modem berhasil dilaporkan ke Gudang Modem! (${monitoringDateStr})`,
                     'success');
-
             } catch (err) {
                 console.error('Error sending to Gudang Modem:', err);
                 statusEl.textContent = `❌ Gagal: ${err.message}`;
@@ -4378,8 +4161,6 @@
 
         window.closeGudangProgressModal = function() {
             document.getElementById('modalGudangProgress').style.display = 'none';
-            const btn = document.querySelector('.btn-gudang-send');
-            if (btn) btn.remove();
         };
 
         window.uploadBackup = function(event) {
@@ -4398,8 +4179,7 @@
                 try {
                     const jsonData = JSON.parse(e.target.result);
                     if (!jsonData.teams || !Array.isArray(jsonData.teams)) {
-                        showSyncNotification('❌ File backup tidak valid: properti "teams" tidak ditemukan atau bukan array',
-                            'error');
+                        showSyncNotification('❌ File backup tidak valid: properti "teams" tidak ditemukan atau bukan array', 'error');
                         event.target.value = '';
                         return;
                     }
@@ -4470,9 +4250,7 @@
                         saveNonIkrToFirebase(),
                         globalMainLocation ? set(globalLocationRef, globalMainLocation) : Promise.resolve()
                     ]).then(() => {
-                        showSyncNotification(
-                            `✅ Restore berhasil! ${totalTeams} tim, ${totalTickets} tiket, ${totalModems} modem dipulihkan.`,
-                            'success');
+                        showSyncNotification(`✅ Restore berhasil! ${totalTeams} tim, ${totalTickets} tiket, ${totalModems} modem dipulihkan.`, 'success');
                         closeSyncNotification(nid);
                         renderJobs();
                         renderLandingTeams();
@@ -4572,9 +4350,6 @@
                 if (val) {
                     customMonitoringDate = val;
                     updateBackupDateDisplay();
-                    if (document.getElementById('modalGudangProgress').style.display === 'block') {
-                        updateGudangDateDisplay();
-                    }
                     showSyncNotification(`📅 Tanggal monitoring diatur ke ${formatDisplayDate(val)}`, 'success');
                 } else {
                     showSyncNotification('⚠️ Pilih tanggal terlebih dahulu', 'warning');
@@ -4598,9 +4373,6 @@
         window.clearCustomDate = function() {
             customMonitoringDate = null;
             updateBackupDateDisplay();
-            if (document.getElementById('modalGudangProgress').style.display === 'block') {
-                updateGudangDateDisplay();
-            }
             showSyncNotification('📅 Tanggal monitoring direset ke hari ini', 'warning');
         };
 
@@ -4873,8 +4645,7 @@
             const subtitle = document.getElementById('historyModalSubtitle');
             const container = document.getElementById('historyListContainer');
             title.textContent = `📜 History Tiket: ${currentHistoryNoLayanan}`;
-            subtitle.textContent =
-            `Menampilkan semua riwayat untuk No Layanan "${currentHistoryNoLayanan}" — ${jobName ? 'Nama: ' + jobName : ''}`;
+            subtitle.textContent = `Menampilkan semua riwayat untuk No Layanan "${currentHistoryNoLayanan}" — ${jobName ? 'Nama: ' + jobName : ''}`;
             container.innerHTML = '<div class="history-empty"><span class="loading-spinner"></span> Memuat history...</div>';
             document.getElementById('modalHistory').style.display = 'block';
             if (!historyDataLoaded) {
@@ -5900,25 +5671,17 @@
             return "-";
         }
 
-        window.handleStatusRumahChange = function(selectOrInput) {
-            const wrapper = selectOrInput.closest('.status-rumah-wrapper');
-            if (!wrapper) return;
-            const select = wrapper.querySelector('.bulk-status-rumah-select');
+        window.handleStatusRumahChange = function(select) {
+            const wrapper = select.closest('.status-rumah-wrapper');
             const customInput = wrapper.querySelector('.bulk-status-rumah-custom');
             const hidden = wrapper.querySelector('.bulk-status-rumah');
-
-            if (selectOrInput.tagName === 'SELECT') {
-                if (selectOrInput.value === 'Custom') {
-                    customInput.style.display = 'block';
-                    customInput.focus();
-                    hidden.value = customInput.value || 'Custom';
-                } else {
-                    customInput.style.display = 'none';
-                    hidden.value = selectOrInput.value;
-                }
-            } else if (selectOrInput.tagName === 'INPUT') {
+            if (select.value === 'Custom') {
+                customInput.style.display = 'block';
+                customInput.focus();
                 hidden.value = customInput.value || 'Custom';
-                if (select) select.value = 'Custom';
+            } else {
+                customInput.style.display = 'none';
+                hidden.value = select.value;
             }
             updateAddressHunianFromStatus(wrapper);
         };
@@ -5955,6 +5718,7 @@
             if (hidden) hidden.value = todayStr;
         };
 
+        // ===== DATE PICKER FOR TICKET DETAILS (per ticket) =====
         window.setTicketDateToday = function(teamIdx, jobIdx) {
             const job = teams[teamIdx]?.jobs[jobIdx];
             if (!job) return;
@@ -5995,18 +5759,124 @@
             showSyncNotification(`📅 Tanggal pemasangan diupdate ke ${displayStr}`, 'success');
         };
 
-        function checkDuplicateNoLayanan(allExistingTickets, newNoLayanan, excludeJobIndex = null) {
-            if (!newNoLayanan || newNoLayanan.trim() === '' || newNoLayanan === '-') return null;
-            const normalized = newNoLayanan.trim();
-            for (let idx = 0; idx < allExistingTickets.length; idx++) {
-                if (excludeJobIndex !== null && idx === excludeJobIndex) continue;
-                const job = allExistingTickets[idx];
-                const existingNo = job.details?.['No Layanan'] || job.details?.['Layanan'] || '';
-                if (existingNo && existingNo.trim() === normalized) {
-                    return job;
-                }
-            }
-            return null;
+        function createPSBCard(text, index, container) {
+            const jam = getFieldValue(text, 'Jam');
+            const nama = getFieldValue(text, 'Nama Lengkap');
+            let alamatLengkap = getFieldValue(text, 'Alamat Lengkap Pemasangan') || getFieldValue(text, 'Alamat Lengkap');
+            const rtRw = getFieldValue(text, 'RT/RW');
+            const nomorRumah = getFieldValue(text, 'Nomor Rumah');
+            const patokan = getFieldValue(text, 'Patokan Lokasi');
+            const statusHunian = getFieldValue(text, 'Status Hunian') || getFieldValue(text, 'Status Rumah') || 'Pribadi';
+            const finalAlamat = formatPSBAddress(alamatLengkap, rtRw, nomorRumah, patokan, statusHunian);
+            const email = getFieldValue(text, 'Email Aktif');
+            const wa = getFieldValue(text, 'No. Wa') || getFieldValue(text, 'No. WA');
+            const paket = getFieldValue(text, 'Paket Layanan');
+            const referensi = getFieldValue(text, 'Referensi') || 'Tidak ada referensi';
+            const ktp = getFieldValue(text, 'No KTP');
+            const tgl = getFieldValue(text, 'Tanggal pemasangan') || new Date().toISOString().split('T')[0];
+            const tglDisplay = formatDateIndoLong(tgl);
+            const statusRumah = statusHunian;
+            const setuju = getFieldValue(text, 'Setuju berlangganan minimal 1 tahun');
+            const noLayanan = getFieldValue(text, 'No Layanan') || getFieldValue(text, 'No layanan') || '-';
+            const linkLokasi = getFieldValue(text, 'Link Lokasi') || '';
+            const card = document.createElement('div');
+            card.className = 'preview-card preview-psb';
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayDisplay = formatDateIndoLong(todayStr);
+            const isCustom = statusRumah !== 'Pribadi';
+            card.innerHTML =
+                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+                <h4 style="color:#007bff;">Ticket PSB #${index+1}: ${nama}</h4>
+                <div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid #007bff; background: #f0f7ff;" required></div>
+                <div class="preview-grid">
+                    <input type="hidden" class="bulk-type" value="PSB">
+                    <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-nolayanan" value="${escapeHtml(noLayanan)}" placeholder="Nomor layanan (opsional)"></div>
+                    <div class="input-group"><label>Nama Lengkap</label><input type="text" class="bulk-nama" value="${escapeHtml(nama)}"></div>
+                    <div class="input-group" style="grid-column:1/-1;"><label>Alamat Lengkap</label><input type="text" class="bulk-alamat" value="${escapeHtml(finalAlamat)}"></div>
+                    <div class="input-group"><label>Email Aktif</label><input type="text" class="bulk-email" value="${escapeHtml(email)}"></div>
+                    <div class="input-group"><label>No. WA</label><input type="text" class="bulk-wa" value="${escapeHtml(wa)}"></div>
+                    <div class="input-group"><label>Paket Layanan</label><input type="text" class="bulk-paket" value="${escapeHtml(paket)}"></div>
+                    <div class="input-group"><label>Referensi</label><input type="text" class="bulk-referensi" value="${escapeHtml(referensi)}"></div>
+                    <div class="input-group"><label>No KTP</label><input type="text" class="bulk-ktp" value="${escapeHtml(ktp)}"></div>
+                    <div class="input-group"><label>Tanggal pemasangan</label>
+                        <div class="date-picker-wrapper">
+                            <input type="text" class="bulk-tgl-display" value="${tglDisplay}" placeholder="8 Agustus 2026" style="flex:1; padding:8px; border:1px solid #ced4da; border-radius:4px;">
+                            <input type="hidden" class="bulk-tgl" value="${tgl || todayStr}">
+                            <button class="btn-today" onclick="setTodayDate(this)">📅 Hari Ini</button>
+                        </div>
+                    </div>
+                    <div class="input-group"><label>Status Rumah</label>
+                        <div class="status-rumah-wrapper">
+                            <select class="bulk-status-rumah-select" onchange="handleStatusRumahChange(this)">
+                                <option value="Pribadi" ${!isCustom ? 'selected' : ''}>Pribadi</option>
+                                <option value="Custom" ${isCustom ? 'selected' : ''}>Custom</option>
+                            </select>
+                            <input type="text" class="bulk-status-rumah-custom" value="${isCustom ? escapeHtml(statusRumah) : ''}" placeholder="Ketik status custom..." style="display:${isCustom ? 'block' : 'none'};">
+                            <input type="hidden" class="bulk-status-rumah" value="${escapeHtml(statusRumah)}">
+                        </div>
+                    </div>
+                    <div class="input-group"><label>Setuju berlangganan minimal 1 tahun</label><input type="text" class="bulk-setuju" value="${escapeHtml(setuju)}"></div>
+                    <div class="input-group"><label>Tipe OLT</label>
+                        <select class="bulk-olt-type" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px;">
+                            <option value="unknown">BELUM DIKETAHUI</option>
+                            <option value="zt">GPON ZTE</option>
+                            <option value="hsgq">GPON HSGQ</option>
+                            <option value="epon">EPON</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="grid-column:1/-1;"><label>Tikor GMaps (Link Lokasi Rumah)</label>
+                        <input type="text" class="bulk-tikor-gmaps" value="${escapeHtml(linkLokasi)}" placeholder="https://www.google.com/maps?q=...">
+                    </div>
+                    <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
+                </div>`;
+            container.appendChild(card);
+        }
+
+        function createMTCard(text, index, container) {
+            const jam = getFieldValue(text, 'Jam');
+            const Kunjungan = getFieldValue(text, 'Kunjungan');
+            const nama = getFieldValue(text, 'Nama Pelanggan');
+            const noLayanan = getFieldValue(text, 'No Layanan') || getFieldValue(text, 'No Layanan') || '-';
+            const masaAktif = getFieldValue(text, 'Masa Aktif s-d') || getFieldValue(text, 'Masa Aktif s/d') || getFieldValue(
+                text, 'Masa Aktif');
+            const noTelp = getFieldValue(text, 'No Telp') || getFieldValue(text, 'No Telp.');
+            const tglDaftar = getFieldValue(text, 'Tanggal Daftar');
+            const alamat = getFieldValue(text, 'Alamat');
+            const ssid = getFieldValue(text, 'Nama WiFi (SSID)');
+            const sandiWifi = getFieldValue(text, 'Sandi WiFi');
+            const lastDBM = getFieldValue(text, 'Last DBM');
+            const oltSnMac = getFieldValue(text, 'OLT SN-MAC') || getFieldValue(text, 'OLT SN/MAC');
+            const linkLokasi = getFieldValue(text, 'Link Lokasi');
+            const linkOdp = getFieldValue(text, 'Link ODP');
+            const portId = getFieldValue(text, 'Port ID');
+            const linkFoto = getFieldValue(text, 'Link foto rumah pelanggan');
+            const isIsolir = Kunjungan.toLowerCase().includes('isolir');
+            const card = document.createElement('div');
+            card.className = isIsolir ? 'preview-card preview-isolir' : 'preview-card preview-mt';
+            card.innerHTML =
+                `<button class="btn-remove-preview" onclick="this.parentElement.remove()">❌</button>
+                <h4 style="color:${isIsolir ? '#c0392b' : '#856404'};">${isIsolir ? 'Ticket ISOLIR' : 'Ticket MT (Kunjungan)'} #${index+1}: ${nama}</h4>
+                <div class="form-group"><label>Jam Kunjungan</label><input type="text" class="bulk-input-jam" value="${jam}" placeholder="Contoh: 13:00 atau Pagi" style="border: 2px solid ${isIsolir ? '#c0392b' : '#ffc107'}; background: ${isIsolir ? '#fff5f5' : '#fffdf5'};" required></div>
+                <div class="preview-grid">
+                    <input type="hidden" class="bulk-type" value="MT">
+                    <div class="input-group"><label>Kunjungan</label><input type="text" class="bulk-Kunjungan" value="${escapeHtml(Kunjungan)}" required></div>
+                    <div class="input-group"><label>Nama Pelanggan</label><input type="text" class="bulk-nama" value="${escapeHtml(nama)}"></div>
+                    <div class="input-group"><label>No Layanan</label><input type="text" class="bulk-layanan" value="${escapeHtml(noLayanan)}" placeholder="No Layanan"></div>
+                    <div class="input-group"><label>Masa Aktif s-d</label><input type="text" class="bulk-masa-aktif" value="${escapeHtml(masaAktif)}"></div>
+                    <div class="input-group"><label>No Telp</label><input type="text" class="bulk-telp" value="${escapeHtml(noTelp)}"></div>
+                    <div class="input-group"><label>Tanggal Daftar</label><input type="text" class="bulk-tgl-daftar" value="${escapeHtml(tglDaftar)}"></div>
+                    <div class="input-group" style="grid-column: 1/-1;"><label>Alamat</label><input type="text" class="bulk-alamat" value="${escapeHtml(alamat)}"></div>
+                    <div class="input-group"><label>Nama WiFi (SSID)</label><input type="text" class="bulk-ssid" value="${escapeHtml(ssid)}"></div>
+                    <div class="input-group"><label>Sandi WiFi</label><input type="text" class="bulk-sandi-wifi" value="${escapeHtml(sandiWifi)}"></div>
+                    <div class="input-group"><label>Last DBM</label><input type="text" class="bulk-last-dbm" value="${escapeHtml(lastDBM)}"></div>
+                    <div class="input-group"><label>OLT SN-MAC</label><input type="text" class="bulk-olt-sn" value="${escapeHtml(oltSnMac)}"></div>
+                    <div class="input-group"><label>Link Lokasi</label><input type="text" class="bulk-link-lokasi" value="${escapeHtml(linkLokasi)}"></div>
+                    <div class="input-group"><label>Link ODP</label><input type="text" class="bulk-link-odp" value="${escapeHtml(linkOdp)}"></div>
+                    <div class="input-group"><label>Port ID</label><input type="text" class="bulk-port-id" value="${escapeHtml(portId)}"></div>
+                    <div class="input-group" style="grid-column: 1/-1;"><label>Link foto rumah pelanggan</label><input type="text" class="bulk-link-foto" value="${escapeHtml(linkFoto)}"></div>
+                    <div class="input-group"><label>Link SC (Speedtest) - TOMBOL SAJA</label><input type="text" class="bulk-link-sc" value="" placeholder="Link SC tidak akan disimpan" disabled></div>
+                </div>`;
+            container.appendChild(card);
         }
 
         window.saveBulkTickets = function() {
@@ -6059,25 +5929,9 @@
             if (!teams[targetTeamIndex].jobs || !Array.isArray(teams[targetTeamIndex].jobs)) teams[targetTeamIndex]
                 .jobs = [];
 
-            const allExistingTickets = [];
-            teams.forEach((team, idx) => {
-                if (team.jobs) {
-                    team.jobs.forEach(job => {
-                        allExistingTickets.push({
-                            ...job,
-                            _teamIdx: idx,
-                            _jobIdx: team.jobs.indexOf(job)
-                        });
-                    });
-                }
-            });
-
             const nid = showSyncNotification('Menyimpan tiket baru...', 'saving', false);
             try {
                 let count = 0;
-                let duplicateFound = false;
-                const newJobs = [];
-
                 previewCards.forEach((card, cardIndex) => {
                     const type = card.querySelector('.bulk-type').value;
                     const jamInput = card.querySelector('.bulk-input-jam');
@@ -6088,26 +5942,20 @@
                     };
                     const nama = getValue('.bulk-nama');
                     let alamat = getValue('.bulk-alamat');
-
-                    // ===== FIX: Status rumah ONLY for PSB =====
-                    if (type === 'PSB') {
-                        const statusRumahEl = card.querySelector('.bulk-status-rumah');
-                        const statusRumah = statusRumahEl ? statusRumahEl.value : 'Pribadi';
-                        if (statusRumah && statusRumah.trim() !== '') {
-                            if (!alamat.includes('hunian:')) {
-                                alamat = alamat.trim();
-                                if (alamat.length > 0) {
-                                    alamat += ` hunian: ${statusRumah}`;
-                                } else {
-                                    alamat = `hunian: ${statusRumah}`;
-                                }
+                    const statusRumahEl = card.querySelector('.bulk-status-rumah');
+                    const statusRumah = statusRumahEl ? statusRumahEl.value : 'Pribadi';
+                    if (statusRumah && statusRumah.trim() !== '') {
+                        if (!alamat.includes('hunian:')) {
+                            alamat = alamat.trim();
+                            if (alamat.length > 0) {
+                                alamat += ` hunian: ${statusRumah}`;
                             } else {
-                                alamat = alamat.replace(/hunian:\s*[^,]*/i, `hunian: ${statusRumah}`);
+                                alamat = `hunian: ${statusRumah}`;
                             }
+                        } else {
+                            alamat = alamat.replace(/hunian:\s*[^,]*/i, `hunian: ${statusRumah}`);
                         }
                     }
-                    // For MT/ISOLIR: alamat is used as-is, NO status rumah added
-
                     const oltSelect = card.querySelector('.bulk-olt-type');
                     const oltType = oltSelect ? oltSelect.value : 'unknown';
                     const tikorGmaps = getValue('.bulk-tikor-gmaps');
@@ -6117,9 +5965,7 @@
                     if (!tglVal || tglVal === '') {
                         if (tglDisplay) {
                             const displayVal = tglDisplay.value.trim();
-                            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
-                                'September', 'Oktober', 'November', 'Desember'
-                            ];
+                            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
                             let found = false;
                             for (let i = 0; i < months.length; i++) {
                                 if (displayVal.includes(months[i])) {
@@ -6153,18 +5999,14 @@
                     }
 
                     let newJob = {};
-                    let noLayanan = '-';
-
                     if (type === 'PSB') {
-                        noLayanan = getValue('.bulk-nolayanan') || '-';
+                        const noLayanan = getValue('.bulk-nolayanan');
                         const email = getValue('.bulk-email');
                         const wa = getValue('.bulk-wa');
                         const paket = getValue('.bulk-paket');
                         const referensi = getValue('.bulk-referensi') || 'Tidak ada referensi';
                         const ktp = getValue('.bulk-ktp');
                         const setuju = getValue('.bulk-setuju');
-                        const statusRumahEl = card.querySelector('.bulk-status-rumah');
-                        const statusRumah = statusRumahEl ? statusRumahEl.value : 'Pribadi';
                         let tikorData = null;
                         if (tikorGmaps) {
                             const coords = parseCoordinatesFromLink(tikorGmaps);
@@ -6206,7 +6048,6 @@
                     } else {
                         const Kunjungan = getValue('.bulk-Kunjungan');
                         const layanan = getValue('.bulk-layanan');
-                        noLayanan = layanan || '-';
                         const masaAktif = getValue('.bulk-masa-aktif');
                         const telp = getValue('.bulk-telp');
                         const tglDaftar = getValue('.bulk-tgl-daftar');
@@ -6245,7 +6086,6 @@
                             }
                         }
 
-                        // MT/ISOLIR: address does NOT get status rumah added
                         newJob = {
                             completed: false,
                             status: 'pending',
@@ -6266,31 +6106,9 @@
                             _nonPsbBackup: null
                         };
                     }
-
-                    if (noLayanan && noLayanan.trim() !== '' && noLayanan !== '-') {
-                        const duplicate = checkDuplicateNoLayanan(allExistingTickets, noLayanan);
-                        if (duplicate) {
-                            duplicateFound = true;
-                            alert(
-                                `⚠️ DUPLIKAT No Layanan "${noLayanan}"!\n\nTiket yang sudah memiliki No Layanan ini:\n📌 ${duplicate.name || '-'} (${duplicate.tag || '-'}) - Tim ${teams[duplicate._teamIdx]?.teamName || '?'}\n\nSilakan masukkan No Layanan yang berbeda untuk tiket ini.`
-                                );
-                            throw new Error(`Duplicate No Layanan: ${noLayanan}`);
-                        }
-                    }
-
-                    newJobs.push(newJob);
-                    allExistingTickets.push({
-                        ...newJob,
-                        _teamIdx: targetTeamIndex,
-                        _jobIdx: teams[targetTeamIndex].jobs.length + newJobs.length - 1
-                    });
-                });
-
-                for (const job of newJobs) {
-                    teams[targetTeamIndex].jobs.push(job);
+                    teams[targetTeamIndex].jobs.push(newJob);
                     count++;
-                }
-
+                });
                 if (count > 0) {
                     saveDataToFirebase();
                     closeCreateTicketModal();
@@ -6309,9 +6127,7 @@
             } catch (error) {
                 closeSyncNotification(nid);
                 console.error("CRITICAL ERROR:", error);
-                if (error.message && !error.message.includes('Duplicate')) {
-                    alert("❌ TERJADI ERROR SYSTEM:\n" + error.message + "\n\nCoba refresh halaman dan coba lagi.");
-                }
+                alert("❌ TERJADI ERROR SYSTEM:\n" + error.message + "\n\nCoba refresh halaman dan coba lagi.");
             }
         };
 
@@ -6575,8 +6391,7 @@
                     job.address = newData.alamat || job.address || '-';
                     job.time = preservedTime;
                     job.tag = preservedTag || preservedKunjungan || 'KUNJUNGAN';
-                    job.tagClass = preservedTagClass || (job.tag.toLowerCase().includes('isolir') ? 'badge-isolir' :
-                        'badge-mt');
+                    job.tagClass = preservedTagClass || (job.tag.toLowerCase().includes('isolir') ? 'badge-isolir' : 'badge-mt');
                 }
 
                 job.time = preservedTime;
@@ -6596,8 +6411,7 @@
                 if (!isPSB && preservedKunjungan) {
                     job.details['Kunjungan'] = preservedKunjungan;
                     job.tag = preservedTag || preservedKunjungan;
-                    job.tagClass = preservedTagClass || (preservedKunjungan.toLowerCase().includes('isolir') ?
-                        'badge-isolir' :
+                    job.tagClass = preservedTagClass || (preservedKunjungan.toLowerCase().includes('isolir') ? 'badge-isolir' :
                         'badge-mt');
                 }
 
@@ -6929,7 +6743,7 @@
                                 <option value="Pribadi" ${!isCustom ? 'selected' : ''}>Pribadi</option>
                                 <option value="Custom" ${isCustom ? 'selected' : ''}>Custom</option>
                             </select>
-                            <input type="text" class="bulk-status-rumah-custom" value="${isCustom ? escapeHtml(currentStatusRumah) : ''}" placeholder="Ketik status custom..." style="display:${isCustom ? 'block' : 'none'};" oninput="handleStatusRumahChange(this)">
+                            <input type="text" class="bulk-status-rumah-custom" value="${isCustom ? escapeHtml(currentStatusRumah) : ''}" placeholder="Ketik status custom..." style="display:${isCustom ? 'block' : 'none'};">
                             <input type="hidden" class="bulk-status-rumah" value="${escapeHtml(currentStatusRumah)}">
                         </div>
                     </div>
@@ -7196,7 +7010,7 @@
         };
 
         // ================================================================
-        //  RESET DATABASE
+        //  RESET DATABASE — fixed to save to rekap web's Firebase
         // ================================================================
         window.resetDatabaseWithBackup = async function() {
             let pin = prompt("🔐 Masukkan PIN Admin untuk Reset Tiket + Download Backup:");
@@ -7208,7 +7022,7 @@
                     "⚠️ PERINGATAN: Anda akan melakukan reset tiket!\n\n" +
                     "Langkah:\n" +
                     "1. 📥 Download backup JSON data saat ini\n" +
-                    "2. 📤 Kirim JSON ke Rekap Tiket (fitur JSON Monitoring)\n" +
+                    "2. 📤 Kirim JSON ke Rekap Tiket (fitur JSON Monitoring) — menggunakan database REKAP\n" +
                     "3. 🗑️ Hapus SEMUA tiket, tim, dan stok modem teknisi\n" +
                     "4. Data Non IKR TIDAK akan terhapus\n\n" +
                     "Yakin ingin melanjutkan?"
@@ -7241,6 +7055,9 @@
                         if (team.jobs) itemCount += team.jobs.length;
                     }
                     const timestamp = Date.now();
+
+                    // *** FIX: Save to rekap web's Firebase using rekapJsonMonitoringRef ***
+                    // rekapJsonMonitoringRef is already pointing to rekap web's database
                     await set(ref(rekapDb, `monitoring_json_backup/${timestamp}`), {
                         jsonData: jsonStr,
                         uploadedAt: new Date().toISOString(),
@@ -7249,6 +7066,7 @@
                         teamsCount: backupData.teams.length,
                         monitoringDate: customMonitoringDate || new Date().toISOString().split('T')[0]
                     });
+
                     showSyncNotification(`✅ JSON berhasil dikirim ke Rekap Tiket! (${itemCount} tiket)`, 'success');
                 } catch (sendErr) {
                     console.error('Gagal kirim JSON ke Rekap Tiket:', sendErr);
@@ -7349,8 +7167,7 @@
 
                 if (appMode === 'tech' && filteredJobs.length === 0) return;
 
-                const locationEnabled = isAdmin && globalMainLocation && globalMainLocation.lat !== null && globalMainLocation
-                    .lng !== null;
+                const locationEnabled = isAdmin && globalMainLocation && globalMainLocation.lat !== null && globalMainLocation.lng !== null;
                 if (locationEnabled) {
                     const mainCoords = { lat: globalMainLocation.lat, lng: globalMainLocation.lng };
                     filteredJobs = filteredJobs.map(job => {
@@ -7501,8 +7318,7 @@
                         if (originalIndex === -1) {
                             for (let i = 0; i < team.jobs.length; i++) {
                                 const j = team.jobs[i];
-                                if (j.name === job.name && j.address === job.address && j.time === job.time && j
-                                    .tag === job
+                                if (j.name === job.name && j.address === job.address && j.time === job.time && j.tag === job
                                     .tag) {
                                     originalIndex = i;
                                     break;
@@ -7552,13 +7368,11 @@
                     }
 
                     const tikorVal = (isAdmin && job.tikor) ? job.tikor.link || '' : '';
-                    const tikorClass = (isAdmin && job.tikor && job.tikor.lat !== null && job.tikor.lng !== null) ?
-                        'tikor-filled' :
+                    const tikorClass = (isAdmin && job.tikor && job.tikor.lat !== null && job.tikor.lng !== null) ? 'tikor-filled' :
                         (isAdmin && job.tikor && job.tikor.link ? 'tikor-invalid' : '');
 
                     let autoTikorVal = '';
-                    if (!isPSB && isAdmin && job.details && job.details['Link Lokasi'] && job.details['Link Lokasi'] !==
-                        '-') {
+                    if (!isPSB && isAdmin && job.details && job.details['Link Lokasi'] && job.details['Link Lokasi'] !== '-') {
                         const linkLokasi = job.details['Link Lokasi'];
                         const coords = parseCoordinatesFromLink(linkLokasi);
                         if (coords) {
@@ -7578,14 +7392,12 @@
                     }
 
                     const finalTikorVal = (isAdmin && job.tikor) ? job.tikor.link || '' : '';
-                    const finalTikorClass = (isAdmin && job.tikor && job.tikor.lat !== null && job.tikor.lng !== null) ?
-                        'tikor-filled' :
+                    const finalTikorClass = (isAdmin && job.tikor && job.tikor.lat !== null && job.tikor.lng !== null) ? 'tikor-filled' :
                         (isAdmin && job.tikor && job.tikor.link ? 'tikor-invalid' : '');
 
                     let tikorHtml = '';
                     if (isAdmin && enableTikorOperLocal) {
-                        const autoHint = (!isPSB && job.details && job.details['Link Lokasi'] && job.details['Link Lokasi'] !==
-                            '-') ?
+                        const autoHint = (!isPSB && job.details && job.details['Link Lokasi'] && job.details['Link Lokasi'] !== '-') ?
                             ` (auto dari Link Lokasi)` : '';
                         tikorHtml = `
                                 <div class="job-center">
@@ -7696,8 +7508,7 @@
                         const statusRumahVal = job.details['Status Rumah'] || 'Pribadi';
                         detailHTML +=
                             `<div class="detail-item"><span class="detail-label">Status Rumah</span>${renderEditableValueWithStatusRumah(actualIndex, originalIndex, 'statusRumah', statusRumahVal)}</div>`;
-                        const tglPasang = job.details['Tgl Pasang'] || job.details['Tanggal pemasangan'] || job.details[
-                            'Tanggal Pemasangan'] || '-';
+                        const tglPasang = job.details['Tgl Pasang'] || job.details['Tanggal pemasangan'] || job.details['Tanggal Pemasangan'] || '-';
                         const tglDisplay = formatDateIndoLong(tglPasang);
                         detailHTML +=
                             `<div class="detail-item"><span class="detail-label">Tanggal Pemasangan</span>${renderEditableValueWithDate(actualIndex, originalIndex, 'tglPasang', tglPasang, tglDisplay)}</div>`;
@@ -7716,9 +7527,7 @@
                         "Link Lokasi", "Link ODP", "Port ID", "Link foto rumah pelanggan"
                     ];
                     let skipKeys = [];
-                    if (isPSB) skipKeys = ['No Layanan', 'Paket', 'Layanan', 'Status Rumah', 'Tgl Pasang',
-                        'Tanggal pemasangan', 'Tanggal Pemasangan'
-                    ];
+                    if (isPSB) skipKeys = ['No Layanan', 'Paket', 'Layanan', 'Status Rumah', 'Tgl Pasang', 'Tanggal pemasangan', 'Tanggal Pemasangan'];
                     else skipKeys = ['Kunjungan', 'Layanan'];
                     for (const [key, value] of Object.entries(job.details)) {
                         if (skipKeys.includes(key)) continue;
@@ -7782,18 +7591,14 @@
 
                     let jobCenterHtml = tikorHtml;
                     if (categoryChangeHtml) {
-                        jobCenterHtml =
-                            `<div class="job-center">${finalTikorVal ? `<input type="text" class="tikor-input ${finalTikorClass}" value="${escapeHtml(finalTikorVal)}" placeholder="Tikor GMaps..." onchange="updateTikor(${actualIndex}, ${originalIndex}, this)" title="Masukkan link Google Maps untuk lokasi tiket ini">` : `<input type="text" class="tikor-input" value="" placeholder="Tikor GMaps..." onchange="updateTikor(${actualIndex}, ${originalIndex}, this)" title="Masukkan link Google Maps untuk lokasi tiket ini">`} ${categoryChangeHtml}</div>`;
+                        jobCenterHtml = `<div class="job-center">${finalTikorVal ? `<input type="text" class="tikor-input ${finalTikorClass}" value="${escapeHtml(finalTikorVal)}" placeholder="Tikor GMaps..." onchange="updateTikor(${actualIndex}, ${originalIndex}, this)" title="Masukkan link Google Maps untuk lokasi tiket ini">` : `<input type="text" class="tikor-input" value="" placeholder="Tikor GMaps..." onchange="updateTikor(${actualIndex}, ${originalIndex}, this)" title="Masukkan link Google Maps untuk lokasi tiket ini">`} ${categoryChangeHtml}</div>`;
                     }
 
                     // ===== DATE PICKER PER TICKET (PSB only) =====
                     let datePickerHtml = '';
                     if (isPSB && isAdmin) {
-                        const tglRaw = job.details?.['Tgl Pasang'] || job.details?.['Tanggal pemasangan'] || job.details?.[
-                            'Tanggal Pemasangan'
-                        ] || '';
-                        const tglDisplayVal = formatDateIndoLong(tglRaw) || formatDateIndoLong(new Date().toISOString()
-                            .split('T')[0]);
+                        const tglRaw = job.details?.['Tgl Pasang'] || job.details?.['Tanggal pemasangan'] || job.details?.['Tanggal Pemasangan'] || '';
+                        const tglDisplayVal = formatDateIndoLong(tglRaw) || formatDateIndoLong(new Date().toISOString().split('T')[0]);
                         const tglDateVal = tglRaw || new Date().toISOString().split('T')[0];
                         datePickerHtml = `
                                 <div class="date-picker-ticket" style="margin-top:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -8137,8 +7942,7 @@
         window.editDateField = function(teamIdx, jobIdx, fieldType) {
             if (appMode !== 'admin') return;
             const job = teams[teamIdx].jobs[jobIdx];
-            const currentVal = job.details['Tgl Pasang'] || job.details['Tanggal pemasangan'] || job.details[
-                'Tanggal Pemasangan'] || '';
+            const currentVal = job.details['Tgl Pasang'] || job.details['Tanggal pemasangan'] || job.details['Tanggal Pemasangan'] || '';
             const newVal = prompt('Edit Tanggal Pemasangan (format: 8 Agustus 2026 atau YYYY-MM-DD):', currentVal);
             if (newVal !== null && newVal.trim() !== '') {
                 const cleaned = newVal.trim();
@@ -8221,9 +8025,7 @@
             if (!sn) return;
             if (updateInventoryStatus(teamIdx, sn, 'pending')) { showSyncNotification(`Modem ${sn} dikembalikan ke stok (pending)`,
                     'success'); }
-            if (job.technical) { job.technical.sn = '';
-                job.technical.mac = '';
-                job.technical.vlan = ''; }
+            if (job.technical) { job.technical.sn = ''; job.technical.mac = ''; job.technical.vlan = ''; }
             saveDataToFirebase();
             renderJobs();
         };
@@ -8275,9 +8077,7 @@
                 }
                 saveDataToFirebase();
                 renderJobs();
-                showSyncNotification(
-                    `✅ Kategori diubah dari ${currentCategory} menjadi ${newCategory} (tag & tagClass diperbarui)`,
-                    'success');
+                showSyncNotification(`✅ Kategori diubah dari ${currentCategory} menjadi ${newCategory} (tag & tagClass diperbarui)`, 'success');
                 return;
             }
 
@@ -8332,8 +8132,7 @@
                 return;
             }
 
-            const nid = showSyncNotification(`🔄 Mengubah kategori ke ${newCategory} (generating with AI)...`, 'saving',
-            false);
+            const nid = showSyncNotification(`🔄 Mengubah kategori ke ${newCategory} (generating with AI)...`, 'saving', false);
             try {
                 const d = job.details || {};
                 const dataToConvert = {
@@ -8362,8 +8161,7 @@
                     tgl: d['Tgl Pasang'] || d['Tanggal pemasangan'] || '-',
                     statusRumah: d['Status Rumah'] || 'Pribadi',
                     setuju: d['Setuju Berlangganan'] || d['Setuju'] || '-',
-                    kunjungan: d['Kunjungan'] || (isTargetPSB ? 'KUNJUNGAN' : (newCategory === 'ISOLIR' ?
-                        'KUNJUNGAN ISOLIR' : 'KUNJUNGAN'))
+                    kunjungan: d['Kunjungan'] || (isTargetPSB ? 'KUNJUNGAN' : (newCategory === 'ISOLIR' ? 'KUNJUNGAN ISOLIR' : 'KUNJUNGAN'))
                 };
                 const prompt = `
                     Ubah data tiket berikut dari kategori "${currentCategory}" menjadi "${newCategory}".
@@ -8511,8 +8309,7 @@
                         "Port ID": newData.portId || '-',
                         "Link foto rumah pelanggan": newData.linkFoto || '-'
                     };
-                    const kunjunganVal = newData.kunjungan || (newCategory === 'ISOLIR' ? 'KUNJUNGAN ISOLIR' :
-                        'KUNJUNGAN');
+                    const kunjunganVal = newData.kunjungan || (newCategory === 'ISOLIR' ? 'KUNJUNGAN ISOLIR' : 'KUNJUNGAN');
                     newDetails["Kunjungan"] = kunjunganVal;
                 }
                 job.name = newData.nama || job.name || '-';
@@ -8707,18 +8504,15 @@
                                 if (!t.inventory) t.inventory = [];
                                 t.inventory = t.inventory.map(item => {
                                     if (!item.status) item.status = 'pending';
-                                    if (item.portColor === undefined) item.portColor =
-                                        'neutral';
+                                    if (item.portColor === undefined) item.portColor = 'neutral';
                                     return item;
                                 });
                                 if (t.jobs) t.jobs.forEach(job => {
                                     if (job.oltType === undefined) job.oltType = 'unknown';
                                     if (job.tikor === undefined) job.tikor = null;
-                                    if (job.infoUserDone === undefined) job.infoUserDone =
-                                        false;
+                                    if (job.infoUserDone === undefined) job.infoUserDone = false;
                                     if (job._psbBackup === undefined) job._psbBackup = null;
-                                    if (job._nonPsbBackup === undefined) job._nonPsbBackup =
-                                        null;
+                                    if (job._nonPsbBackup === undefined) job._nonPsbBackup = null;
                                 });
                             });
                         } else { teams = JSON.parse(JSON.stringify(defaultTeams)); }
