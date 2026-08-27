@@ -3093,6 +3093,18 @@
             measurementId: "G-TVN9Y64LJD"
         };
 
+        // ===== LIST ISOLIR FIREBASE CONFIG (agar sync dengan web list isolir) =====
+        const listIsolirConfig = {
+            apiKey: "AIzaSyBjKNRvMvOdvmpmuJHoqLzLQQQ0e_xSX-I",
+            authDomain: "listisolir.firebaseapp.com",
+            databaseURL: "https://listisolir-default-rtdb.firebaseio.com",
+            projectId: "listisolir",
+            storageBucket: "listisolir.firebasestorage.app",
+            messagingSenderId: "588243494028",
+            appId: "1:588243494028:web:42fb129700b57194be47a9",
+            measurementId: "G-V297VK6SGM"
+        };
+
         // ===== INITIALIZE APPS =====
         const mainApp = initializeApp(firebaseConfig, 'mainApp');
         const db = getDatabase(mainApp);
@@ -3114,7 +3126,8 @@
         const gudangDb = getDatabase(gudangApp);
         const gudangModemsRef = ref(gudangDb, 'modems');
 
-        const isolirApp = initializeApp(firebaseConfig, 'isolirApp');
+        // ===== INISIALISASI ISOLIR APP DENGAN LIST ISOLIR CONFIG =====
+        const isolirApp = initializeApp(listIsolirConfig, 'isolirApp');
         const isolirDb = getDatabase(isolirApp);
         const isolirPejabatRef = ref(isolirDb, 'pejabatList');
         const isolirDoneRef = ref(isolirDb, 'doneList');
@@ -3138,7 +3151,7 @@
         function updateIsolirConnectionStatus(connected) {
             isolirConnected = connected;
             if (connected) {
-                isolirStatusEl.textContent = '🔗 List Isolir: ✅ Terhubung';
+                isolirStatusEl.textContent = '🔗 List Isolir: ✅ Terhubung (sync dengan web list isolir)';
                 isolirStatusEl.style.color = '#28a745';
             } else {
                 isolirStatusEl.textContent = '🔗 List Isolir: ⚠️ Offline (data lokal)';
