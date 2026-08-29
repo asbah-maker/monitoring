@@ -313,6 +313,26 @@
             color: #4a6a7a;
             white-space: nowrap;
         }
+        .api-key-row .save-key-btn {
+            background: linear-gradient(135deg, #1a4a6e, #0f2b3b);
+            color: white;
+            border: 1px solid rgba(58, 124, 165, 0.2);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+        }
+        .api-key-row .save-key-btn:active {
+            transform: scale(0.95);
+        }
+        .api-key-row .save-key-btn.saved {
+            background: #10b981;
+            border-color: #10b981;
+        }
 
         /* messages */
         .quest-messages {
@@ -568,6 +588,44 @@
             transform: scale(0.9);
         }
 
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .loading-overlay.active {
+            display: flex;
+        }
+        .loading-overlay .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(106, 176, 230, 0.2);
+            border-top-color: #6ab0e6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .loading-overlay p {
+            color: #8ba6c9;
+            font-size: 0.85rem;
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
             .landing-title {
@@ -624,7 +682,7 @@
             }
             .api-key-row.open {
                 padding: 0.4rem 0.6rem;
-                max-height: 90px;
+                max-height: 120px;
             }
             .api-key-row input {
                 font-size: 0.7rem;
@@ -636,6 +694,10 @@
             }
             .api-key-row .api-hint {
                 font-size: 0.5rem;
+            }
+            .api-key-row .save-key-btn {
+                font-size: 0.55rem;
+                padding: 3px 10px;
             }
             .quest-messages {
                 padding: 0.6rem 0.6rem;
@@ -735,6 +797,12 @@
 </head>
 <body>
 
+    <!-- ===== LOADING OVERLAY ===== -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>⏳ Menyimpan API Key ke Firebase...</p>
+    </div>
+
     <!-- ===== LANDING PAGE ===== -->
     <div class="app-wrapper" id="landingWrapper">
         <div class="landing-content">
@@ -750,7 +818,7 @@
                 <i class="fas fa-rocket"></i> Mulai Quest AI
             </button>
             <div class="landing-footer">
-                <i class="fas fa-shield-alt"></i> Data SOP · Firebase Realtime &nbsp;|&nbsp; <i class="fas fa-key"></i> API Key DeepSeek
+                <i class="fas fa-shield-alt"></i> Data SOP · Firebase Realtime &nbsp;|&nbsp; <i class="fas fa-key"></i> API Key DeepSeek (Shared)
             </div>
         </div>
     </div>
@@ -778,6 +846,7 @@
         <div class="api-key-row" id="apiKeyRow">
             <label><i class="fas fa-key"></i> API Key</label>
             <input type="password" id="apiKeyInput" placeholder="sk-..." inputmode="text" autocomplete="off" />
+            <button class="save-key-btn" id="saveKeyBtn">💾 Simpan</button>
             <span class="api-hint" id="apiHint">🔑 belum diset</span>
         </div>
 
@@ -787,7 +856,7 @@
                 <div class="msg-label">🤖 Asisten SOP</div>
                 <p style="font-size:0.82rem; color:#c8dae8;">
                     Halo! Siap membantu menganalisis SOP Anda.
-                    <br />Masukkan <strong>API Key DeepSeek</strong> di atas, lalu tanyakan apa pun tentang prosedur operasional.
+                    <br />API Key DeepSeek sudah tersimpan di Firebase dan bisa digunakan bersama oleh semua pengguna.
                 </p>
                 <p style="font-size:0.7rem; color:#4a6a7a; margin-top:8px;">
                     <i class="fas fa-lightbulb"></i> Contoh: "Bagaimana prosedur handle keluhan tagihan?"
@@ -832,7 +901,7 @@
         // STATE
         // ============================================================
         let notesArray = [];
-        let aiApiKey = localStorage.getItem('deepseek_api_key') || '';
+        let aiApiKey = '';
         let isProcessing = false;
         let isQuestActive = false;
 
@@ -846,12 +915,56 @@
         const apiBadgeLabel = document.getElementById('apiBadgeLabel');
         const apiHint = document.getElementById('apiHint');
         const apiKeyRow = document.getElementById('apiKeyRow');
+        const saveKeyBtn = document.getElementById('saveKeyBtn');
         const questMessages = document.getElementById('questMessages');
         const questInput = document.getElementById('questInput');
         const sendBtn = document.getElementById('sendQuestBtn');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightboxImg');
         const closeLbBtn = document.getElementById('closeLbBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // ============================================================
+        // FIREBASE: Get/Set API Key
+        // ============================================================
+        function loadApiKeyFromFirebase() {
+            const configRef = database.ref('config/apiKey');
+            configRef.on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    aiApiKey = val;
+                    updateApiUI();
+                    console.log('✅ API Key loaded from Firebase');
+                } else {
+                    // Set default API key if not exists
+                    const defaultKey = 'sk-3c813d1e18f14360af34137852d4ff89';
+                    configRef.set(defaultKey).then(() => {
+                        aiApiKey = defaultKey;
+                        updateApiUI();
+                        console.log('✅ Default API Key saved to Firebase');
+                    }).catch(err => {
+                        console.error('Failed to save default API key:', err);
+                    });
+                }
+            }, (err) => {
+                console.error('Failed to load API Key from Firebase:', err);
+            });
+        }
+
+        function saveApiKeyToFirebase(key) {
+            return new Promise((resolve, reject) => {
+                const configRef = database.ref('config/apiKey');
+                configRef.set(key)
+                    .then(() => {
+                        aiApiKey = key;
+                        updateApiUI();
+                        resolve();
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+            });
+        }
 
         // ============================================================
         // FIREBASE: listen notes (SOP data)
@@ -912,39 +1025,57 @@
         }
 
         // ============================================================
-        // API KEY management
+        // API KEY management UI
         // ============================================================
         function updateApiUI() {
             if (aiApiKey) {
                 apiBadge.className = 'api-status-badge ok';
                 apiBadgeLabel.textContent = '✓ aktif';
-                apiHint.textContent = '✅ API Key tersimpan';
+                apiHint.textContent = '✅ API Key tersimpan di Firebase';
                 apiKeyInput.value = aiApiKey;
+                saveKeyBtn.textContent = '✅ Tersimpan';
+                saveKeyBtn.classList.add('saved');
             } else {
                 apiBadge.className = 'api-status-badge err';
                 apiBadgeLabel.textContent = 'API';
                 apiHint.textContent = '🔑 belum diset';
                 apiKeyInput.value = '';
+                saveKeyBtn.textContent = '💾 Simpan';
+                saveKeyBtn.classList.remove('saved');
             }
         }
 
-        apiKeyInput.addEventListener('change', () => {
-            const val = apiKeyInput.value.trim();
-            if (val) {
-                localStorage.setItem('deepseek_api_key', val);
-                aiApiKey = val;
-            } else {
-                localStorage.removeItem('deepseek_api_key');
-                aiApiKey = '';
+        // ============================================================
+        // Save API Key to Firebase
+        // ============================================================
+        async function handleSaveKey() {
+            const key = apiKeyInput.value.trim();
+            if (!key) {
+                alert('Masukkan API Key DeepSeek terlebih dahulu.');
+                return;
             }
-            updateApiUI();
-        });
 
-        // toggle API row on badge click
-        apiBadge.addEventListener('click', () => {
-            apiKeyRow.classList.toggle('open');
-            if (apiKeyRow.classList.contains('open')) {
-                setTimeout(() => apiKeyInput.focus(), 100);
+            loadingOverlay.classList.add('active');
+
+            try {
+                await saveApiKeyToFirebase(key);
+                updateApiUI();
+                alert('✅ API Key berhasil disimpan ke Firebase!\nSekarang bisa digunakan oleh semua pengguna.');
+            } catch (err) {
+                console.error('Error saving API Key:', err);
+                alert('❌ Gagal menyimpan API Key: ' + err.message);
+            } finally {
+                loadingOverlay.classList.remove('active');
+            }
+        }
+
+        saveKeyBtn.addEventListener('click', handleSaveKey);
+
+        // Enter key on API input
+        apiKeyInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSaveKey();
             }
         });
 
@@ -978,6 +1109,14 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && isQuestActive) {
                 exitQuest();
+            }
+        });
+
+        // toggle API row on badge click
+        apiBadge.addEventListener('click', () => {
+            apiKeyRow.classList.toggle('open');
+            if (apiKeyRow.classList.contains('open')) {
+                setTimeout(() => apiKeyInput.focus(), 100);
             }
         });
 
@@ -1207,7 +1346,7 @@
                 apiKeyInput.focus();
                 apiKeyInput.style.borderColor = '#f87171';
                 setTimeout(() => apiKeyInput.style.borderColor = '', 2000);
-                alert('Masukkan API Key DeepSeek terlebih dahulu.');
+                alert('API Key belum tersedia. Tunggu sebentar atau simpan API Key terlebih dahulu.');
                 return;
             }
             if (isProcessing) return;
@@ -1358,18 +1497,15 @@
         // ============================================================
         // INIT
         // ============================================================
-        listenNotes();
-        updateApiUI();
+        // Load API Key from Firebase first
+        loadApiKeyFromFirebase();
 
-        if (aiApiKey) {
-            apiBadge.className = 'api-status-badge ok';
-            apiBadgeLabel.textContent = '✓ aktif';
-            apiHint.textContent = '✅ API Key tersimpan';
-        }
+        // Then load SOP data
+        listenNotes();
 
         console.log('🚀 Quest AI · DeepSeek SOP ready');
-        console.log('📌 Klik tag referensi SOP untuk melihat detail.');
-        console.log('🔑 Masukkan API Key DeepSeek di panel atas.');
+        console.log('📌 API Key disimpan di Firebase dan bisa digunakan bersama');
+        console.log('🔑 Klik badge API untuk melihat/menyimpan API Key');
     </script>
 </body>
 </html>
