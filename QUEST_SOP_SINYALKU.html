@@ -26,6 +26,8 @@
             background: #0b141e;
             color: #e2e8f0;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         /* ===== LANDING (app wrapper) ===== */
@@ -35,9 +37,12 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            height: 100dvh;
             padding: 2rem 1.5rem;
             background: radial-gradient(circle at 30% 40%, #0f1f2e, #060b12);
             transition: opacity 0.5s ease, transform 0.5s ease;
+            position: relative;
+            z-index: 100;
         }
         .app-wrapper.hidden {
             opacity: 0;
@@ -54,6 +59,7 @@
             max-width: 580px;
             width: 100%;
             text-align: center;
+            padding: 0 0.5rem;
         }
         .landing-icon {
             font-size: 4.2rem;
@@ -120,10 +126,10 @@
             align-items: center;
             gap: 14px;
             border: 1px solid rgba(58, 124, 165, 0.4);
+            -webkit-tap-highlight-color: transparent;
         }
-        .btn-quest-launch:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 14px 56px rgba(26, 74, 110, 0.7);
+        .btn-quest-launch:active {
+            transform: scale(0.96);
         }
         .btn-quest-launch i {
             color: #7fc9ff;
@@ -147,6 +153,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             background: #0b141e;
             display: flex;
             flex-direction: column;
@@ -162,54 +169,63 @@
 
         /* header */
         .quest-header {
-            padding: 0.7rem 1.2rem 0.7rem 1.5rem;
-            background: rgba(15, 30, 45, 0.92);
+            padding: 0.6rem 0.8rem 0.6rem 1rem;
+            background: rgba(15, 30, 45, 0.95);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(58, 124, 165, 0.15);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
-            min-height: 60px;
+            min-height: 52px;
+            gap: 6px;
         }
         .quest-header .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: #e2e8f0;
+            min-width: 0;
+            flex-shrink: 1;
         }
         .quest-header .brand i {
             color: #6ab0e6;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
         }
         .quest-header .brand small {
             font-weight: 400;
             color: #6c86a3;
-            font-size: 0.7rem;
-            margin-left: 4px;
+            font-size: 0.65rem;
+            margin-left: 2px;
+            display: none;
         }
         .quest-header .header-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
+            flex-shrink: 0;
         }
         .quest-header .header-actions .api-status-badge {
-            font-size: 0.6rem;
-            padding: 4px 12px;
+            font-size: 0.55rem;
+            padding: 4px 10px;
             border-radius: 30px;
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.08);
             color: #8ba6c9;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             cursor: pointer;
             transition: 0.2s;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
         }
-        .quest-header .header-actions .api-status-badge:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .quest-header .header-actions .api-status-badge:active {
+            transform: scale(0.95);
         }
         .quest-header .header-actions .api-status-badge.ok {
             color: #10b981;
@@ -223,62 +239,68 @@
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.08);
             color: #e2e8f0;
-            padding: 6px 16px;
+            padding: 4px 12px;
             border-radius: 40px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 500;
             cursor: pointer;
             transition: 0.2s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
         }
-        .quest-header .header-actions .exit-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
+        .quest-header .header-actions .exit-btn:active {
+            transform: scale(0.95);
         }
         .quest-header .header-actions .exit-btn i {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
+        }
+        .quest-header .header-actions .exit-btn span {
+            display: inline;
         }
 
-        /* API key row (collapsible) */
+        /* API key row */
         .api-key-row {
-            padding: 0.5rem 1.5rem;
+            padding: 0.4rem 1rem;
             background: rgba(255, 255, 255, 0.03);
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             flex-shrink: 0;
             flex-wrap: wrap;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             max-height: 0;
             overflow: hidden;
-            padding: 0 1.5rem;
+            padding: 0 1rem;
         }
         .api-key-row.open {
-            max-height: 80px;
-            padding: 0.6rem 1.5rem;
+            max-height: 100px;
+            padding: 0.5rem 1rem;
         }
         .api-key-row label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
             color: #8ba6c9;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             white-space: nowrap;
         }
         .api-key-row input {
             flex: 1;
-            min-width: 140px;
-            padding: 6px 14px;
+            min-width: 100px;
+            padding: 6px 12px;
             border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             background: rgba(255, 255, 255, 0.04);
             color: #e2e8f0;
             outline: none;
             transition: border 0.2s;
+            -webkit-appearance: none;
         }
         .api-key-row input:focus {
             border-color: #2b5f8a;
@@ -287,7 +309,7 @@
             color: #4a6a7a;
         }
         .api-key-row .api-hint {
-            font-size: 0.65rem;
+            font-size: 0.55rem;
             color: #4a6a7a;
             white-space: nowrap;
         }
@@ -296,18 +318,19 @@
         .quest-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 1.2rem 1.5rem;
+            padding: 0.8rem 0.8rem;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 10px;
             scroll-behavior: smooth;
             background: radial-gradient(ellipse at 50% 0%, #0f1f2e, #060b12);
+            -webkit-overflow-scrolling: touch;
         }
         .quest-messages .msg {
-            max-width: 92%;
-            padding: 12px 18px;
-            border-radius: 20px;
-            font-size: 0.87rem;
+            max-width: 94%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 0.82rem;
             line-height: 1.6;
             animation: fadeUp 0.3s ease;
             word-break: break-word;
@@ -325,18 +348,19 @@
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-bottom-left-radius: 4px;
             backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
         .quest-messages .msg.assistant .msg-label {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: #6c86a3;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             font-weight: 600;
         }
         .quest-messages .msg.assistant .sop-analysis {
-            margin: 6px 0 8px 0;
-            padding-left: 12px;
+            margin: 4px 0 6px 0;
+            padding-left: 10px;
             border-left: 3px solid #2b5f8a;
         }
         .quest-messages .msg.assistant .sop-analysis ul {
@@ -345,17 +369,17 @@
             margin: 4px 0;
         }
         .quest-messages .msg.assistant .sop-analysis ul li {
-            padding: 3px 0 3px 4px;
-            font-size: 0.85rem;
+            padding: 2px 0 2px 4px;
+            font-size: 0.82rem;
         }
         .quest-messages .msg .typing-indicator {
             display: flex;
-            gap: 5px;
-            padding: 6px 0;
+            gap: 4px;
+            padding: 4px 0;
         }
         .quest-messages .msg .typing-indicator span {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: #6c86a3;
             border-radius: 50%;
             animation: typingBounce 1.2s infinite;
@@ -373,13 +397,13 @@
                 transform: translateY(0);
             }
             30% {
-                transform: translateY(-8px);
+                transform: translateY(-6px);
             }
         }
         @keyframes fadeUp {
             from {
                 opacity: 0;
-                transform: translateY(14px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -387,81 +411,84 @@
             }
         }
 
-        /* SOP reference tag — clickable */
+        /* SOP reference tag */
         .sop-ref-tag {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             background: rgba(30, 70, 104, 0.35);
             color: #8fcbff;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             font-weight: 600;
-            padding: 4px 14px;
+            padding: 3px 10px;
             border-radius: 30px;
             border: 1px solid rgba(43, 95, 138, 0.3);
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
             margin: 2px 2px 2px 0;
-        }
-        .sop-ref-tag i {
-            font-size: 0.65rem;
-            color: #6ab0e6;
-        }
-        .sop-ref-tag:hover {
-            background: rgba(43, 95, 138, 0.5);
-            border-color: #2b5f8a;
-            transform: translateY(-1px);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         .sop-ref-tag:active {
-            transform: scale(0.96);
+            transform: scale(0.94);
+            background: rgba(43, 95, 138, 0.5);
+        }
+        .sop-ref-tag i {
+            font-size: 0.55rem;
+            color: #6ab0e6;
         }
 
         /* image gallery in chat */
         .chat-image-strip {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin-top: 8px;
         }
         .chat-image-strip img {
-            width: 90px;
-            height: 70px;
+            width: 70px;
+            height: 56px;
             object-fit: cover;
-            border-radius: 14px;
+            border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.06);
             cursor: pointer;
             transition: transform 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        .chat-image-strip img:hover {
-            transform: scale(1.05);
+        .chat-image-strip img:active {
+            transform: scale(0.94);
         }
 
         /* input area */
         .quest-input-area {
-            padding: 0.8rem 1.2rem 1.2rem 1.2rem;
+            padding: 0.5rem 0.6rem 0.8rem 0.6rem;
             border-top: 1px solid rgba(255, 255, 255, 0.04);
-            background: rgba(11, 20, 30, 0.9);
+            background: rgba(11, 20, 30, 0.95);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             flex-shrink: 0;
             display: flex;
-            gap: 12px;
+            gap: 8px;
             align-items: flex-end;
+            padding-bottom: env(safe-area-inset-bottom, 0.8rem);
         }
         .quest-input-area textarea {
             flex: 1;
-            border-radius: 28px;
+            border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 12px 18px;
-            font-size: 0.85rem;
+            padding: 10px 14px;
+            font-size: 0.82rem;
             resize: none;
-            min-height: 48px;
-            max-height: 130px;
+            min-height: 40px;
+            max-height: 100px;
             font-family: inherit;
             background: rgba(255, 255, 255, 0.04);
             color: #e2e8f0;
             transition: border 0.2s, background 0.2s;
             line-height: 1.5;
+            -webkit-appearance: none;
         }
         .quest-input-area textarea:focus {
             border-color: #2b5f8a;
@@ -476,9 +503,9 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            font-size: 1.1rem;
+            width: 44px;
+            height: 44px;
+            font-size: 1rem;
             cursor: pointer;
             transition: 0.2s;
             flex-shrink: 0;
@@ -486,10 +513,11 @@
             align-items: center;
             justify-content: center;
             border: 1px solid rgba(58, 124, 165, 0.2);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        .quest-input-area .send-btn:hover {
-            background: #1a4a6e;
-            transform: scale(1.04);
+        .quest-input-area .send-btn:active {
+            transform: scale(0.92);
         }
         .quest-input-area .send-btn:disabled {
             opacity: 0.4;
@@ -507,6 +535,7 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.92);
             backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             z-index: 3000;
             align-items: center;
             justify-content: center;
@@ -518,23 +547,25 @@
             max-width: 92%;
             max-height: 92%;
             object-fit: contain;
-            border-radius: 20px;
+            border-radius: 16px;
             box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
         }
         .lightbox .close-lb {
             position: absolute;
-            top: 24px;
-            right: 32px;
-            font-size: 2.2rem;
+            top: 20px;
+            right: 24px;
+            font-size: 2rem;
             color: rgba(255, 255, 255, 0.7);
             background: none;
             border: none;
             cursor: pointer;
             transition: 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            padding: 8px 12px;
         }
-        .lightbox .close-lb:hover {
-            color: #fff;
-            transform: scale(1.1);
+        .lightbox .close-lb:active {
+            transform: scale(0.9);
         }
 
         /* ===== RESPONSIVE ===== */
@@ -551,73 +582,72 @@
                 width: 100%;
                 justify-content: center;
             }
-            .quest-header {
-                padding: 0.5rem 0.8rem 0.5rem 1rem;
-                min-height: 52px;
-                flex-wrap: wrap;
-                gap: 4px;
+            .quest-messages .msg {
+                font-size: 0.8rem;
+                padding: 9px 12px;
+                max-width: 96%;
             }
-            .quest-header .brand {
-                font-size: 0.85rem;
-                gap: 8px;
+            .quest-input-area textarea {
+                font-size: 0.8rem;
+                padding: 9px 12px;
+                min-height: 38px;
             }
-            .quest-header .brand i {
-                font-size: 1.1rem;
+            .quest-input-area .send-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 0.9rem;
+            }
+            .chat-image-strip img {
+                width: 60px;
+                height: 48px;
+            }
+            .sop-ref-tag {
+                font-size: 0.55rem;
+                padding: 2px 8px;
+            }
+            .quest-header .brand small {
+                display: none;
             }
             .quest-header .header-actions .exit-btn span {
                 display: none;
             }
+            .quest-header .header-actions .exit-btn {
+                padding: 4px 10px;
+                font-size: 0.65rem;
+            }
             .quest-header .header-actions .api-status-badge {
                 font-size: 0.5rem;
-                padding: 3px 10px;
+                padding: 3px 8px;
             }
             .api-key-row {
-                flex-wrap: wrap;
-                gap: 6px;
-                padding: 0.4rem 1rem;
+                padding: 0.3rem 0.6rem;
             }
             .api-key-row.open {
-                padding: 0.4rem 1rem;
-                max-height: 120px;
+                padding: 0.4rem 0.6rem;
+                max-height: 90px;
             }
             .api-key-row input {
-                min-width: 100px;
-                font-size: 0.75rem;
-                padding: 5px 12px;
+                font-size: 0.7rem;
+                padding: 5px 10px;
+                min-width: 80px;
+            }
+            .api-key-row label {
+                font-size: 0.6rem;
             }
             .api-key-row .api-hint {
-                font-size: 0.55rem;
+                font-size: 0.5rem;
             }
             .quest-messages {
-                padding: 0.8rem 1rem;
-                gap: 12px;
-            }
-            .quest-messages .msg {
-                font-size: 0.82rem;
-                padding: 10px 14px;
-                max-width: 96%;
-            }
-            .quest-input-area {
-                padding: 0.6rem 0.8rem 1rem 0.8rem;
+                padding: 0.6rem 0.6rem;
                 gap: 8px;
             }
-            .quest-input-area textarea {
-                font-size: 0.82rem;
-                padding: 10px 14px;
-                min-height: 42px;
+            .quest-header {
+                padding: 0.5rem 0.6rem 0.5rem 0.8rem;
+                min-height: 48px;
             }
-            .quest-input-area .send-btn {
-                width: 44px;
-                height: 44px;
-                font-size: 1rem;
-            }
-            .chat-image-strip img {
-                width: 70px;
-                height: 56px;
-            }
-            .sop-ref-tag {
-                font-size: 0.65rem;
-                padding: 3px 10px;
+            .quest-input-area {
+                padding: 0.4rem 0.5rem 0.6rem 0.5rem;
+                gap: 6px;
             }
         }
 
@@ -625,12 +655,26 @@
             .landing-title {
                 font-size: 1.6rem;
             }
-            .quest-header .brand small {
-                display: none;
+            .landing-desc {
+                font-size: 0.82rem;
             }
-            .quest-header .header-actions .exit-btn {
-                padding: 4px 12px;
-                font-size: 0.7rem;
+            .btn-quest-launch {
+                font-size: 0.85rem;
+                padding: 12px 24px;
+            }
+            .quest-messages .msg {
+                font-size: 0.75rem;
+                padding: 8px 10px;
+            }
+            .quest-input-area textarea {
+                font-size: 0.75rem;
+                padding: 8px 10px;
+                min-height: 34px;
+            }
+            .quest-input-area .send-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 0.8rem;
             }
         }
 
@@ -653,11 +697,17 @@
             .quest-messages .msg {
                 max-width: 80%;
             }
+            .quest-header .brand small {
+                display: inline;
+            }
+            .quest-header .header-actions .exit-btn span {
+                display: inline;
+            }
         }
 
         /* scrollbar styling */
         .quest-messages::-webkit-scrollbar {
-            width: 4px;
+            width: 3px;
         }
         .quest-messages::-webkit-scrollbar-track {
             background: transparent;
@@ -668,6 +718,18 @@
         }
         .quest-messages::-webkit-scrollbar-thumb:hover {
             background: #3a7ca5;
+        }
+
+        /* Fix for mobile keyboard */
+        .quest-panel.active {
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        /* Prevent zoom on focus for iOS */
+        .quest-input-area textarea,
+        .api-key-row input {
+            font-size: 16px !important;
         }
     </style>
 </head>
@@ -715,7 +777,7 @@
         <!-- API key row (toggle) -->
         <div class="api-key-row" id="apiKeyRow">
             <label><i class="fas fa-key"></i> API Key</label>
-            <input type="password" id="apiKeyInput" placeholder="sk-..." />
+            <input type="password" id="apiKeyInput" placeholder="sk-..." inputmode="text" autocomplete="off" />
             <span class="api-hint" id="apiHint">🔑 belum diset</span>
         </div>
 
@@ -723,11 +785,11 @@
         <div class="quest-messages" id="questMessages">
             <div class="msg assistant">
                 <div class="msg-label">🤖 Asisten SOP</div>
-                <p style="font-size:0.85rem; color:#c8dae8;">
+                <p style="font-size:0.82rem; color:#c8dae8;">
                     Halo! Siap membantu menganalisis SOP Anda.
                     <br />Masukkan <strong>API Key DeepSeek</strong> di atas, lalu tanyakan apa pun tentang prosedur operasional.
                 </p>
-                <p style="font-size:0.75rem; color:#4a6a7a; margin-top:10px;">
+                <p style="font-size:0.7rem; color:#4a6a7a; margin-top:8px;">
                     <i class="fas fa-lightbulb"></i> Contoh: "Bagaimana prosedur handle keluhan tagihan?"
                 </p>
             </div>
@@ -735,7 +797,7 @@
 
         <!-- input -->
         <div class="quest-input-area">
-            <textarea id="questInput" rows="1" placeholder="Tanyakan tentang SOP…"></textarea>
+            <textarea id="questInput" rows="1" placeholder="Tanyakan tentang SOP…" inputmode="text"></textarea>
             <button class="send-btn" id="sendQuestBtn"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
@@ -809,10 +871,8 @@
                         updatedAt: note.updatedAt || new Date().toISOString()
                     }));
                 } else {
-                    // Fallback sample SOP jika Firebase kosong
                     notesArray = getSampleSops();
                 }
-                // Update AI context (no re-render needed for chat)
             }, (err) => {
                 console.warn('Firebase read error, using samples:', err);
                 notesArray = getSampleSops();
@@ -884,7 +944,7 @@
         apiBadge.addEventListener('click', () => {
             apiKeyRow.classList.toggle('open');
             if (apiKeyRow.classList.contains('open')) {
-                apiKeyInput.focus();
+                setTimeout(() => apiKeyInput.focus(), 100);
             }
         });
 
@@ -896,12 +956,9 @@
             landingWrapper.classList.add('hidden');
             questPanel.classList.add('active');
             document.body.style.overflow = 'hidden';
-            // focus input after transition
             setTimeout(() => questInput.focus(), 400);
-            // sync API key
             apiKeyInput.value = aiApiKey;
             updateApiUI();
-            // if no API key, open the key row
             if (!aiApiKey) {
                 setTimeout(() => apiKeyRow.classList.add('open'), 500);
             }
@@ -918,7 +975,6 @@
         launchBtn.addEventListener('click', enterQuest);
         exitBtn.addEventListener('click', exitQuest);
 
-        // Escape key to exit
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && isQuestActive) {
                 exitQuest();
@@ -955,7 +1011,7 @@
             <li>• [poin 2]</li>
             <li>• [poin 3]</li>
             </ul></div>
-            <p style="margin-top:8px;font-size:0.85rem;color:#8ba6c9;">📌 Berdasarkan SOP yang tersedia.</p>
+            <p style="margin-top:6px;font-size:0.8rem;color:#8ba6c9;">📌 Berdasarkan SOP yang tersedia.</p>
 
             DATA SOP:
             ${sopContext}
@@ -989,7 +1045,6 @@
             let content = data.choices?.[0]?.message?.content ||
                 'Maaf, saya tidak dapat memproses permintaan.';
 
-            // Ensure SOP analysis format
             if (!content.includes('sop-analysis')) {
                 const lines = content.split('\n').filter(l => l.trim());
                 let analysis = '';
@@ -1000,11 +1055,11 @@
                 if (analysis) {
                     content =
                         `<div class="sop-analysis"><strong>📋 Analisis SOP</strong><ul>${analysis}</ul></div>
-                                   <p style="margin-top:8px;font-size:0.85rem;color:#8ba6c9;">📌 Berdasarkan SOP yang tersedia.</p>`;
+                                   <p style="margin-top:6px;font-size:0.8rem;color:#8ba6c9;">📌 Berdasarkan SOP yang tersedia.</p>`;
                 } else {
                     content =
                         `<div class="sop-analysis"><strong>📋 Analisis SOP</strong><ul><li>• Tidak ada informasi spesifik dalam SOP untuk pertanyaan ini.</li></ul></div>
-                                   <p style="margin-top:8px;font-size:0.85rem;color:#8ba6c9;">💡 Saran: hubungi tim teknis untuk bantuan lebih lanjut.</p>`;
+                                   <p style="margin-top:6px;font-size:0.8rem;color:#8ba6c9;">💡 Saran: hubungi tim teknis untuk bantuan lebih lanjut.</p>`;
                 }
             }
 
@@ -1027,7 +1082,6 @@
             for (const note of notesArray) {
                 const titleLower = note.title.toLowerCase();
                 const catLower = note.category.toLowerCase();
-                // check if title or category appears in plain text
                 if (plain.includes(titleLower) || plain.includes(catLower)) {
                     if (!mentioned.some(s => s.firebaseId === note.firebaseId)) {
                         mentioned.push(note);
@@ -1035,9 +1089,7 @@
                 }
             }
 
-            // fallback: if no title match, try keyword matching from question
             if (mentioned.length === 0) {
-                // use the last user question from messages
                 const lastUserMsg = document.querySelector('.msg.user:last-child');
                 if (lastUserMsg) {
                     const q = lastUserMsg.textContent.toLowerCase();
@@ -1127,7 +1179,7 @@
             const div = document.createElement('div');
             div.className = 'msg assistant';
             let html =
-                `<div class="msg-label" style="margin-top:6px;">🖼️ Gambar dari SOP terkait</div>
+                `<div class="msg-label" style="margin-top:4px;">🖼️ Gambar dari SOP terkait</div>
                          <div class="chat-image-strip">`;
             images.forEach(img => {
                 html +=
@@ -1139,7 +1191,6 @@
             questMessages.scrollTop = questMessages.scrollHeight;
         }
 
-        // Expose for inline onclick
         window.openLightboxFromChat = function(src) {
             lightboxImg.src = src;
             lightbox.classList.add('active');
@@ -1173,7 +1224,6 @@
                 const sopContext = getSopContext();
                 const response = await callDeepSeek(question, sopContext);
 
-                // Extract referenced SOPs
                 const referenced = extractReferencedSops(response);
 
                 let finalHtml = response;
@@ -1185,8 +1235,8 @@
                                 </span>`
                     ).join(' ');
                     finalHtml =
-                        `<div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
-                                    <span style="font-size:0.7rem;color:#6c86a3;font-weight:500;margin-right:4px;">📌 Sumber SOP:</span>
+                        `<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+                                    <span style="font-size:0.65rem;color:#6c86a3;font-weight:500;margin-right:2px;">📌 Sumber SOP:</span>
                                     ${tagHtml}
                                 </div>` +
                         finalHtml;
@@ -1195,7 +1245,6 @@
                 removeTyping(typingId);
                 appendMessage('assistant', finalHtml);
 
-                // Images
                 let imagesToShow = [];
                 if (referenced.length > 0) {
                     for (const sop of referenced) {
@@ -1216,8 +1265,8 @@
                 removeTyping(typingId);
                 appendMessage('assistant',
                     `<p style="color:#f87171;">⚠️ Error: ${escapeHtml(err.message)}</p>
-                              <p style="font-size:0.8rem;color:#6c86a3;margin-top:8px;">Pastikan API Key valid dan coba lagi.</p>`
-                    );
+                              <p style="font-size:0.75rem;color:#6c86a3;margin-top:6px;">Pastikan API Key valid dan coba lagi.</p>`
+                );
                 console.error(err);
             } finally {
                 isProcessing = false;
@@ -1240,7 +1289,7 @@
 
         questInput.addEventListener('input', () => {
             questInput.style.height = 'auto';
-            questInput.style.height = Math.min(questInput.scrollHeight, 130) + 'px';
+            questInput.style.height = Math.min(questInput.scrollHeight, 100) + 'px';
         });
 
         // Lightbox
@@ -1261,23 +1310,22 @@
             if (tag) {
                 const sopId = tag.dataset.sopId;
                 if (sopId) {
-                    // Show SOP detail as a message
                     const note = notesArray.find(n => n.firebaseId === sopId);
                     if (note) {
                         let detailHtml =
-                            `<div style="background:rgba(255,255,255,0.03);border-radius:16px;padding:12px 16px;border:1px solid rgba(255,255,255,0.05);">
+                            `<div style="background:rgba(255,255,255,0.03);border-radius:14px;padding:10px 14px;border:1px solid rgba(255,255,255,0.05);">
                                         <strong style="color:#8fcbff;">📄 ${escapeHtml(note.title)}</strong>
-                                        <div style="margin:6px 0 4px 0;font-size:0.75rem;color:#6c86a3;">
+                                        <div style="margin:4px 0 3px 0;font-size:0.7rem;color:#6c86a3;">
                                             <i class="fas fa-tag"></i> ${escapeHtml(note.category)}
                                         </div>
-                                        <div style="font-size:0.82rem;color:#c8dae8;white-space:pre-wrap;margin-top:6px;">${escapeHtml(note.content)}</div>
+                                        <div style="font-size:0.78rem;color:#c8dae8;white-space:pre-wrap;margin-top:4px;">${escapeHtml(note.content)}</div>
                                     </div>`;
                         if (note.images && note.images.length) {
                             let imgHtml =
-                                `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">`;
+                                `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">`;
                             note.images.slice(0, 4).forEach(img => {
                                 imgHtml +=
-                                    `<img src="${img}" style="width:70px;height:56px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,0.06);cursor:pointer;" onclick="openLightboxFromChat('${img}')" loading="lazy"/>`;
+                                    `<img src="${img}" style="width:60px;height:48px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.06);cursor:pointer;" onclick="openLightboxFromChat('${img}')" loading="lazy"/>`;
                             });
                             imgHtml += `</div>`;
                             detailHtml += imgHtml;
@@ -1296,7 +1344,6 @@
             window.visualViewport.addEventListener('resize', () => {
                 const currentHeight = window.visualViewport.height;
                 if (currentHeight < lastHeight) {
-                    // keyboard opened — scroll input into view
                     const inputArea = document.querySelector('.quest-input-area');
                     if (inputArea) {
                         setTimeout(() => {
@@ -1314,7 +1361,6 @@
         listenNotes();
         updateApiUI();
 
-        // If API key already exists, show status
         if (aiApiKey) {
             apiBadge.className = 'api-status-badge ok';
             apiBadgeLabel.textContent = '✓ aktif';
